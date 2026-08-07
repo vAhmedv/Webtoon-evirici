@@ -17,7 +17,8 @@ from application.progress import ProgressEvent
 from core.config import Config, load_config
 from core.coordinate.global_coords import GlobalCoordinateSystem
 from core.coordinate.sliding_window import generate_windows_for_pages
-from core.detection import Region, RegionStatus, RegionType
+from core.detection import Detection, Region, RegionStatus, RegionType
+from core.detection.coordinate import window_bbox_to_global
 from core.detection.merge import merge_duplicates
 from core.imaging.window_extractor import extract_window_image, WindowImage
 from core.io.input_loader import load_chapter
@@ -168,7 +169,23 @@ class ChapterAnalyzer:
 
             window_image = extract_window_image(tuple(pages), window, coords)
             detections = detector.detect(window_image.image, window.id)
-            all_detections.extend(detections)
+
+            # Provider local WindowImage koordinatları üretir.
+            # Merge duplicate öncesinde global chapter koordinatına çevir.
+            global_detections: list[Detection] = []
+            for det in detections:
+                global_bbox = window_bbox_to_global(det.bbox, window.y_start)
+                global_det = Detection(
+                    bbox=global_bbox,
+                    confidence=det.confidence,
+                    type=det.type,
+                    source_window_id=det.source_window_id,
+                    mask=det.mask,
+                    metadata=det.metadata,
+                )
+                global_detections.append(global_det)
+
+            all_detections.extend(global_detections)
 
             vis = draw_detections(window_image.image, detections, window_y_start=window.y_start)
             vis_path = visualization_dir / f"window_{window.id:03d}.png"

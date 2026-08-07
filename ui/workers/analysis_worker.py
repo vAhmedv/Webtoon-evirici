@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 import traceback
 from pathlib import Path
 from typing import Any
@@ -12,7 +13,8 @@ from application.cancellation import CancellationToken, CancelledError
 from application.chapter_analyzer import AnalysisResult, ChapterAnalyzer
 from application.progress import ProgressEvent
 from core.config import Config
-from providers.detector.base import DetectorProvider
+from loguru import logger
+from providers.detector.registry import get_registry
 
 
 class AnalysisWorker(QThread):
@@ -34,14 +36,14 @@ class AnalysisWorker(QThread):
         self,
         chapter_path: str | Path,
         output_path: str | Path,
-        detector: DetectorProvider,
+        detector_name: str,
         config: Config,
         parent: Any = None,
     ) -> None:
         super().__init__(parent)
         self.chapter_path = chapter_path
         self.output_path = output_path
-        self.detector = detector
+        self._detector_name = detector_name
         self.config = config
         self._cancellation_token = CancellationToken()
 
@@ -55,19 +57,42 @@ class AnalysisWorker(QThread):
 
     def run(self) -> None:
         """Thread giriş noktası."""
+        worker_thread_id = threading.get_ident()
+        logger.debug(f"[THREAD] AnalysisWorker.run thread id: {worker_thread_id}")
+
         analyzer = ChapterAnalyzer(self.config)
 
         def on_progress(event: ProgressEvent) -> None:
             self.progress.emit(event)
 
         try:
-            result = analyzer.analyze(
-                chapter_path=self.chapter_path,
-                output_path=self.output_path,
-                detector=self.detector,
-                progress_callback=on_progress,
-                cancellation_token=self._cancellation_token,
-            )
+            logger.debug(f"[THREAD] Creating detector '{self._detector_name}' in worker thread")
+            provider = get_registry().create(self._detector_name)
+            logger.debug(f"[THREAD] Provider created: {type(provider).__name__}")
+
+            if hasattr(provider, "confidence_threshold"):
+                provider.confidence_threshold = self.config.min_confidence
+                logger.debug(
+                    f"[THREAD] Provider confidence set to {self.config.min_confidence}"
+                )
+
+            logger.debug(f"[THREAD] Loading detector...")
+            provider.load()
+            logger.debug(f"[THREAD] Detector loaded")
+
+            try:
+                result = analyzer.analyze(
+                    chapter_path=self.chapter_path,
+                    output_path=self.output_path,
+                    detector=provider,
+                    progress_callback=on_progress,
+                    cancellation_token=self._cancellation_token,
+                )
+            finally:
+                logger.debug(f"[THREAD] Unloading detector...")
+                provider.unload()
+                logger.debug(f"[THREAD] Detector unloaded")
+
             if self._cancellation_token.is_cancelled:
                 self.cancelled.emit()
             else:

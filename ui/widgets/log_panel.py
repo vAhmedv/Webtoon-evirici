@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import threading
 from typing import Optional
 
 from PySide6.QtCore import QObject, Signal, Qt
@@ -10,6 +11,11 @@ from PySide6.QtGui import QTextCursor
 from PySide6.QtWidgets import QTextEdit, QVBoxLayout, QPushButton, QWidget
 
 from loguru import logger
+
+
+class QtLogEmitter(QObject):
+    """loguru mesajlarını GUI thread'ine iletmek için Qt sinyal emiteri."""
+    message = Signal(str)
 
 
 class LogPanel(QWidget):
@@ -27,21 +33,43 @@ class LogPanel(QWidget):
         layout.addWidget(self._text_edit)
         layout.addWidget(self._clear_btn, 0, Qt.AlignRight)
 
-        self._log_handler = _QtLogHandler(self._append_log)
-        logger.add(self._log_handler, format="{time:HH:mm:ss} | {message}", level="DEBUG")
+        self._emitter = QtLogEmitter(self)
+        self._handler_id = logger.add(
+            self._emit_log,
+            format="{time:HH:mm:ss} | {message}",
+            level="DEBUG",
+        )
+        self._emitter.message.connect(self._append_log)
+
+    def _emit_log(self, message: str) -> None:
+        """loguru sink callback — thread-safe sinyal emit."""
+        if getattr(self, "_emitting", False):
+            return
+        self._emitting = True
+        try:
+            logger.debug(f"[THREAD] Log sink receiving thread id: {threading.get_ident()}")
+            self._emitter.message.emit(message.rstrip())
+        finally:
+            self._emitting = False
 
     def _append_log(self, message: str) -> None:
-        self._text_edit.append(message)
-        cursor = self._text_edit.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        self._text_edit.setTextCursor(cursor)
+        """GUI thread'de QTextEdit'i günceller."""
+        if getattr(self, "_appending", False):
+            return
+        self._appending = True
+        try:
+            logger.debug(f"[THREAD] LogPanel.append slot thread id: {threading.get_ident()}")
+            self._text_edit.append(message)
+            cursor = self._text_edit.textCursor()
+            cursor.movePosition(QTextCursor.End)
+            self._text_edit.setTextCursor(cursor)
+        finally:
+            self._appending = False
 
-
-class _QtLogHandler:
-    """loguru handler that emits Qt-safe signals."""
-
-    def __init__(self, callback) -> None:
-        self._callback = callback
-
-    def write(self, message: str) -> None:
-        self._callback(message.rstrip())
+    def cleanup(self) -> None:
+        """Loguru handler'ını kaldırır ve sinyal bağlantısını temizler."""
+        try:
+            self._emitter.message.disconnect(self._append_log)
+        except RuntimeError:
+            pass
+        logger.remove(self._handler_id)

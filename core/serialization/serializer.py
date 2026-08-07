@@ -20,6 +20,17 @@ def dict_to_bbox(data: dict[str, Any]) -> BBox:
     return BBox(x1=int(data["x1"]), y1=int(data["y1"]), x2=int(data["x2"]), y2=int(data["y2"]))
 
 
+def _serialize_mask(mask: Any) -> Any:
+    """Mask/polygon verisini JSON güvenli biçime çevirir."""
+    if mask is None:
+        return None
+    if hasattr(mask, "tolist"):
+        return mask.tolist()
+    if isinstance(mask, (list, tuple)):
+        return list(mask)
+    return None
+
+
 def detection_to_dict(det: Detection) -> dict[str, Any]:
     """Detection'ı JSON güvenli dict'e çevirir."""
     return {
@@ -27,7 +38,7 @@ def detection_to_dict(det: Detection) -> dict[str, Any]:
         "confidence": float(det.confidence),
         "type": det.type.value,
         "source_window_id": int(det.source_window_id),
-        "mask": None,
+        "mask": _serialize_mask(det.mask),
         "metadata": dict(det.metadata),
     }
 
@@ -45,6 +56,7 @@ def region_to_dict(reg: Region) -> dict[str, Any]:
         "ocr_confidence": reg.ocr_confidence,
         "translation": reg.translation,
         "review_reason": reg.review_reason,
+        "metadata": dict(reg.metadata),
     }
 
 
@@ -73,4 +85,5 @@ def dict_to_region(data: dict[str, Any]) -> Region:
         ocr_confidence=float(data["ocr_confidence"]) if data.get("ocr_confidence") is not None else None,
         translation=data.get("translation"),
         review_reason=data.get("review_reason"),
+        metadata=dict(data.get("metadata", {})),
     )

@@ -33,15 +33,17 @@ def merge_duplicates(
     center_distance_threshold: int = 200,
     min_confidence: float = 0.5,
 ) -> list[Region]:
-    """Window-local Detection listesini global Region listesine çevirir ve
+    """Global koordinatlı Detection listesini canonical Region listesine çevirir ve
     aynı içerikli olanları birleştirir.
 
-    Girdi: window-local Detection'lar (her biri farklı window'dan gelebilir).
+    Girdi: GLOBAL koordinatlı Detection'lar (chapter_analyzer tarafından
+    local→global dönüşümü yapılmış olmalı).
+
     Çıktı: global canonical Region listesi.
 
     Args:
-        detections: Tüm window'lardan gelen Detection listesi.
-        iou_threshold: Üst üste bmx IoU eşiği (0.0-1.0).
+        detections: Tüm window'lardan gelen GLOBAL Detection listesi.
+        iou_threshold: Üst üste bbox IoU eşiği (0.0-1.0).
         center_distance_threshold: Merkez nokta piksel mesafe eşiği.
         min_confidence: Kalite kapısı minimum güven eşiği.
 
@@ -51,11 +53,9 @@ def merge_duplicates(
     if not detections:
         return []
 
-    # Detection'ları önce global koordinata çevir
+    # Girdi zaten global koordinatlıdır; chapter_analyzer dönüşümü yapar.
     global_detections: list[tuple[Detection, BBox]] = []
     for det in detections:
-        # Detection bbox'ı zaten global olmalı; burada doğrulama yok,
-        # dönüşüm pipeline'ının öncesinde yapılması varsayılır.
         global_detections.append((det, det.bbox))
 
     # Basit greedy merge
@@ -105,6 +105,7 @@ def merge_duplicates(
             detection_confidence=region_confidence,
             source_window_ids=tuple(sorted(source_windows)),
             status=status,
+            metadata=det_i.metadata,
         )
         merged.append(region)
 

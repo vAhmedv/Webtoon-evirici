@@ -8,7 +8,7 @@ Not: ultralytics paketi gerekir (opsiyonel dependency).
 
 from __future__ import annotations
 
-import os
+import logging
 from pathlib import Path
 from typing import Sequence
 
@@ -24,11 +24,12 @@ MODEL_URL = "https://huggingface.co/ogkalu/comic-text-segmenter-yolov8m/resolve/
 class Yolo8ComicTextDetector(DetectorProvider):
     """YOLOv8-based comic text segmenter provider."""
 
-    def __init__(self, model_path: str | Path | None = None) -> None:
+    def __init__(self, model_path: str | Path | None = None, confidence_threshold: float = 0.25) -> None:
         self._model_path = Path(model_path) if model_path else Path(__file__).resolve().parent.parent.parent / "models" / "detectors" / "yolo8_comic" / MODEL_FILENAME
         self._loaded = False
         self._device = "cpu"
         self._model = None
+        self._confidence_threshold = confidence_threshold
 
     @property
     def name(self) -> str:
@@ -41,6 +42,14 @@ class Yolo8ComicTextDetector(DetectorProvider):
     @property
     def device(self) -> str:
         return self._device
+
+    @property
+    def confidence_threshold(self) -> float:
+        return self._confidence_threshold
+
+    @confidence_threshold.setter
+    def confidence_threshold(self, value: float) -> None:
+        self._confidence_threshold = float(value)
 
     def load(self) -> None:
         if self._loaded:
@@ -97,7 +106,7 @@ class Yolo8ComicTextDetector(DetectorProvider):
 
         results = self._model.predict(
             img_array,
-            conf=0.25,
+            conf=self._confidence_threshold,
             iou=0.45,
             imgsz=1024,
             device=self._device,
@@ -116,16 +125,29 @@ class Yolo8ComicTextDetector(DetectorProvider):
         confs = r.boxes.conf.cpu().numpy()
         classes = r.boxes.cls.cpu().numpy()
 
-        for bbox, conf, cls in zip(boxes, confs, classes):
+        masks_xy = None
+        if r.masks is not None and hasattr(r.masks, "xy") and len(r.masks.xy) == len(boxes):
+            masks_xy = [poly.cpu().numpy() if hasattr(poly, "cpu") else np.asarray(poly) for poly in r.masks.xy]
+
+        for idx, (bbox, conf, cls) in enumerate(zip(boxes, confs, classes)):
             x1, y1, x2, y2 = bbox.astype(int).tolist()
             if x2 <= x1 or y2 <= y1:
                 continue
+
+            metadata: dict[str, object] = {}
+            if masks_xy is not None and idx < len(masks_xy):
+                poly = masks_xy[idx]
+                if len(poly) >= 3:
+                    metadata["polygon"] = poly.tolist()
+
             detections.append(
                 Detection(
                     bbox=BBox(x1=x1, y1=y1, x2=x2, y2=y2),
                     confidence=float(conf),
                     type=RegionType.UNKNOWN,
                     source_window_id=window_id,
+                    mask=None,
+                    metadata=metadata,
                 )
             )
 

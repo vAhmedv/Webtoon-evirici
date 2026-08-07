@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import threading
 from pathlib import Path
 from typing import Optional
 
@@ -27,6 +28,7 @@ from PySide6.QtWidgets import (
 from application.chapter_analyzer import AnalysisResult, ChapterAnalyzer
 from application.progress import ProgressEvent
 from core.config import Config, load_config
+from loguru import logger
 from providers.detector.registry import get_registry
 from ui.widgets.image_viewer import ImageViewer
 from ui.widgets.log_panel import LogPanel
@@ -39,6 +41,7 @@ class MainWindow(QWidget):
 
     def __init__(self, parent: Optional[object] = None) -> None:
         super().__init__(parent)
+        logger.debug(f"[THREAD] MainWindow thread id: {threading.get_ident()}")
         self.setWindowTitle("Webtoon Çevirici")
         self.resize(1400, 900)
 
@@ -51,12 +54,36 @@ class MainWindow(QWidget):
         self._build_ui()
         self._populate_detectors()
 
+    def closeEvent(self, event) -> None:
+        """Pencere kapanırken log handler'ını temizle."""
+        if hasattr(self, "log_panel") and self.log_panel is not None:
+            self.log_panel.cleanup()
+        super().closeEvent(event)
+
     def _populate_detectors(self) -> None:
         self.detector_combo.clear()
         registry = get_registry()
-        for name in registry.list_providers():
+        providers = registry.list_providers()
+        for name in providers:
             self.detector_combo.addItem(name)
-        if self.detector_combo.count() == 0:
+
+        # YOLO'yu varsayılan olarak seç, eğer model mevcutsa.
+        preferred = "YOLOv8 Comic Text Segmenter"
+        if preferred in providers:
+            try:
+                provider = registry.create(preferred)
+                model_path = getattr(provider, "_model_path", None)
+                if model_path and Path(model_path).exists():
+                    self.detector_combo.setCurrentText(preferred)
+                else:
+                    if providers:
+                        self.detector_combo.setCurrentIndex(0)
+            except Exception:
+                if providers:
+                    self.detector_combo.setCurrentIndex(0)
+        elif providers:
+            self.detector_combo.setCurrentIndex(0)
+        else:
             self.detector_combo.addItem("DummyDetector")
 
     def _create_selected_detector(self):
@@ -256,6 +283,18 @@ class MainWindow(QWidget):
             QMessageBox.critical(self, "Invalid Settings", "Window height and overlap must be integers.")
             return
 
+        detector_name = self.detector_combo.currentText()
+        if not detector_name:
+            QMessageBox.warning(self, "Missing Detector", "Please select a detector.")
+            self._set_running_state(False)
+            return
+
+        registry = get_registry()
+        if detector_name not in registry.list_providers():
+            QMessageBox.critical(self, "Invalid Detector", f"Detector '{detector_name}' is not available.")
+            self._set_running_state(False)
+            return
+
         self._set_running_state(True)
         self._result = None
         self.region_table.set_regions([])
@@ -264,15 +303,10 @@ class MainWindow(QWidget):
         self.image_viewer.set_pixmap(QPixmap())
         self._reset_summary()
 
-        detector = self._create_selected_detector()
-        if detector is None:
-            self._set_running_state(False)
-            return
-
         self._worker = AnalysisWorker(
             chapter_path=chapter_path,
             output_path=output_path,
-            detector=detector,
+            detector_name=detector_name,
             config=self.config,
         )
         self._worker.progress.connect(self._on_progress)

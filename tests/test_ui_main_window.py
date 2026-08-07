@@ -11,7 +11,6 @@ from PySide6.QtWidgets import QApplication
 
 from ui.main_window import MainWindow
 from ui.workers.analysis_worker import AnalysisWorker
-from providers.detector.dummy import DummyDetector
 from core.config import Config
 
 
@@ -43,11 +42,10 @@ def test_initial_button_states(qapp) -> None:
 def test_worker_can_be_created() -> None:
     """AnalysisWorker örneklenebilir."""
     config = Config()
-    detector = DummyDetector(seed=42)
     worker = AnalysisWorker(
         chapter_path="/tmp",
         output_path="/tmp/out",
-        detector=detector,
+        detector_name="DummyDetector",
         config=config,
     )
     assert worker is not None

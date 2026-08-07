@@ -69,6 +69,7 @@ class Region:
         ocr_confidence: OCR güven skoru (ileride).
         translation: Çeviri (ileride).
         review_reason: REVIEW durumunda açıklama.
+        metadata: Provider/mask/ek veri (opsiyonel).
     """
 
     id: int
@@ -81,3 +82,4 @@ class Region:
     ocr_confidence: float | None = None
     translation: str | None = None
     review_reason: str | None = None
+    metadata: dict[str, object] = field(default_factory=dict)
