@@ -23,7 +23,7 @@ from pathlib import Path
 from loguru import logger
 
 from core.detection import BBox
-from providers.ocr.base import OCRProvider, OCRResult
+from providers.ocr.base import OCRLine, OCRProvider, OCRResult
 
 
 class PaddleOCRProvider(OCRProvider):
@@ -131,27 +131,50 @@ class PaddleOCRProvider(OCRProvider):
         total_conf = 0.0
         count = 0
 
-        # PaddleOCR 3.x: predict() sonuç listesi; OCRResult nesneleri.
+        # PaddleOCR 3.x: predict() sonuç listesi; içerikte rec_texts/rec_scores
+        # veya eski rec_res/rec bulunabilir. Ayrıca bazı sürümler sonuçları
+        # nested `res` içinde döndürür.
         for res in results:
             data = res.to_dict() if hasattr(res, "to_dict") else (res if isinstance(res, dict) else {})
-            # rec_res: [["text", score], ...] (recognition, reading order)
-            rec_res = data.get("rec_res") or data.get("rec") or []
-            for item in rec_res:
-                if isinstance(item, (list, tuple)) and len(item) >= 2:
-                    txt = str(item[0])
-                    conf = float(item[1])
-                elif isinstance(item, dict):
-                    txt = str(item.get("text", ""))
-                    conf = float(item.get("score", item.get("confidence", 0.0)))
-                else:
-                    txt = str(item)
-                    conf = 0.0
-                if not txt:
-                    continue
-                lines.append(OCRLine(text=txt, confidence=conf))
-                texts.append(txt)
-                total_conf += conf
-                count += 1
+            inner = data.get("res", data)
+            if not isinstance(inner, dict):
+                inner = {}
+
+            rec_texts = inner.get("rec_texts") or inner.get("rec_text") or []
+            rec_scores = inner.get("rec_scores") or inner.get("rec_score") or []
+
+            if rec_texts and rec_scores and len(rec_texts) == len(rec_scores):
+                for txt, conf in zip(rec_texts, rec_scores):
+                    txt = str(txt)
+                    try:
+                        conf = float(conf)
+                    except (TypeError, ValueError):
+                        conf = 0.0
+                    if not txt:
+                        continue
+                    lines.append(OCRLine(text=txt, confidence=conf))
+                    texts.append(txt)
+                    total_conf += conf
+                    count += 1
+            else:
+                # Geri dönüşüm: eski rec_res / rec beklenen form.
+                rec_res = inner.get("rec_res") or inner.get("rec") or []
+                for item in rec_res:
+                    if isinstance(item, (list, tuple)) and len(item) >= 2:
+                        txt = str(item[0])
+                        conf = float(item[1])
+                    elif isinstance(item, dict):
+                        txt = str(item.get("text", ""))
+                        conf = float(item.get("score", item.get("confidence", 0.0)))
+                    else:
+                        txt = str(item)
+                        conf = 0.0
+                    if not txt:
+                        continue
+                    lines.append(OCRLine(text=txt, confidence=conf))
+                    texts.append(txt)
+                    total_conf += conf
+                    count += 1
 
         raw_text = "\n".join(texts)
         normalized = " ".join(texts).strip()
