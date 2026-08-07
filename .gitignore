@@ -1,0 +1,36 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Environment / secrets
+.env
+.env.*
+
+# AI models
+models/
+*.gguf
+*.safetensors
+*.ckpt
+*.pth
+*.pt
+*.onnx
+*.engine
+
+# Manga / generated data
+input/
+output/
+outputs/
+translated/
+projects/
+cache/
+temp/
+tmp/
+
+# Logs
+*.log
+
+# Windows
+Thumbs.db
+Desktop.ini

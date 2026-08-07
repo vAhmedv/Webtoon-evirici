@@ -1,0 +1,41 @@
+# Webtoon Çevirici — Ana Yapılandırma
+# Tüm önemli parametreler burada tutulur. Hard-code edilmez.
+
+# --- Sliding Window (Phase 1) ---
+window_height: 5000        # Pencere yüksekliği (piksel)
+window_overlap: 1000       # Pencereler arası örtüşme (piksel)
+
+# --- Girdi ---
+input_extensions:
+  - .webp
+  - .png
+  - .jpg
+  - .jpeg
+
+# --- Çıktı ---
+output_format: webp        # webp | png | jpg
+
+# --- Loglama ---
+log_level: INFO            # DEBUG | INFO | WARNING | ERROR
+log_file: logs/latest.log
+
+# --- İleride eklenecek modeller (şimdi kullanılmaz) ---
+detector:
+  enabled: false
+  model: null
+
+ocr:
+  enabled: false
+  engine: null
+
+translator:
+  enabled: false
+  provider: null
+  qwen_model: null
+
+inpainter:
+  enabled: false
+  model: null
+
+# --- Kalite eşikleri (ileride kullanılacak) ---
+min_confidence: 0.5
