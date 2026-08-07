@@ -207,21 +207,26 @@ class TestYoloProvider:
             assert all(len(p) == 2 for p in poly)
 
     @pytest.mark.skipif(not _has_yolo_model(), reason="YOLO model not available")
-    def test_yolo_confidence_threshold(self) -> None:
-        """Confidence threshold config'den gelmeli."""
-        det = Yolo8ComicTextDetector(confidence_threshold=0.9)
-        assert det.confidence_threshold == 0.9
+    def test_yolo_confidence_threshold_is_single_source_of_truth(self) -> None:
+        """YOLO confidence threshold tek source of truth'tur: provider.confidence_threshold."""
+        det = Yolo8ComicTextDetector()
         det.load()
         img = Image.new("RGB", (1024, 1024), (255, 255, 255))
         draw = ImageDraw.Draw(img)
         draw.text((100, 200), "Hello", fill=(0, 0, 0))
 
-        detections_low = det.detect(img, window_id=0)
-        det.confidence_threshold = 0.1
-        detections_high = det.detect(img, window_id=0)
-        det.unload()
+        # threshold=0.5 → tüm detections >= 0.5
+        det.confidence_threshold = 0.5
+        detections_05 = det.detect(img, window_id=0)
+        assert all(d.confidence >= 0.5 for d in detections_05)
 
-        assert len(detections_high) >= len(detections_low)
+        # threshold=0.3 → >=0.3 detection'lar gelebilir ve count artar
+        det.confidence_threshold = 0.3
+        detections_03 = det.detect(img, window_id=0)
+        assert all(d.confidence >= 0.3 for d in detections_03)
+        assert len(detections_03) >= len(detections_05)
+
+        det.unload()
 
 
 # ---------------------------------------------------------------------------

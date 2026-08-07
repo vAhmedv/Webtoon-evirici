@@ -153,6 +153,8 @@ class ChapterAnalyzer:
 
         # 4. Load detector
         _progress("Loading detector")
+        if hasattr(detector, "confidence_threshold"):
+            detector.confidence_threshold = conf
         detector.load()
 
         # 5. Detect
