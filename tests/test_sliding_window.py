@@ -26,7 +26,10 @@ def test_generate_windows_basic() -> None:
     # Toplam 13000, window 5000, overlap 1000 -> step 4000
     windows = generate_windows(13000, 5000, 1000)
 
-    assert len(windows) == 4
+    # Kod, y_end >= total_height olduğunda durur.
+    # 12000-13000 penceresi 8000-13000 içinde tamamen gömülmüştür,
+    # bu yüzden 3 pencere yeterlidir.
+    assert len(windows) == 3
 
     assert windows[0].id == 0
     assert windows[0].y_start == 0
@@ -39,11 +42,6 @@ def test_generate_windows_basic() -> None:
     assert windows[2].id == 2
     assert windows[2].y_start == 8000
     assert windows[2].y_end == 13000
-
-    # Son window tam sınıra denk gelir
-    assert windows[3].id == 3
-    assert windows[3].y_start == 12000
-    assert windows[3].y_end == 13000
 
 
 def test_generate_windows_small_total() -> None:
@@ -129,9 +127,8 @@ def test_generate_windows_for_pages_multi_window() -> None:
 
     # Window 2: 3000-5000 -> sayfa 3, 4
     assert windows[2].page_indices == (3, 4)
-
-    # Window 3: 4500-5000 -> sayfa 4
-    assert windows[3].page_indices == (4,)
+    # 3000-5000 penceresi toplamı (5000) kapsadığından durur.
+    # 4500-5000 penceresi 3000-5000 içinde gömülmüştir, gereksizdir.
 
 
 def test_window_contains_y() -> None:
