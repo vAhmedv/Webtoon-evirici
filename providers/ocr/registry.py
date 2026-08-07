@@ -33,6 +33,11 @@ class OCRRegistry:
         try:
             from providers.ocr.paddleocr import PaddleOCRProvider
             self.register("PaddleOCR-PP-OCRv6", PaddleOCRProvider, status="candidate")
+            self.register(
+                "PaddleOCR English v5",
+                lambda: PaddleOCRProvider(model_name="en_PP-OCRv5_mobile_rec"),
+                status="candidate",
+            )
         except Exception:
             pass
 
