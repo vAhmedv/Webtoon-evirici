@@ -5,7 +5,9 @@ Core pipeline'ı UI'dan bağımsız olarak orchestrate eder.
 
 from __future__ import annotations
 
+import io
 import json
+import os
 import time
 from pathlib import Path
 from typing import Callable, Sequence
@@ -17,15 +19,23 @@ from application.progress import ProgressEvent
 from core.config import Config, load_config
 from core.coordinate.global_coords import GlobalCoordinateSystem
 from core.coordinate.sliding_window import generate_windows_for_pages
-from core.detection import Detection, Region, RegionStatus, RegionType
-from core.detection.coordinate import window_bbox_to_global
+from core.detection import Detection, DetectionCache, Region, RegionStatus, RegionType
+from core.detection.cache import CACHE_PATH
+from core.detection.coordinate import (
+    window_bbox_to_global,
+    global_bbox_to_window,
+    window_polygon_to_global,
+    global_polygon_to_window,
+)
 from core.detection.merge import merge_duplicates
 from core.imaging.window_extractor import extract_window_image, WindowImage
+from core.imaging.region_cropper import RegionCropper
 from core.io.input_loader import load_chapter
 from core.models import Page, Window
 from core.serialization.serializer import region_to_dict
 from core.visualization.draw import draw_detections, draw_regions
 from providers.detector.base import DetectorProvider
+from providers.ocr.base import OCRProvider
 
 
 ProgressCallback = Callable[[ProgressEvent], None]
@@ -44,6 +54,7 @@ class AnalysisResult:
         elapsed_time: Analiz süresi (saniye).
         visualization_paths: Her window için görselleştirme yolları.
         warnings: Oluşan uyarılar.
+        ocr_elapsed_time: OCR süresi (saniye).
     """
 
     def __init__(
@@ -54,6 +65,7 @@ class AnalysisResult:
         elapsed_time: float,
         visualization_paths: list[Path] | None = None,
         warnings: list[str] | None = None,
+        ocr_elapsed_time: float = 0.0,
     ) -> None:
         self.pages = pages
         self.windows = windows
@@ -64,6 +76,7 @@ class AnalysisResult:
         self.elapsed_time = elapsed_time
         self.visualization_paths = visualization_paths or []
         self.warnings = warnings or []
+        self.ocr_elapsed_time = ocr_elapsed_time
 
 
 class ChapterAnalyzer:
@@ -74,6 +87,11 @@ class ChapterAnalyzer:
 
     def __init__(self, config: Config | None = None) -> None:
         self.config = config if config is not None else load_config()
+        self._cache = DetectionCache(
+            cache_path=CACHE_PATH,
+            max_entries=self.config.detection.max_cache_entries,
+            enabled=self.config.detection.enabled,
+        )
 
     def analyze(
         self,
@@ -85,6 +103,7 @@ class ChapterAnalyzer:
         min_confidence: float | None = None,
         progress_callback: ProgressCallback | None = None,
         cancellation_token: CancellationToken | None = None,
+        ocr_provider: OCRProvider | None = None,
     ) -> AnalysisResult:
         """Bölüm analizini çalıştırır.
 
@@ -97,15 +116,10 @@ class ChapterAnalyzer:
             min_confidence: Minimum güven eşiği (config.yaml override).
             progress_callback: İlerleme bildirimi callback'i.
             cancellation_token: İptal belirteci.
+            ocr_provider: Opsiyonel OCR sağlayıcı.
 
         Returns:
             AnalysisResult.
-
-        Raises:
-            FileNotFoundError: chapter_path yoksa.
-            ValueError: chapter_path boşsa veya görüntü yoksa.
-            RuntimeError: detector hatası olursa.
-            CancelledError: Kullanıcı iptal ederse.
         """
         start_time = time.time()
         chapter_path = Path(chapter_path)
@@ -157,6 +171,10 @@ class ChapterAnalyzer:
             detector.confidence_threshold = conf
         detector.load()
 
+        # Cache: get model identity for cache key
+        model_id, model_mtime = _get_model_identity(detector)
+        self._cache.load()
+
         # 5. Detect
         all_detections: list = []
         visualization_dir = output_path / "analysis" / "windows"
@@ -170,22 +188,43 @@ class ChapterAnalyzer:
             _progress("Detecting", current=idx, total=len(windows), message=f"Window {idx}/{len(windows)}")
 
             window_image = extract_window_image(tuple(pages), window, coords)
-            detections = detector.detect(window_image.image, window.id)
 
-            # Provider local WindowImage koordinatları üretir.
-            # Merge duplicate öncesinde global chapter koordinatına çevir.
-            global_detections: list[Detection] = []
-            for det in detections:
-                global_bbox = window_bbox_to_global(det.bbox, window.y_start)
-                global_det = Detection(
-                    bbox=global_bbox,
-                    confidence=det.confidence,
-                    type=det.type,
-                    source_window_id=det.source_window_id,
-                    mask=det.mask,
-                    metadata=det.metadata,
-                )
-                global_detections.append(global_det)
+            # Cache lookup / store
+            image_bytes = _image_to_bytes(window_image.image)
+            page_hash = DetectionCache.compute_hash(image_bytes)
+            cached = self._cache.get(page_hash, model_id, model_mtime)
+
+            if cached is not None:
+                # Cache HIT: use cached global detections directly
+                global_detections = cached
+                # Convert back to window-local for visualization
+                detections = [_global_detection_to_window(d, window.y_start) for d in cached]
+                logger.debug(f"Window {window.id}: cache HIT")
+            else:
+                # Cache MISS: run YOLO, convert to global, cache
+                detections = detector.detect(window_image.image, window.id)
+
+                # Provider local WindowImage koordinatları üretir.
+                # Merge duplicate öncesinde global chapter koordinatına çevir.
+                global_detections: list[Detection] = []
+                for det in detections:
+                    global_bbox = window_bbox_to_global(det.bbox, window.y_start)
+                    metadata = dict(det.metadata)
+                    polygon = metadata.get("polygon")
+                    if isinstance(polygon, list) and len(polygon) > 0:
+                        metadata["polygon"] = window_polygon_to_global(polygon, window.y_start)
+                    global_det = Detection(
+                        bbox=global_bbox,
+                        confidence=det.confidence,
+                        type=det.type,
+                        source_window_id=det.source_window_id,
+                        mask=det.mask,
+                        metadata=metadata,
+                    )
+                    global_detections.append(global_det)
+
+                # Store in cache (store global detections)
+                self._cache.put(page_hash, model_id, model_mtime, global_detections)
 
             all_detections.extend(global_detections)
 
@@ -193,6 +232,10 @@ class ChapterAnalyzer:
             vis_path = visualization_dir / f"window_{window.id:03d}.png"
             vis.save(vis_path)
             window_visualization_paths.append(vis_path)
+
+        # Save cache after all detection
+        self._cache.save()
+        logger.info(f"Detection cache saved: {len(self._cache._entries)} entries")
 
         detector.unload()
 
@@ -208,6 +251,55 @@ class ChapterAnalyzer:
             _replace_status(reg, RegionStatus.REVIEW) if reg.status == RegionStatus.AUTO and reg.detection_confidence < conf else reg
             for reg in regions
         ]
+
+        if cancellation_token and cancellation_token.is_cancelled:
+            raise CancelledError()
+
+        # 7.5 OCR (opsiyonel)
+        ocr_start = 0.0
+        ocr_elapsed = 0.0
+        if ocr_provider is not None:
+            _progress("Loading OCR")
+            try:
+                ocr_provider.load()
+            except Exception as e:
+                logger.error(f"OCR provider yüklenemedi: {e}")
+                warnings.append(f"OCR load failed: {e}")
+                ocr_provider = None
+
+            if ocr_provider is not None:
+                cropper = RegionCropper(pages, coords, padding=20)
+                ocr_start = time.time()
+                ocr_regions: list[Region] = []
+                for idx, region in enumerate(regions, start=1):
+                    if cancellation_token and cancellation_token.is_cancelled:
+                        raise CancelledError()
+                    _progress("OCR", current=idx, total=len(regions), message=f"OCR {idx}/{len(regions)}")
+                    try:
+                        crop = cropper.crop_region(region)
+                        result = ocr_provider.recognize(crop.image, region_bbox=region.global_bbox)
+                        if result.text:
+                            ocr_regions.append(
+                                _replace_region(
+                                    region,
+                                    text=result.text,
+                                    ocr_confidence=result.confidence,
+                                    metadata={**region.metadata, "ocr_warnings": result.warnings},
+                                )
+                            )
+                        else:
+                            warnings.extend(result.warnings)
+                            ocr_regions.append(region)
+                    except Exception as e:
+                        logger.error(f"OCR failed for region {region.id}: {e}")
+                        warnings.append(f"OCR region {region.id}: {e}")
+                        ocr_regions.append(region)
+                regions = ocr_regions
+                ocr_elapsed = time.time() - ocr_start
+                try:
+                    ocr_provider.unload()
+                except Exception:
+                    pass
 
         if cancellation_token and cancellation_token.is_cancelled:
             raise CancelledError()
@@ -268,6 +360,7 @@ class ChapterAnalyzer:
             elapsed_time=elapsed,
             visualization_paths=window_visualization_paths + [preview_path],
             warnings=warnings,
+            ocr_elapsed_time=ocr_elapsed,
         )
 
     def _render_global_preview(
@@ -324,15 +417,85 @@ def _replace(config: Config, **kwargs) -> Config:
 
 def _replace_status(region: Region, new_status: RegionStatus) -> Region:
     """Region durumunu değiştirir (yeni Region döndürür)."""
-    return Region(
-        id=region.id,
-        global_bbox=region.global_bbox,
-        type=region.type,
-        detection_confidence=region.detection_confidence,
-        source_window_ids=region.source_window_ids,
+    from dataclasses import replace
+
+    return replace(
+        region,
         status=new_status,
-        text=region.text,
-        ocr_confidence=region.ocr_confidence,
-        translation=region.translation,
-        review_reason=region.review_reason,
+    )
+
+
+def _replace_region(region: Region, **kwargs) -> Region:
+    """Region alanlarını değiştirir (yeni Region döndürür)."""
+    from dataclasses import replace
+
+    allowed = {
+        "id",
+        "global_bbox",
+        "type",
+        "detection_confidence",
+        "source_window_ids",
+        "status",
+        "text",
+        "ocr_confidence",
+        "translation",
+        "review_reason",
+        "metadata",
+    }
+    filtered = {k: v for k, v in kwargs.items() if k in allowed}
+    return replace(region, **filtered)
+
+
+def _get_model_identity(detector: DetectorProvider) -> tuple[str, str | float]:
+    """Detector'dan model_id ve model_mtime çıkarır.
+
+    Args:
+        detector: DetectorProvider instance.
+
+    Returns:
+        (model_id, model_mtime) tuple.
+        model_id: model dosya yolu stringi veya provider name.
+        model_mtime: model dosyasının mtime (float) veya "unknown" string.
+    """
+    model_path = getattr(detector, "_model_path", None)
+    if model_path is not None and Path(model_path).exists():
+        model_id = str(Path(model_path).resolve())
+        try:
+            model_mtime = os.path.getmtime(str(model_path))
+        except OSError:
+            model_mtime = "unknown"
+    else:
+        model_id = getattr(detector, "name", "unknown")
+        model_mtime = "unknown"
+    return model_id, model_mtime
+
+
+def _image_to_bytes(image) -> bytes:
+    """PIL Image'ı deterministic byte string'e çevirir (PNG encode)."""
+    if hasattr(image, "tobytes"):
+        return image.tobytes()
+    buf = io.BytesIO()
+    if hasattr(image, "save"):
+        image.save(buf, format="PNG")
+    elif isinstance(image, bytes):
+        return image
+    else:
+        buf.write(bytes(image))
+    return buf.getvalue()
+
+
+def _global_detection_to_window(det: Detection, window_y_start: int) -> Detection:
+    """Global Detection'ı window-local koordinata çevirir (visualization için)."""
+    local_bbox = global_bbox_to_window(det.bbox, window_y_start)
+    metadata = dict(det.metadata)
+    polygon = metadata.get("polygon")
+    if isinstance(polygon, list) and len(polygon) > 0:
+        metadata["polygon"] = global_polygon_to_window(polygon, window_y_start)
+    return Detection(
+        bbox=local_bbox,
+        confidence=det.confidence,
+        type=det.type,
+        source_window_id=det.source_window_id,
+        mask=det.mask,
+        metadata=metadata,
     )

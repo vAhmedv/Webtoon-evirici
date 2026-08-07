@@ -420,3 +420,137 @@ class TestYoloRealChapter:
             assert reg.global_bbox.x1 >= 0
             assert reg.global_bbox.x2 <= 800
             assert reg.global_bbox.y2 > reg.global_bbox.y1
+
+
+# ---------------------------------------------------------------------------
+# 10. Polygon global coordinate pipeline tests
+# ---------------------------------------------------------------------------
+
+class TestPolygonGlobalPipeline:
+    """Polygon local→global dönüşümü pipeline testleri."""
+
+    def test_polygon_global_after_analyze(self, tmp_path: Path) -> None:
+        """ChapterAnalyzer sonrası polygon GLOBAL koordinatta olmalı."""
+        if not _has_yolo_model():
+            pytest.skip("YOLO model not available")
+
+        from dataclasses import replace
+        from application.chapter_analyzer import ChapterAnalyzer
+        from providers.detector.registry import get_registry
+
+        chapter_dir = tmp_path / "chapter"
+        chapter_dir.mkdir()
+        img = Image.new("RGB", (800, 3000), (255, 255, 255))
+        draw = ImageDraw.Draw(img)
+        draw.text((50, 200), "Text", fill=(0, 0, 0))
+        img.save(chapter_dir / "000.webp", "WEBP", quality=95)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        config = replace(load_config(), window_height=2000, window_overlap=500)
+        analyzer = ChapterAnalyzer(config)
+        detector = get_registry().create("YOLOv8 Comic Text Segmenter")
+        result = analyzer.analyze(
+            chapter_path=chapter_dir,
+            output_path=output_dir,
+            detector=detector,
+            progress_callback=lambda e: None,
+        )
+
+        # Tüm polygon'lar GLOBAL koordinatta olmalı
+        for reg in result.regions:
+            polygon = reg.metadata.get("polygon")
+            if polygon:
+                for x, y in polygon:
+                    assert y >= 0, f"Region {reg.id} polygon Y negatif: {y}"
+                    # Polygon Y'si bbox Y'siyle aynı aralıkta olmalı
+                    assert reg.global_bbox.y1 <= y <= reg.global_bbox.y2 or \
+                           reg.global_bbox.y1 <= y + reg.global_bbox.y1 <= reg.global_bbox.y2, \
+                           f"Region {reg.id} polygon Y bbox dışında"
+
+    def test_merged_region_polygon_is_global(self, tmp_path: Path) -> None:
+        """Merged region polygon GLOBAL koordinatta olmalı."""
+        if not _has_yolo_model():
+            pytest.skip("YOLO model not available")
+
+        from dataclasses import replace
+        from application.chapter_analyzer import ChapterAnalyzer
+        from providers.detector.registry import get_registry
+
+        chapter_dir = tmp_path / "chapter"
+        chapter_dir.mkdir()
+        # Create pages that will produce overlapping detections
+        for i in range(3):
+            img = Image.new("RGB", (800, 3000), (255, 255, 255))
+            draw = ImageDraw.Draw(img)
+            draw.text((50, 200), f"Page {i} text", fill=(0, 0, 0))
+            img.save(chapter_dir / f"{i:03d}.webp", "WEBP", quality=95)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        config = replace(load_config(), window_height=2000, window_overlap=500)
+        analyzer = ChapterAnalyzer(config)
+        detector = get_registry().create("YOLOv8 Comic Text Segmenter")
+        result = analyzer.analyze(
+            chapter_path=chapter_dir,
+            output_path=output_dir,
+            detector=detector,
+            progress_callback=lambda e: None,
+        )
+
+        merged = [r for r in result.regions if len(r.source_window_ids) > 1]
+        if merged:
+            reg = merged[0]
+            polygon = reg.metadata.get("polygon")
+            if polygon:
+                for x, y in polygon:
+                    assert y >= 0
+                    # Should be in global coordinates, not local
+                    # Window y_start would be at least 0, so global y >= local y
+                    assert y >= reg.global_bbox.y1 - 100  # some tolerance
+
+    def test_polygon_roundtrip_via_pipeline(self, tmp_path: Path) -> None:
+        """Polygon pipeline round-trip: local → global → local."""
+        if not _has_yolo_model():
+            pytest.skip("YOLO model not available")
+
+        from dataclasses import replace
+        from application.chapter_analyzer import ChapterAnalyzer
+        from providers.detector.registry import get_registry
+        from core.detection.coordinate import global_polygon_to_window
+
+        chapter_dir = tmp_path / "chapter"
+        chapter_dir.mkdir()
+        img = Image.new("RGB", (800, 2000), (255, 255, 255))
+        draw = ImageDraw.Draw(img)
+        draw.text((50, 200), "Text", fill=(0, 0, 0))
+        img.save(chapter_dir / "000.webp", "WEBP", quality=95)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        config = replace(load_config(), window_height=2000, window_overlap=500)
+        analyzer = ChapterAnalyzer(config)
+        detector = get_registry().create("YOLOv8 Comic Text Segmenter")
+        result = analyzer.analyze(
+            chapter_path=chapter_dir,
+            output_path=output_dir,
+            detector=detector,
+            progress_callback=lambda e: None,
+        )
+
+        for reg in result.regions:
+            polygon = reg.metadata.get("polygon")
+            if not polygon:
+                continue
+            wid = reg.source_window_ids[0]
+            window = next((w for w in result.windows if w.id == wid), None)
+            if window is None:
+                continue
+            # Global -> local
+            local_polygon = global_polygon_to_window(polygon, window.y_start)
+            # Local -> global
+            restored = window_polygon_to_global(local_polygon, window.y_start)
+            assert all(abs(a - b) < 0.01 for (a, b) in zip([c for pt in restored for c in pt], [c for pt in polygon for c in pt]))

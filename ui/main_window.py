@@ -30,6 +30,7 @@ from application.progress import ProgressEvent
 from core.config import Config, load_config
 from loguru import logger
 from providers.detector.registry import get_registry
+from providers.ocr.registry import get_ocr_registry
 from ui.widgets.image_viewer import ImageViewer
 from ui.widgets.log_panel import LogPanel
 from ui.widgets.region_table import RegionTable
@@ -97,6 +98,16 @@ class MainWindow(QWidget):
             QMessageBox.critical(self, "Detector Error", f"Failed to create detector '{name}':\n{e}")
             return None
 
+    def _populate_ocr(self) -> None:
+        self.ocr_combo.clear()
+        registry = get_ocr_registry()
+        providers = registry.list_providers()
+        for name in providers:
+            self.ocr_combo.addItem(name)
+        if self.ocr_combo.count() == 0:
+            self.ocr_combo.addItem("None")
+            self.ocr_combo.setEnabled(False)
+
     def _build_ui(self) -> None:
         root = QVBoxLayout(self)
         root.setContentsMargins(16, 16, 16, 16)
@@ -149,6 +160,12 @@ class MainWindow(QWidget):
         self._populate_detectors()
         self.detector_combo.setFixedWidth(180)
         settings_layout.addWidget(self.detector_combo)
+
+        settings_layout.addWidget(QLabel("OCR"))
+        self.ocr_combo = QComboBox()
+        self._populate_ocr()
+        self.ocr_combo.setFixedWidth(180)
+        settings_layout.addWidget(self.ocr_combo)
 
         settings_layout.addStretch(1)
         root.addWidget(settings_group)
@@ -295,6 +312,10 @@ class MainWindow(QWidget):
             self._set_running_state(False)
             return
 
+        ocr_name = self.ocr_combo.currentText()
+        if not ocr_name or ocr_name == "None":
+            ocr_name = None
+
         self._set_running_state(True)
         self._result = None
         self.region_table.set_regions([])
@@ -308,6 +329,7 @@ class MainWindow(QWidget):
             output_path=output_path,
             detector_name=detector_name,
             config=self.config,
+            ocr_name=ocr_name,
         )
         self._worker.progress.connect(self._on_progress)
         self._worker.result.connect(self._on_result)

@@ -14,6 +14,7 @@ from application.chapter_analyzer import AnalysisResult, ChapterAnalyzer
 from application.progress import ProgressEvent
 from core.config import Config
 from core.detection import RegionStatus
+from core.detection.cache import DetectionCache
 from providers.detector.dummy import DummyDetector
 
 
@@ -135,3 +136,58 @@ def test_dummy_detector_produces_regions(tmp_path: Path) -> None:
     assert len(result.regions) > 0
     statuses = {r.status for r in result.regions}
     assert RegionStatus.SKIP in statuses or RegionStatus.AUTO in statuses or RegionStatus.REVIEW in statuses
+
+
+def test_detection_cache_hit_skips_yolo(tmp_path: Path) -> None:
+    """İkinci çalıştırma cache hit olur, YOLO tekrar çalışmaz."""
+    from PIL import Image, ImageDraw
+
+    chapter_dir = tmp_path / "chapter"
+    chapter_dir.mkdir()
+
+    for i in range(2):
+        img = Image.new("RGB", (800, 1000), (200, 200, 200))
+        draw = ImageDraw.Draw(img)
+        draw.text((20, 20), f"Page {i}", fill=(0, 0, 0))
+        img.save(chapter_dir / f"{i:03d}.webp", "WEBP", quality=95)
+
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+
+    config = Config()
+    analyzer = ChapterAnalyzer(config)
+    detector = DummyDetector(seed=42)
+
+    result1 = analyzer.analyze(
+        chapter_path=chapter_dir,
+        output_path=output_dir,
+        detector=detector,
+    )
+    assert len(result1.regions) > 0
+
+    call_count = 0
+    original_detect = detector.detect
+
+    def counting_detect(image, window_id):
+        nonlocal call_count
+        call_count += 1
+        return original_detect(image, window_id)
+
+    detector.detect = counting_detect
+
+    output_dir2 = tmp_path / "output2"
+    output_dir2.mkdir()
+
+    result2 = analyzer.analyze(
+        chapter_path=chapter_dir,
+        output_path=output_dir2,
+        detector=detector,
+    )
+    assert len(result2.regions) > 0
+
+    # Cache should have reduced the number of detect calls
+    # (windows that were cached don't call detector.detect again)
+    assert call_count < len(result1.windows)
+
+    # Clean up cache
+    analyzer._cache.flush()

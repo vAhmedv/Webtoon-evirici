@@ -15,6 +15,8 @@ from application.progress import ProgressEvent
 from core.config import Config
 from loguru import logger
 from providers.detector.registry import get_registry
+from providers.ocr.base import OCRProvider
+from providers.ocr.registry import get_ocr_registry
 
 
 class AnalysisWorker(QThread):
@@ -38,6 +40,7 @@ class AnalysisWorker(QThread):
         output_path: str | Path,
         detector_name: str,
         config: Config,
+        ocr_name: str | None = None,
         parent: Any = None,
     ) -> None:
         super().__init__(parent)
@@ -45,6 +48,7 @@ class AnalysisWorker(QThread):
         self.output_path = output_path
         self._detector_name = detector_name
         self.config = config
+        self._ocr_name = ocr_name
         self._cancellation_token = CancellationToken()
 
     def request_cancel(self) -> None:
@@ -65,6 +69,7 @@ class AnalysisWorker(QThread):
         def on_progress(event: ProgressEvent) -> None:
             self.progress.emit(event)
 
+        ocr_provider: OCRProvider | None = None
         try:
             logger.debug(f"[THREAD] Creating detector '{self._detector_name}' in worker thread")
             provider = get_registry().create(self._detector_name)
@@ -80,6 +85,13 @@ class AnalysisWorker(QThread):
             provider.load()
             logger.debug(f"[THREAD] Detector loaded")
 
+            if self._ocr_name:
+                try:
+                    ocr_provider = get_ocr_registry().create(self._ocr_name)
+                    logger.debug(f"[THREAD] OCR provider created: {type(ocr_provider).__name__}")
+                except Exception as e:
+                    logger.warning(f"[THREAD] OCR provider '{self._ocr_name}' could not be created: {e}")
+
             try:
                 result = analyzer.analyze(
                     chapter_path=self.chapter_path,
@@ -87,11 +99,18 @@ class AnalysisWorker(QThread):
                     detector=provider,
                     progress_callback=on_progress,
                     cancellation_token=self._cancellation_token,
+                    ocr_provider=ocr_provider,
                 )
             finally:
                 logger.debug(f"[THREAD] Unloading detector...")
                 provider.unload()
                 logger.debug(f"[THREAD] Detector unloaded")
+
+            if ocr_provider is not None:
+                try:
+                    ocr_provider.unload()
+                except Exception:
+                    pass
 
             if self._cancellation_token.is_cancelled:
                 self.cancelled.emit()

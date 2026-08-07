@@ -1,12 +1,18 @@
 """Duplicate detection merge modülü.
 
 Aynı içerik birden fazla window'da tespit edilirse tek canonical Region
-üretmek için IoU ve mesafe bazlı birleştirme yapar.
+üretmek için IoU ve merkez mesafe bazlı birleştirme yapar.
+
+Coordinate contract:
+- Girdi `Detection` listesi GLOBAL chapter koordinatlıdır (chapter_analyzer
+  local→global dönüşümünü yaptıktan sonra gelir).
+- `metadata["polygon"]` aynı GLOBAL koordinattadır; merge seed'e bağlı
+  olarak korunur. Hiçbir zaman window-local polygon karıştırılmaz.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from loguru import logger
 
 from .bbox import BBox
 from .detection import Detection, Region, RegionStatus, RegionType
@@ -14,6 +20,11 @@ from .detection import Detection, Region, RegionStatus, RegionType
 
 def _regions_are_compatible(a: Region, b: Region) -> bool:
     """İki Region'un aynı türde olup olmadığını kontrol eder."""
+    return a.type == b.type
+
+
+def _detections_are_compatible(a: Detection, b: Detection) -> bool:
+    """İki Detection'un aynı türde olup olmadığını kontrol eder."""
     return a.type == b.type
 
 
@@ -25,6 +36,38 @@ def _compute_merged_bbox(a: BBox, b: BBox) -> BBox:
         x2=max(a.x2, b.x2),
         y2=max(a.y2, b.y2),
     )
+
+
+def _polygon_of(det: Detection) -> list[list[float]] | None:
+    """Detection'dan GLOBAL polygon okur (varsa)."""
+    meta = det.metadata
+    if not isinstance(meta, dict):
+        return None
+    poly = meta.get("polygon")
+    if isinstance(poly, list) and len(poly) > 0:
+        return [[float(x), float(y)] for x, y in poly]
+    return None
+
+
+def _select_group_polygon(members: list[Detection]) -> list[list[float]] | None:
+    """Merge grubunun üyelerinden polygon seçer.
+
+    Kural (Phase 3D): highest-confidence detection'ın GLOBAL polygon'unu koru.
+    Girdi detection'ları zaten global'e dönüştürülmüştür (chapter_analyzer),
+    bu yüzden seçilen polygon da GLOBAL koordinattadır.
+    """
+    if not members:
+        return None
+    best_conf = -1.0
+    best_polygon: list[list[float]] | None = None
+    for det in members:
+        poly = _polygon_of(det)
+        if poly is None:
+            continue
+        if det.confidence > best_conf:
+            best_conf = det.confidence
+            best_polygon = poly
+    return best_polygon
 
 
 def merge_duplicates(
@@ -39,7 +82,8 @@ def merge_duplicates(
     Girdi: GLOBAL koordinatlı Detection'lar (chapter_analyzer tarafından
     local→global dönüşümü yapılmış olmalı).
 
-    Çıktı: global canonical Region listesi.
+    Çıktı: global canonical Region listesi. Region içinde koordinat sistemi
+    tek olur: ``global_bbox`` ve ``metadata["polygon"]`` ikisi de GLOBAL'dir.
 
     Args:
         detections: Tüm window'lardan gelen GLOBAL Detection listesi.
@@ -54,9 +98,9 @@ def merge_duplicates(
         return []
 
     # Girdi zaten global koordinatlıdır; chapter_analyzer dönüşümü yapar.
-    global_detections: list[tuple[Detection, BBox]] = []
-    for det in detections:
-        global_detections.append((det, det.bbox))
+    global_detections: list[tuple[Detection, BBox]] = [
+        (det, det.bbox) for det in detections
+    ]
 
     # Basit greedy merge
     merged: list[Region] = []
@@ -69,11 +113,14 @@ def merge_duplicates(
         region_bbox = bbox_i
         region_confidence = det_i.confidence
         source_windows: set[int] = {det_i.source_window_id}
+        # Bu grup (region) için merge'e katılan detection'lar. Polygon seçiminde
+        # yalnızca bu üyeler arasından seçilir.
+        group_members: list[Detection] = [det_i]
 
         for j, (det_j, bbox_j) in enumerate(global_detections):
             if j == i or j in used:
                 continue
-            if not _regions_are_compatible(det_i, det_j):
+            if not _detections_are_compatible(det_i, det_j):
                 continue
 
             iou = bbox_i.iou(bbox_j)
@@ -91,12 +138,25 @@ def merge_duplicates(
             region_bbox = _compute_merged_bbox(region_bbox, bbox_j)
             region_confidence = max(region_confidence, det_j.confidence)
             source_windows.add(det_j.source_window_id)
+            group_members.append(det_j)
             used.add(j)
 
         used.add(i)
 
         # Safety gate ataması (basit kural seti)
         status = _assign_status(det_i.type, region_confidence, min_confidence)
+
+        # Merged region için polygon: highest-confidence üyenin GLOBAL polygon'u.
+        best_polygon = _select_group_polygon(group_members)
+
+        merged_metadata: dict = {}
+        seed_meta = det_i.metadata
+        if isinstance(seed_meta, dict):
+            merged_metadata.update(seed_meta)
+        if best_polygon is not None:
+            merged_metadata["polygon"] = best_polygon
+        else:
+            merged_metadata.pop("polygon", None)
 
         region = Region(
             id=len(merged),
@@ -105,7 +165,12 @@ def merge_duplicates(
             detection_confidence=region_confidence,
             source_window_ids=tuple(sorted(source_windows)),
             status=status,
-            metadata=det_i.metadata,
+            metadata=merged_metadata,
+        )
+        logger.debug(
+            f"[merge] region={region.id} bbox={region.global_bbox.to_tuple()} "
+            f"conf={region_confidence:.3f} windows={region.source_window_ids} "
+            f"polygon={'global' if best_polygon else 'none'}"
         )
         merged.append(region)
 

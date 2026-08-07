@@ -16,6 +16,16 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 @dataclass(frozen=True)
+class DetectionConfig:
+    """Detection cache ayarları."""
+
+    enabled: bool = True
+    min_confidence: float = 0.5
+    duplicate_iou_threshold: float = 0.5
+    max_cache_entries: int = 512
+
+
+@dataclass(frozen=True)
 class DetectorConfig:
     """Detector ayarları (Phase 3'te kullanılacak)."""
 
@@ -25,10 +35,21 @@ class DetectorConfig:
 
 @dataclass(frozen=True)
 class OCRConfig:
-    """OCR ayarları (Phase 4'te kullanılacak)."""
+    """OCR ayarları (Phase 4).
+
+    Not: ``min_confidence`` OCR confidence gate'i içindir ve detection
+    confidence'dan ayrıdır (``Config.min_confidence``). Bu, spec'e göre
+    "detector inference confidence ile OCR confidence aynı variable
+    olmamalı" gerekliliğini karşılar.
+    """
 
     enabled: bool = False
     engine: str | None = None
+    provider: str | None = None
+    min_confidence: float = 0.5
+    crop_padding: int = 20
+    upscale_small_regions: bool = False
+    upscale_factor: float = 2.0
 
 
 @dataclass(frozen=True)
@@ -62,6 +83,7 @@ class Config:
     log_file: str = "logs/latest.log"
     min_confidence: float = 0.5
     detector: DetectorConfig = field(default_factory=DetectorConfig)
+    detection: DetectionConfig = field(default_factory=DetectionConfig)
     ocr: OCRConfig = field(default_factory=OCRConfig)
     translator: TranslatorConfig = field(default_factory=TranslatorConfig)
     inpainter: InpainterConfig = field(default_factory=InpainterConfig)
@@ -102,6 +124,7 @@ def load_config(path: str | Path | None = None) -> Config:
         log_file=str(raw.get("log_file", "logs/latest.log")),
         min_confidence=float(raw.get("min_confidence", 0.5)),
         detector=DetectorConfig(**raw.get("detector", {})),
+        detection=DetectionConfig(**raw.get("detection", {})),
         ocr=OCRConfig(**raw.get("ocr", {})),
         translator=TranslatorConfig(**raw.get("translator", {})),
         inpainter=InpainterConfig(**raw.get("inpainter", {})),

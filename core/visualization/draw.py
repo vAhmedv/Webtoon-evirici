@@ -1,6 +1,6 @@
 """Detection görselleştirme (debug).
 
-Window veya global/merged region listesi üzerinde bbox çizer.
+Window veya global/merged region listesi üzerinde bbox ve polygon çizer.
 """
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ from typing import Sequence
 from PIL import Image, ImageDraw
 
 from core.detection import BBox, Detection, Region, RegionStatus, RegionType
+from core.detection.coordinate import global_polygon_to_window
 
 # Renk paleti
 _COLORS: dict[RegionType, tuple[int, int, int]] = {
@@ -65,6 +66,15 @@ def draw_detections(
         label = f"{det.type.value}:{det.confidence:.2f}"
         draw.text((bbox.x1, bbox.y1 - 12), label, fill=_type_to_color(det.type))
 
+        # Opsiyonel polygon çizimi (window-local)
+        polygon = det.metadata.get("polygon") if isinstance(det.metadata, dict) else None
+        if isinstance(polygon, list) and len(polygon) >= 3:
+            draw.polygon(
+                [(float(x), float(y)) for x, y in polygon],
+                outline=(255, 0, 0),
+                width=2,
+            )
+
     return out
 
 
@@ -74,7 +84,7 @@ def draw_regions(
     *,
     window_y_start: int = 0,
 ) -> Image.Image:
-    """PIL görüntü üzerine global Region bbox'ları çizer.
+    """PIL görüntü üzerine global Region bbox'ları ve polygon'ları çizer.
 
     Args:
         image: Giriş görüntüsü.
@@ -112,5 +122,17 @@ def draw_regions(
         )
         label = f"R{reg.id}:{reg.type.value}:{reg.status.value}"
         draw.text((clipped.x1, max(0, clipped.y1 - 12)), label, fill=color)
+
+        # Global polygon -> window-local polygon çizimi
+        polygon = reg.metadata.get("polygon") if isinstance(reg.metadata, dict) else None
+        if isinstance(polygon, list) and len(polygon) >= 3:
+            local_polygon = global_polygon_to_window(polygon, window_y_start)
+            # Görüntü sınırları içinde kırp
+            visible_points = []
+            for x, y in local_polygon:
+                if 0 <= y <= image.height and 0 <= x <= image.width:
+                    visible_points.append((x, y))
+            if len(visible_points) >= 3:
+                draw.polygon(visible_points, outline=(0, 255, 255), width=2)
 
     return out

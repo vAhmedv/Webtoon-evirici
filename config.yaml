@@ -27,6 +27,11 @@ detector:
 ocr:
   enabled: false
   engine: null
+  provider: RapidOCR-ONNX   # Kullanılacak OCR provider adı (registry'den).
+  min_confidence: 0.5       # OCR confidence gate (detection confidence'dan AYRILDIR).
+  crop_padding: 20           # Region crop civarı padding (px).
+  upscale_small_regions: false
+  upscale_factor: 2.0
 
 translator:
   enabled: false
@@ -38,9 +43,11 @@ inpainter:
   model: null
 
 # --- Kalite eşikleri (ileride kullanılacak) ---
+# Detection inference confidence ve OCR confidence AYRI değişkendir (config.yaml).
 min_confidence: 0.5
 
 # --- Detection ayarları (Phase 2) ---
 detection:
   min_confidence: 0.5
   duplicate_iou_threshold: 0.5
+  max_cache_entries: 512       # Detection cache maksimum giriş sayısı (LRU eviction)
