@@ -16,5 +16,14 @@ loguru==0.7.2
 # --- İlerleme ---
 tqdm==4.66.5
 
-# --- Test ---
+# --- Masaüstü arayüz ---
+PySide6>=6.6
+
+# --- Test (UI smoke için) ---
 pytest==8.3.2
+
+# --- Opsiyonel: Gerçek detector'lar ---
+# YOLOv8 comic text detector için:
+#   pip install ultralytics
+# CTD (ComicTextDetector) için:
+#   pip install onnxruntime opencv-contrib-python pyclipper shapely

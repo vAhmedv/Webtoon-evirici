@@ -31,6 +31,7 @@ def merge_duplicates(
     detections: list[Detection],
     iou_threshold: float = 0.5,
     center_distance_threshold: int = 200,
+    min_confidence: float = 0.5,
 ) -> list[Region]:
     """Window-local Detection listesini global Region listesine çevirir ve
     aynı içerikli olanları birleştirir.
@@ -42,6 +43,7 @@ def merge_duplicates(
         detections: Tüm window'lardan gelen Detection listesi.
         iou_threshold: Üst üste bmx IoU eşiği (0.0-1.0).
         center_distance_threshold: Merkez nokta piksel mesafe eşiği.
+        min_confidence: Kalite kapısı minimum güven eşiği.
 
     Returns:
         Birleştirilmiş canonical Region listesi.
@@ -94,7 +96,7 @@ def merge_duplicates(
         used.add(i)
 
         # Safety gate ataması (basit kural seti)
-        status = _assign_status(det_i.type, region_confidence)
+        status = _assign_status(det_i.type, region_confidence, min_confidence)
 
         region = Region(
             id=len(merged),
@@ -109,19 +111,17 @@ def merge_duplicates(
     return merged
 
 
-def _assign_status(region_type: RegionType, confidence: float) -> RegionStatus:
+def _assign_status(region_type: RegionType, confidence: float, min_conf: float = 0.5) -> RegionStatus:
     """Kalite kapısı başlangıç durumunu belirler.
 
     Args:
         region_type: Bölge türü.
         confidence: Tespit güven skoru.
+        min_conf: Minimum güven eşiği.
 
     Returns:
         RegionStatus değeri.
     """
-    # Config threshold'u dışarıdan alacağız; ilk sürümde 0.5 varsayılan.
-    min_conf = 0.5
-
     if region_type in (RegionType.SFX, RegionType.WATERMARK):
         return RegionStatus.SKIP
 

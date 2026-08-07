@@ -34,3 +34,10 @@ tmp/
 # Windows
 Thumbs.db
 Desktop.ini
+
+# Models (downloaded separately)
+/models/
+
+# Benchmark data / results
+/benchmark_results/
+/benchmark_data/
