@@ -45,3 +45,6 @@ Desktop.ini
 
 # Graphify output
 graphify-out/
+
+# Kilo project-local tool environments
+.kilo/venvs/
