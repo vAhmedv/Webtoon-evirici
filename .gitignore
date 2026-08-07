@@ -42,3 +42,6 @@ Desktop.ini
 # Benchmark data / results
 /benchmark_results/
 /benchmark_data/
+
+# Graphify output
+graphify-out/
