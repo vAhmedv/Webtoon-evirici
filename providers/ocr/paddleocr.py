@@ -77,12 +77,8 @@ class PaddleOCRProvider(OCRProvider):
                 "Kurulum (isteğe bağlı, env'ı korur): pip install paddleocr\n"
                 "Not: Bu paketin kurulması PyTorch ortamını bozmayacaktır."
             ) from e
-        try:
-            import torch
-
-            self._device = "cuda" if torch.cuda.is_available() else "cpu"
-        except Exception:
-            self._device = "cpu"
+        # Güvenli default: CPU. PaddleOCR API "cpu" / "gpu:0" bekler.
+        self._device = "cpu"
 
         logger.info(
             f"Loading PaddleOCR candidate: rec={self._model_name} "

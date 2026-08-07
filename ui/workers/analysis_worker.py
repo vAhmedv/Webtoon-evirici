@@ -120,4 +120,4 @@ class AnalysisWorker(QThread):
             self.cancelled.emit()
         except Exception as exc:
             tb = traceback.format_exc()
-            self.error.emit(f"{exc}\n{tb}")
+            self.error.emit(f"{type(exc).__name__}: {repr(exc)}\n{tb}")
