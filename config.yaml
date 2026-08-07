@@ -39,3 +39,8 @@ inpainter:
 
 # --- Kalite eşikleri (ileride kullanılacak) ---
 min_confidence: 0.5
+
+# --- Detection ayarları (Phase 2) ---
+detection:
+  min_confidence: 0.5
+  duplicate_iou_threshold: 0.5

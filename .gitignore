@@ -8,8 +8,8 @@ __pycache__/
 .env
 .env.*
 
-# AI models
-models/
+# AI models (repository root only)
+/models/
 *.gguf
 *.safetensors
 *.ckpt
