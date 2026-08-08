@@ -25,9 +25,15 @@ class OCRRegistry:
         self._register_defaults()
 
     def _register_defaults(self) -> None:
+        # PaddleOCR-VL-1.6: primary/default OCR (Transformers native)
+        try:
+            from providers.ocr.paddleocr_vl import PaddleOCRVLOcrProvider
+            self.register("PaddleOCR-VL-1.6", PaddleOCRVLOcrProvider, status="candidate/default")
+        except Exception:
+            pass
         try:
             from providers.ocr.rapid_onnx import RapidONNXOCR
-            self.register("RapidOCR-ONNX", RapidONNXOCR, status="candidate/default")
+            self.register("RapidOCR-ONNX", RapidONNXOCR, status="candidate")
         except Exception:
             pass
         try:

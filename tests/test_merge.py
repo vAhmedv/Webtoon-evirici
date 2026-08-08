@@ -1,4 +1,3 @@
-"""Duplicate merger testleri."""
 
 from __future__ import annotations
 
@@ -92,3 +91,33 @@ def test_low_confidence_review() -> None:
     ]
     regions = merge_duplicates(dets, iou_threshold=0.5)
     assert regions[0].status == RegionStatus.REVIEW
+
+
+def test_containment_merge_keeps_larger_bbox() -> None:
+    """Window sınırı partial/full detection: küçük bbox büyüğün içindeyse
+    daha büyük bbox korunmalı."""
+    # ID 9 bbox = [169,8935,584,8998] (küçük)
+    # ID 13 bbox = [155,8937,591,9119] (büyük)
+    # Küçük bbox ~%96.8 içinde, IoU ~0.316
+    dets = [
+        _make_detection((169, 8935, 584, 8998), window_id=0, confidence=0.9),
+        _make_detection((155, 8937, 591, 9119), window_id=1, confidence=0.95),
+    ]
+    regions = merge_duplicates(dets, iou_threshold=0.5, center_distance_threshold=200)
+    assert len(regions) == 1
+    reg = regions[0]
+    # Büyük bbox korunmalı
+    assert reg.global_bbox == BBox(x1=155, y1=8937, x2=591, y2=9119)
+    assert reg.detection_confidence == 0.95
+    assert set(reg.source_window_ids) == {0, 1}
+
+
+def test_separate_balloons_not_merged_by_containment() -> None:
+    """Yakın ama ayrı balonlar containment eşiğinin altındaysa birleşmez."""
+    # İki ayrı balon, IoU düşük ve containment da %95'in altında
+    dets = [
+        _make_detection((100, 100, 200, 200), window_id=0),
+        _make_detection((210, 100, 310, 200), window_id=0),
+    ]
+    regions = merge_duplicates(dets, iou_threshold=0.5)
+    assert len(regions) == 2

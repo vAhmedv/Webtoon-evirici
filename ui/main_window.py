@@ -107,6 +107,13 @@ class MainWindow(QWidget):
         if self.ocr_combo.count() == 0:
             self.ocr_combo.addItem("None")
             self.ocr_combo.setEnabled(False)
+        else:
+            # PaddleOCR-VL-1.6 primary/default olarak seç
+            preferred = "PaddleOCR-VL-1.6"
+            if preferred in providers:
+                self.ocr_combo.setCurrentText(preferred)
+            else:
+                self.ocr_combo.setCurrentIndex(0)
 
     def _build_ui(self) -> None:
         root = QVBoxLayout(self)

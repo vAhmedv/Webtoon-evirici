@@ -38,6 +38,14 @@ def _compute_merged_bbox(a: BBox, b: BBox) -> BBox:
     )
 
 
+def _containment_ratio(inner: BBox, outer: BBox) -> float:
+    """İç bbox'ın dış bbox içindeki oranını (0.0-1.0) döndürür."""
+    inter = inner.intersection(outer)
+    if inter is None:
+        return 0.0
+    return inter.area / inner.area
+
+
 def _polygon_of(det: Detection) -> list[list[float]] | None:
     """Detection'dan GLOBAL polygon okur (varsa)."""
     meta = det.metadata
@@ -124,8 +132,18 @@ def merge_duplicates(
                 continue
 
             iou = bbox_i.iou(bbox_j)
-            if iou < iou_threshold:
-                continue
+            if iou >= iou_threshold:
+                # Standart IoU merge
+                pass
+            else:
+                # Containment kontrolü: window sınırından kaynaklanan partial/full
+                # detection'ları yakalamak için. Küçük bbox'ın ~%95'i büyük bbox'ın
+                # içindeyse bunlar aynı bubble'ın partial ve full tespitidir.
+                containment = _containment_ratio(bbox_i, bbox_j)
+                reverse_containment = _containment_ratio(bbox_j,bbox_i)
+                max_containment = max(containment, reverse_containment)
+                if max_containment < 0.95:
+                    continue
 
             # Merkez mesafe kontrolü
             ci = bbox_i.center
@@ -134,9 +152,16 @@ def merge_duplicates(
             if dist > center_distance_threshold:
                 continue
 
-            # Birleştir
-            region_bbox = _compute_merged_bbox(region_bbox, bbox_j)
-            region_confidence = max(region_confidence, det_j.confidence)
+            # Birleştir: containment durumunda daha büyük bbox'ı koru
+            if iou < iou_threshold:
+                # Containment merge: larger bbox'ı seç
+                if bbox_j.area > region_bbox.area:
+                    region_bbox = bbox_j
+                region_confidence = max(region_confidence, det_j.confidence)
+            else:
+                # Normal IoU merge
+                region_bbox = _compute_merged_bbox(region_bbox, bbox_j)
+                region_confidence = max(region_confidence, det_j.confidence)
             source_windows.add(det_j.source_window_id)
             group_members.append(det_j)
             used.add(j)
