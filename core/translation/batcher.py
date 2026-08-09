@@ -168,13 +168,17 @@ class TranslationBatcher:
         return estimate_token_count(item.source) + 15
 
     def _estimate_prompt_overhead(self, inp: TranslationInput) -> int:
+        from core.translation.profile_discovery import get_relevant_terms_for_item
         overhead = 50  # Base prompt overhead
-        if inp.profile:
-            overhead += estimate_token_count(str(inp.profile.known_names))
-            overhead += estimate_token_count(str(inp.profile.glossary))
+        rel_app: dict[str, str] = {}
+        for item in inp.items:
+            app_t, _ = get_relevant_terms_for_item(item.source, inp.profile, inp.candidate_store)
+            rel_app.update(app_t)
+
+        if rel_app:
+            overhead += estimate_token_count(str(rel_app))
+        if inp.profile and inp.profile.notes:
             overhead += estimate_token_count(" ".join(inp.profile.notes))
-        if inp.glossary:
-            overhead += estimate_token_count(" ".join(inp.glossary))
         if inp.chapter_context:
             overhead += estimate_token_count(inp.chapter_context)
         return overhead

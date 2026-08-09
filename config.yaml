@@ -19,7 +19,7 @@ output_format: webp        # webp | png | jpg
 log_level: INFO            # DEBUG | INFO | WARNING | ERROR
 log_file: logs/latest.log
 
-# --- İleride eklenecek modeller (şimdi kullanılmaz) ---
+# --- Modeller ---
 detector:
   enabled: false
   model: null
@@ -34,16 +34,17 @@ ocr:
   upscale_factor: 2.0
 
 translator:
-  enabled: false
-  provider: null
-  qwen_model: null
+  enabled: true
+  provider: translategemma_gguf
+  model_path: C:\AI\Models\translategemma-12b-it-q5_k_m.gguf
+  llama_executable: C:\AI\llama-cpp-cuda\llama.exe
+  fallback_provider: qwen_gguf
 
 inpainter:
   enabled: false
   model: null
 
-# --- Kalite eşikleri (ileride kullanılacak) ---
-# Detection inference confidence ve OCR confidence AYRI değişkendir (config.yaml).
+# --- Kalite eşikleri ---
 min_confidence: 0.5
 
 # --- Detection ayarları (Phase 2) ---

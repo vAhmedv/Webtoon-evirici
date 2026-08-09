@@ -1,22 +1,22 @@
 """TranslateGemma 12B GGUF llama-server translation provider.
 
-Uses TranslateGemma 12B GGUF running via llama-server (llama.exe) with CUDA offload
-for fast, natural English -> Turkish webtoon dialogue translation.
+Uses TranslateGemma 12B GGUF running via llama-server (llama.exe) with CUDA offload.
 
 Key design principles:
-- Dedicated provider using TranslateGemma's compact, translation-focused request format.
-- Does NOT send Qwen system prompt, JSON schema, or fidelity instruction walls.
-- Plain text Turkish output mapped back to TranslationOutputItem structures.
-- Generates NO fabricated term_usages, term_id_map, or fidelity_flags.
-- CandidateStore is NEVER mutated directly inside this provider.
-- Context is compact and reference-only (previous 2-3 dialogue items).
-- Only relevant approved terminology is injected per source line.
-- Server is loaded once (load()), translates all batch items, and unloads once (unload()).
+- Official TranslateGemma direct text translation request format:
+  messages = [{"role": "user", "content": [{"type": "text", "source_lang_code": "en", "target_lang_code": "tr", "text": prepared_text}]}]
+- No system prompt, instruction wall, or glossary lists inside the model text payload.
+- Terminology and named-ability protection handled at the APPLICATION LAYER.
+- Explanation-like model output guard (detects multi-bullet / dictionary outputs).
+- Exact server identity verification via GET /props model_path check.
+- Bounded per-item retries and error isolation (one failing item does not abort chapter).
+- Truthful metrics (no hardcoded VRAM/CUDA claims).
 """
 from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import time
 import urllib.error
@@ -26,7 +26,13 @@ from typing import Any
 
 from loguru import logger
 
-from core.translation.batcher import TranslationBatcher
+from core.translation.protection import (
+    detect_named_terms_in_items,
+    protect_source_text,
+    restore_protected_translation,
+    validate_protected_terms,
+)
+from core.translation.system_text import is_system_ui_line, translate_system_ui_line
 from providers.translation.base import (
     TranslationInput,
     TranslationItem,
@@ -43,7 +49,7 @@ DEFAULT_TRANSLATEGEMMA_SERVER_URL = "http://127.0.0.1:8081"
 @dataclass
 class TranslateGemmaGGUFMetrics:
     model_load_seconds: float = 0.0
-    peak_vram_gb: float | None = 8.2
+    peak_vram_gb: float | None = None
     translation_model: str = "TranslateGemma-12B-IT-Q5_K_M-GGUF"
     input_token_count: int = 0
     generated_token_count: int = 0
@@ -51,57 +57,15 @@ class TranslateGemmaGGUFMetrics:
     tokens_per_sec: float = 0.0
     generation_call_count: int = 0
     retries: int = 0
-    cuda_active: bool = True
-    gpu_offload: str = "configured: 48/48 layers (100%)"
-
-
-def build_translategemma_user_prompt(
-    item: TranslationItem,
-    context_items: list[TranslationItem] | None = None,
-    profile: Any = None,
-    candidate_store: Any = None,
-) -> str:
-    """Build a compact English -> Turkish request string for TranslateGemma.
-
-    Filters terminology so only approved terms relevant to item.source are included.
-    Includes at most 2-3 previous items as reference-only background context.
-    """
-    from core.translation.profile_discovery import get_relevant_terms_for_item
-
-    parts: list[str] = ["Translate the following text from English to Turkish.\n"]
-
-    # 1. Compact reference-only context (up to 2-3 previous lines)
-    if context_items:
-        recent_ctx = context_items[max(0, len(context_items) - 3) :]
-        if recent_ctx:
-            parts.append("Context (for background understanding only - do NOT translate context):")
-            for c_item in recent_ctx:
-                parts.append(f"- {c_item.source}")
-            parts.append("")
-
-    # 2. Relevant approved terminology only
-    app_t, _ = get_relevant_terms_for_item(item.source, profile, candidate_store)
-
-    all_app_terms: dict[str, str] = dict(app_t)
-
-    if all_app_terms:
-        parts.append("Approved Terminology (use naturally with correct Turkish suffixes):")
-        for k, v in all_app_terms.items():
-            parts.append(f"- {k} = {v}")
-        parts.append("")
-
-    # 3. Source text line
-    parts.append("English text to translate:")
-    parts.append(item.source)
-
-    return "\n".join(parts)
+    cuda_active: bool | None = None
+    gpu_offload: str = "configured: ngl=99"
 
 
 def _clean_translategemma_output(raw: str) -> str:
-    """Strip chat/control delimiter artifacts without altering Turkish text content."""
+    """Strip chat/control delimiter artifacts and leading translation labels."""
     text = raw.strip()
 
-    # Known Gemma/llama-server chat delimiter artifacts
+    # Known Gemma/llama-server chat delimiter artifacts & alternative option splits
     delimiters = [
         "<|file_separator|>",
         "<|im_start|>",
@@ -112,11 +76,25 @@ def _clean_translategemma_output(raw: str) -> str:
         "</s>",
         "<bos>",
         "<eos>",
+        "(Alternatively",
+        "\n(Or,",
     ]
 
     for delim in delimiters:
         if delim in text:
             text = text.split(delim)[0].strip()
+
+    # Take the first line if multiple lines returned
+    lines = [line.strip() for line in text.split("\n") if line.strip()]
+    if lines:
+        text = lines[0]
+
+    # Strip exact leading translation prefixes e.g. "Türkçe çeviri:", "Çeviri:"
+    prefix_pattern = re.compile(
+        r"^(türkçe\s+çeviri|çeviri|turkish\s+translation|translation):\s*",
+        re.IGNORECASE,
+    )
+    text = prefix_pattern.sub("", text).strip()
 
     # If wrapped in exact quotes, strip outer quotes
     if len(text) >= 2 and (
@@ -128,6 +106,38 @@ def _clean_translategemma_output(raw: str) -> str:
     return text
 
 
+def is_explanation_like_output(raw_text: str, source_text: str) -> bool:
+    """Detect if model output is an explanatory dictionary entry rather than a translation."""
+    clean = raw_text.strip()
+
+    # Multi-bullet points indicate dictionary options
+    bullet_count = len(re.findall(r"^\s*[\*\-\u2022\d+\.]\s+", clean, re.MULTILINE))
+    if bullet_count >= 2:
+        return True
+
+    # Explanation phrases
+    explanation_keywords = [
+        "ifadesinin anlamı",
+        "anlamına gelebilir",
+        "bağlama göre",
+        "olası anlamları",
+        "bağlamı bilmek önemlidir",
+        "örnekler:",
+        "filminin türkçe başlığı",
+        "birebir çevirisi",
+        "orijinal ingilizce",
+    ]
+    lower_clean = clean.lower()
+    if any(kw in lower_clean for kw in explanation_keywords):
+        return True
+
+    # Excessive length expansion (> 4x source length for non-trivial sources)
+    if len(source_text) > 10 and len(clean) > max(300, len(source_text) * 4):
+        return True
+
+    return False
+
+
 class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
     """Production TranslationProvider using TranslateGemma 12B GGUF llama-server backend."""
 
@@ -137,7 +147,7 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
         executable_path: str = DEFAULT_LLAMA_EXE_PATH,
         server_url: str = DEFAULT_TRANSLATEGEMMA_SERVER_URL,
         managed: bool = True,
-        max_context_length: int = 4096,
+        max_context_length: int = 2048,
         gpu_layers: int = 99,
         **kwargs,
     ) -> None:
@@ -150,7 +160,7 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
 
         self._process: subprocess.Popen | None = None
         self._owned_process: bool = False
-        self.metrics = TranslateGemmaGGUFMetrics()
+        self.metrics = TranslateGemmaGGUFMetrics(gpu_offload=f"configured: ngl={gpu_layers}")
 
     @property
     def name(self) -> str:
@@ -161,10 +171,25 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
         return self._check_health()
 
     def _check_health(self) -> bool:
+        """Verify llama-server health AND check model identity from /props."""
         try:
             req = urllib.request.Request(f"{self.server_url}/health", method="GET")
             with urllib.request.urlopen(req, timeout=3) as resp:
-                return resp.status == 200
+                if resp.status != 200:
+                    return False
+
+            # Verify loaded model path matches expected model_path
+            props_req = urllib.request.Request(f"{self.server_url}/props", method="GET")
+            with urllib.request.urlopen(props_req, timeout=3) as props_resp:
+                props_data = json.loads(props_resp.read().decode("utf-8"))
+                loaded_model = str(props_data.get("model_path") or props_data.get("model_alias") or "")
+                expected_basename = os.path.basename(self.model_path).lower()
+                if loaded_model and expected_basename not in loaded_model.lower():
+                    logger.warning(
+                        f"Server on {self.server_url} has model '{loaded_model}', expected '{expected_basename}'. Identity check failed."
+                    )
+                    return False
+            return True
         except Exception:
             return False
 
@@ -197,6 +222,7 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
             "off",
             "-c",
             str(self.max_context_length),
+            "--jinja",
         ]
 
         logger.info(f"Starting managed TranslateGemma llama-server: {' '.join(cmd)}")
@@ -246,11 +272,23 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
             self._owned_process = False
             logger.info("TranslateGemmaGGUFTranslationProvider unloaded.")
 
-    def _query_chat_completion(self, user_prompt: str) -> tuple[str, int, int, float]:
-        """Send a single translation completion request to llama-server."""
+    def _query_official_translation(self, prepared_text: str) -> tuple[str, int, int, float]:
+        """Send official direct text translation payload to TranslateGemma llama-server."""
         endpoint = f"{self.server_url}/v1/chat/completions"
         payload = {
-            "messages": [{"role": "user", "content": user_prompt}],
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "source_lang_code": "en",
+                            "target_lang_code": "tr",
+                            "text": f"Translate from English to Turkish:\n{prepared_text}",
+                        }
+                    ],
+                }
+            ],
             "temperature": 0.0,
             "max_tokens": 256,
             "stream": False,
@@ -279,91 +317,144 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
         return raw_text, in_toks, gen_toks, gen_time
 
     def translate(self, inp: TranslationInput) -> TranslationOutput:
-        """Translate input batch using TranslateGemma GGUF server.
-
-        Processes items individually over the active server instance, mapping
-        results back to TranslationOutputItem structures.
-        """
+        """Translate input items using official TranslateGemma request format and application-level protection."""
         if not self.is_loaded:
             self.load()
 
         if not inp.items:
             return TranslationOutput(inputs=inp, results=[], raw_response="", repair_model=self.name)
 
-        # 1. Use TranslationBatcher to ensure reading order and batch context
-        batcher = TranslationBatcher()
-        sub_inputs = batcher.create_batches(inp)
+        from core.translation.profile_discovery import get_relevant_terms_for_item
 
-        results_by_id: dict[int, TranslationOutputItem] = {}
+        # 1. Establish chapter-wide source-side named term protection
+        detected_named_terms = detect_named_terms_in_items(inp.items)
+
+        results: list[TranslationOutputItem] = []
         raw_responses: list[str] = []
 
-        # 2. Iterate through sub-batches and translate each item over the active server
-        for sub_inp in sub_inputs:
-            for item in sub_inp.items:
-                user_prompt = build_translategemma_user_prompt(
-                    item=item,
-                    context_items=sub_inp.context_items,
-                    profile=sub_inp.profile,
-                    candidate_store=sub_inp.candidate_store,
-                )
+        # 2. Iterate items in reading order directly
+        for item in inp.items:
+            source_text = item.source.strip()
 
-                raw_text, in_toks, gen_toks, gen_sec = self._query_chat_completion(user_prompt)
-                raw_responses.append(raw_text)
+            # Check if line matches System / Game UI text pattern e.g. "TITLE ACQUIRED: ..."
+            if is_system_ui_line(source_text):
+                sys_tr = translate_system_ui_line(source_text)
+                if sys_tr:
+                    results.append(
+                        TranslationOutputItem(
+                            region_id=item.region_id,
+                            source=item.source,
+                            translation=sys_tr,
+                            raw_model_response="[System UI Lexicon]",
+                            validation_warnings=[],
+                            requires_review=False,
+                            fidelity_flags=[],
+                            term_usages=[],
+                        )
+                    )
+                    continue
 
-                self.metrics.generation_call_count += 1
-                self.metrics.input_token_count += in_toks
-                self.metrics.generated_token_count += gen_toks
-                self.metrics.generation_seconds += gen_sec
+            # Retrieve relevant approved terms for this item
+            app_t, _ = get_relevant_terms_for_item(source_text, inp.profile, inp.candidate_store)
 
-                cleaned_translation = _clean_translategemma_output(raw_text)
+            # Manual glossary input override support
+            if inp.glossary:
+                for entry in inp.glossary:
+                    if "->" in entry:
+                        k, v = entry.split("->", 1)
+                        if k.strip().lower() in source_text.lower():
+                            app_t[k.strip().upper()] = v.strip()
 
-                # Retry up to 1 time if result is empty or server error
-                if not cleaned_translation and self.metrics.retries < 3:
-                    self.metrics.retries += 1
-                    logger.warning(f"Empty translation for region {item.region_id}. Retrying...")
-                    raw_text, in_t2, gen_t2, gen_s2 = self._query_chat_completion(user_prompt)
-                    raw_responses.append(raw_text)
-                    self.metrics.generation_call_count += 1
-                    self.metrics.input_token_count += in_t2
-                    self.metrics.generated_token_count += gen_t2
-                    self.metrics.generation_seconds += gen_s2
-                    cleaned_translation = _clean_translategemma_output(raw_text)
+            # Application-level source protection
+            prepared_text, placeholder_map = protect_source_text(
+                source_text, app_t, detected_named_terms
+            )
 
-                if not cleaned_translation:
-                    results_by_id[item.region_id] = TranslationOutputItem(
+            # Per-item retry and error isolation
+            raw_text = ""
+            in_toks, gen_toks, gen_sec = 0, 0, 0.0
+            error_occured = False
+
+            try:
+                raw_text, in_toks, gen_toks, gen_sec = self._query_official_translation(prepared_text)
+            except Exception as exc:
+                logger.warning(f"Translation request failed for item {item.region_id}: {exc}. Retrying...")
+                self.metrics.retries += 1
+                try:
+                    raw_text, in_toks, gen_toks, gen_sec = self._query_official_translation(prepared_text)
+                except Exception as exc2:
+                    logger.error(f"Item {item.region_id} failed after retry: {exc2}")
+                    error_occured = True
+
+            raw_responses.append(raw_text)
+
+            self.metrics.generation_call_count += 1
+            self.metrics.input_token_count += in_toks
+            self.metrics.generated_token_count += gen_toks
+            self.metrics.generation_seconds += gen_sec
+
+            if error_occured or not raw_text:
+                results.append(
+                    TranslationOutputItem(
                         region_id=item.region_id,
                         source=item.source,
                         translation=None,
-                        raw_model_response=raw_text[:500],
-                        validation_warnings=["empty_translation"],
+                        raw_model_response=raw_text[:500] if raw_text else "[Server Error]",
+                        validation_warnings=["translation_server_error" if error_occured else "empty_translation"],
                         requires_review=True,
                         fidelity_flags=[],
                         term_usages=[],
                     )
-                else:
-                    results_by_id[item.region_id] = TranslationOutputItem(
+                )
+                continue
+
+            cleaned = _clean_translategemma_output(raw_text)
+
+            # Check explanation-like output guard
+            if is_explanation_like_output(cleaned, source_text):
+                logger.warning(f"Item {item.region_id} output identified as explanation-like. Flagging for review.")
+                results.append(
+                    TranslationOutputItem(
                         region_id=item.region_id,
                         source=item.source,
-                        translation=cleaned_translation,
-                        raw_model_response=raw_text[:500],
-                        validation_warnings=[],
-                        requires_review=False,
+                        translation=None,
+                        raw_model_response=cleaned[:500],
+                        validation_warnings=["explanation_like_output"],
+                        requires_review=True,
                         fidelity_flags=[],
                         term_usages=[],
                     )
+                )
+                continue
 
-        # Calculate final tok/s
+            # Application-level restoration
+            restored_tr = restore_protected_translation(cleaned, placeholder_map)
+
+            # Post-restoration approved terminology validation
+            val_warnings = validate_protected_terms(restored_tr, placeholder_map)
+            req_review = len(val_warnings) > 0
+
+            results.append(
+                TranslationOutputItem(
+                    region_id=item.region_id,
+                    source=item.source,
+                    translation=restored_tr,
+                    raw_model_response=raw_text[:500],
+                    validation_warnings=val_warnings,
+                    requires_review=req_review,
+                    fidelity_flags=[],
+                    term_usages=[],
+                )
+            )
+
         if self.metrics.generation_seconds > 0:
             self.metrics.tokens_per_sec = round(
                 self.metrics.generated_token_count / self.metrics.generation_seconds, 2
             )
 
-        # Assemble final ordered results
-        ordered_results = [results_by_id[item.region_id] for item in inp.items if item.region_id in results_by_id]
-
         return TranslationOutput(
             inputs=inp,
-            results=ordered_results,
+            results=results,
             raw_response="\n---\n".join(raw_responses)[:2000],
             repair_model=self.name,
         )

@@ -87,10 +87,13 @@ def build_qwen_translation_user_prompt(inp: TranslationInput) -> tuple[str, dict
             all_obs_terms[item.region_id] = obs_list
 
     if inp.glossary:
+        batch_sources = " ".join(item.source.lower() for item in inp.items)
         for entry in inp.glossary:
             if "->" in entry:
                 k, v = entry.split("->", 1)
-                all_app_terms[k.strip().upper()] = v.strip()
+                k_clean = k.strip()
+                if k_clean.lower() in batch_sources:
+                    all_app_terms[k_clean.upper()] = v.strip()
 
     if all_app_terms:
         parts.append("APPROVED TERMS (AUTHORITATIVE GUIDANCE - Must be used consistently and naturally):")

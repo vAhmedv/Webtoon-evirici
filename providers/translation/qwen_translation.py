@@ -230,20 +230,9 @@ class QwenTranslationProvider(TranslationProvider):
             )
             self.metrics.json_retry_happened = True
             half = len(inp.items) // 2
-            sub_a = TranslationInput(
-                items=inp.items[:half],
-                glossary=inp.glossary,
-                chapter_context=inp.chapter_context,
-                profile=inp.profile,
-                context_items=inp.context_items,
-            )
-            sub_b = TranslationInput(
-                items=inp.items[half:],
-                glossary=inp.glossary,
-                chapter_context=inp.chapter_context,
-                profile=inp.profile,
-                context_items=inp.items[:half][-2:],
-            )
+            from dataclasses import replace
+            sub_a = replace(inp, items=inp.items[:half])
+            sub_b = replace(inp, items=inp.items[half:], context_items=inp.items[:half][-2:])
             out_a = self._translate_single_batch(sub_a, retry_count + 1)
             out_b = self._translate_single_batch(sub_b, retry_count + 1)
             from core.translation.batcher import TranslationBatcher
