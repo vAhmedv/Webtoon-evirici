@@ -18,9 +18,9 @@ def test_build_prompt_empty_profile():
         items=[TranslationItem(region_id=1, source="Hello world", reading_order=0)]
     )
     prompt = provider._build_prompt(inp)
-    assert "Dialogue bubbles to translate:" in prompt
+    assert "ITEMS TO TRANSLATE:" in prompt
     assert "[0] id=1 | Hello world" in prompt
-    assert "Glossary / Terminology guidance:" not in prompt
+    assert "APPROVED TERMS" not in prompt
 
 
 def test_build_prompt_with_profile_and_context():
@@ -41,10 +41,10 @@ def test_build_prompt_with_profile_and_context():
     )
     prompt = provider._build_prompt(inp)
 
-    assert "CONTEXT ONLY (Do NOT translate these; for background understanding only):" in prompt
+    assert "CONTEXT ONLY (REFERENCE ONLY - DO NOT TRANSLATE" in prompt
     assert "[0] id=10 | Background context text" in prompt
-    assert "Dialogue bubbles to translate:" in prompt
+    assert "ITEMS TO TRANSLATE:" in prompt
     assert "[1] id=11 | Look at the HERO" in prompt
-    assert "HERO -> Kahraman" in prompt
-    assert "DUNGEON -> zindan" in prompt
+    assert "HERO => Kahraman" in prompt
+    assert "DUNGEON => zindan" in prompt
     assert "Keep tone dark" in prompt

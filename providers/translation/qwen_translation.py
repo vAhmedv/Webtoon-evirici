@@ -43,35 +43,10 @@ class QwenTranslationMetrics:
     json_retry_happened: bool = False
 
 
-_SYSTEM_PROMPT = """You are a professional Turkish translator for webtoon/manhwa dialogue.
-
-Instructions:
-- Translate into natural contemporary Turkish suitable for a manhwa speech bubble.
-- Preserve the exact meaning and all factual information.
-- Prefer natural Turkish word order over English word order. Do not translate mechanically word-for-word when Turkish would sound unnatural.
-- Keep dialogue concise.
-- Do not add explanations, emotions, slang, honorifics, weapons, rank details or information not present in the source.
-- Do not make sentences more specific than the English source. If source is ambiguous, translate conservatively.
-- Preserve character and place names according to the provided glossary/context.
-- Do not produce line breaks for typography.
-- For any Observation Candidate (e.g. T1, T2) present in an item, report its term_id and the exact Turkish target_form surface span used in your translation inside "term_usages".
-- If any concrete ungrounded concept or detail is introduced, report it in "fidelity_flags" (e.g. ["added_information"]). Otherwise set "fidelity_flags": [].
-- Output ONLY the JSON object. No preamble, no thinking blocks, no markdown.
-
-Output format:
-{
-  "translations": [
-    {
-      "id": <region_id>,
-      "source": "<original>",
-      "translation": "<Turkish>",
-      "term_usages": [
-        {"term_id": "T1", "target_form": "<TURKISH_SURFACE_SPAN>"}
-      ],
-      "fidelity_flags": []
-    }
-  ]
-}"""
+from providers.translation.qwen_prompt import (
+    _SYSTEM_PROMPT,
+    build_qwen_translation_prompt,
+)
 
 
 # Characters / markers that must never reach the translation result.
@@ -117,60 +92,10 @@ class QwenTranslationProvider(TranslationProvider):
         self._item_term_maps: dict[int, dict[str, str]] = {}
 
     def _build_prompt(self, inp: TranslationInput) -> str:
-        from core.translation.profile_discovery import get_relevant_terms_for_item
+        prompt_str, item_term_maps = build_qwen_translation_prompt(inp)
+        self._item_term_maps = item_term_maps
+        return prompt_str
 
-        parts = [_SYSTEM_PROMPT, ""]
-        self._item_term_maps.clear()
-
-        if inp.context_items:
-            parts.append("Previous dialogue context (DO NOT TRANSLATE, for reference only):")
-            for item in inp.context_items:
-                parts.append(f"[{item.reading_order}] id={item.region_id} | {item.source}")
-            parts.append("")
-
-        parts.append("Dialogue bubbles to translate:")
-        all_app_terms: dict[str, str] = {}
-
-        for item in inp.items:
-            parts.append(f"[{item.reading_order}] id={item.region_id} | {item.source}")
-            app_t, prov_t = get_relevant_terms_for_item(item.source, inp.profile, inp.candidate_store)
-            all_app_terms.update(app_t)
-
-            if prov_t:
-                item_map: dict[str, str] = {}
-                for idx, src_term in enumerate(prov_t, 1):
-                    term_id = f"T{idx}"
-                    item_map[term_id] = src_term
-                self._item_term_maps[item.region_id] = item_map
-                obs_str = ", ".join(f"{tid} = {sterm}" for tid, sterm in item_map.items())
-                parts.append(f"   Observation Terms for id={item.region_id}: {obs_str}")
-
-        if inp.glossary:
-            for entry in inp.glossary:
-                if "->" in entry:
-                    k, v = entry.split("->", 1)
-                    all_app_terms[k.strip().upper()] = v.strip()
-
-        if all_app_terms:
-            parts.append("")
-            parts.append("Approved Glossary Guidance (Must be preserved in translation):")
-            for k, v in all_app_terms.items():
-                parts.append(f"- {k} -> {v}")
-
-        if inp.profile and inp.profile.notes:
-            parts.append("")
-            parts.append("Series notes:")
-            for note in inp.profile.notes:
-                parts.append(f"- {note}")
-
-        if inp.chapter_context:
-            parts.append("")
-            parts.append(f"Chapter context: {inp.chapter_context}")
-
-        parts.append("")
-        parts.append("Output JSON with all translations, term_usages, and fidelity_flags:")
-        return "\n".join(parts)
-        self.metrics = QwenTranslationMetrics()
 
     @property
     def name(self) -> str:
@@ -223,50 +148,6 @@ class QwenTranslationProvider(TranslationProvider):
             torch.cuda.empty_cache()
         logger.info("Qwen translation model unloaded")
 
-    def _build_prompt(self, inp: TranslationInput) -> str:
-        parts = [_SYSTEM_PROMPT]
-
-        if inp.context_items:
-            parts.append("")
-            parts.append("CONTEXT ONLY (Do NOT translate these; for background understanding only):")
-            for item in inp.context_items:
-                parts.append(f"[{item.reading_order}] id={item.region_id} | {item.source}")
-
-        parts.append("")
-        parts.append("Dialogue bubbles to translate:")
-        for item in inp.items:
-            parts.append(f"[{item.reading_order}] id={item.region_id} | {item.source}")
-
-        glossary_entries: list[str] = []
-        if inp.profile:
-            for src_name, tgt_name in inp.profile.known_names.items():
-                glossary_entries.append(f"{src_name} -> {tgt_name}")
-            for term, tr in inp.profile.glossary.items():
-                glossary_entries.append(f"{term} -> {tr}")
-        if inp.glossary:
-            for entry in inp.glossary:
-                if entry not in glossary_entries:
-                    glossary_entries.append(entry)
-
-        if glossary_entries:
-            parts.append("")
-            parts.append("Glossary / Terminology guidance:")
-            for entry in glossary_entries:
-                parts.append(f"- {entry}")
-
-        if inp.profile and inp.profile.notes:
-            parts.append("")
-            parts.append("Series notes:")
-            for note in inp.profile.notes:
-                parts.append(f"- {note}")
-
-        if inp.chapter_context:
-            parts.append("")
-            parts.append(f"Chapter context: {inp.chapter_context}")
-
-        parts.append("")
-        parts.append("Output JSON with all translations:")
-        return "\n".join(parts)
 
     def translate(self, inp: TranslationInput) -> TranslationOutput:
         if not self._loaded or self._model is None or self._processor is None:
