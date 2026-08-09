@@ -1,7 +1,7 @@
 """Unit tests for QwenGGUFTranslationProvider (llama-server backend adapter).
 
 Verifies serialization, HTTP communication, health checks, error handling,
-JSON response parsing, fidelity flags, and CandidateStore non-mutation.
+JSON response parsing, fidelity flags, truncation recovery, and CandidateStore non-mutation.
 """
 import json
 import unittest
@@ -62,6 +62,34 @@ class TestQwenGGUFTranslationProvider(unittest.TestCase):
 
     @patch.object(QwenGGUFTranslationProvider, "_check_health", return_value=True)
     @patch("urllib.request.urlopen")
+    def test_system_role_and_deterministic_sampling(self, mock_urlopen, mock_health):
+        mock_completion = MagicMock()
+        mock_completion.status = 200
+        response_body = {
+            "choices": [{"message": {"content": json.dumps({"translations": [{"id": 1, "source": "Hi", "translation": "Merhaba"}]})}}],
+            "usage": {"prompt_tokens": 10, "completion_tokens": 5}
+        }
+        mock_completion.read.return_value = json.dumps(response_body).encode("utf-8")
+        mock_completion.__enter__.return_value = mock_completion
+        mock_urlopen.return_value = mock_completion
+
+        provider = QwenGGUFTranslationProvider(auto_start_server=False)
+        provider.load()
+
+        inp = TranslationInput(items=[TranslationItem(region_id=1, source="Hi", reading_order=1)])
+        provider.translate(inp)
+
+        # Inspect request sent to urlopen
+        req = mock_urlopen.call_args[0][0]
+        payload = json.loads(req.data.decode("utf-8"))
+
+        self.assertEqual(len(payload["messages"]), 2)
+        self.assertEqual(payload["messages"][0]["role"], "system")
+        self.assertEqual(payload["messages"][1]["role"], "user")
+        self.assertEqual(payload["temperature"], 0.0)
+
+    @patch.object(QwenGGUFTranslationProvider, "_check_health", return_value=True)
+    @patch("urllib.request.urlopen")
     def test_translate_structured_json_response(self, mock_urlopen, mock_health):
         mock_completion = MagicMock()
         mock_completion.status = 200
@@ -74,7 +102,7 @@ class TestQwenGGUFTranslationProvider(unittest.TestCase):
                                 {
                                     "id": 1,
                                     "source": "Relax, kid.",
-                                    "translation": "Sakin ol, bücür.",
+                                    "translation": "Sakin ol, çocuk.",
                                     "term_usages": [],
                                     "fidelity_flags": []
                                 },
@@ -108,11 +136,55 @@ class TestQwenGGUFTranslationProvider(unittest.TestCase):
 
         out = provider.translate(inp)
         self.assertEqual(len(out.results), 2)
-        self.assertEqual(out.results[0].translation, "Sakin ol, bücür.")
+        self.assertEqual(out.results[0].translation, "Sakin ol, çocuk.")
         self.assertEqual(out.results[1].translation, "Benim adım Luo Tian.")
         self.assertFalse(out.results[0].requires_review)
         self.assertEqual(provider.metrics.input_token_count, 80)
         self.assertEqual(provider.metrics.generated_token_count, 30)
+
+    @patch.object(QwenGGUFTranslationProvider, "_check_health", return_value=True)
+    @patch("urllib.request.urlopen")
+    def test_gguf_truncation_recovery(self, mock_urlopen, mock_health):
+        # 1st response: truncated (missing item 2), 950 tokens
+        resp1_body = {
+            "choices": [{"message": {"content": json.dumps({"translations": [{"id": 1, "source": "Item 1", "translation": "Çeviri 1"}]})}}],
+            "usage": {"prompt_tokens": 100, "completion_tokens": 950}
+        }
+        # 2nd response (sub_a): item 1
+        resp2_body = {
+            "choices": [{"message": {"content": json.dumps({"translations": [{"id": 1, "source": "Item 1", "translation": "Çeviri 1"}]})}}],
+            "usage": {"prompt_tokens": 50, "completion_tokens": 20}
+        }
+        # 3rd response (sub_b): item 2
+        resp3_body = {
+            "choices": [{"message": {"content": json.dumps({"translations": [{"id": 2, "source": "Item 2", "translation": "Çeviri 2"}]})}}],
+            "usage": {"prompt_tokens": 50, "completion_tokens": 20}
+        }
+
+        def make_mock(body):
+            m = MagicMock()
+            m.status = 200
+            m.read.return_value = json.dumps(body).encode("utf-8")
+            m.__enter__.return_value = m
+            return m
+
+        mock_urlopen.side_effect = [make_mock(resp1_body), make_mock(resp2_body), make_mock(resp3_body)]
+
+        provider = QwenGGUFTranslationProvider(auto_start_server=False)
+        provider.load()
+
+        inp = TranslationInput(
+            items=[
+                TranslationItem(region_id=1, source="Item 1", reading_order=1),
+                TranslationItem(region_id=2, source="Item 2", reading_order=2),
+            ]
+        )
+
+        out = provider.translate(inp)
+        self.assertEqual(len(out.results), 2)
+        self.assertEqual(out.results[0].translation, "Çeviri 1")
+        self.assertEqual(out.results[1].translation, "Çeviri 2")
+        self.assertEqual(provider.metrics.retries, 1)
 
     @patch.object(QwenGGUFTranslationProvider, "_check_health", return_value=True)
     @patch("urllib.request.urlopen")

@@ -1,6 +1,8 @@
 """Unit tests for TranslationBatcher token-aware batching and context propagation."""
 import pytest
 from core.translation.batcher import BatcherConfig, TranslationBatcher
+from core.translation.profile_discovery import CandidateStore
+from core.translation.series_profile import SeriesProfile
 from providers.translation.base import (
     TranslationInput,
     TranslationItem,
@@ -44,6 +46,33 @@ def test_budget_exceeded_multi_batch():
     assert len(second_batch.context_items) > 0
     # Context items are from previous batch
     assert second_batch.context_items[0].region_id in [1, 2]
+
+
+def test_batcher_preserves_input_metadata():
+    store = CandidateStore(series_id="ch_test")
+    profile = SeriesProfile(series_id="ch_test")
+    batcher = TranslationBatcher(BatcherConfig(max_input_tokens=100))
+    items = [
+        TranslationItem(region_id=1, source="Long sentence number one for bubble", reading_order=0),
+        TranslationItem(region_id=2, source="Long sentence number two for bubble", reading_order=1),
+        TranslationItem(region_id=3, source="Long sentence number three for bubble", reading_order=2),
+    ]
+    inp = TranslationInput(
+        items=items,
+        candidate_store=store,
+        chapter_id="ch042",
+        profile=profile,
+        chapter_context="Test chapter",
+        glossary=["A -> B"],
+    )
+    batches = batcher.create_batches(inp)
+    assert len(batches) >= 2
+    for b in batches:
+        assert b.candidate_store is store
+        assert b.chapter_id == "ch042"
+        assert b.profile is profile
+        assert b.chapter_context == "Test chapter"
+        assert b.glossary == ["A -> B"]
 
 
 def test_merge_outputs_preserves_order_and_ids():

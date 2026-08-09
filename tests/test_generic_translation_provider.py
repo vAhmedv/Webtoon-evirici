@@ -46,5 +46,6 @@ def test_build_prompt_with_profile_and_context():
     assert "ITEMS TO TRANSLATE:" in prompt
     assert "[1] id=11 | Look at the HERO" in prompt
     assert "HERO => Kahraman" in prompt
-    assert "DUNGEON => zindan" in prompt
+    # No full-glossary leak: DUNGEON is not in the source item text, so it MUST NOT be in prompt
+    assert "DUNGEON => zindan" not in prompt
     assert "Keep tone dark" in prompt

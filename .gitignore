@@ -36,15 +36,16 @@ tmp/
 Thumbs.db
 Desktop.ini
 
-# Models (downloaded separately)
-/models/
-
 # Benchmark data / results
 /benchmark_results/
+/benchmark_output/
 /benchmark_data/
 
 # Graphify output
 graphify-out/
 
-# Kilo project-local tool environments
-.kilo/venvs/
+# IDE / Tool configs
+.kilo/
+.serena/
+_debug_*
+test_full_output.py

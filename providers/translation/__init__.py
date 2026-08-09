@@ -1,30 +1,46 @@
-"""Translation provider paketi."""
+"""Translation provider package.
+
+TranslateGemma-12B GGUF via llama.cpp CUDA is the DEFAULT production translator.
+Qwen3.5-9B GGUF and Transformers remain available as legacy/fallback backends.
+"""
 from __future__ import annotations
 
 from providers.translation.base import (
     TranslationInput,
     TranslationItem,
     TranslationOutput,
+    TranslationOutputItem,
     TranslationProvider,
 )
 from providers.translation.qwen_translation import QwenTranslationProvider
 from providers.translation.qwen_gguf_translation import QwenGGUFTranslationProvider
+from providers.translation.translategemma_gguf_translation import (
+    TranslateGemmaGGUFTranslationProvider,
+)
 
 
 def get_translation_provider(
-    backend: str = "gguf",
+    backend: str = "translategemma_gguf",
     **kwargs,
 ) -> TranslationProvider:
     """Factory function returning configured translation provider.
 
-    backend can be 'gguf' (default, llama.cpp CUDA) or 'transformers' (legacy).
+    Default backend is 'translategemma_gguf' (TranslateGemma-12B-IT Q5_K_M GGUF via llama.cpp CUDA).
+    Legacy backends:
+      - 'qwen_gguf' / 'gguf' (Qwen3.5-9B GGUF via llama.cpp CUDA)
+      - 'transformers' (Qwen3.5-9B 8-bit/4-bit PyTorch)
     """
-    if backend.lower() in ("gguf", "llama.cpp", "llamacpp"):
+    b = backend.lower().strip()
+    if b in ("translategemma_gguf", "translategemma", "gemma", "default"):
+        return TranslateGemmaGGUFTranslationProvider(**kwargs)
+    elif b in ("qwen_gguf", "qwen", "gguf", "llama.cpp", "llamacpp"):
         return QwenGGUFTranslationProvider(**kwargs)
-    elif backend.lower() in ("transformers", "bitsandbytes", "8bit"):
+    elif b in ("transformers", "bitsandbytes", "8bit"):
         return QwenTranslationProvider(**kwargs)
     else:
-        raise ValueError(f"Unknown translation backend: {backend}. Use 'gguf' or 'transformers'.")
+        raise ValueError(
+            f"Unknown translation backend: '{backend}'. Use 'translategemma_gguf', 'qwen_gguf', or 'transformers'."
+        )
 
 
 __all__ = [
@@ -32,7 +48,9 @@ __all__ = [
     "TranslationItem",
     "TranslationInput",
     "TranslationOutput",
-    "QwenTranslationProvider",
+    "TranslationOutputItem",
+    "TranslateGemmaGGUFTranslationProvider",
     "QwenGGUFTranslationProvider",
+    "QwenTranslationProvider",
     "get_translation_provider",
 ]

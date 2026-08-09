@@ -28,7 +28,7 @@ from providers.translation.base import (
 )
 from providers.translation.qwen_prompt import (
     _SYSTEM_PROMPT,
-    build_qwen_translation_prompt,
+    build_qwen_translation_user_prompt,
 )
 from providers.translation.qwen_translation import (
     _extract_translations_from_natural_language,
@@ -45,7 +45,7 @@ DEFAULT_SERVER_URL = "http://127.0.0.1:8080"
 @dataclass
 class QwenGGUFMetrics:
     model_load_seconds: float = 0.0
-    peak_vram_gb: float = 11.02
+    peak_vram_gb: float | None = None
     translation_model: str = "Qwen3.5-9B-Q5_K_M-GGUF"
     input_token_count: int = 0
     generated_token_count: int = 0
@@ -54,7 +54,7 @@ class QwenGGUFMetrics:
     generation_call_count: int = 0
     retries: int = 0
     cuda_active: bool = True
-    gpu_offload: str = "36/36 layers (100%)"
+    gpu_offload: str = "configured: 36/36 layers (100%)"
 
 
 def _parse_gguf_output(
@@ -233,8 +233,8 @@ class QwenGGUFTranslationProvider(TranslationProvider):
         logger.info(f"Starting managed llama-server process: {' '.join(cmd)}")
         self._process = subprocess.Popen(
             cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
             creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
         self._owns_server = True
@@ -244,11 +244,8 @@ class QwenGGUFTranslationProvider(TranslationProvider):
         ready = False
         while time.perf_counter() - start_time < 45.0:
             if self._process.poll() is not None:
-                out = ""
-                if self._process.stdout:
-                    out = self._process.stdout.read().decode("utf-8", errors="replace")[:1000]
                 raise RuntimeError(
-                    f"llama-server process exited unexpectedly with code {self._process.returncode}: {out}"
+                    f"llama-server process exited unexpectedly with code {self._process.returncode}"
                 )
             if self._check_health():
                 ready = True
@@ -282,18 +279,19 @@ class QwenGGUFTranslationProvider(TranslationProvider):
         self._loaded = False
         logger.info("QwenGGUFTranslationProvider unloaded.")
 
-    def _build_prompt(self, inp: TranslationInput) -> str:
-        prompt_str, item_term_maps = build_qwen_translation_prompt(inp)
+    def _build_prompt(self, inp: TranslationInput) -> tuple[str, str]:
+        user_prompt, item_term_maps = build_qwen_translation_user_prompt(inp)
         self._item_term_maps = item_term_maps
-        return prompt_str
+        return _SYSTEM_PROMPT, user_prompt
 
-    def _query_llm(self, prompt: str) -> tuple[str, int, int]:
+    def _query_llm(self, system_prompt: str, user_prompt: str) -> tuple[str, int, int]:
         endpoint = f"{self._server_url}/v1/chat/completions"
         payload = {
             "messages": [
-                {"role": "user", "content": prompt},
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
             ],
-            "temperature": 0.7,
+            "temperature": 0.0,
             "max_tokens": 1024,
             "stream": False,
         }
@@ -345,11 +343,13 @@ class QwenGGUFTranslationProvider(TranslationProvider):
 
         return batcher.merge_outputs(inp, sub_outputs)
 
-    def _translate_single_batch(self, inp: TranslationInput) -> TranslationOutput:
-        prompt = self._build_prompt(inp)
+    def _translate_single_batch(
+        self, inp: TranslationInput, retry_count: int = 0
+    ) -> TranslationOutput:
+        system_prompt, user_prompt = self._build_prompt(inp)
         t0 = time.perf_counter()
 
-        raw_output, ilen, gen_len = self._query_llm(prompt)
+        raw_output, ilen, gen_len = self._query_llm(system_prompt, user_prompt)
         gen_time = time.perf_counter() - t0
 
         raw_output = _strip_thinking(raw_output)
@@ -369,6 +369,36 @@ class QwenGGUFTranslationProvider(TranslationProvider):
             inp,
             raw_output,
         )
+
+        missing_ids = [r.region_id for r in output.results if r.translation is None]
+        if missing_ids and gen_len >= 900 and retry_count < 2 and len(inp.items) > 1:
+            logger.warning(
+                f"GGUF batch truncated at {gen_len} tokens with missing IDs {missing_ids}. Splitting batch to recover missing items."
+            )
+            self.metrics.retries += 1
+            half = len(inp.items) // 2
+            sub_a = TranslationInput(
+                items=inp.items[:half],
+                glossary=inp.glossary,
+                chapter_context=inp.chapter_context,
+                profile=inp.profile,
+                context_items=inp.context_items,
+                candidate_store=inp.candidate_store,
+                chapter_id=inp.chapter_id,
+            )
+            sub_b = TranslationInput(
+                items=inp.items[half:],
+                glossary=inp.glossary,
+                chapter_context=inp.chapter_context,
+                profile=inp.profile,
+                context_items=inp.items[:half][-2:],
+                candidate_store=inp.candidate_store,
+                chapter_id=inp.chapter_id,
+            )
+            out_a = self._translate_single_batch(sub_a, retry_count + 1)
+            out_b = self._translate_single_batch(sub_b, retry_count + 1)
+            from core.translation.batcher import TranslationBatcher
+            return TranslationBatcher().merge_outputs(inp, [out_a, out_b])
 
         logger.info(
             f"Qwen GGUF batch complete: {ilen} in, {gen_len} gen, {gen_time:.2f}s "

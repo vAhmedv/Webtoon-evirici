@@ -96,8 +96,11 @@ class TranslationBatcher:
                     chapter_context=inp.chapter_context,
                     profile=inp.profile,
                     context_items=context_items,
+                    candidate_store=inp.candidate_store,
+                    chapter_id=inp.chapter_id,
                 )
             )
+
 
         return inputs
 

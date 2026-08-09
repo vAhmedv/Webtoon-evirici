@@ -92,9 +92,10 @@ def test_process_discovered_suggestions_merge_and_safety():
     assert res.filtered_count == 1
     assert len(res.candidates) == 2
 
-    # Safety principle: Discovered candidates MUST be provisional
+    # Safety principle: Newly discovered candidates start as 'discovered'
     for cand in res.candidates:
-        assert cand.status == "provisional"
+        assert cand.status == "discovered"
+
 
     luo_cand = store.candidates["LUO TIAN"]
     assert luo_cand.kind == "character_name"
@@ -190,7 +191,8 @@ def test_synthetic_fixture_a_dungeon_discovery():
     assert len(res.candidates) == 5
     assert set(store.candidates.keys()) == {"KANG MINHO", "GUILD MASTER", "RED GATE", "AWAKENER", "MANA CORE"}
     for cand in res.candidates:
-        assert cand.status == "provisional"
+        assert cand.status == "discovered"
+
 
 
 def test_synthetic_fixture_b_murim_isolation():

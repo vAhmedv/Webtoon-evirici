@@ -437,7 +437,7 @@ def process_discovered_suggestions(
                 source=raw_src,
                 kind=kind,
                 suggested_target=suggested_target,
-                status="provisional",
+                status="discovered",
                 evidence_count=len(evidences),
                 evidence=evidences,
             )
@@ -447,6 +447,7 @@ def process_discovered_suggestions(
     logger.info(
         f"Discovery processed {len(raw_suggestions)} suggestions -> {len(valid_candidates)} candidates added/updated, {filtered_count} filtered"
     )
+
 
     return DiscoveryResult(
         candidates=valid_candidates,
@@ -649,14 +650,9 @@ def extract_target_form_from_translation(
         if match:
             return match.group(0)
 
-    # 4. Phrase heuristic for capitalized or title-cased words in translated_text
-    cap_matches = re.findall(r"\b[A-ZÇĞİÖŞÜ][a-zçğıöşü]+(?:\s+[A-ZÇĞİÖŞÜa-zçğıöşü]+)*\b", norm_trans)
-    stop_words = {"sadece", "kırmızı", "başka", "bu", "ve", "bir"}
-    for cap in cap_matches:
-        if cap.lower() not in stop_words:
-            return cap
-
+    # Return None if no safe alignment found (do not fabricate evidence)
     return None
+
 
 
 def record_validated_term_observations(
