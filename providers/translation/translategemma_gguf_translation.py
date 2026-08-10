@@ -259,6 +259,8 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
         max_context_length: int = 2048,
         gpu_layers: int = 99,
         micro_batch_size: int = DEFAULT_MICRO_BATCH_SIZE,
+        micro_batch_enabled: bool = True,
+        prompt_variant: str = "legacy",
         **kwargs,
     ) -> None:
         if not MIN_MICRO_BATCH_SIZE <= micro_batch_size <= DEFAULT_MICRO_BATCH_SIZE:
@@ -270,6 +272,12 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
         self.max_context_length = max_context_length
         self.gpu_layers = gpu_layers
         self.micro_batch_size = micro_batch_size
+        self.micro_batch_enabled = micro_batch_enabled
+        self.prompt_variant = prompt_variant.strip().lower()
+        if self.prompt_variant not in {"legacy", "canonical", "minimal_faithful"}:
+            raise ValueError(
+                "prompt_variant must be 'legacy', 'canonical', or 'minimal_faithful'"
+            )
 
         self._process: subprocess.Popen | None = None
         self._owned_process: bool = False
@@ -388,7 +396,12 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
     def _query_official_translation(self, prepared_text: str) -> tuple[str, int, int, float]:
         """Send raw completion request to TranslateGemma llama-server using exact rendered prompt."""
         endpoint = f"{self.server_url}/completion"
-        prompt = render_translategemma_prompt(prepared_text, source_lang_code="en", target_lang_code="tr")
+        prompt = render_translategemma_prompt(
+            prepared_text,
+            source_lang_code="en",
+            target_lang_code="tr",
+            variant=self.prompt_variant,
+        )
         payload = {
             "prompt": prompt,
             "temperature": 0.0,
@@ -665,7 +678,7 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
             nonlocal pending
             if not pending:
                 return
-            if len(pending) >= MIN_MICRO_BATCH_SIZE:
+            if self.micro_batch_enabled and len(pending) >= MIN_MICRO_BATCH_SIZE:
                 batch_results, batch_raw = self._translate_micro_batch(pending)
                 results.extend(batch_results)
                 raw_responses.extend(batch_raw)
@@ -745,7 +758,7 @@ class TranslateGemmaGGUFTranslationProvider(TranslationProvider):
                     placeholder_map=placeholder_map,
                 )
             )
-            if len(pending) == self.micro_batch_size:
+            if not self.micro_batch_enabled or len(pending) == self.micro_batch_size:
                 flush_pending()
 
         flush_pending()

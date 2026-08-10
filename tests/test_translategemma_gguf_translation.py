@@ -49,27 +49,68 @@ class TestTranslateGemmaHardening(unittest.TestCase):
         self.assertIsInstance(qwen_p, QwenGGUFTranslationProvider)
 
     def test_render_translategemma_prompt_structure(self):
-        """Test render_translategemma_prompt template output against specification."""
-        source = "Because swords are useful."
-        prompt = render_translategemma_prompt(source, source_lang_code="en", target_lang_code="tr")
+        """Legacy remains the byte-for-byte default raw prompt."""
+        expected = (
+            "<bos><start_of_turn>user\n"
+            "Translate from English to Turkish:\n"
+            "Hello.<end_of_turn>\n"
+            "<start_of_turn>model\n"
+        )
+        self.assertEqual(render_translategemma_prompt("Hello."), expected)
+        self.assertEqual(render_translategemma_prompt("Hello.", variant="legacy"), expected)
 
-        # Source appears exactly once
-        self.assertEqual(prompt.count(source), 1)
+    def test_render_translategemma_canonical_prompt_exact(self):
+        expected = (
+            "<bos><start_of_turn>user\n"
+            "You are a professional English (en) to Turkish (tr) translator. Your goal is to "
+            "accurately convey the meaning and nuances of the original English text while "
+            "adhering to Turkish grammar, vocabulary, and cultural sensitivities.\n"
+            "Produce only the Turkish translation, without any additional explanations or "
+            "commentary. Please translate the following English text into Turkish:\n\n\n"
+            "Hello.<end_of_turn>\n"
+            "<start_of_turn>model\n"
+        )
+        self.assertEqual(
+            render_translategemma_prompt("Hello.", variant="canonical"),
+            expected,
+        )
 
-        # Language direction
-        self.assertIn("English", prompt)
-        self.assertIn("Turkish", prompt)
+    def test_render_translategemma_minimal_faithful_prompt_exact(self):
+        expected = (
+            "<bos><start_of_turn>user\n"
+            "Translate the following text from English (en) to Turkish (tr).\n"
+            "Preserve the original meaning exactly. Do not add, infer, explain, omit, "
+            "or invent any information.\n"
+            "Output only the Turkish translation.\n\n"
+            "Hello.<end_of_turn>\n"
+            "<start_of_turn>model\n"
+        )
+        self.assertEqual(
+            render_translategemma_prompt("Hello.", variant="minimal_faithful"),
+            expected,
+        )
+        sentinel_source = "Activate __WTTERM0001__."
+        self.assertEqual(
+            render_translategemma_prompt(
+                sentinel_source,
+                variant="minimal_faithful",
+            ),
+            expected.replace("Hello.", sentinel_source),
+        )
 
-        # Special Gemma turn tokens
-        self.assertIn("<bos>", prompt)
-        self.assertIn("<start_of_turn>user", prompt)
-        self.assertIn("<end_of_turn>", prompt)
-        self.assertIn("<start_of_turn>model", prompt)
+    def test_render_translategemma_prompt_preserves_sentinel_source_exactly(self):
+        source = "Activate __WTTERM0001__."
+        for variant in ("legacy", "canonical", "minimal_faithful"):
+            with self.subTest(variant=variant):
+                prompt = render_translategemma_prompt(source, variant=variant)
+                self.assertEqual(prompt.count(source), 1)
+                self.assertEqual(prompt.count("__WTTERM0001__"), 1)
+                self.assertNotIn("Glossary", prompt)
+                self.assertNotIn("Context:", prompt)
 
-        # FORBIDDEN strings check
-        self.assertNotIn("Qwen", prompt)
-        self.assertNotIn("Glossary", prompt)
-        self.assertNotIn("Context", prompt)
+    def test_render_translategemma_prompt_rejects_unknown_variant(self):
+        with self.assertRaises(ValueError):
+            render_translategemma_prompt("Hello.", variant="experimental")
 
     def test_raw_completion_http_payload(self):
         """Intercept urllib.request.Request and verify exact /completion JSON payload structure."""
@@ -125,6 +166,70 @@ class TestTranslateGemmaHardening(unittest.TestCase):
 
         # Result translation verified
         self.assertEqual(out.results[0].translation, "Çünkü kılıçlar kullanışlıdır.")
+
+    def test_prompt_variants_change_only_raw_prompt_not_decoding(self):
+        captured_payloads = []
+        captured_urls = []
+
+        def mock_urlopen(req, timeout=60.0):
+            captured_urls.append(req.full_url)
+            captured_payloads.append(json.loads(req.data.decode("utf-8")))
+            response = MagicMock()
+            response.__enter__.return_value = response
+            response.read.return_value = json.dumps(
+                {
+                    "content": "Merhaba.",
+                    "tokens_evaluated": 10,
+                    "tokens_predicted": 3,
+                }
+            ).encode("utf-8")
+            return response
+
+        with patch("urllib.request.urlopen", side_effect=mock_urlopen):
+            for variant in ("legacy", "canonical", "minimal_faithful"):
+                provider = TranslateGemmaGGUFTranslationProvider(
+                    managed=False,
+                    prompt_variant=variant,
+                )
+                provider._query_official_translation("Hello.")
+
+        self.assertEqual(captured_urls, [
+            "http://127.0.0.1:8081/completion",
+            "http://127.0.0.1:8081/completion",
+            "http://127.0.0.1:8081/completion",
+        ])
+        legacy_payload, canonical_payload, minimal_faithful_payload = captured_payloads
+        decoding_payloads = [
+            {key: value for key, value in payload.items() if key != "prompt"}
+            for payload in captured_payloads
+        ]
+        self.assertEqual(decoding_payloads[0], decoding_payloads[1])
+        self.assertEqual(decoding_payloads[0], decoding_payloads[2])
+        self.assertEqual(
+            decoding_payloads[0],
+            {
+                "temperature": 0.0,
+                "n_predict": 256,
+                "stop": ["<end_of_turn>", "<eos>", "<bos>", "<start_of_turn>"],
+                "stream": False,
+            },
+        )
+        self.assertEqual(
+            legacy_payload["prompt"],
+            render_translategemma_prompt("Hello.", variant="legacy"),
+        )
+        self.assertEqual(
+            canonical_payload["prompt"],
+            render_translategemma_prompt("Hello.", variant="canonical"),
+        )
+        self.assertEqual(
+            minimal_faithful_payload["prompt"],
+            render_translategemma_prompt("Hello.", variant="minimal_faithful"),
+        )
+        self.assertNotEqual(legacy_payload["prompt"], canonical_payload["prompt"])
+        self.assertNotEqual(
+            canonical_payload["prompt"], minimal_faithful_payload["prompt"]
+        )
 
     def test_opaque_sentinels_and_boundary_safety(self):
         app_t = {"SECRET REALM": "Gizli Diyar", "YU": "Yu"}
