@@ -54,11 +54,14 @@ class OCRConfig:
 
 @dataclass(frozen=True)
 class TranslatorConfig:
-    """Çeviri ayarları (Phase 5'te kullanılacak)."""
+    """Çeviri ayarları."""
 
     enabled: bool = False
     provider: str | None = None
     qwen_model: str | None = None
+    model_path: str | None = None
+    llama_executable: str | None = None
+    fallback_provider: str | None = None
 
 
 @dataclass(frozen=True)

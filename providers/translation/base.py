@@ -50,6 +50,8 @@ class TranslationOutputItem:
     term_usages: list[dict[str, Any]] = field(default_factory=list)
     fidelity_flags: list[str] = field(default_factory=list)
     term_id_map: dict[str, str] = field(default_factory=dict)
+    micro_batch_id: str | None = None
+    micro_batch_region_ids: list[int] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

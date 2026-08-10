@@ -29,6 +29,16 @@ def test_contains_candidate_phrase_boundary_matching():
     assert contains_candidate_phrase("LUO TIAN", "MY NAME IS LUO TIAN.")
     assert not contains_candidate_phrase("LUO YAN", "MY NAME IS LUO TIAN.")
 
+    # Canonical approved terms own the full safe plural/possessive span.
+    assert contains_candidate_phrase("SPIRIT STONE", "Spirit Stone")
+    assert contains_candidate_phrase("SPIRIT STONE", "Spirit Stones")
+    assert contains_candidate_phrase("SPIRIT STONE", "Spirit Stone's value")
+
+    # Short glossary keys must not bleed into unrelated words.
+    assert not contains_candidate_phrase("YU", "YOU")
+    assert not contains_candidate_phrase("YU", "YOUR")
+    assert not contains_candidate_phrase("YU", "YOURSELF")
+
 
 def test_validate_candidate_suggestion():
     items = [TranslationItem(region_id=1, source="KANG MINHO IS A GUILD MASTER.")]

@@ -13,6 +13,11 @@ def test_load_config_returns_config() -> None:
     assert cfg.window_overlap == 1000
     assert ".webp" in cfg.input_extensions
     assert cfg.output_format == "webp"
+    assert cfg.translator.enabled is True
+    assert cfg.translator.provider == "translategemma_gguf"
+    assert cfg.translator.model_path == r"C:\AI\Models\translategemma-12b-it-q5_k_m.gguf"
+    assert cfg.translator.llama_executable == r"C:\AI\llama-cpp-cuda\llama.exe"
+    assert cfg.translator.fallback_provider == "qwen_gguf"
 
 
 def test_load_config_defaults_when_file_missing(tmp_path) -> None:

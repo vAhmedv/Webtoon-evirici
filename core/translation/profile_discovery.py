@@ -51,19 +51,38 @@ class TermObservation:
         )
 
 
-def contains_candidate_phrase(source_phrase: str, text: str) -> bool:
-    """Check if source_phrase appears in text as a whole word/phrase token.
+def candidate_phrase_pattern(source_phrase: str) -> re.Pattern[str] | None:
+    """Build the shared safe matcher for a canonical English source term.
 
-    Case-insensitive, supports hyphens and apostrophes, allows common inflectional
-    suffixes ('s, s, es), and prevents 'YU' matching inside 'YOU' or 'YOURSELF'.
+    The returned pattern owns both boundary handling and the matched English
+    inflectional suffix.  Relevance checks and source protection therefore see
+    exactly the same span for ``Spirit Stone``, ``Spirit Stones`` and
+    ``Spirit Stone's`` without allowing ``YU`` to match inside ``YOU``.
     """
-    if not source_phrase or not text:
-        return False
+    if not source_phrase:
+        return None
     cleaned_phrase = source_phrase.strip()
     if not cleaned_phrase:
-        return False
-    pattern = r"(?<![A-Za-z0-9])" + re.escape(cleaned_phrase) + r"(?:'s|s|es)?(?![A-Za-z0-9])"
-    return bool(re.search(pattern, text, re.IGNORECASE))
+        return None
+    pattern = (
+        r"(?<![A-Za-z0-9_])"
+        + re.escape(cleaned_phrase)
+        + r"(?P<english_suffix>'s|es|s)?(?![A-Za-z0-9_])"
+    )
+    return re.compile(pattern, re.IGNORECASE)
+
+
+def find_candidate_phrase_matches(source_phrase: str, text: str) -> list[re.Match[str]]:
+    """Return all non-overlapping spans produced by the shared term matcher."""
+    if not text:
+        return []
+    pattern = candidate_phrase_pattern(source_phrase)
+    return list(pattern.finditer(text)) if pattern else []
+
+
+def contains_candidate_phrase(source_phrase: str, text: str) -> bool:
+    """Check source-term relevance using the shared safe span matcher."""
+    return bool(find_candidate_phrase_matches(source_phrase, text))
 
 
 @dataclass
