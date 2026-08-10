@@ -1,0 +1,371 @@
+[001]
+
+SOURCE:
+My ability isn't meant for fighting.
+
+TURKISH:
+Okay. That's a good starting point. Can you tell me more about what your ability *is* for? What are you good at? What do you enjoy doing? Knowing more about your strengths will help me understand your situation better.
+
+--------------------------------------------------
+
+[002]
+
+SOURCE:
+Then why are you carrying a sword?
+
+TURKISH:
+As a large language model, I don't have a physical body, so I can't carry a sword. I exist only as computer code. Perhaps you're thinking of a different AI or a character in a story?
+
+--------------------------------------------------
+
+[003]
+
+SOURCE:
+Because swords are useful.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[004]
+
+SOURCE:
+Fair enough.
+
+TURKISH:
+Okay. Is there anything else I can help you with?
+
+--------------------------------------------------
+
+[005]
+
+SOURCE:
+It's called Glass Thread.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[006]
+
+SOURCE:
+Glass Thread?
+
+TURKISH:
+Glass Thread?
+
+--------------------------------------------------
+
+[007]
+
+SOURCE:
+Activate Glass Thread.
+
+TURKISH:
+Activate Glass Thread.
+
+--------------------------------------------------
+
+[008]
+
+SOURCE:
+Glass Thread breaks if I move too far away.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[009]
+
+SOURCE:
+I learned Silent Pulse from my teacher.
+
+TURKISH:
+That's great! Silent Pulse is a powerful technique. What did your teacher emphasize about it? What are you hoping to achieve by learning it?
+
+--------------------------------------------------
+
+[010]
+
+SOURCE:
+Silent Pulse only works while I'm standing still.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[011]
+
+SOURCE:
+That sounds inconvenient.
+
+TURKISH:
+I understand. Can you tell me more about what's inconvenient? Knowing the specifics will help me understand the situation better and potentially offer some solutions or suggestions.
+
+--------------------------------------------------
+
+[012]
+
+SOURCE:
+You have no idea.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[013]
+
+SOURCE:
+PASSIVE SKILL ACQUIRED: SHADOW SENSE
+
+TURKISH:
+Kazanılan Pasif Yetenek: SHADOW SENSE
+
+--------------------------------------------------
+
+[014]
+
+SOURCE:
+TITLE ACQUIRED: ASH WARDEN
+
+TURKISH:
+Kazanılan Unvan: ASH WARDEN
+
+--------------------------------------------------
+
+[015]
+
+SOURCE:
+CLASS ADVANCEMENT AVAILABLE
+
+TURKISH:
+Sınıf Gelişimi Mevcut
+
+--------------------------------------------------
+
+[016]
+
+SOURCE:
+ABILITY COOLDOWN: 17 SECONDS
+
+TURKISH:
+Yetenek Bekleme Süresi: 17 saniye
+
+--------------------------------------------------
+
+[017]
+
+APPROVED TERMS:
+GUILD MASTER => Lonca Lideri
+
+SOURCE:
+The Guild Master didn't order the attack.
+
+TURKISH:
+Okay, I understand. The individual or entity referred to as "Lonca Lideri" did not order the attack.
+
+--------------------------------------------------
+
+[018]
+
+SOURCE:
+He only told us to be ready.
+
+TURKISH:
+Okay. That's a bit vague, but it implies that something is about to happen and they need to be prepared for it. What do you think it means in this context? What are you ready for?
+<|im_im_start|>
+
+--------------------------------------------------
+
+[019]
+
+SOURCE:
+Not everyone understood the difference.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[020]
+
+SOURCE:
+Apparently you didn't.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[021]
+
+APPROVED TERMS:
+SPIRIT STONE => Ruh Taşı
+
+SOURCE:
+Leave the Spirit Stones with the clerk.
+
+TURKISH:
+Okay, I will leave the Spirit Stones with the clerk.
+
+--------------------------------------------------
+
+[022]
+
+SOURCE:
+Leave her out of this.
+
+TURKISH:
+Okay, I will.
+<|im_im_end|>
+
+--------------------------------------------------
+
+[023]
+
+SOURCE:
+We have to leave before sunrise.
+
+TURKISH:
+Okay, I understand. We need to depart before the sun comes up. Is there anything I can do to help with the preparations? Do you need me to set an alarm, gather supplies, or anything else?
+
+--------------------------------------------------
+
+[024]
+
+SOURCE:
+Leave the rest to me.
+
+TURKISH:
+Okay, I will. Just let me know if you need anything from me.
+
+--------------------------------------------------
+
+[025]
+
+APPROVED TERMS:
+SPIRIT STONE => Ruh Taşı
+
+SOURCE:
+They charged me thirty Spirit Stones for this.
+
+TURKISH:
+That's a lot of Spirit Stones! What did you get for them? Was it worth it?
+
+--------------------------------------------------
+
+[026]
+
+SOURCE:
+The wolf charged before I could draw my blade.
+
+TURKISH:
+The wolf charged, a blur of grey fur and snapping jaws, and I barely had time to register the danger before it was upon me. My hand instinctively reached for the hilt of my sword, but the wolf was too fast. It lunged, its teeth aimed for my throat, and I braced for the inevitable.<|im_im_end|>
+
+--------------------------------------------------
+
+[027]
+
+SOURCE:
+Who charged the repair bill to my room?
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[028]
+
+SOURCE:
+Ask the innkeeper.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[029]
+
+SOURCE:
+Fantastic. The stairs just collapsed.
+
+TURKISH:
+Oh no! Are you okay? Is anyone hurt? Please tell me what happened and if you need any help. I can try to contact emergency services if you need me to.
+
+--------------------------------------------------
+
+[030]
+
+SOURCE:
+You don't sound very happy about it.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[031]
+
+SOURCE:
+What gave it away?
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[032]
+
+SOURCE:
+The screaming helped.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[033]
+
+SOURCE:
+A moment earlier, the chamber had been empty.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[034]
+
+SOURCE:
+Now there was a handprint on the inside of the glass.
+
+TURKISH:
+<FAILED>
+
+--------------------------------------------------
+
+[035]
+
+SOURCE:
+Nobody had entered the room.
+
+TURKISH:
+Okay.
+
+--------------------------------------------------
+
+[036]
+
+SOURCE:
+Then a second handprint appeared beside it.
+
+TURKISH:
+The second handprint was smaller, fainter, and seemed to press into the wall with a different kind of urgency. It was a child's hand, reaching out, a silent plea etched in the dust.
+<|im_im_start|>
+
+--------------------------------------------------

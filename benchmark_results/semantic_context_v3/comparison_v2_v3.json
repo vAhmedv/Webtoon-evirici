@@ -1,0 +1,1064 @@
+[
+  {
+    "id": 1,
+    "context_source": "REAL",
+    "previous_context": [],
+    "target_source": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+    "next_context": [
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON."
+    ],
+    "v1_baseline_c": {
+      "translation": "ŞU ANKI PERFORMANSINA GÖRE, OKÇULUKTA UZMANLAŞMIŞ BİR yetenek kullanıcısı KADAR YAKIN BİR SEVİYEDE."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+      "translation": "ŞU ANKI PERFORMANSINA GÖRE, OKÇULUKTA UZMANLAŞMIŞ BİR yetenek kullanıcısı KADAR YAKIN BİR SEVİYEDE."
+    },
+    "v3_resolver": {
+      "rewrite_needed": true,
+      "confidence": 0.9,
+      "risk_types": [
+        "ambiguous_comparison",
+        "implicit_ability_scope"
+      ],
+      "semantic_notes": [
+        {
+          "span": "on par with a level 1 ability user who specializes in archery",
+          "resolved_meaning": "has combat effectiveness equivalent to a Level 1 archer in terms of threat level or skill execution",
+          "evidence": "The phrase 'on par with' in a combat context implies matching capability or threat, not necessarily identical stats or title. Explicitly stating 'combat effectiveness' or 'threat level' removes ambiguity for translation."
+        }
+      ],
+      "question_word": null,
+      "referents": [
+        {
+          "pronoun": "HE",
+          "resolved": "LUO TIAN"
+        }
+      ],
+      "tense_aspect": "present perfect continuous implication (just now)",
+      "controlled_target": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HIS COMBAT EFFECTIVENESS IS ALMOST EQUAL TO THAT OF A LEVEL 1 ARCHER.",
+      "validation_passed": false,
+      "validation_reasons": [
+        "named_term_loss"
+      ],
+      "validator_uncertain": false
+    },
+    "selected_target": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+    "translation": "ŞU ANKI PERFORMANSINA GÖRE, OKÇULUKTA UZMANLAŞMIŞ BİR yetenek kullanıcısı KADAR YAKIN BİR SEVİYEDE.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 118,
+    "controlled_length": 118,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 2,
+    "context_source": "REAL",
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY."
+    ],
+    "target_source": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+    "next_context": [
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."
+    ],
+    "v1_baseline_c": {
+      "translation": "GENÇ USTAD Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMAMIZ GEREKİYOR."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "Young Master Yu, Captain Gao, we need to be vigilant for the rest of the journey ahead.",
+      "translation": "GENÇ USTAD Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMAMIZ GEREKİYOR."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+    "translation": "GENÇ USTAD Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMAMIZ GEREKİYOR.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 65,
+    "controlled_length": 65,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 3,
+    "context_source": "REAL",
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON."
+    ],
+    "target_source": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+    "next_context": [
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD."
+    ],
+    "v1_baseline_c": {
+      "translation": "BU GRİ KURT YARASALARIN, BİZİM ÖNÜMÜZDEKİ Blackwind Ravine BÖLGESİNDE OLDUĞU DÜŞÜNÜLÜYOR."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+      "translation": "BU GRİ KURT YARASALARIN, BİZİM ÖNÜMÜZDEKİ Blackwind Ravine BÖLGESİNDE OLDUĞU DÜŞÜNÜLÜYOR."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+    "translation": "BU GRİ KURT YARASALARIN, BİZİM ÖNÜMÜZDEKİ Blackwind Ravine BÖLGESİNDE OLDUĞU DÜŞÜNÜLÜYOR.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 81,
+    "controlled_length": 81,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 4,
+    "context_source": "REAL",
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."
+    ],
+    "target_source": "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+    "next_context": [
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN."
+    ],
+    "v1_baseline_c": {
+      "translation": "Hu San, SEN EN HIZLISIN. ÖNDEKİ YOLU KEŞFET."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+      "translation": "Hu San, SEN EN HIZLISIN. ÖNDEKİ YOLU KEŞFET."
+    },
+    "v3_resolver": {
+      "rewrite_needed": true,
+      "confidence": 0.95,
+      "risk_types": [
+        "ambiguous_action"
+      ],
+      "semantic_notes": [
+        {
+          "span": "GO SCOUT THE PATH AHEAD",
+          "resolved_meaning": "GO CHECK THE PATH AHEAD FOR OBSTACLES OR DANGERS",
+          "evidence": "Context mentions 'GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE' and 'THEY'VE APPEARED HERE', implying the path contains threats that need verification before proceeding."
+        }
+      ],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "HU SAN, YOU'RE THE FASTEST. GO CHECK THE PATH AHEAD FOR OBSTACLES OR DANGERS.",
+      "validation_passed": true,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "HU SAN, YOU'RE THE FASTEST. GO CHECK THE PATH AHEAD FOR OBSTACLES OR DANGERS.",
+    "translation": "Hu San, SEN EN HIZLISIN. İLERİDEKİ YOLU, ENGELER VEYA TEHLİKELER İÇİN KONTROL ET.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 52,
+    "controlled_length": 77,
+    "length_ratio": 1.48
+  },
+  {
+    "id": 5,
+    "context_source": "REAL",
+    "previous_context": [
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD."
+    ],
+    "target_source": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+    "next_context": [
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER."
+    ],
+    "v1_baseline_c": {
+      "translation": "Burada ortaya çıkmaları muhtemelen iyi bir işaret değildir."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+      "translation": "Burada ortaya çıkmaları muhtemelen iyi bir işaret değildir."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+    "translation": "Burada ortaya çıkmaları muhtemelen iyi bir işaret değildir.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 64,
+    "controlled_length": 64,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 6,
+    "context_source": "REAL",
+    "previous_context": [
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN."
+    ],
+    "target_source": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "next_context": [
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW."
+    ],
+    "v1_baseline_c": {
+      "translation": "KAPTAN Gao Yuan, DİNAMİK BİR OYUNCU VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE ALSO NOT EASY TO DEFEAT.",
+      "translation": "KAPTAN Gao Yuan, DİNAMİK BİR OYUNCU VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL."
+    },
+    "v3_resolver": {
+      "rewrite_needed": true,
+      "confidence": 0.95,
+      "risk_types": [
+        "idiomatic_expression"
+      ],
+      "semantic_notes": [
+        {
+          "span": "no pushovers",
+          "resolved_meaning": "not weak or easily defeated",
+          "evidence": "Context mentions 'gray wolf beasts' and 'scout the path', implying a combat scenario where 'pushover' refers to opponents that are not easily overcome."
+        }
+      ],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NOT WEAK OR EASILY DEFEATED EITHER.",
+      "validation_passed": false,
+      "validation_reasons": [
+        "tense_aspect_changed"
+      ],
+      "validator_uncertain": false
+    },
+    "selected_target": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "translation": "KAPTAN Gao Yuan, DİNAMİK BİR OYUNCU VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 98,
+    "controlled_length": 98,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 7,
+    "context_source": "REAL",
+    "previous_context": [
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER."
+    ],
+    "target_source": "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+    "next_context": [
+      "I'M USED TO IT."
+    ],
+    "v1_baseline_c": {
+      "translation": "Sakin ol, çocuk. Sen de az önce gördün."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+      "translation": "Sakin ol, çocuk. Sen de az önce gördün."
+    },
+    "v3_resolver": {
+      "rewrite_needed": true,
+      "confidence": 0.95,
+      "risk_types": [
+        "pronoun_reference"
+      ],
+      "semantic_notes": [
+        {
+          "span": "YOU SAW IT YOURSELF JUST NOW",
+          "resolved_meaning": "You personally witnessed the event that just occurred.",
+          "evidence": "Context 1 ('GO SCOUT THE PATH AHEAD') and Context 2 ('THE FACT THAT THEY'VE APPEARED HERE') establish a recent event of enemies appearing. 'IT' refers to this specific appearance, and 'YOURSELF' emphasizes direct observation."
+        }
+      ],
+      "question_word": null,
+      "referents": [
+        {
+          "pronoun": "IT",
+          "resolved": "the appearance of the enemies"
+        }
+      ],
+      "tense_aspect": "past_simple",
+      "controlled_target": "RELAX, KID. YOU PERSONALLY SAW THE ENEMIES APPEAR JUST NOW.",
+      "validation_passed": true,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "RELAX, KID. YOU PERSONALLY SAW THE ENEMIES APPEAR JUST NOW.",
+    "translation": "SAKİN OL, ÇOCUK. SEN KENDİN DÜN DÜŞMANLARIN ORTAYA ÇIKTIĞINI GÖRDÜN.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 41,
+    "controlled_length": 59,
+    "length_ratio": 1.44
+  },
+  {
+    "id": 8,
+    "context_source": "REAL",
+    "previous_context": [
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW."
+    ],
+    "target_source": "I'M USED TO IT.",
+    "next_context": [
+      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD."
+    ],
+    "v1_baseline_c": {
+      "translation": "BEN TO IT'e ALISKINIM."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "I'M USED TO IT.",
+      "translation": "BEN TO IT'e ALISKINIM."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "I'M USED TO IT.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "I'M USED TO IT.",
+    "translation": "BEN TO IT'e ALISKINIM.",
+    "warnings": [],
+    "requires_review": true,
+    "original_length": 15,
+    "controlled_length": 15,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 9,
+    "context_source": "REAL",
+    "previous_context": [
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+      "I'M USED TO IT."
+    ],
+    "target_source": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+    "next_context": [
+      "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE."
+    ],
+    "v1_baseline_c": {
+      "translation": "DÜNYA ÇAPINDA SAYISIZ JEOLOJİK YAP[I] OLUŞMUŞTUR."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+      "translation": "DÜNYA ÇAPINDA SAYISIZ JEOLOJİK YAP[I] OLUŞMUŞTUR."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+    "translation": "DÜNYA ÇAPINDA SAYISIZ JEOLOJİK YAP[I] OLUŞMUŞTUR.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 65,
+    "controlled_length": 65,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 10,
+    "context_source": "REAL",
+    "previous_context": [
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+      "I'M USED TO IT.",
+      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD."
+    ],
+    "target_source": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "next_context": [],
+    "v1_baseline_c": {
+      "translation": "BENİM İSMİM Luo Tian'TİR. BEN BİR yetenek kullanıcısı DEĞİLİM, BİR gizli âlem rehberiİM."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+      "translation": "BENİM İSMİM Luo Tian'TİR. BEN BİR yetenek kullanıcısı DEĞİLİM, BİR gizli âlem rehberiİM."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "translation": "BENİM İSMİM Luo Tian'TİR. BEN BİR yetenek kullanıcısı DEĞİLİM, BİR gizli âlem rehberiİM.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 70,
+    "controlled_length": 70,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 11,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "The raiders keep breaking free.",
+      "Once Frost Chain catches them, they cannot move."
+    ],
+    "target_source": "Frost Chain can hold three targets at once.",
+    "next_context": [
+      "Use it when they reach the gate."
+    ],
+    "v1_baseline_c": {
+      "translation": "Frost Chain aynı anda üç hedefi taşıyabilir."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "Frost Chain can restrain three targets at once.",
+      "translation": "Frost Chain aynı anda üç hedefe karşı koyabilir."
+    },
+    "v3_resolver": {
+      "rewrite_needed": true,
+      "confidence": 0.95,
+      "risk_types": [
+        "ambiguous_verb"
+      ],
+      "semantic_notes": [
+        {
+          "span": "hold",
+          "resolved_meaning": "prevent from moving",
+          "evidence": "Context 2 states: 'Once Frost Chain catches them, they cannot move.'"
+        }
+      ],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "Frost Chain can keep three targets from moving at the same time.",
+      "validation_passed": true,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "Frost Chain can keep three targets from moving at the same time.",
+    "translation": "Frost Chain, aynı anda üç hedefi hareket ettirebilir.",
+    "warnings": [],
+    "requires_review": true,
+    "original_length": 43,
+    "controlled_length": 64,
+    "length_ratio": 1.49
+  },
+  {
+    "id": 12,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "There is an extra meal on my hotel bill.",
+      "Only the front desk can add purchases to a room."
+    ],
+    "target_source": "Who charged the meal to my room?",
+    "next_context": [
+      "I want the employee's name."
+    ],
+    "v1_baseline_c": {
+      "translation": "Yemeğin ücreti benim odama nasıl yazıldı?"
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "Who charged the meal to my room?",
+      "translation": "Yemeğin ücreti benim odama nasıl yazıldı?"
+    },
+    "v3_resolver": {
+      "rewrite_needed": true,
+      "confidence": 0.95,
+      "risk_types": [
+        "ambiguous_action"
+      ],
+      "semantic_notes": [
+        {
+          "span": "charged the meal to my room",
+          "resolved_meaning": "added the cost of the meal to my room bill",
+          "evidence": "Previous context 1 states 'There is an extra meal on my hotel bill' and context 2 states 'Only the front desk can add purchases to a room', establishing that 'charging to a room' in this context means adding an item to the bill."
+        }
+      ],
+      "question_word": "who",
+      "referents": [],
+      "tense_aspect": "past",
+      "controlled_target": "Who added the cost of the meal to my room bill?",
+      "validation_passed": true,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "Who added the cost of the meal to my room bill?",
+    "translation": "Öğün ücretini kim odamın faturasına ekledi?",
+    "warnings": [],
+    "requires_review": true,
+    "original_length": 32,
+    "controlled_length": 47,
+    "length_ratio": 1.47
+  },
+  {
+    "id": 13,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "I checked the chamber and found nobody inside.",
+      "I stepped into the corridor for only a few seconds."
+    ],
+    "target_source": "The chamber had been empty only a moment earlier.",
+    "next_context": [
+      "Now someone was standing beside the window."
+    ],
+    "v1_baseline_c": {
+      "translation": "Oda, sadece bir an önce boştu."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "The chamber had been empty only a moment earlier.",
+      "translation": "Oda, sadece bir an önce boştu."
+    },
+    "v3_resolver": {
+      "rewrite_needed": true,
+      "confidence": 0.95,
+      "risk_types": [
+        "compact_narrative"
+      ],
+      "semantic_notes": [
+        {
+          "span": "The chamber had been empty only a moment earlier",
+          "resolved_meaning": "The chamber was empty just before the speaker entered it.",
+          "evidence": "Context 1 states 'I checked the chamber and found nobody inside.' Context 2 states 'I stepped into the corridor for only a few seconds.' The sequence implies the speaker entered the corridor, checked the chamber (finding it empty), then stepped out. The target sentence describes the state of the chamber immediately prior to this check."
+        }
+      ],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": "past_perfect",
+      "controlled_target": "The chamber was empty just before I checked it.",
+      "validation_passed": false,
+      "validation_reasons": [
+        "tense_aspect_changed"
+      ],
+      "validator_uncertain": false
+    },
+    "selected_target": "The chamber had been empty only a moment earlier.",
+    "translation": "Oda, sadece bir an önce boştu.",
+    "warnings": [],
+    "requires_review": true,
+    "original_length": 49,
+    "controlled_length": 49,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 14,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "The stone floor was clean when I entered.",
+      "I heard dripping behind me."
+    ],
+    "target_source": "Now a line of wet footprints crossed the floor.",
+    "next_context": [
+      "They led toward the sealed door."
+    ],
+    "v1_baseline_c": {
+      "translation": "Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "Now a line of wet footprints crossed the floor.",
+      "translation": "Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "Now a line of wet footprints crossed the floor.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "Now a line of wet footprints crossed the floor.",
+    "translation": "Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu.",
+    "warnings": [],
+    "requires_review": true,
+    "original_length": 47,
+    "controlled_length": 47,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 15,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "The boar lowered its head and scraped the ground."
+    ],
+    "target_source": "The boar charged before I could draw my sword.",
+    "next_context": [
+      "Its tusks struck the tree behind me."
+    ],
+    "v1_baseline_c": {
+      "translation": "Kılıcımı çekmeden önce domuz bana doğru saldırdı."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "The boar charged before I could draw my sword.",
+      "translation": "Kılıcımı çekmeden önce domuz bana doğru saldırdı."
+    },
+    "v3_resolver": {
+      "rewrite_needed": true,
+      "confidence": 0.95,
+      "risk_types": [
+        "ambiguous_action"
+      ],
+      "semantic_notes": [
+        {
+          "span": "charged",
+          "resolved_meaning": "ran forward to attack",
+          "evidence": "NEXT CONTEXT: Its tusks struck the tree behind me."
+        }
+      ],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "The boar ran forward to attack before I could draw my sword.",
+      "validation_passed": true,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "The boar ran forward to attack before I could draw my sword.",
+    "translation": "Kılıcımı çekmeden önce, domuz hızıyla öne atılarak saldırı başlattı.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 46,
+    "controlled_length": 60,
+    "length_ratio": 1.3
+  },
+  {
+    "id": 16,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "This argument is between you and me."
+    ],
+    "target_source": "Leave him out of this.",
+    "next_context": [
+      "He has nothing to do with our dispute."
+    ],
+    "v1_baseline_c": {
+      "translation": "Onu bu işin dışında tutun."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "Leave him out of this.",
+      "translation": "Onu bu işin dışında tutun."
+    },
+    "v3_resolver": {
+      "rewrite_needed": true,
+      "confidence": 0.95,
+      "risk_types": [
+        "pronoun_reference"
+      ],
+      "semantic_notes": [
+        {
+          "span": "Leave him out of this",
+          "resolved_meaning": "Do not include him in our argument or discussion.",
+          "evidence": "NEXT CONTEXT: 'He has nothing to do with our dispute' clarifies that 'him' is a third party unrelated to the conflict between 'you and me' mentioned in PREVIOUS CONTEXT."
+        }
+      ],
+      "question_word": null,
+      "referents": [
+        {
+          "pronoun": "him",
+          "resolved_entity": "the third party mentioned in the dispute context"
+        }
+      ],
+      "tense_aspect": null,
+      "controlled_target": "Do not include him in our argument.",
+      "validation_passed": false,
+      "validation_reasons": [
+        "polarity_changed"
+      ],
+      "validator_uncertain": true
+    },
+    "selected_target": "Leave him out of this.",
+    "translation": "Onu bu işin dışında tutun.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 22,
+    "controlled_length": 22,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 17,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "The caretaker will need the key later."
+    ],
+    "target_source": "Leave the key where you found it.",
+    "next_context": [
+      "Do not take it with you."
+    ],
+    "v1_baseline_c": {
+      "translation": "Anahtarı bulduğunuz yerde bırakın."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "Leave the key where you found it.",
+      "translation": "Anahtarı bulduğunuz yerde bırakın."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "Leave the key where you found it.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "Leave the key where you found it.",
+    "translation": "Anahtarı bulduğunuz yerde bırakın.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 33,
+    "controlled_length": 33,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 18,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "The gates will be locked at midnight."
+    ],
+    "target_source": "We need to leave before midnight.",
+    "next_context": [
+      "Pack only what you can carry."
+    ],
+    "v1_baseline_c": {
+      "translation": "Oradan gece yarısından önce ayrılmamız gerekiyor."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "We need to leave before midnight.",
+      "translation": "Oradan gece yarısından önce ayrılmamız gerekiyor."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "We need to leave before midnight.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "We need to leave before midnight.",
+    "translation": "Oradan gece yarısından önce ayrılmamız gerekiyor.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 33,
+    "controlled_length": 33,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 19,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "Mira handed me the cracked compass.",
+      "She said the compass still pointed north."
+    ],
+    "target_source": "I don't trust it.",
+    "next_context": [
+      "The needle keeps spinning."
+    ],
+    "v1_baseline_c": {
+      "translation": "Buna güvenmiyorum."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "I don't trust the cracked compass.",
+      "translation": "Buna güvenmiyorum."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "I don't trust it.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "I don't trust it.",
+    "translation": "Buna güvenmiyorum.",
+    "warnings": [],
+    "requires_review": true,
+    "original_length": 17,
+    "controlled_length": 17,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 20,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "Arin abandoned the watch without permission."
+    ],
+    "target_source": "Why did he leave?",
+    "next_context": [
+      "The captain wants an explanation."
+    ],
+    "v1_baseline_c": {
+      "translation": "Neden ayrıldı?"
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "Why did he leave?",
+      "translation": "Neden ayrıldı?"
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": "why",
+      "referents": [],
+      "tense_aspect": "past simple",
+      "controlled_target": "Why did he leave?",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "Why did he leave?",
+    "translation": "Neden ayrıldı?",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 17,
+    "controlled_length": 17,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 21,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "An arrow flew toward Lena's head."
+    ],
+    "target_source": "She watched Lena duck.",
+    "next_context": [
+      "The arrow passed over Lena."
+    ],
+    "v1_baseline_c": {
+      "translation": "O, Lena'nın eğildiğini gördü."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "She watched Lena duck.",
+      "translation": "O, Lena'nın eğildiğini gördü."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "She watched Lena duck.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "She watched Lena duck.",
+    "translation": "O, Lena'nın eğildiğini gördü.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 22,
+    "controlled_length": 22,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 22,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "The paralysis spell had kept his legs frozen.",
+      "A minute later, he could move again."
+    ],
+    "target_source": "The spell wore off.",
+    "next_context": [
+      "He stood up without help."
+    ],
+    "v1_baseline_c": {
+      "translation": "Büyünün etkisi geçti."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "The paralysis spell's effects ended.",
+      "translation": "Felç büyüsünün etkileri sona erdi."
+    },
+    "v3_resolver": {
+      "rewrite_needed": true,
+      "confidence": 0.95,
+      "risk_types": [
+        "tense_aspect"
+      ],
+      "semantic_notes": [
+        {
+          "span": "The spell wore off",
+          "resolved_meaning": "The effects of the paralysis spell ended completely.",
+          "evidence": "Previous context states the spell 'kept his legs frozen' and 'A minute later, he could move again.' Next context shows 'He stood up without help.' This confirms the spell's effect (paralysis) ceased, allowing movement."
+        }
+      ],
+      "question_word": null,
+      "referents": [
+        {
+          "pronoun": "his",
+          "referent": "the character who was paralyzed"
+        }
+      ],
+      "tense_aspect": "past",
+      "controlled_target": "The paralysis spell ended.",
+      "validation_passed": true,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "The paralysis spell ended.",
+    "translation": "Felç büyüsü sona erdi.",
+    "warnings": [],
+    "requires_review": true,
+    "original_length": 19,
+    "controlled_length": 26,
+    "length_ratio": 1.37
+  },
+  {
+    "id": 23,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "The sentries began their vigil before sunrise."
+    ],
+    "target_source": "They have been waiting since dawn.",
+    "next_context": [
+      "They are still at the gate."
+    ],
+    "v1_baseline_c": {
+      "translation": "Onlar, şafaktan beri bekliyorlar."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "They have been waiting since dawn.",
+      "translation": "Onlar, şafaktan beri bekliyorlar."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "They have been waiting since dawn.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "They have been waiting since dawn.",
+    "translation": "Onlar, şafaktan beri bekliyorlar.",
+    "warnings": [],
+    "requires_review": true,
+    "original_length": 34,
+    "controlled_length": 34,
+    "length_ratio": 1.0
+  },
+  {
+    "id": 24,
+    "context_source": "SYNTHETIC",
+    "previous_context": [
+      "The iron door had not moved all night."
+    ],
+    "target_source": "The door remained shut.",
+    "next_context": [
+      "No one had entered the vault."
+    ],
+    "v1_baseline_c": {
+      "translation": "Kapı kapalı kaldı."
+    },
+    "v2": {
+      "rewrite_used": false,
+      "clarified_target": "The door remained shut.",
+      "translation": "Kapı kapalı kaldı."
+    },
+    "v3_resolver": {
+      "rewrite_needed": false,
+      "confidence": 0.0,
+      "risk_types": [],
+      "semantic_notes": [],
+      "question_word": null,
+      "referents": [],
+      "tense_aspect": null,
+      "controlled_target": "The door remained shut.",
+      "validation_passed": false,
+      "validation_reasons": [],
+      "validator_uncertain": false
+    },
+    "selected_target": "The door remained shut.",
+    "translation": "Kapı kapalı kaldı.",
+    "warnings": [],
+    "requires_review": false,
+    "original_length": 23,
+    "controlled_length": 23,
+    "length_ratio": 1.0
+  }
+]

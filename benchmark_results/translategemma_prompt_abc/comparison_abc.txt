@@ -1,0 +1,854 @@
+============================================================
+[001]
+
+SOURCE:
+I don't use this ability to attack.
+
+PREPARED SOURCE:
+I don't use this ability to attack.
+
+A — LEGACY:
+Bu yeteneği saldırmak için kullanmıyorum.
+
+B — CANONICAL:
+Bu yeteneği saldırı amacıyla kullanmıyorum.
+
+C — MINIMAL FAITHFUL:
+Bu yeteneği saldırı amacıyla kullanmıyorum.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[002]
+
+SOURCE:
+Then what do you use it for?
+
+PREPARED SOURCE:
+Then what do you use it for?
+
+A — LEGACY:
+Peki, onu ne için kullanıyorsunuz?
+
+B — CANONICAL:
+Peki, onu ne için kullanıyorsunuz?
+
+C — MINIMAL FAITHFUL:
+Peki, onu ne için kullanıyorsunuz?
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[003]
+
+SOURCE:
+It's called Frost Chain.
+
+PREPARED SOURCE:
+It's called __WTTERM0001__.
+
+A — LEGACY:
+Bunun adı Frost Chain'dir.
+
+B — CANONICAL:
+Bu ürünün adı Frost Chain'dir.
+
+C — MINIMAL FAITHFUL:
+Bunun adı Frost Chain'dir.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[005]
+
+SOURCE:
+Activate Frost Chain.
+
+PREPARED SOURCE:
+Activate __WTTERM0001__.
+
+A — LEGACY:
+"Frost Chain" öğesini etkinleştirin.
+
+B — CANONICAL:
+Frost Chain özelliğini etkinleştirin.
+
+C — MINIMAL FAITHFUL:
+Frost Chain'i etkinleştirin.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[006]
+
+SOURCE:
+Don't use Frost Chain until I give the signal.
+
+PREPARED SOURCE:
+Don't use __WTTERM0001__ until I give the signal.
+
+A — LEGACY:
+Frost Chain'i kullanmayın, ben işaret vermeden.
+
+B — CANONICAL:
+Lütfen Frost Chain cihazını, benim onayımı alana kadar kullanmayın.
+
+C — MINIMAL FAITHFUL:
+Frost Chain'i kullanmayın, ben işaret vermeden.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[007]
+
+SOURCE:
+Frost Chain can hold three targets at once.
+
+PREPARED SOURCE:
+__WTTERM0001__ can hold three targets at once.
+
+A — LEGACY:
+Frost Chain aynı anda üç hedefi taşıyabilir.
+
+B — CANONICAL:
+Frost Chain aynı anda üç hedefi taşıyabilir.
+
+C — MINIMAL FAITHFUL:
+Frost Chain aynı anda üç hedefi taşıyabilir.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[008]
+
+SOURCE:
+I learned Frost Chain from my sister.
+
+PREPARED SOURCE:
+I learned __WTTERM0001__ from my sister.
+
+A — LEGACY:
+Frost Chain'i kız kardeşimden öğrendim.
+
+B — CANONICAL:
+Bunu kız kardeşimden öğrendim.
+
+C — MINIMAL FAITHFUL:
+Bunu kız kardeşimden öğrendim.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[009]
+
+SOURCE:
+These Spirit Stones belong to the Guild Master.
+
+PREPARED SOURCE:
+These __WTTERM0001__ belong to the __WTTERM0002__.
+
+A — LEGACY:
+Bu Ruh Taşları, Lonca Liderine aittir.
+
+B — CANONICAL:
+Bu Ruh Taşları, Lonca Lideri grubuna aittir.
+
+C — MINIMAL FAITHFUL:
+Bunlar Ruh Taşları grubuna aittir.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+approved_term_missing
+============================================================
+
+============================================================
+[010]
+
+SOURCE:
+Leave the Spirit Stones beside the door.
+
+PREPARED SOURCE:
+Leave the __WTTERM0001__ beside the door.
+
+A — LEGACY:
+Kapının yanına Ruh Taşlarını bırakın.
+
+B — CANONICAL:
+Lütfen Ruh Taşlarını kapının yanına bırakın.
+
+C — MINIMAL FAITHFUL:
+Kapının yanına Ruh Taşlarını bırakın.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[011]
+
+SOURCE:
+They want twenty Spirit Stones for one bottle.
+
+PREPARED SOURCE:
+They want twenty __WTTERM0001__ for one bottle.
+
+A — LEGACY:
+<FAILED>
+
+B — CANONICAL:
+Bir şişe için yirmi Ruh Taşı talep ediyorlar.
+
+C — MINIMAL FAITHFUL:
+Onlar, bir şişe için yirmi Ruh Taşı istiyorlar.
+
+A WARNINGS:
+source_translation_wrapper
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[012]
+
+SOURCE:
+A Spirit Stone's value depends on its purity.
+
+PREPARED SOURCE:
+A __WTTERM0001__ value depends on its purity.
+
+A — LEGACY:
+Bir Ruh Taşının değeri, saflığına bağlıdır.
+
+B — CANONICAL:
+Bir Ruh Taşının değerinin değeri, saflık derecesine bağlıdır.
+
+C — MINIMAL FAITHFUL:
+Bir Ruh Taşının değeri, saflığına bağlıdır.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[017]
+
+SOURCE:
+Leave him out of this.
+
+PREPARED SOURCE:
+Leave him out of this.
+
+A — LEGACY:
+Onu bu işin dışında tutun.
+
+B — CANONICAL:
+Onu bu işin dışında tutun.
+
+C — MINIMAL FAITHFUL:
+Onu bu işin dışında tutun.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[018]
+
+SOURCE:
+Leave the key where you found it.
+
+PREPARED SOURCE:
+Leave the key where you found it.
+
+A — LEGACY:
+Anahtarı bulduğunuz yerde bırakın.
+
+B — CANONICAL:
+Anahtarı bulduğunuz yerde bırakın.
+
+C — MINIMAL FAITHFUL:
+Anahtarı bulduğunuz yerde bırakın.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[019]
+
+SOURCE:
+Who charged the meal to my room?
+
+PREPARED SOURCE:
+Who charged the meal to my room?
+
+A — LEGACY:
+Yemek masrafını benim odama kim borçlandırdı?
+
+B — CANONICAL:
+Yemek masrafı benim odama yazıldı mı?
+
+C — MINIMAL FAITHFUL:
+Yemeğin ücreti benim odama nasıl yazıldı?
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[020]
+
+SOURCE:
+The boar charged before I could draw my sword.
+
+PREPARED SOURCE:
+The boar charged before I could draw my sword.
+
+A — LEGACY:
+Kılıcımı çekmeden önce, domuz bana doğru atıldı.
+
+B — CANONICAL:
+Kılıcımı çekmeden önce, domuz bana doğru saldırıya geçti.
+
+C — MINIMAL FAITHFUL:
+Kılıcımı çekmeden önce domuz bana doğru saldırdı.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[021]
+
+SOURCE:
+Not everyone agreed with the Guild Master.
+
+PREPARED SOURCE:
+Not everyone agreed with the __WTTERM0001__.
+
+A — LEGACY:
+<FAILED>
+
+B — CANONICAL:
+Herkes Lonca Lideri ile aynı fikirde değildi.
+
+C — MINIMAL FAITHFUL:
+Herkes Lonca Liderine katılmadı.
+
+A WARNINGS:
+chatbot_or_explanation_output
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[022]
+
+SOURCE:
+Almost everyone stayed silent.
+
+PREPARED SOURCE:
+Almost everyone stayed silent.
+
+A — LEGACY:
+Neredeyse herkes sessiz kaldı.
+
+B — CANONICAL:
+Neredeyse herkes sessiz kaldı.
+
+C — MINIMAL FAITHFUL:
+Neredeyse herkes sessiz kaldı.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[023]
+
+SOURCE:
+We need to leave before midnight.
+
+PREPARED SOURCE:
+We need to leave before midnight.
+
+A — LEGACY:
+Gece yarısından önce gitmemiz gerekiyor.
+
+B — CANONICAL:
+Oradan gece yarısından önce ayrılmamız gerekiyor.
+
+C — MINIMAL FAITHFUL:
+Oradan gece yarısından önce ayrılmamız gerekiyor.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[024]
+
+SOURCE:
+Don't move until the door closes.
+
+PREPARED SOURCE:
+Don't move until the door closes.
+
+A — LEGACY:
+Kapı kapanana kadar kıpırdamayın.
+
+B — CANONICAL:
+Kapı kapanana kadar hareket etmeyin.
+
+C — MINIMAL FAITHFUL:
+Kapı kapanana kadar hareket etmeyin.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[025]
+
+SOURCE:
+Wonderful. Now the bridge is on fire.
+
+PREPARED SOURCE:
+Wonderful. Now the bridge is on fire.
+
+A — LEGACY:
+Harika. Şimdi köprü yangın çıktı.
+
+B — CANONICAL:
+Harika. Şimdi köprü alevler içinde.
+
+C — MINIMAL FAITHFUL:
+Harika. Şimdi köprü yangın çıktı.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[026]
+
+SOURCE:
+You don't sound very impressed.
+
+PREPARED SOURCE:
+You don't sound very impressed.
+
+A — LEGACY:
+Çok etkilenmediğin belli oluyor.
+
+B — CANONICAL:
+Çok etkilenmediğiniz anlaşılıyor.
+
+C — MINIMAL FAITHFUL:
+Çok etkilenmediğiniz anlaşılıyor.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[027]
+
+SOURCE:
+That's because I'm trying not to scream.
+
+PREPARED SOURCE:
+That's because I'm trying not to scream.
+
+A — LEGACY:
+Çünkü bağırmamaya çalışıyorum.
+
+B — CANONICAL:
+Çünkü bağırmamak için çok çabalıyorum.
+
+C — MINIMAL FAITHFUL:
+Çünkü bağırmamaya çalışıyorum.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[028]
+
+SOURCE:
+Very reassuring.
+
+PREPARED SOURCE:
+Very reassuring.
+
+A — LEGACY:
+Çok güven verici.
+
+B — CANONICAL:
+Çok güven verici.
+
+C — MINIMAL FAITHFUL:
+Çok güven verici.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[029]
+
+SOURCE:
+The chamber had been empty only a moment earlier.
+
+PREPARED SOURCE:
+The chamber had been empty only a moment earlier.
+
+A — LEGACY:
+Odaya sadece bir an önce girilmişti ve odayı kimse kullanmamıştı.
+
+B — CANONICAL:
+Odaya bir an önceye kadar kimse girip çıkmamıştı.
+
+C — MINIMAL FAITHFUL:
+Oda, sadece bir an önce boştu.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[030]
+
+SOURCE:
+Now a line of wet footprints crossed the floor.
+
+PREPARED SOURCE:
+Now a line of wet footprints crossed the floor.
+
+A — LEGACY:
+Şimdi, zeminde ıslak ayak izlerinden oluşan bir çizgi belirdi.
+
+B — CANONICAL:
+Şimdi, zeminde ıslak ayak izlerinden oluşan bir çizgi belirdi.
+
+C — MINIMAL FAITHFUL:
+Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[031]
+
+SOURCE:
+There was nobody at the other end of the corridor.
+
+PREPARED SOURCE:
+There was nobody at the other end of the corridor.
+
+A — LEGACY:
+Koridorun diğer ucunda kimse yoktu.
+
+B — CANONICAL:
+Koridorun diğer ucunda kimse yoktu.
+
+C — MINIMAL FAITHFUL:
+Koridorun diğer ucunda kimse yoktu.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+============================================================
+[032]
+
+SOURCE:
+Then one of the footprints moved.
+
+PREPARED SOURCE:
+Then one of the footprints moved.
+
+A — LEGACY:
+Sonra, ayak izlerinden biri hareket etti.
+
+B — CANONICAL:
+Sonra, ayak izlerinden biri hareket etti.
+
+C — MINIMAL FAITHFUL:
+Sonra, ayak izlerinden biri hareket etti.
+
+A WARNINGS:
+none
+
+B WARNINGS:
+none
+
+C WARNINGS:
+none
+============================================================
+
+BYPASS ITEMS
+============================================================
+
+[004] TERM_ONLY
+SOURCE: Frost Chain?
+A: Frost Chain?
+B: Frost Chain?
+C: Frost Chain?
+A WARNINGS: none
+B WARNINGS: none
+C WARNINGS: none
+
+[013] SYSTEM_UI
+SOURCE: PASSIVE SKILL ACQUIRED: ECHO VEIL
+A: Kazanılan Pasif Yetenek: ECHO VEIL
+B: Kazanılan Pasif Yetenek: ECHO VEIL
+C: Kazanılan Pasif Yetenek: ECHO VEIL
+A WARNINGS: none
+B WARNINGS: none
+C WARNINGS: none
+
+[014] SYSTEM_UI
+SOURCE: TITLE ACQUIRED: BONE WARDEN
+A: Kazanılan Unvan: BONE WARDEN
+B: Kazanılan Unvan: BONE WARDEN
+C: Kazanılan Unvan: BONE WARDEN
+A WARNINGS: none
+B WARNINGS: none
+C WARNINGS: none
+
+[015] SYSTEM_UI
+SOURCE: CLASS ADVANCEMENT AVAILABLE
+A: Sınıf Gelişimi Mevcut
+B: Sınıf Gelişimi Mevcut
+C: Sınıf Gelişimi Mevcut
+A WARNINGS: none
+B WARNINGS: none
+C WARNINGS: none
+
+[016] SYSTEM_UI
+SOURCE: ABILITY COOLDOWN: 19 SECONDS
+A: Yetenek Bekleme Süresi: 19 saniye
+B: Yetenek Bekleme Süresi: 19 saniye
+C: Yetenek Bekleme Süresi: 19 saniye
+A WARNINGS: none
+B WARNINGS: none
+C WARNINGS: none
+
+CRITICAL MANUAL REVIEW TARGETS
+============================================================
+
+[003]
+SOURCE: It's called Frost Chain.
+A: Bunun adı Frost Chain'dir.
+B: Bu ürünün adı Frost Chain'dir.
+C: Bunun adı Frost Chain'dir.
+
+[006]
+SOURCE: Don't use Frost Chain until I give the signal.
+A: Frost Chain'i kullanmayın, ben işaret vermeden.
+B: Lütfen Frost Chain cihazını, benim onayımı alana kadar kullanmayın.
+C: Frost Chain'i kullanmayın, ben işaret vermeden.
+
+[007]
+SOURCE: Frost Chain can hold three targets at once.
+A: Frost Chain aynı anda üç hedefi taşıyabilir.
+B: Frost Chain aynı anda üç hedefi taşıyabilir.
+C: Frost Chain aynı anda üç hedefi taşıyabilir.
+
+[009]
+SOURCE: These Spirit Stones belong to the Guild Master.
+A: Bu Ruh Taşları, Lonca Liderine aittir.
+B: Bu Ruh Taşları, Lonca Lideri grubuna aittir.
+C: Bunlar Ruh Taşları grubuna aittir.
+
+[012]
+SOURCE: A Spirit Stone's value depends on its purity.
+A: Bir Ruh Taşının değeri, saflığına bağlıdır.
+B: Bir Ruh Taşının değerinin değeri, saflık derecesine bağlıdır.
+C: Bir Ruh Taşının değeri, saflığına bağlıdır.
+
+[019]
+SOURCE: Who charged the meal to my room?
+A: Yemek masrafını benim odama kim borçlandırdı?
+B: Yemek masrafı benim odama yazıldı mı?
+C: Yemeğin ücreti benim odama nasıl yazıldı?
+
+[025]
+SOURCE: Wonderful. Now the bridge is on fire.
+A: Harika. Şimdi köprü yangın çıktı.
+B: Harika. Şimdi köprü alevler içinde.
+C: Harika. Şimdi köprü yangın çıktı.
+
+[029]
+SOURCE: The chamber had been empty only a moment earlier.
+A: Odaya sadece bir an önce girilmişti ve odayı kimse kullanmamıştı.
+B: Odaya bir an önceye kadar kimse girip çıkmamıştı.
+C: Oda, sadece bir an önce boştu.

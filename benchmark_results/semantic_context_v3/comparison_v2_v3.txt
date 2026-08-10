@@ -1,0 +1,839 @@
+============================================================
+[001]
+
+PREVIOUS:
+(none)
+
+ORIGINAL TARGET:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+
+V2 TARGET:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+
+V3 CONTROLLED TARGET:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+
+V3 RESOLVER:
+rewrite_needed: True
+confidence: 0.9
+risk_types: ambiguous_comparison, implicit_ability_scope
+
+VALIDATION:
+REJECT/FALLBACK (controlled_validation_failed)
+
+BASELINE C:
+ŞU ANKI PERFORMANSINA GÖRE, OKÇULUKTA UZMANLAŞMIŞ BİR yetenek kullanıcısı KADAR YAKIN BİR SEVİYEDE.
+
+V2:
+ŞU ANKI PERFORMANSINA GÖRE, OKÇULUKTA UZMANLAŞMIŞ BİR yetenek kullanıcısı KADAR YAKIN BİR SEVİYEDE.
+
+V3:
+ŞU ANKI PERFORMANSINA GÖRE, OKÇULUKTA UZMANLAŞMIŞ BİR yetenek kullanıcısı KADAR YAKIN BİR SEVİYEDE.
+
+LENGTH RATIO: 1.0 (118 -> 118)
+============================================================
+
+============================================================
+[002]
+
+PREVIOUS:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+
+ORIGINAL TARGET:
+YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+
+V2 TARGET:
+Young Master Yu, Captain Gao, we need to be vigilant for the rest of the journey ahead.
+
+V3 CONTROLLED TARGET:
+YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+GENÇ USTAD Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMAMIZ GEREKİYOR.
+
+V2:
+GENÇ USTAD Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMAMIZ GEREKİYOR.
+
+V3:
+GENÇ USTAD Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMAMIZ GEREKİYOR.
+
+LENGTH RATIO: 1.0 (65 -> 65)
+============================================================
+
+============================================================
+[003]
+
+PREVIOUS:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY. / YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+
+ORIGINAL TARGET:
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+
+V2 TARGET:
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+
+V3 CONTROLLED TARGET:
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+BU GRİ KURT YARASALARIN, BİZİM ÖNÜMÜZDEKİ Blackwind Ravine BÖLGESİNDE OLDUĞU DÜŞÜNÜLÜYOR.
+
+V2:
+BU GRİ KURT YARASALARIN, BİZİM ÖNÜMÜZDEKİ Blackwind Ravine BÖLGESİNDE OLDUĞU DÜŞÜNÜLÜYOR.
+
+V3:
+BU GRİ KURT YARASALARIN, BİZİM ÖNÜMÜZDEKİ Blackwind Ravine BÖLGESİNDE OLDUĞU DÜŞÜNÜLÜYOR.
+
+LENGTH RATIO: 1.0 (81 -> 81)
+============================================================
+
+============================================================
+[004]
+
+PREVIOUS:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY. / YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON. / THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+
+ORIGINAL TARGET:
+HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+
+V2 TARGET:
+HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+
+V3 CONTROLLED TARGET:
+HU SAN, YOU'RE THE FASTEST. GO CHECK THE PATH AHEAD FOR OBSTACLES OR DANGERS.
+
+V3 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types: ambiguous_action
+
+VALIDATION:
+PASS
+
+BASELINE C:
+Hu San, SEN EN HIZLISIN. ÖNDEKİ YOLU KEŞFET.
+
+V2:
+Hu San, SEN EN HIZLISIN. ÖNDEKİ YOLU KEŞFET.
+
+V3:
+Hu San, SEN EN HIZLISIN. İLERİDEKİ YOLU, ENGELER VEYA TEHLİKELER İÇİN KONTROL ET.
+
+LENGTH RATIO: 1.48 (52 -> 77)
+============================================================
+
+============================================================
+[005]
+
+PREVIOUS:
+YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON. / THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US. / HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+
+ORIGINAL TARGET:
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+
+V2 TARGET:
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+
+V3 CONTROLLED TARGET:
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+Burada ortaya çıkmaları muhtemelen iyi bir işaret değildir.
+
+V2:
+Burada ortaya çıkmaları muhtemelen iyi bir işaret değildir.
+
+V3:
+Burada ortaya çıkmaları muhtemelen iyi bir işaret değildir.
+
+LENGTH RATIO: 1.0 (64 -> 64)
+============================================================
+
+============================================================
+[006]
+
+PREVIOUS:
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US. / HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD. / THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+
+ORIGINAL TARGET:
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+
+V2 TARGET:
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE ALSO NOT EASY TO DEFEAT.
+
+V3 CONTROLLED TARGET:
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+
+V3 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types: idiomatic_expression
+
+VALIDATION:
+REJECT/FALLBACK (controlled_validation_failed)
+
+BASELINE C:
+KAPTAN Gao Yuan, DİNAMİK BİR OYUNCU VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL.
+
+V2:
+KAPTAN Gao Yuan, DİNAMİK BİR OYUNCU VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL.
+
+V3:
+KAPTAN Gao Yuan, DİNAMİK BİR OYUNCU VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL.
+
+LENGTH RATIO: 1.0 (98 -> 98)
+============================================================
+
+============================================================
+[007]
+
+PREVIOUS:
+HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD. / THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN. / CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+
+ORIGINAL TARGET:
+RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+
+V2 TARGET:
+RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+
+V3 CONTROLLED TARGET:
+RELAX, KID. YOU PERSONALLY SAW THE ENEMIES APPEAR JUST NOW.
+
+V3 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types: pronoun_reference
+
+VALIDATION:
+PASS
+
+BASELINE C:
+Sakin ol, çocuk. Sen de az önce gördün.
+
+V2:
+Sakin ol, çocuk. Sen de az önce gördün.
+
+V3:
+SAKİN OL, ÇOCUK. SEN KENDİN DÜN DÜŞMANLARIN ORTAYA ÇIKTIĞINI GÖRDÜN.
+
+LENGTH RATIO: 1.44 (41 -> 59)
+============================================================
+
+============================================================
+[008]
+
+PREVIOUS:
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN. / CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER. / RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+
+ORIGINAL TARGET:
+I'M USED TO IT.
+
+V2 TARGET:
+I'M USED TO IT.
+
+V3 CONTROLLED TARGET:
+I'M USED TO IT.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+BEN TO IT'e ALISKINIM.
+
+V2:
+BEN TO IT'e ALISKINIM.
+
+V3:
+BEN TO IT'e ALISKINIM.
+
+LENGTH RATIO: 1.0 (15 -> 15)
+============================================================
+
+============================================================
+[009]
+
+PREVIOUS:
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER. / RELAX, KID. YOU SAW IT YOURSELF JUST NOW. / I'M USED TO IT.
+
+ORIGINAL TARGET:
+COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+
+V2 TARGET:
+COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+
+V3 CONTROLLED TARGET:
+COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+DÜNYA ÇAPINDA SAYISIZ JEOLOJİK YAP[I] OLUŞMUŞTUR.
+
+V2:
+DÜNYA ÇAPINDA SAYISIZ JEOLOJİK YAP[I] OLUŞMUŞTUR.
+
+V3:
+DÜNYA ÇAPINDA SAYISIZ JEOLOJİK YAP[I] OLUŞMUŞTUR.
+
+LENGTH RATIO: 1.0 (65 -> 65)
+============================================================
+
+============================================================
+[010]
+
+PREVIOUS:
+RELAX, KID. YOU SAW IT YOURSELF JUST NOW. / I'M USED TO IT. / COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+
+ORIGINAL TARGET:
+MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.
+
+V2 TARGET:
+MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.
+
+V3 CONTROLLED TARGET:
+MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+BENİM İSMİM Luo Tian'TİR. BEN BİR yetenek kullanıcısı DEĞİLİM, BİR gizli âlem rehberiİM.
+
+V2:
+BENİM İSMİM Luo Tian'TİR. BEN BİR yetenek kullanıcısı DEĞİLİM, BİR gizli âlem rehberiİM.
+
+V3:
+BENİM İSMİM Luo Tian'TİR. BEN BİR yetenek kullanıcısı DEĞİLİM, BİR gizli âlem rehberiİM.
+
+LENGTH RATIO: 1.0 (70 -> 70)
+============================================================
+
+============================================================
+[011]
+
+PREVIOUS:
+The raiders keep breaking free. / Once Frost Chain catches them, they cannot move.
+
+ORIGINAL TARGET:
+Frost Chain can hold three targets at once.
+
+V2 TARGET:
+Frost Chain can restrain three targets at once.
+
+V3 CONTROLLED TARGET:
+Frost Chain can keep three targets from moving at the same time.
+
+V3 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types: ambiguous_verb
+
+VALIDATION:
+PASS
+
+BASELINE C:
+Frost Chain aynı anda üç hedefi taşıyabilir.
+
+V2:
+Frost Chain aynı anda üç hedefe karşı koyabilir.
+
+V3:
+Frost Chain, aynı anda üç hedefi hareket ettirebilir.
+
+LENGTH RATIO: 1.49 (43 -> 64)
+============================================================
+
+============================================================
+[012]
+
+PREVIOUS:
+There is an extra meal on my hotel bill. / Only the front desk can add purchases to a room.
+
+ORIGINAL TARGET:
+Who charged the meal to my room?
+
+V2 TARGET:
+Who charged the meal to my room?
+
+V3 CONTROLLED TARGET:
+Who added the cost of the meal to my room bill?
+
+V3 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types: ambiguous_action
+
+VALIDATION:
+PASS
+
+BASELINE C:
+Yemeğin ücreti benim odama nasıl yazıldı?
+
+V2:
+Yemeğin ücreti benim odama nasıl yazıldı?
+
+V3:
+Öğün ücretini kim odamın faturasına ekledi?
+
+LENGTH RATIO: 1.47 (32 -> 47)
+============================================================
+
+============================================================
+[013]
+
+PREVIOUS:
+I checked the chamber and found nobody inside. / I stepped into the corridor for only a few seconds.
+
+ORIGINAL TARGET:
+The chamber had been empty only a moment earlier.
+
+V2 TARGET:
+The chamber had been empty only a moment earlier.
+
+V3 CONTROLLED TARGET:
+The chamber had been empty only a moment earlier.
+
+V3 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types: compact_narrative
+
+VALIDATION:
+REJECT/FALLBACK (controlled_validation_failed)
+
+BASELINE C:
+Oda, sadece bir an önce boştu.
+
+V2:
+Oda, sadece bir an önce boştu.
+
+V3:
+Oda, sadece bir an önce boştu.
+
+LENGTH RATIO: 1.0 (49 -> 49)
+============================================================
+
+============================================================
+[014]
+
+PREVIOUS:
+The stone floor was clean when I entered. / I heard dripping behind me.
+
+ORIGINAL TARGET:
+Now a line of wet footprints crossed the floor.
+
+V2 TARGET:
+Now a line of wet footprints crossed the floor.
+
+V3 CONTROLLED TARGET:
+Now a line of wet footprints crossed the floor.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu.
+
+V2:
+Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu.
+
+V3:
+Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu.
+
+LENGTH RATIO: 1.0 (47 -> 47)
+============================================================
+
+============================================================
+[015]
+
+PREVIOUS:
+The boar lowered its head and scraped the ground.
+
+ORIGINAL TARGET:
+The boar charged before I could draw my sword.
+
+V2 TARGET:
+The boar charged before I could draw my sword.
+
+V3 CONTROLLED TARGET:
+The boar ran forward to attack before I could draw my sword.
+
+V3 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types: ambiguous_action
+
+VALIDATION:
+PASS
+
+BASELINE C:
+Kılıcımı çekmeden önce domuz bana doğru saldırdı.
+
+V2:
+Kılıcımı çekmeden önce domuz bana doğru saldırdı.
+
+V3:
+Kılıcımı çekmeden önce, domuz hızıyla öne atılarak saldırı başlattı.
+
+LENGTH RATIO: 1.3 (46 -> 60)
+============================================================
+
+============================================================
+[016]
+
+PREVIOUS:
+This argument is between you and me.
+
+ORIGINAL TARGET:
+Leave him out of this.
+
+V2 TARGET:
+Leave him out of this.
+
+V3 CONTROLLED TARGET:
+Leave him out of this.
+
+V3 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types: pronoun_reference
+
+VALIDATION:
+REJECT/FALLBACK (controlled_validation_failed)
+
+BASELINE C:
+Onu bu işin dışında tutun.
+
+V2:
+Onu bu işin dışında tutun.
+
+V3:
+Onu bu işin dışında tutun.
+
+LENGTH RATIO: 1.0 (22 -> 22)
+============================================================
+
+============================================================
+[017]
+
+PREVIOUS:
+The caretaker will need the key later.
+
+ORIGINAL TARGET:
+Leave the key where you found it.
+
+V2 TARGET:
+Leave the key where you found it.
+
+V3 CONTROLLED TARGET:
+Leave the key where you found it.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+Anahtarı bulduğunuz yerde bırakın.
+
+V2:
+Anahtarı bulduğunuz yerde bırakın.
+
+V3:
+Anahtarı bulduğunuz yerde bırakın.
+
+LENGTH RATIO: 1.0 (33 -> 33)
+============================================================
+
+============================================================
+[018]
+
+PREVIOUS:
+The gates will be locked at midnight.
+
+ORIGINAL TARGET:
+We need to leave before midnight.
+
+V2 TARGET:
+We need to leave before midnight.
+
+V3 CONTROLLED TARGET:
+We need to leave before midnight.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+Oradan gece yarısından önce ayrılmamız gerekiyor.
+
+V2:
+Oradan gece yarısından önce ayrılmamız gerekiyor.
+
+V3:
+Oradan gece yarısından önce ayrılmamız gerekiyor.
+
+LENGTH RATIO: 1.0 (33 -> 33)
+============================================================
+
+============================================================
+[019]
+
+PREVIOUS:
+Mira handed me the cracked compass. / She said the compass still pointed north.
+
+ORIGINAL TARGET:
+I don't trust it.
+
+V2 TARGET:
+I don't trust the cracked compass.
+
+V3 CONTROLLED TARGET:
+I don't trust it.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+Buna güvenmiyorum.
+
+V2:
+Buna güvenmiyorum.
+
+V3:
+Buna güvenmiyorum.
+
+LENGTH RATIO: 1.0 (17 -> 17)
+============================================================
+
+============================================================
+[020]
+
+PREVIOUS:
+Arin abandoned the watch without permission.
+
+ORIGINAL TARGET:
+Why did he leave?
+
+V2 TARGET:
+Why did he leave?
+
+V3 CONTROLLED TARGET:
+Why did he leave?
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+Neden ayrıldı?
+
+V2:
+Neden ayrıldı?
+
+V3:
+Neden ayrıldı?
+
+LENGTH RATIO: 1.0 (17 -> 17)
+============================================================
+
+============================================================
+[021]
+
+PREVIOUS:
+An arrow flew toward Lena's head.
+
+ORIGINAL TARGET:
+She watched Lena duck.
+
+V2 TARGET:
+She watched Lena duck.
+
+V3 CONTROLLED TARGET:
+She watched Lena duck.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+O, Lena'nın eğildiğini gördü.
+
+V2:
+O, Lena'nın eğildiğini gördü.
+
+V3:
+O, Lena'nın eğildiğini gördü.
+
+LENGTH RATIO: 1.0 (22 -> 22)
+============================================================
+
+============================================================
+[022]
+
+PREVIOUS:
+The paralysis spell had kept his legs frozen. / A minute later, he could move again.
+
+ORIGINAL TARGET:
+The spell wore off.
+
+V2 TARGET:
+The paralysis spell's effects ended.
+
+V3 CONTROLLED TARGET:
+The paralysis spell ended.
+
+V3 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types: tense_aspect
+
+VALIDATION:
+PASS
+
+BASELINE C:
+Büyünün etkisi geçti.
+
+V2:
+Felç büyüsünün etkileri sona erdi.
+
+V3:
+Felç büyüsü sona erdi.
+
+LENGTH RATIO: 1.37 (19 -> 26)
+============================================================
+
+============================================================
+[023]
+
+PREVIOUS:
+The sentries began their vigil before sunrise.
+
+ORIGINAL TARGET:
+They have been waiting since dawn.
+
+V2 TARGET:
+They have been waiting since dawn.
+
+V3 CONTROLLED TARGET:
+They have been waiting since dawn.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+Onlar, şafaktan beri bekliyorlar.
+
+V2:
+Onlar, şafaktan beri bekliyorlar.
+
+V3:
+Onlar, şafaktan beri bekliyorlar.
+
+LENGTH RATIO: 1.0 (34 -> 34)
+============================================================
+
+============================================================
+[024]
+
+PREVIOUS:
+The iron door had not moved all night.
+
+ORIGINAL TARGET:
+The door remained shut.
+
+V2 TARGET:
+The door remained shut.
+
+V3 CONTROLLED TARGET:
+The door remained shut.
+
+V3 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types: (none)
+
+VALIDATION:
+REJECT/FALLBACK (rewrite_not_needed)
+
+BASELINE C:
+Kapı kapalı kaldı.
+
+V2:
+Kapı kapalı kaldı.
+
+V3:
+Kapı kapalı kaldı.
+
+LENGTH RATIO: 1.0 (23 -> 23)
+============================================================

@@ -1,0 +1,170 @@
+[
+  {
+    "id": 1,
+    "source": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+    "translation": "ŞU ANKI PERFORMANSINA GÖRE, OKÇULUKTA UZMANLAŞMIŞ BİR yetenek kullanıcısı KADAR YAKIN BİR SEVİYEDE.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 2,
+    "source": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+    "translation": "GENÇ USTAD Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMAMIZ GEREKİYOR.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 3,
+    "source": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+    "translation": "BU GRİ KURT YARASALARIN, BİZİM ÖNÜMÜZDEKİ Blackwind Ravine BÖLGESİNDE OLDUĞU DÜŞÜNÜLÜYOR.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 4,
+    "source": "HU SAN, YOU'RE THE FASTEST. GO CHECK THE PATH AHEAD FOR OBSTACLES OR DANGERS.",
+    "translation": "Hu San, SEN EN HIZLISIN. İLERİDEKİ YOLU, ENGELER VEYA TEHLİKELER İÇİN KONTROL ET.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 5,
+    "source": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+    "translation": "Burada ortaya çıkmaları muhtemelen iyi bir işaret değildir.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 6,
+    "source": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "translation": "KAPTAN Gao Yuan, DİNAMİK BİR OYUNCU VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 7,
+    "source": "RELAX, KID. YOU PERSONALLY SAW THE ENEMIES APPEAR JUST NOW.",
+    "translation": "SAKİN OL, ÇOCUK. SEN KENDİN DÜN DÜŞMANLARIN ORTAYA ÇIKTIĞINI GÖRDÜN.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 8,
+    "source": "I'M USED TO IT.",
+    "translation": "BEN TO IT'e ALISKINIM.",
+    "warnings": [],
+    "requires_review": true
+  },
+  {
+    "id": 9,
+    "source": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+    "translation": "DÜNYA ÇAPINDA SAYISIZ JEOLOJİK YAP[I] OLUŞMUŞTUR.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 10,
+    "source": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "translation": "BENİM İSMİM Luo Tian'TİR. BEN BİR yetenek kullanıcısı DEĞİLİM, BİR gizli âlem rehberiİM.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 11,
+    "source": "Frost Chain can keep three targets from moving at the same time.",
+    "translation": "Frost Chain, aynı anda üç hedefi hareket ettirebilir.",
+    "warnings": [],
+    "requires_review": true
+  },
+  {
+    "id": 12,
+    "source": "Who added the cost of the meal to my room bill?",
+    "translation": "Öğün ücretini kim odamın faturasına ekledi?",
+    "warnings": [],
+    "requires_review": true
+  },
+  {
+    "id": 13,
+    "source": "The chamber had been empty only a moment earlier.",
+    "translation": "Oda, sadece bir an önce boştu.",
+    "warnings": [],
+    "requires_review": true
+  },
+  {
+    "id": 14,
+    "source": "Now a line of wet footprints crossed the floor.",
+    "translation": "Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu.",
+    "warnings": [],
+    "requires_review": true
+  },
+  {
+    "id": 15,
+    "source": "The boar ran forward to attack before I could draw my sword.",
+    "translation": "Kılıcımı çekmeden önce, domuz hızıyla öne atılarak saldırı başlattı.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 16,
+    "source": "Leave him out of this.",
+    "translation": "Onu bu işin dışında tutun.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 17,
+    "source": "Leave the key where you found it.",
+    "translation": "Anahtarı bulduğunuz yerde bırakın.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 18,
+    "source": "We need to leave before midnight.",
+    "translation": "Oradan gece yarısından önce ayrılmamız gerekiyor.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 19,
+    "source": "I don't trust it.",
+    "translation": "Buna güvenmiyorum.",
+    "warnings": [],
+    "requires_review": true
+  },
+  {
+    "id": 20,
+    "source": "Why did he leave?",
+    "translation": "Neden ayrıldı?",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 21,
+    "source": "She watched Lena duck.",
+    "translation": "O, Lena'nın eğildiğini gördü.",
+    "warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 22,
+    "source": "The paralysis spell ended.",
+    "translation": "Felç büyüsü sona erdi.",
+    "warnings": [],
+    "requires_review": true
+  },
+  {
+    "id": 23,
+    "source": "They have been waiting since dawn.",
+    "translation": "Onlar, şafaktan beri bekliyorlar.",
+    "warnings": [],
+    "requires_review": true
+  },
+  {
+    "id": 24,
+    "source": "The door remained shut.",
+    "translation": "Kapı kapalı kaldı.",
+    "warnings": [],
+    "requires_review": false
+  }
+]

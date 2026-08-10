@@ -1,0 +1,279 @@
+[
+  {
+    "id": 1,
+    "source": "I wasn't trying to stop you.",
+    "translation": "Seni durdurmaya çalışmıyordum.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 2,
+    "source": "Then what were you trying to do?",
+    "translation": "Peki, ne yapmaya çalışıyordun?",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      1
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 3,
+    "source": "Buy us some time.",
+    "translation": "Bize biraz zaman tanıyın.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      1,
+      2
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 4,
+    "source": "You could have warned me.",
+    "translation": "Bana önceden haber verebilirdin.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      1,
+      2,
+      3
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 5,
+    "source": "It's called Hollow Step.",
+    "translation": "Bunun adı Hollow Step'dir.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      2,
+      3,
+      4
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 6,
+    "source": "Hollow Step?",
+    "translation": "Hollow Step?",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      3,
+      4,
+      5
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 7,
+    "source": "Activate Hollow Step.",
+    "translation": "Activate Hollow Step.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      4,
+      5,
+      6
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 8,
+    "source": "Hollow Step only works once every ten seconds.",
+    "translation": "Hollow Step her on saniyede sadece bir kez çalışır.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      5,
+      6,
+      7
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 9,
+    "source": "I learned Iron Veil from the old master.",
+    "translation": "\"Iron Veil\" tekniğini eski bir ustadan öğrendim.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      6,
+      7,
+      8
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 10,
+    "source": "Iron Veil reduces the force of incoming attacks.",
+    "translation": "Iron Veil, gelen saldırıların etkisini azaltır.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      7,
+      8,
+      9
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 11,
+    "source": "That would have been useful five minutes ago.",
+    "translation": "Bu, beş dakika önce işe yarardı.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      8,
+      9,
+      10
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 12,
+    "source": "I know.",
+    "translation": "Biliyorum.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      9,
+      10,
+      11
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 13,
+    "source": "PASSIVE SKILL ACQUIRED: BLOOD SENSE",
+    "translation": "Kazanılan Pasif Yetenek: BLOOD SENSE",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      10,
+      11,
+      12
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 14,
+    "source": "TITLE ACQUIRED: PALE HUNTER",
+    "translation": "Kazanılan Unvan: PALE HUNTER",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      11,
+      12,
+      13
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 15,
+    "source": "CLASS ADVANCEMENT AVAILABLE",
+    "translation": "Sınıf Gelişimi Mevcut",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      12,
+      13,
+      14
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 16,
+    "source": "ABILITY COOLDOWN: 12 SECONDS",
+    "translation": "Yetenek Bekleme Süresi: 12 saniye",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      13,
+      14,
+      15
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 17,
+    "source": "Leave the Spirit Stones here.",
+    "translation": "Ruh Taşlarını burada bırakın.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      14,
+      15,
+      16
+    ],
+    "approved_terms": {
+      "SPIRIT STONE": "Ruh Taşı"
+    },
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 18,
+    "source": "Leave him out of this.",
+    "translation": "Onu bu işin dışında tutun.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      15,
+      16,
+      17
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 19,
+    "source": "They charged us forty Spirit Stones.",
+    "translation": "Bize kırk adet Spirit Stone'dan para aldılar.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      16,
+      17,
+      18
+    ],
+    "approved_terms": {
+      "SPIRIT STONE": "Ruh Taşı"
+    },
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 20,
+    "source": "The beast charged before we could move.",
+    "translation": "Hareket edebilmemizden önce canavar üzerimize atıldı.",
+    "context_ids": [],
+    "nearby_source_ids_for_human_review": [
+      17,
+      18,
+      19
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false
+  }
+]

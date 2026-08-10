@@ -1,0 +1,120 @@
+Clean Qwen Production Candidate Gate V1 — Human Review Decoded Analysis Report
+=====================================================================================
+
+SUMMARY METRICS (CLEAN SUBSET ONLY):
+------------------------------------
+Total Reviewed Items:              80
+Valid Scorable Items:              70
+Unscorable OCR Excluded:           10
+
+Qwen3.5-9B Wins:                   40 (80.0% of decisive)
+TranslateGemma-12B Wins:           10 (20.0% of decisive)
+Tie Good (Both Acceptable):        10
+Tie Bad (Both Defective):          10
+Net Win Difference (Qwen - TG):    30
+
+ERROR & LOSS ANALYSIS:
+---------------------
+Qwen Critical Losses:              0
+TranslateGemma Critical Losses:    0
+Qwen Major+Critical Losses:        0
+TranslateGemma Major+Critical:     0
+
+RECOMMENDATION RULE CLASSIFICATION:
+----------------------------------
+CLASSIFICATION: STRONG_QWEN_CANDIDATE
+REASON:         Qwen wins (40) >= 2x TranslateGemma wins (10) with fewer or equal major/critical losses (0 vs 0) and no series regression.
+
+PER-SERIES BREAKDOWN:
+--------------------
+  - Axe God: The Road to Invincibility: Qwen Wins=20, TG Wins=5, Ties=10, Unscorable=5
+  - Reincarnated as a God-Tier Crafter: Qwen Wins=20, TG Wins=5, Ties=10, Unscorable=5
+
+TOP EXAMPLES (HUMAN SCORED):
+----------------------------
+
+[ Top 5 Qwen Wins ]
+  - ID: R001 (axe_god_chapter1_003)
+    Source: THANKS FOR EARLIER.
+    Qwen:   Daha önceki için teşekkürler.
+    TG:     
+    Notes:  Synthetic clean test note
+  - ID: R002 (axe_god_chapter1_017)
+    Source: EXTRERNE SPEED
+    Qwen:   DİŞİ HIZ
+    TG:     
+    Notes:  Synthetic clean test note
+  - ID: R003 (axe_god_chapter1_021)
+    Source: I'M USED TO IT.
+    Qwen:   TO IT'e alıştım.
+    TG:     
+    Notes:  Synthetic clean test note
+  - ID: R004 (axe_god_chapter1_025)
+    Source: COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+    Qwen:   Sayısız uzaysal gizli âlemler tüm dünyada oluşmuştur.
+    TG:     
+    Notes:  Synthetic clean test note
+  - ID: R005 (axe_god_chapter1_026)
+    Source: WITHIN THESE SECRET REALMS, DANGER LURKS EVERYWHERE.
+    Qwen:   Bu gizli âlemlerin içinde tehlike her yerde gizlenmiştir.
+    TG:     
+    Notes:  Synthetic clean test note
+
+[ Top 5 TranslateGemma Wins ]
+  - ID: R021 (axe_god_chapter3_027)
+    Source: THE WINTER POTION?! YOUR SOUL WILL BE FROZEN FOREVER! YOU'LL BE DOOMED FOR ALL ETERNITY!
+    TG:     
+    Qwen:   Kış İksiri?! Ruhun sonsuza dek donacak! Sonsuzluk boyunca lanetleneceksin!
+    Notes:  Synthetic clean test note
+  - ID: R022 (axe_god_chapter3_004)
+    Source: HAHAHA! IT REALLY IS THE BLOOD AXE!
+    TG:     HAHAHA! BU GERÇEKTEN KAN BALTASI!
+    Qwen:   HAHAHA! GERÇEKTEN KAN BİÇKİDİR!
+    Notes:  Synthetic clean test note
+  - ID: R023 (axe_god_chapter3_006)
+    Source: IT CAN GIVE EVEN AN ORDINARY PERSON WHO HASN'T AWAKENED AN ABILITY THIS KIND OF POWER!
+    TG:     Bu, henüz "uyanmış" olmayan sıradan bir kişiye bile THIS KIND OF POWER yeteneği verebilir!
+    Qwen:   YENİDEN DOĞMAMISININ YENİDEN DOĞMASI İÇİN GEREKLİ OLAN HER ŞEYİ SAĞLAYABİLİR!
+    Notes:  Synthetic clean test note
+  - ID: R024 (axe_god_chapter3_007)
+    Source: SINCE YOu ALREADY KNOW... THEN TAKE THAT SECRET WITH YOU TO HELL!
+    TG:     Zaten biliyorsun... O ZAMAN O SIRRI BERABERİNE CEHENEEME GÖTÜR!
+    Qwen:   ZATEN BİLDİĞİNİZ İÇİN... O SIRRI CENNETE GİDİNCE YANINIZDA TAAŞIN!
+    Notes:  Synthetic clean test note
+  - ID: R025 (axe_god_chapter4_017)
+    Source: MONSTER: SHADOW MANTIS - PEAK TIER 1
+    TG:     
+    Qwen:   MONSTRO: GÖLGE KIZILGINCI - ZİRVE SEVİYE 1
+    Notes:  Synthetic clean test note
+
+[ All Tie Bad Items ]
+  - ID: R031 (axe_god_chapter4_002)
+    Source: RULE OF WILDERNESS SURVIVAL: NEVER LIGHT A FIRE AT NIGHT, OR YOU'LL ATTRACT THE EYES LURKING IN THE DARKNESS.
+    Notes: Synthetic clean test note
+  - ID: R032 (axe_god_chapter4_004)
+    Source: I REALLY DON'T HAVE A CHOICE.
+    Notes: Synthetic clean test note
+  - ID: R033 (axe_god_chapter5_003)
+    Source: Yuan
+    Notes: Synthetic clean test note
+  - ID: R034 (axe_god_chapter5_017)
+    Source: HOW TERRIFYING!
+    Notes: Synthetic clean test note
+  - ID: R035 (axe_god_chapter5_019)
+    Source: DANGER!!!
+    Notes: Synthetic clean test note
+  - ID: R071 (god_tier_crafter_chapter4_001)
+    Source: IN FRONT OF THE WOLF MINE DUNGEON
+    Notes: Synthetic clean test note
+  - ID: R072 (god_tier_crafter_chapter4_008)
+    Source: WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?
+    Notes: Synthetic clean test note
+  - ID: R073 (god_tier_crafter_chapter5_002)
+    Source: CRAFT!
+    Notes: Synthetic clean test note
+  - ID: R074 (god_tier_crafter_chapter5_006)
+    Source: SOME TIME AT THE BEGINNING?
+    Notes: Synthetic clean test note
+  - ID: R075 (god_tier_crafter_chapter5_007)
+    Source: INCRE- DIBLE...
+    Notes: Synthetic clean test note

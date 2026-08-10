@@ -1,0 +1,482 @@
+{
+  "R001": {
+    "review_id": "R001",
+    "benchmark_id": "axe_god_chapter1_002",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R002": {
+    "review_id": "R002",
+    "benchmark_id": "axe_god_chapter1_004",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R003": {
+    "review_id": "R003",
+    "benchmark_id": "axe_god_chapter1_010",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R004": {
+    "review_id": "R004",
+    "benchmark_id": "axe_god_chapter1_023",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R005": {
+    "review_id": "R005",
+    "benchmark_id": "axe_god_chapter1_019",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R006": {
+    "review_id": "R006",
+    "benchmark_id": "axe_god_chapter1_028",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R007": {
+    "review_id": "R007",
+    "benchmark_id": "axe_god_chapter1_005",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R008": {
+    "review_id": "R008",
+    "benchmark_id": "axe_god_chapter1_007",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R009": {
+    "review_id": "R009",
+    "benchmark_id": "axe_god_chapter2_002",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R010": {
+    "review_id": "R010",
+    "benchmark_id": "axe_god_chapter2_005",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R011": {
+    "review_id": "R011",
+    "benchmark_id": "axe_god_chapter2_007",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R012": {
+    "review_id": "R012",
+    "benchmark_id": "axe_god_chapter2_011",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R013": {
+    "review_id": "R013",
+    "benchmark_id": "axe_god_chapter2_013",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R014": {
+    "review_id": "R014",
+    "benchmark_id": "axe_god_chapter2_015",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R015": {
+    "review_id": "R015",
+    "benchmark_id": "axe_god_chapter2_019",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R016": {
+    "review_id": "R016",
+    "benchmark_id": "axe_god_chapter2_010",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R017": {
+    "review_id": "R017",
+    "benchmark_id": "axe_god_chapter3_002",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R018": {
+    "review_id": "R018",
+    "benchmark_id": "axe_god_chapter3_003",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R019": {
+    "review_id": "R019",
+    "benchmark_id": "axe_god_chapter3_015",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R020": {
+    "review_id": "R020",
+    "benchmark_id": "axe_god_chapter3_016",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R021": {
+    "review_id": "R021",
+    "benchmark_id": "axe_god_chapter3_017",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R022": {
+    "review_id": "R022",
+    "benchmark_id": "axe_god_chapter3_024",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R023": {
+    "review_id": "R023",
+    "benchmark_id": "axe_god_chapter3_035",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R024": {
+    "review_id": "R024",
+    "benchmark_id": "axe_god_chapter3_004",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R025": {
+    "review_id": "R025",
+    "benchmark_id": "axe_god_chapter4_008",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R026": {
+    "review_id": "R026",
+    "benchmark_id": "axe_god_chapter4_009",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R027": {
+    "review_id": "R027",
+    "benchmark_id": "axe_god_chapter4_011",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R028": {
+    "review_id": "R028",
+    "benchmark_id": "axe_god_chapter4_012",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R029": {
+    "review_id": "R029",
+    "benchmark_id": "axe_god_chapter4_016",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R030": {
+    "review_id": "R030",
+    "benchmark_id": "axe_god_chapter4_022",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R031": {
+    "review_id": "R031",
+    "benchmark_id": "axe_god_chapter4_013",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R032": {
+    "review_id": "R032",
+    "benchmark_id": "axe_god_chapter4_019",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R033": {
+    "review_id": "R033",
+    "benchmark_id": "axe_god_chapter5_002",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R034": {
+    "review_id": "R034",
+    "benchmark_id": "axe_god_chapter5_003",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R035": {
+    "review_id": "R035",
+    "benchmark_id": "axe_god_chapter5_007",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R036": {
+    "review_id": "R036",
+    "benchmark_id": "axe_god_chapter5_009",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R037": {
+    "review_id": "R037",
+    "benchmark_id": "axe_god_chapter5_012",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R038": {
+    "review_id": "R038",
+    "benchmark_id": "axe_god_chapter5_014",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R039": {
+    "review_id": "R039",
+    "benchmark_id": "axe_god_chapter5_017",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R040": {
+    "review_id": "R040",
+    "benchmark_id": "axe_god_chapter5_019",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R041": {
+    "review_id": "R041",
+    "benchmark_id": "god_tier_crafter_chapter1_013",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R042": {
+    "review_id": "R042",
+    "benchmark_id": "god_tier_crafter_chapter1_023",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R043": {
+    "review_id": "R043",
+    "benchmark_id": "god_tier_crafter_chapter1_029",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R044": {
+    "review_id": "R044",
+    "benchmark_id": "god_tier_crafter_chapter1_031",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R045": {
+    "review_id": "R045",
+    "benchmark_id": "god_tier_crafter_chapter1_003",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R046": {
+    "review_id": "R046",
+    "benchmark_id": "god_tier_crafter_chapter1_021",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R047": {
+    "review_id": "R047",
+    "benchmark_id": "god_tier_crafter_chapter1_007",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R048": {
+    "review_id": "R048",
+    "benchmark_id": "god_tier_crafter_chapter1_015",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R049": {
+    "review_id": "R049",
+    "benchmark_id": "god_tier_crafter_chapter2_002",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R050": {
+    "review_id": "R050",
+    "benchmark_id": "god_tier_crafter_chapter2_007",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R051": {
+    "review_id": "R051",
+    "benchmark_id": "god_tier_crafter_chapter2_008",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R052": {
+    "review_id": "R052",
+    "benchmark_id": "god_tier_crafter_chapter2_019",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R053": {
+    "review_id": "R053",
+    "benchmark_id": "god_tier_crafter_chapter2_015",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R054": {
+    "review_id": "R054",
+    "benchmark_id": "god_tier_crafter_chapter2_021",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R055": {
+    "review_id": "R055",
+    "benchmark_id": "god_tier_crafter_chapter2_032",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R056": {
+    "review_id": "R056",
+    "benchmark_id": "god_tier_crafter_chapter2_026",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R057": {
+    "review_id": "R057",
+    "benchmark_id": "god_tier_crafter_chapter3_005",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R058": {
+    "review_id": "R058",
+    "benchmark_id": "god_tier_crafter_chapter3_016",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R059": {
+    "review_id": "R059",
+    "benchmark_id": "god_tier_crafter_chapter3_017",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R060": {
+    "review_id": "R060",
+    "benchmark_id": "god_tier_crafter_chapter3_018",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R061": {
+    "review_id": "R061",
+    "benchmark_id": "god_tier_crafter_chapter3_020",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R062": {
+    "review_id": "R062",
+    "benchmark_id": "god_tier_crafter_chapter3_003",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R063": {
+    "review_id": "R063",
+    "benchmark_id": "god_tier_crafter_chapter3_008",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R064": {
+    "review_id": "R064",
+    "benchmark_id": "god_tier_crafter_chapter3_010",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R065": {
+    "review_id": "R065",
+    "benchmark_id": "god_tier_crafter_chapter4_007",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R066": {
+    "review_id": "R066",
+    "benchmark_id": "god_tier_crafter_chapter4_021",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R067": {
+    "review_id": "R067",
+    "benchmark_id": "god_tier_crafter_chapter4_005",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R068": {
+    "review_id": "R068",
+    "benchmark_id": "god_tier_crafter_chapter4_010",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R069": {
+    "review_id": "R069",
+    "benchmark_id": "god_tier_crafter_chapter4_014",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R070": {
+    "review_id": "R070",
+    "benchmark_id": "god_tier_crafter_chapter4_016",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R071": {
+    "review_id": "R071",
+    "benchmark_id": "god_tier_crafter_chapter4_001",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R072": {
+    "review_id": "R072",
+    "benchmark_id": "god_tier_crafter_chapter4_008",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R073": {
+    "review_id": "R073",
+    "benchmark_id": "god_tier_crafter_chapter5_013",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R074": {
+    "review_id": "R074",
+    "benchmark_id": "god_tier_crafter_chapter5_029",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R075": {
+    "review_id": "R075",
+    "benchmark_id": "god_tier_crafter_chapter5_002",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R076": {
+    "review_id": "R076",
+    "benchmark_id": "god_tier_crafter_chapter5_006",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R077": {
+    "review_id": "R077",
+    "benchmark_id": "god_tier_crafter_chapter5_007",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R078": {
+    "review_id": "R078",
+    "benchmark_id": "god_tier_crafter_chapter5_008",
+    "translation_a_model": "qwen35",
+    "translation_b_model": "translategemma"
+  },
+  "R079": {
+    "review_id": "R079",
+    "benchmark_id": "god_tier_crafter_chapter5_014",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  },
+  "R080": {
+    "review_id": "R080",
+    "benchmark_id": "god_tier_crafter_chapter5_023",
+    "translation_a_model": "translategemma",
+    "translation_b_model": "qwen35"
+  }
+}

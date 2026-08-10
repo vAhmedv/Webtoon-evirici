@@ -1,0 +1,27 @@
+{
+  "execution": {
+    "synthetic_items": "96/96",
+    "generation_calls": 96,
+    "retries": 0,
+    "input_tokens": 7642,
+    "generated_tokens": 3855,
+    "generation_seconds": 68.91,
+    "wall_time_seconds": 68.93,
+    "average_tok_per_sec": 55.95,
+    "load_time_seconds": 10.71,
+    "backend": "TranslateGemma-12B-GGUF-Translation",
+    "model": "TranslateGemma-12B-IT-Q5_K_M-GGUF"
+  },
+  "structural_validation": {
+    "missing_ids": [],
+    "duplicate_ids": [],
+    "empty_outputs": [],
+    "requires_review_count": 0
+  },
+  "paths": {
+    "results_json": "benchmark_results\\translategemma_torture_v1\\results.json",
+    "results_txt": "benchmark_results\\translategemma_torture_v1\\results.txt",
+    "summary_json": "benchmark_results\\translategemma_torture_v1\\summary.json",
+    "term_behavior_json": "benchmark_results\\translategemma_torture_v1\\term_behavior.json"
+  }
+}

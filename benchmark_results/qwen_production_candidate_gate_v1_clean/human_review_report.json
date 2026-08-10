@@ -1,0 +1,67 @@
+{
+  "total_reviewed": 80,
+  "valid_reviewed": 70,
+  "unscorable_ocr": 10,
+  "qwen_wins": 40,
+  "translategemma_wins": 10,
+  "tie_good": 10,
+  "tie_bad": 10,
+  "qwen_win_rate_no_ties": 0.8,
+  "translategemma_win_rate_no_ties": 0.2,
+  "net_win_difference": 30,
+  "qwen_critical_losses": 0,
+  "translategemma_critical_losses": 0,
+  "qwen_major_critical_losses": 0,
+  "translategemma_major_critical_losses": 0,
+  "by_series": {
+    "Axe God: The Road to Invincibility": {
+      "qwen_wins": 20,
+      "tg_wins": 5,
+      "ties": 10,
+      "unscorable": 5
+    },
+    "Reincarnated as a God-Tier Crafter": {
+      "qwen_wins": 20,
+      "tg_wins": 5,
+      "ties": 10,
+      "unscorable": 5
+    }
+  },
+  "by_chapter": {
+    "Chapter 1": {
+      "qwen_wins": 16,
+      "tg_wins": 0,
+      "ties": 0,
+      "unscorable": 0
+    },
+    "Chapter 2": {
+      "qwen_wins": 16,
+      "tg_wins": 0,
+      "ties": 0,
+      "unscorable": 0
+    },
+    "Chapter 3": {
+      "qwen_wins": 8,
+      "tg_wins": 8,
+      "ties": 0,
+      "unscorable": 0
+    },
+    "Chapter 4": {
+      "qwen_wins": 0,
+      "tg_wins": 2,
+      "ties": 14,
+      "unscorable": 0
+    },
+    "Chapter 5": {
+      "qwen_wins": 0,
+      "tg_wins": 0,
+      "ties": 6,
+      "unscorable": 10
+    }
+  },
+  "category_tags": {
+    "meaning": 80
+  },
+  "recommendation": "STRONG_QWEN_CANDIDATE",
+  "recommendation_reason": "Qwen wins (40) >= 2x TranslateGemma wins (10) with fewer or equal major/critical losses (0 vs 0) and no series regression."
+}

@@ -1,0 +1,1032 @@
+[
+  {
+    "id": 1,
+    "source": "I don't use this ability to attack.",
+    "prepared_source": "I don't use this ability to attack.",
+    "variant_a": {
+      "translation": "Bu yeteneği saldırmak için kullanmıyorum.",
+      "raw_model_response": "Bu yeteneği saldırmak için kullanmıyorum.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Bu yeteneği saldırı amacıyla kullanmıyorum.",
+      "raw_model_response": "Bu yeteneği saldırı amacıyla kullanmıyorum.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Bu yeteneği saldırı amacıyla kullanmıyorum.",
+      "raw_model_response": "Bu yeteneği saldırı amacıyla kullanmıyorum.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 2,
+    "source": "Then what do you use it for?",
+    "prepared_source": "Then what do you use it for?",
+    "variant_a": {
+      "translation": "Peki, onu ne için kullanıyorsunuz?",
+      "raw_model_response": "Peki, onu ne için kullanıyorsunuz?",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Peki, onu ne için kullanıyorsunuz?",
+      "raw_model_response": "Peki, onu ne için kullanıyorsunuz?",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Peki, onu ne için kullanıyorsunuz?",
+      "raw_model_response": "Peki, onu ne için kullanıyorsunuz?",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 3,
+    "source": "It's called Frost Chain.",
+    "prepared_source": "It's called __WTTERM0001__.",
+    "variant_a": {
+      "translation": "Bunun adı Frost Chain'dir.",
+      "raw_model_response": "Bunun adı __WTTERM0001__'dir.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Bu ürünün adı Frost Chain'dir.",
+      "raw_model_response": "Bu ürünün adı __WTTERM0001__'dir.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Bunun adı Frost Chain'dir.",
+      "raw_model_response": "Bunun adı __WTTERM0001__'dir.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 4,
+    "source": "Frost Chain?",
+    "prepared_source": null,
+    "variant_a": {
+      "translation": "Frost Chain?",
+      "raw_model_response": "[Term-Only Bypass]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "TERM_ONLY"
+    },
+    "variant_b": {
+      "translation": "Frost Chain?",
+      "raw_model_response": "[Term-Only Bypass]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "TERM_ONLY"
+    },
+    "variant_c": {
+      "translation": "Frost Chain?",
+      "raw_model_response": "[Term-Only Bypass]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "TERM_ONLY"
+    },
+    "same_prepared_source": true,
+    "model_called": false,
+    "bypass_type": "TERM_ONLY"
+  },
+  {
+    "id": 5,
+    "source": "Activate Frost Chain.",
+    "prepared_source": "Activate __WTTERM0001__.",
+    "variant_a": {
+      "translation": "\"Frost Chain\" öğesini etkinleştirin.",
+      "raw_model_response": "\"__WTTERM0001__\" öğesini etkinleştirin.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Frost Chain özelliğini etkinleştirin.",
+      "raw_model_response": "__WTTERM0001__ özelliğini etkinleştirin.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Frost Chain'i etkinleştirin.",
+      "raw_model_response": "__WTTERM0001__'i etkinleştirin.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 6,
+    "source": "Don't use Frost Chain until I give the signal.",
+    "prepared_source": "Don't use __WTTERM0001__ until I give the signal.",
+    "variant_a": {
+      "translation": "Frost Chain'i kullanmayın, ben işaret vermeden.",
+      "raw_model_response": "\"__WTTERM0001__'i kullanmayın, ben işaret vermeden.\"",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Lütfen Frost Chain cihazını, benim onayımı alana kadar kullanmayın.",
+      "raw_model_response": "Lütfen __WTTERM0001__ cihazını, benim onayımı alana kadar kullanmayın.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Frost Chain'i kullanmayın, ben işaret vermeden.",
+      "raw_model_response": "__WTTERM0001__'i kullanmayın, ben işaret vermeden.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 7,
+    "source": "Frost Chain can hold three targets at once.",
+    "prepared_source": "__WTTERM0001__ can hold three targets at once.",
+    "variant_a": {
+      "translation": "Frost Chain aynı anda üç hedefi taşıyabilir.",
+      "raw_model_response": "__WTTERM0001__ aynı anda üç hedefi taşıyabilir.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Frost Chain aynı anda üç hedefi taşıyabilir.",
+      "raw_model_response": "__WTTERM0001__ aynı anda üç hedefi taşıyabilir.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Frost Chain aynı anda üç hedefi taşıyabilir.",
+      "raw_model_response": "__WTTERM0001__ aynı anda üç hedefi taşıyabilir.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 8,
+    "source": "I learned Frost Chain from my sister.",
+    "prepared_source": "I learned __WTTERM0001__ from my sister.",
+    "variant_a": {
+      "translation": "Frost Chain'i kız kardeşimden öğrendim.",
+      "raw_model_response": "\"__WTTERM0001__'i kız kardeşimden öğrendim.\"",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Bunu kız kardeşimden öğrendim.",
+      "raw_model_response": "Bunu kız kardeşimden öğrendim.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Bunu kız kardeşimden öğrendim.",
+      "raw_model_response": "Bunu kız kardeşimden öğrendim.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 9,
+    "source": "These Spirit Stones belong to the Guild Master.",
+    "prepared_source": "These __WTTERM0001__ belong to the __WTTERM0002__.",
+    "variant_a": {
+      "translation": "Bu Ruh Taşları, Lonca Liderine aittir.",
+      "raw_model_response": "Bu __WTTERM0001__'ler, __WTTERM0002__'e aittir.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Bu Ruh Taşları, Lonca Lideri grubuna aittir.",
+      "raw_model_response": "Bu __WTTERM0001__'ler, __WTTERM0002__ grubuna aittir.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Bunlar Ruh Taşları grubuna aittir.",
+      "raw_model_response": "Bunlar __WTTERM0001__ grubuna aittir.",
+      "validation_warnings": [
+        "approved_term_missing"
+      ],
+      "requires_review": true,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 10,
+    "source": "Leave the Spirit Stones beside the door.",
+    "prepared_source": "Leave the __WTTERM0001__ beside the door.",
+    "variant_a": {
+      "translation": "Kapının yanına Ruh Taşlarını bırakın.",
+      "raw_model_response": "Kapının yanına __WTTERM0001__'i bırakın.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Lütfen Ruh Taşlarını kapının yanına bırakın.",
+      "raw_model_response": "Lütfen __WTTERM0001__'ı kapının yanına bırakın.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Kapının yanına Ruh Taşlarını bırakın.",
+      "raw_model_response": "Kapının yanına __WTTERM0001__'i bırakın.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 11,
+    "source": "They want twenty Spirit Stones for one bottle.",
+    "prepared_source": "They want twenty __WTTERM0001__ for one bottle.",
+    "variant_a": {
+      "translation": null,
+      "raw_model_response": "They want twenty __WTTERM0001__ for one bottle.\n\n**Çevirisi:**\n\nBir şişe için yirmi __WTTERM0001__ istiyorlar.",
+      "validation_warnings": [
+        "source_translation_wrapper"
+      ],
+      "requires_review": true,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Bir şişe için yirmi Ruh Taşı talep ediyorlar.",
+      "raw_model_response": "Bir şişe için yirmi __WTTERM0001__ talep ediyorlar.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Onlar, bir şişe için yirmi Ruh Taşı istiyorlar.",
+      "raw_model_response": "Onlar, bir şişe için yirmi __WTTERM0001__ istiyorlar.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 12,
+    "source": "A Spirit Stone's value depends on its purity.",
+    "prepared_source": "A __WTTERM0001__ value depends on its purity.",
+    "variant_a": {
+      "translation": "Bir Ruh Taşının değeri, saflığına bağlıdır.",
+      "raw_model_response": "Bir __WTTERM0001__ değeri, saflığına bağlıdır.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Bir Ruh Taşının değerinin değeri, saflık derecesine bağlıdır.",
+      "raw_model_response": "Bir __WTTERM0001__ değerinin değeri, saflık derecesine bağlıdır.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Bir Ruh Taşının değeri, saflığına bağlıdır.",
+      "raw_model_response": "Bir __WTTERM0001__ değeri, saflığına bağlıdır.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 13,
+    "source": "PASSIVE SKILL ACQUIRED: ECHO VEIL",
+    "prepared_source": null,
+    "variant_a": {
+      "translation": "Kazanılan Pasif Yetenek: ECHO VEIL",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "variant_b": {
+      "translation": "Kazanılan Pasif Yetenek: ECHO VEIL",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "variant_c": {
+      "translation": "Kazanılan Pasif Yetenek: ECHO VEIL",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "same_prepared_source": true,
+    "model_called": false,
+    "bypass_type": "SYSTEM_UI"
+  },
+  {
+    "id": 14,
+    "source": "TITLE ACQUIRED: BONE WARDEN",
+    "prepared_source": null,
+    "variant_a": {
+      "translation": "Kazanılan Unvan: BONE WARDEN",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "variant_b": {
+      "translation": "Kazanılan Unvan: BONE WARDEN",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "variant_c": {
+      "translation": "Kazanılan Unvan: BONE WARDEN",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "same_prepared_source": true,
+    "model_called": false,
+    "bypass_type": "SYSTEM_UI"
+  },
+  {
+    "id": 15,
+    "source": "CLASS ADVANCEMENT AVAILABLE",
+    "prepared_source": null,
+    "variant_a": {
+      "translation": "Sınıf Gelişimi Mevcut",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "variant_b": {
+      "translation": "Sınıf Gelişimi Mevcut",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "variant_c": {
+      "translation": "Sınıf Gelişimi Mevcut",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "same_prepared_source": true,
+    "model_called": false,
+    "bypass_type": "SYSTEM_UI"
+  },
+  {
+    "id": 16,
+    "source": "ABILITY COOLDOWN: 19 SECONDS",
+    "prepared_source": null,
+    "variant_a": {
+      "translation": "Yetenek Bekleme Süresi: 19 saniye",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "variant_b": {
+      "translation": "Yetenek Bekleme Süresi: 19 saniye",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "variant_c": {
+      "translation": "Yetenek Bekleme Süresi: 19 saniye",
+      "raw_model_response": "[System UI Lexicon]",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": false,
+      "bypass_type": "SYSTEM_UI"
+    },
+    "same_prepared_source": true,
+    "model_called": false,
+    "bypass_type": "SYSTEM_UI"
+  },
+  {
+    "id": 17,
+    "source": "Leave him out of this.",
+    "prepared_source": "Leave him out of this.",
+    "variant_a": {
+      "translation": "Onu bu işin dışında tutun.",
+      "raw_model_response": "Onu bu işin dışında tutun.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Onu bu işin dışında tutun.",
+      "raw_model_response": "Onu bu işin dışında tutun.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Onu bu işin dışında tutun.",
+      "raw_model_response": "Onu bu işin dışında tutun.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 18,
+    "source": "Leave the key where you found it.",
+    "prepared_source": "Leave the key where you found it.",
+    "variant_a": {
+      "translation": "Anahtarı bulduğunuz yerde bırakın.",
+      "raw_model_response": "Anahtarı bulduğunuz yerde bırakın.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Anahtarı bulduğunuz yerde bırakın.",
+      "raw_model_response": "Anahtarı bulduğunuz yerde bırakın.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Anahtarı bulduğunuz yerde bırakın.",
+      "raw_model_response": "Anahtarı bulduğunuz yerde bırakın.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 19,
+    "source": "Who charged the meal to my room?",
+    "prepared_source": "Who charged the meal to my room?",
+    "variant_a": {
+      "translation": "Yemek masrafını benim odama kim borçlandırdı?",
+      "raw_model_response": "Yemek masrafını benim odama kim borçlandırdı?",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Yemek masrafı benim odama yazıldı mı?",
+      "raw_model_response": "Yemek masrafı benim odama yazıldı mı?",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Yemeğin ücreti benim odama nasıl yazıldı?",
+      "raw_model_response": "Yemeğin ücreti benim odama nasıl yazıldı?",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 20,
+    "source": "The boar charged before I could draw my sword.",
+    "prepared_source": "The boar charged before I could draw my sword.",
+    "variant_a": {
+      "translation": "Kılıcımı çekmeden önce, domuz bana doğru atıldı.",
+      "raw_model_response": "Kılıcımı çekmeden önce, domuz bana doğru atıldı.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Kılıcımı çekmeden önce, domuz bana doğru saldırıya geçti.",
+      "raw_model_response": "Kılıcımı çekmeden önce, domuz bana doğru saldırıya geçti.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Kılıcımı çekmeden önce domuz bana doğru saldırdı.",
+      "raw_model_response": "Kılıcımı çekmeden önce domuz bana doğru saldırdı.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 21,
+    "source": "Not everyone agreed with the Guild Master.",
+    "prepared_source": "Not everyone agreed with the __WTTERM0001__.",
+    "variant_a": {
+      "translation": null,
+      "raw_model_response": "Herkes __WTTERM0001__'e katılmadı.\"\n\nOr, depending on the context, you might also say:\n\n* \"Herkes __WTTERM0001__'e aynı fikirde değildi.\"\n* \"Herkes __WTTERM0001__'i desteklemedi.\"\n\nThe best translation depends on what \"__WTTERM0001__\" represents.  For example:\n\n* If it's a decision: \"Herkes karara katılmadı.\"\n* If it's an opinion: \"Herkes aynı görüşte değildi.\"\n* If it's a plan: \"Herkes plana katılmadı.",
+      "validation_warnings": [
+        "chatbot_or_explanation_output"
+      ],
+      "requires_review": true,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Herkes Lonca Lideri ile aynı fikirde değildi.",
+      "raw_model_response": "Herkes __WTTERM0001__ ile aynı fikirde değildi.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Herkes Lonca Liderine katılmadı.",
+      "raw_model_response": "Herkes __WTTERM0001__'e katılmadı.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 22,
+    "source": "Almost everyone stayed silent.",
+    "prepared_source": "Almost everyone stayed silent.",
+    "variant_a": {
+      "translation": "Neredeyse herkes sessiz kaldı.",
+      "raw_model_response": "Neredeyse herkes sessiz kaldı.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Neredeyse herkes sessiz kaldı.",
+      "raw_model_response": "Neredeyse herkes sessiz kaldı.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Neredeyse herkes sessiz kaldı.",
+      "raw_model_response": "Neredeyse herkes sessiz kaldı.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 23,
+    "source": "We need to leave before midnight.",
+    "prepared_source": "We need to leave before midnight.",
+    "variant_a": {
+      "translation": "Gece yarısından önce gitmemiz gerekiyor.",
+      "raw_model_response": "Gece yarısından önce gitmemiz gerekiyor.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Oradan gece yarısından önce ayrılmamız gerekiyor.",
+      "raw_model_response": "Oradan gece yarısından önce ayrılmamız gerekiyor.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Oradan gece yarısından önce ayrılmamız gerekiyor.",
+      "raw_model_response": "Oradan gece yarısından önce ayrılmamız gerekiyor.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 24,
+    "source": "Don't move until the door closes.",
+    "prepared_source": "Don't move until the door closes.",
+    "variant_a": {
+      "translation": "Kapı kapanana kadar kıpırdamayın.",
+      "raw_model_response": "Kapı kapanana kadar kıpırdamayın.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Kapı kapanana kadar hareket etmeyin.",
+      "raw_model_response": "Kapı kapanana kadar hareket etmeyin.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Kapı kapanana kadar hareket etmeyin.",
+      "raw_model_response": "Kapı kapanana kadar hareket etmeyin.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 25,
+    "source": "Wonderful. Now the bridge is on fire.",
+    "prepared_source": "Wonderful. Now the bridge is on fire.",
+    "variant_a": {
+      "translation": "Harika. Şimdi köprü yangın çıktı.",
+      "raw_model_response": "Harika. Şimdi köprü yangın çıktı.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Harika. Şimdi köprü alevler içinde.",
+      "raw_model_response": "Harika. Şimdi köprü alevler içinde.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Harika. Şimdi köprü yangın çıktı.",
+      "raw_model_response": "Harika. Şimdi köprü yangın çıktı.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 26,
+    "source": "You don't sound very impressed.",
+    "prepared_source": "You don't sound very impressed.",
+    "variant_a": {
+      "translation": "Çok etkilenmediğin belli oluyor.",
+      "raw_model_response": "Çok etkilenmediğin belli oluyor.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Çok etkilenmediğiniz anlaşılıyor.",
+      "raw_model_response": "Çok etkilenmediğiniz anlaşılıyor.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Çok etkilenmediğiniz anlaşılıyor.",
+      "raw_model_response": "Çok etkilenmediğiniz anlaşılıyor.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 27,
+    "source": "That's because I'm trying not to scream.",
+    "prepared_source": "That's because I'm trying not to scream.",
+    "variant_a": {
+      "translation": "Çünkü bağırmamaya çalışıyorum.",
+      "raw_model_response": "Çünkü bağırmamaya çalışıyorum.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Çünkü bağırmamak için çok çabalıyorum.",
+      "raw_model_response": "Çünkü bağırmamak için çok çabalıyorum.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Çünkü bağırmamaya çalışıyorum.",
+      "raw_model_response": "Çünkü bağırmamaya çalışıyorum.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 28,
+    "source": "Very reassuring.",
+    "prepared_source": "Very reassuring.",
+    "variant_a": {
+      "translation": "Çok güven verici.",
+      "raw_model_response": "Çok güven verici.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Çok güven verici.",
+      "raw_model_response": "Çok güven verici.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Çok güven verici.",
+      "raw_model_response": "Çok güven verici.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 29,
+    "source": "The chamber had been empty only a moment earlier.",
+    "prepared_source": "The chamber had been empty only a moment earlier.",
+    "variant_a": {
+      "translation": "Odaya sadece bir an önce girilmişti ve odayı kimse kullanmamıştı.",
+      "raw_model_response": "Odaya sadece bir an önce girilmişti ve odayı kimse kullanmamıştı.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Odaya bir an önceye kadar kimse girip çıkmamıştı.",
+      "raw_model_response": "Odaya bir an önceye kadar kimse girip çıkmamıştı.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Oda, sadece bir an önce boştu.",
+      "raw_model_response": "Oda, sadece bir an önce boştu.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 30,
+    "source": "Now a line of wet footprints crossed the floor.",
+    "prepared_source": "Now a line of wet footprints crossed the floor.",
+    "variant_a": {
+      "translation": "Şimdi, zeminde ıslak ayak izlerinden oluşan bir çizgi belirdi.",
+      "raw_model_response": "Şimdi, zeminde ıslak ayak izlerinden oluşan bir çizgi belirdi.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Şimdi, zeminde ıslak ayak izlerinden oluşan bir çizgi belirdi.",
+      "raw_model_response": "Şimdi, zeminde ıslak ayak izlerinden oluşan bir çizgi belirdi.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu.",
+      "raw_model_response": "Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 31,
+    "source": "There was nobody at the other end of the corridor.",
+    "prepared_source": "There was nobody at the other end of the corridor.",
+    "variant_a": {
+      "translation": "Koridorun diğer ucunda kimse yoktu.",
+      "raw_model_response": "Koridorun diğer ucunda kimse yoktu.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Koridorun diğer ucunda kimse yoktu.",
+      "raw_model_response": "Koridorun diğer ucunda kimse yoktu.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Koridorun diğer ucunda kimse yoktu.",
+      "raw_model_response": "Koridorun diğer ucunda kimse yoktu.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  },
+  {
+    "id": 32,
+    "source": "Then one of the footprints moved.",
+    "prepared_source": "Then one of the footprints moved.",
+    "variant_a": {
+      "translation": "Sonra, ayak izlerinden biri hareket etti.",
+      "raw_model_response": "Sonra, ayak izlerinden biri hareket etti.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_b": {
+      "translation": "Sonra, ayak izlerinden biri hareket etti.",
+      "raw_model_response": "Sonra, ayak izlerinden biri hareket etti.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "variant_c": {
+      "translation": "Sonra, ayak izlerinden biri hareket etti.",
+      "raw_model_response": "Sonra, ayak izlerinden biri hareket etti.",
+      "validation_warnings": [],
+      "requires_review": false,
+      "model_called": true,
+      "bypass_type": null
+    },
+    "same_prepared_source": true,
+    "model_called": true,
+    "bypass_type": null
+  }
+]

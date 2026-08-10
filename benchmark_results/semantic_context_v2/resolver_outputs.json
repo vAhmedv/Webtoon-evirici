@@ -1,0 +1,814 @@
+[
+  {
+    "id": 1,
+    "context_source": "REAL",
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [],
+    "target_source": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+    "next_context": [
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON."
+    ],
+    "named_terms": [
+      "LUO TIAN",
+      "ABILITY USER",
+      "LEVEL 1"
+    ],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+    "selected_target": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 2,
+    "context_source": "REAL",
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY."
+    ],
+    "target_source": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+    "next_context": [
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."
+    ],
+    "named_terms": [
+      "YU"
+    ],
+    "raw_response": "{\n  \"rewrite_needed\": true,\n  \"confidence\": 0.95,\n  \"risk_types\": [\n    \"preposition_misinterpretation\"\n  ],\n  \"semantic_notes\": [\n    {\n      \"span\": \"careful from here on\",\n      \"resolved_meaning\": \"vigilant regarding the upcoming threat mentioned in the next context\",\n      \"evidence\": \"The next context explicitly states 'THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US', indicating the danger lies in the future path, not the current location. The phrase 'from here on' is semantically ambiguous in isolation (could mean 'starting now' vs 'for the remainder of the journey') but is clearly resolved by the context to mean 'for the rest of the journey ahead'.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"Young Master Yu, Captain Gao, we need to be vigilant for the rest of the journey ahead.\"\n}",
+    "rewrite_needed": true,
+    "confidence": 0.95,
+    "risk_types": [
+      "preposition_misinterpretation"
+    ],
+    "semantic_notes": [
+      {
+        "span": "careful from here on",
+        "resolved_meaning": "vigilant regarding the upcoming threat mentioned in the next context",
+        "evidence": "The next context explicitly states 'THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US', indicating the danger lies in the future path, not the current location. The phrase 'from here on' is semantically ambiguous in isolation (could mean 'starting now' vs 'for the remainder of the journey') but is clearly resolved by the context to mean 'for the rest of the journey ahead'."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "Young Master Yu, Captain Gao, we need to be vigilant for the rest of the journey ahead.",
+    "selected_target": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+    "validation_passed": false,
+    "validation_reasons": [
+      "named_term_loss"
+    ],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_validation_failed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 3,
+    "context_source": "REAL",
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON."
+    ],
+    "target_source": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+    "next_context": [
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD."
+    ],
+    "named_terms": [
+      "BLACKWIND RAVINE"
+    ],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+    "selected_target": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 4,
+    "context_source": "REAL",
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."
+    ],
+    "target_source": "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+    "next_context": [
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN."
+    ],
+    "named_terms": [
+      "HU SAN"
+    ],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+    "selected_target": "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 5,
+    "context_source": "REAL",
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD."
+    ],
+    "target_source": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+    "next_context": [
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+    "selected_target": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 6,
+    "context_source": "REAL",
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN."
+    ],
+    "target_source": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "next_context": [
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW."
+    ],
+    "named_terms": [
+      "GAO YUAN",
+      "ABILITY USER",
+      "LEVEL 1"
+    ],
+    "raw_response": "{\n  \"rewrite_needed\": true,\n  \"confidence\": 0.95,\n  \"risk_types\": [\n    \"ambiguous_quantifier\",\n    \"ambiguous_modifier_scope\"\n  ],\n  \"semantic_notes\": [\n    {\n      \"span\": \"THE REST OF THE TEAM ARE NO PUSHOVERS EITHER\",\n      \"resolved_meaning\": \"The remaining members of the team are also strong and not easy to defeat.\",\n      \"evidence\": \"The phrase 'no pushovers' is an idiom meaning 'not easy to defeat' or 'not weak'. In a translation context, a model might incorrectly interpret 'pushovers' as physical objects to be pushed or misinterpret the idiom's scope. The word 'EITHER' confirms that the quality of being 'no pushovers' applies to the rest of the team in addition to Captain Gao Yuan.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE ALSO NOT EASY TO DEFEAT.\"\n}",
+    "rewrite_needed": true,
+    "confidence": 0.95,
+    "risk_types": [
+      "ambiguous_quantifier",
+      "ambiguous_modifier_scope"
+    ],
+    "semantic_notes": [
+      {
+        "span": "THE REST OF THE TEAM ARE NO PUSHOVERS EITHER",
+        "resolved_meaning": "The remaining members of the team are also strong and not easy to defeat.",
+        "evidence": "The phrase 'no pushovers' is an idiom meaning 'not easy to defeat' or 'not weak'. In a translation context, a model might incorrectly interpret 'pushovers' as physical objects to be pushed or misinterpret the idiom's scope. The word 'EITHER' confirms that the quality of being 'no pushovers' applies to the rest of the team in addition to Captain Gao Yuan."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE ALSO NOT EASY TO DEFEAT.",
+    "selected_target": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "validation_passed": false,
+    "validation_reasons": [
+      "polarity_changed"
+    ],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_validation_failed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 7,
+    "context_source": "REAL",
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER."
+    ],
+    "target_source": "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+    "next_context": [
+      "I'M USED TO IT."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"RELAX, KID. YOU SAW IT YOURSELF JUST NOW.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+    "selected_target": "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 8,
+    "context_source": "REAL",
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW."
+    ],
+    "target_source": "I'M USED TO IT.",
+    "next_context": [
+      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"I'M USED TO IT.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "I'M USED TO IT.",
+    "selected_target": "I'M USED TO IT.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 9,
+    "context_source": "REAL",
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+      "I'M USED TO IT."
+    ],
+    "target_source": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+    "next_context": [
+      "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+    "selected_target": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 10,
+    "context_source": "REAL",
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+      "I'M USED TO IT.",
+      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD."
+    ],
+    "target_source": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "next_context": [],
+    "named_terms": [
+      "LUO TIAN",
+      "ABILITY USER",
+      "SECRET REALM",
+      "SECRET REALM GUIDE"
+    ],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "selected_target": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 11,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_007",
+    "previous_context": [
+      "The raiders keep breaking free.",
+      "Once Frost Chain catches them, they cannot move."
+    ],
+    "target_source": "Frost Chain can hold three targets at once.",
+    "next_context": [
+      "Use it when they reach the gate."
+    ],
+    "named_terms": [
+      "Frost Chain"
+    ],
+    "raw_response": "{\n  \"rewrite_needed\": true,\n  \"confidence\": 0.95,\n  \"risk_types\": [\n    \"verb_semantics\"\n  ],\n  \"semantic_notes\": [\n    {\n      \"span\": \"hold\",\n      \"resolved_meaning\": \"restrain or immobilize\",\n      \"evidence\": \"PREVIOUS CONTEXT 2 states 'Once Frost Chain catches them, they cannot move', confirming the effect is immobilization rather than physical grasping or containment.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"Frost Chain can restrain three targets at once.\"\n}",
+    "rewrite_needed": true,
+    "confidence": 0.95,
+    "risk_types": [
+      "verb_semantics"
+    ],
+    "semantic_notes": [
+      {
+        "span": "hold",
+        "resolved_meaning": "restrain or immobilize",
+        "evidence": "PREVIOUS CONTEXT 2 states 'Once Frost Chain catches them, they cannot move', confirming the effect is immobilization rather than physical grasping or containment."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "Frost Chain can restrain three targets at once.",
+    "selected_target": "Frost Chain can restrain three targets at once.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": true,
+    "rejection_reason": null,
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 12,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_019",
+    "previous_context": [
+      "There is an extra meal on my hotel bill.",
+      "Only the front desk can add purchases to a room."
+    ],
+    "target_source": "Who charged the meal to my room?",
+    "next_context": [
+      "I want the employee's name."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": true,\n  \"confidence\": 0.95,\n  \"risk_types\": [\n    \"ambiguous_verb_phrase\"\n  ],\n  \"semantic_notes\": [\n    {\n      \"span\": \"charged the meal to my room\",\n      \"resolved_meaning\": \"added the cost of the meal to the room's bill\",\n      \"evidence\": \"PREVIOUS CONTEXT 1 states 'There is an extra meal on my hotel bill' and PREVIOUS CONTEXT 2 states 'Only the front desk can add purchases to a room', establishing that the action is adding a charge to an existing bill, not physically charging money to the room or a person.\"\n    }\n  ],\n  \"question_type\": \"wh_question\",\n  \"tense_aspect\": \"past_simple\",\n  \"referents\": [],\n  \"clarified_target\": \"Who added the meal charge to my room bill?\"\n}",
+    "rewrite_needed": null,
+    "confidence": null,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": null,
+    "selected_target": "Who charged the meal to my room?",
+    "validation_passed": false,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "malformed_json",
+    "resolver_failed": false,
+    "malformed_json": true
+  },
+  {
+    "id": 13,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_029",
+    "previous_context": [
+      "I checked the chamber and found nobody inside.",
+      "I stepped into the corridor for only a few seconds."
+    ],
+    "target_source": "The chamber had been empty only a moment earlier.",
+    "next_context": [
+      "Now someone was standing beside the window."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"The chamber had been empty only a moment earlier.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "The chamber had been empty only a moment earlier.",
+    "selected_target": "The chamber had been empty only a moment earlier.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 14,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_030",
+    "previous_context": [
+      "The stone floor was clean when I entered.",
+      "I heard dripping behind me."
+    ],
+    "target_source": "Now a line of wet footprints crossed the floor.",
+    "next_context": [
+      "They led toward the sealed door."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"Now a line of wet footprints crossed the floor.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "Now a line of wet footprints crossed the floor.",
+    "selected_target": "Now a line of wet footprints crossed the floor.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 15,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_charge_motion",
+    "previous_context": [
+      "The boar lowered its head and scraped the ground."
+    ],
+    "target_source": "The boar charged before I could draw my sword.",
+    "next_context": [
+      "Its tusks struck the tree behind me."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"The boar charged before I could draw my sword.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "The boar charged before I could draw my sword.",
+    "selected_target": "The boar charged before I could draw my sword.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 16,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_leave_exclude",
+    "previous_context": [
+      "This argument is between you and me."
+    ],
+    "target_source": "Leave him out of this.",
+    "next_context": [
+      "He has nothing to do with our dispute."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"Leave him out of this.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "Leave him out of this.",
+    "selected_target": "Leave him out of this.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 17,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_leave_place",
+    "previous_context": [
+      "The caretaker will need the key later."
+    ],
+    "target_source": "Leave the key where you found it.",
+    "next_context": [
+      "Do not take it with you."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"Leave the key where you found it.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "Leave the key where you found it.",
+    "selected_target": "Leave the key where you found it.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 18,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_leave_depart",
+    "previous_context": [
+      "The gates will be locked at midnight."
+    ],
+    "target_source": "We need to leave before midnight.",
+    "next_context": [
+      "Pack only what you can carry."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"We need to leave before midnight.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "We need to leave before midnight.",
+    "selected_target": "We need to leave before midnight.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 19,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_pronoun_reference",
+    "previous_context": [
+      "Mira handed me the cracked compass.",
+      "She said the compass still pointed north."
+    ],
+    "target_source": "I don't trust it.",
+    "next_context": [
+      "The needle keeps spinning."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": true,\n  \"confidence\": 0.95,\n  \"risk_types\": [\n    \"pronoun_reference\"\n  ],\n  \"semantic_notes\": [\n    {\n      \"span\": \"it\",\n      \"resolved_meaning\": \"the cracked compass\",\n      \"evidence\": \"PREVIOUS CONTEXT mentions 'the cracked compass' as the object of discussion; NEXT CONTEXT describes 'The needle' (part of the compass) spinning, confirming 'it' refers to the compass, not the compass's reliability or the speaker's trust in general.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [\n    {\n      \"original\": \"it\",\n      \"resolved\": \"the cracked compass\"\n    }\n  ],\n  \"clarified_target\": \"I don't trust the cracked compass.\"\n}",
+    "rewrite_needed": true,
+    "confidence": 0.95,
+    "risk_types": [
+      "pronoun_reference"
+    ],
+    "semantic_notes": [
+      {
+        "span": "it",
+        "resolved_meaning": "the cracked compass",
+        "evidence": "PREVIOUS CONTEXT mentions 'the cracked compass' as the object of discussion; NEXT CONTEXT describes 'The needle' (part of the compass) spinning, confirming 'it' refers to the compass, not the compass's reliability or the speaker's trust in general."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [
+      {
+        "original": "it",
+        "resolved": "the cracked compass"
+      }
+    ],
+    "clarified_target": "I don't trust the cracked compass.",
+    "selected_target": "I don't trust it.",
+    "validation_passed": false,
+    "validation_reasons": [
+      "tense_aspect_changed"
+    ],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_validation_failed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 20,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_question_why",
+    "previous_context": [
+      "Arin abandoned the watch without permission."
+    ],
+    "target_source": "Why did he leave?",
+    "next_context": [
+      "The captain wants an explanation."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"Why did he leave?\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "Why did he leave?",
+    "selected_target": "Why did he leave?",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 21,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_duck",
+    "previous_context": [
+      "An arrow flew toward Lena's head."
+    ],
+    "target_source": "She watched Lena duck.",
+    "next_context": [
+      "The arrow passed over Lena."
+    ],
+    "named_terms": [
+      "Lena"
+    ],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"She watched Lena duck.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "She watched Lena duck.",
+    "selected_target": "She watched Lena duck.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 22,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_phrasal_verb",
+    "previous_context": [
+      "The paralysis spell had kept his legs frozen.",
+      "A minute later, he could move again."
+    ],
+    "target_source": "The spell wore off.",
+    "next_context": [
+      "He stood up without help."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": true,\n  \"confidence\": 0.95,\n  \"risk_types\": [\n    \"ambiguous_verb_phrase\"\n  ],\n  \"semantic_notes\": [\n    {\n      \"span\": \"The spell wore off\",\n      \"resolved_meaning\": \"The effects of the paralysis spell ended, allowing movement.\",\n      \"evidence\": \"Previous context states 'The paralysis spell had kept his legs frozen' and 'he could move again'. Next context states 'He stood up without help'. This confirms 'wore off' refers specifically to the cessation of the immobilizing effect, not just the general existence of the spell.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"The paralysis spell's effects ended.\"\n}",
+    "rewrite_needed": true,
+    "confidence": 0.95,
+    "risk_types": [
+      "ambiguous_verb_phrase"
+    ],
+    "semantic_notes": [
+      {
+        "span": "The spell wore off",
+        "resolved_meaning": "The effects of the paralysis spell ended, allowing movement.",
+        "evidence": "Previous context states 'The paralysis spell had kept his legs frozen' and 'he could move again'. Next context states 'He stood up without help'. This confirms 'wore off' refers specifically to the cessation of the immobilizing effect, not just the general existence of the spell."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "The paralysis spell's effects ended.",
+    "selected_target": "The paralysis spell's effects ended.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": true,
+    "rejection_reason": null,
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 23,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_present_perfect_progressive",
+    "previous_context": [
+      "The sentries began their vigil before sunrise."
+    ],
+    "target_source": "They have been waiting since dawn.",
+    "next_context": [
+      "They are still at the gate."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"They have been waiting since dawn.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "They have been waiting since dawn.",
+    "selected_target": "They have been waiting since dawn.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  },
+  {
+    "id": 24,
+    "context_source": "SYNTHETIC",
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_state_action",
+    "previous_context": [
+      "The iron door had not moved all night."
+    ],
+    "target_source": "The door remained shut.",
+    "next_context": [
+      "No one had entered the vault."
+    ],
+    "named_terms": [],
+    "raw_response": "{\n  \"rewrite_needed\": false,\n  \"confidence\": 0.0,\n  \"risk_types\": [],\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": null,\n  \"referents\": [],\n  \"clarified_target\": \"The door remained shut.\"\n}",
+    "rewrite_needed": false,
+    "confidence": 0.0,
+    "risk_types": [],
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "clarified_target": "The door remained shut.",
+    "selected_target": "The door remained shut.",
+    "validation_passed": true,
+    "validation_reasons": [],
+    "rewrite_used": false,
+    "rejection_reason": "rewrite_not_needed",
+    "resolver_failed": false,
+    "malformed_json": false
+  }
+]

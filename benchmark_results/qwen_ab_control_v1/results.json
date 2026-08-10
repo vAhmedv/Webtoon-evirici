@@ -1,0 +1,258 @@
+[
+  {
+    "id": 1,
+    "source": "Hold on. That's not what happened.",
+    "translation": "Dur. Olay öyle gelişmedi.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 2,
+    "source": "Then tell me what did.",
+    "translation": "Peki, ne olduğunu söyle.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 3,
+    "source": "You wouldn't believe me.",
+    "translation": "Bana inanmazsın.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 4,
+    "source": "Try me.",
+    "translation": "Deneme.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 5,
+    "source": "Captain, we found another entrance.",
+    "translation": "Kaptan, başka bir giriş bulduk.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 6,
+    "source": "Does anyone else know about it?",
+    "translation": "Başkaları da biliyor mu?",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 7,
+    "source": "Not unless the scouts talked.",
+    "translation": "Keşifçiler konuşmadıysa hayır.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 8,
+    "source": "They know better than that.",
+    "translation": "Buna daha iyi hallederler.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 9,
+    "source": "I wouldn't call that a victory.",
+    "translation": "Bunu bir zafer olarak nitelendirmem.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 10,
+    "source": "We survived, didn't we?",
+    "translation": "Hayatta kaldık değil mi?",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 11,
+    "source": "Barely.",
+    "translation": "Zaten zor.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 12,
+    "source": "Still counts.",
+    "translation": "Hesaplanır.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 13,
+    "source": "Leave the lantern where it is.",
+    "translation": "Feneri olduğu yerde bırak.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 14,
+    "source": "I need to leave before the guards return.",
+    "translation": "Gardiyenler dönmeye başlamadan önce gitmem lazım.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 15,
+    "source": "She left the key on the table.",
+    "translation": "Anahtar masada bırakmış.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 16,
+    "source": "Leave him out of this.",
+    "translation": "Bunu ona karıştırmayın.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 17,
+    "source": "That went well.",
+    "translation": "İşler iyi gitti.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 18,
+    "source": "Half the building is on fire.",
+    "translation": "Binanın yarısı alevler içinde.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 19,
+    "source": "I said it went well, not perfectly.",
+    "translation": "Mükemmel gitti demedim, iyi gitti dedim.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 20,
+    "source": "You're impossible.",
+    "translation": "Sen imkansız.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 21,
+    "source": "How much did they charge for the repairs?",
+    "translation": "Onarım için ne kadar ücret aldılar?",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 22,
+    "source": "Enough to make me regret breaking it.",
+    "translation": "Kırmasından pişman olmama yetecek kadar.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 23,
+    "source": "Who charged into the room first?",
+    "translation": "Kim önce odaya girdi?",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 24,
+    "source": "Guess.",
+    "translation": "Tahmin et.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 25,
+    "source": "Not everyone agreed with the decision.",
+    "translation": "Herkes kararın lehine değildi.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 26,
+    "source": "Almost everyone kept quiet.",
+    "translation": "Neredeyse herkes susmakla yetindi.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 27,
+    "source": "Only one person objected.",
+    "translation": "Sadece biri itiraz etti.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 28,
+    "source": "That doesn't mean the others approved.",
+    "translation": "Bunun başkalarının onayladığı anlamına gelmez.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 29,
+    "source": "The footprints ended in the middle of the corridor.",
+    "translation": "Ayak izleri koridorun ortasında kesildi.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 30,
+    "source": "There were no doors, no windows, and nowhere else to go.",
+    "translation": "Kapı yoktu, pencere yoktu, başka bir çıkış da yoktu.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 31,
+    "source": "For a moment, none of them said anything.",
+    "translation": "Bir süre hiç kimse bir şey söylemedi.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  },
+  {
+    "id": 32,
+    "source": "Then something knocked from inside the wall.",
+    "translation": "Sonra duvarın içinden bir şey çarptı.",
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false
+  }
+]

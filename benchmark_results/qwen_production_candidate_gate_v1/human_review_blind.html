@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webtoon Translation Blind Review Gate V1</title>
+<style>
+:root {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-hover: #0284c7;
+    --winner-a: #ec4899;
+    --winner-b: #8b5cf6;
+    --tie-good: #22c55e;
+    --tie-bad: #ef4444;
+    --unscorable: #f59e0b;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.header {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.header h1 { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+.header-info { display: flex; align-items: center; gap: 16px; }
+
+.badge {
+    background: #0284c7;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.btn {
+    background: var(--accent);
+    color: #0f172a;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn:hover { background: var(--accent-hover); color: white; }
+.btn-nav { background: #334155; color: white; }
+.btn-nav:hover { background: #475569; }
+
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 1100px;
+}
+
+.filter-btn {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.filter-btn.active {
+    background: var(--accent);
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.main-container {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.item-meta {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.context-box {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.context-line {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 4px;
+}
+
+.source-english {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 8px 0;
+}
+
+.v3-source {
+    font-size: 0.95rem;
+    color: #cbd5e1;
+    background: #1e293b;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border-left: 3px solid var(--accent);
+    margin-top: 6px;
+}
+
+.translations-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.trans-card {
+    background: #0f172a;
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    padding: 18px;
+    transition: all 0.2s ease;
+}
+
+.trans-card.selected-a { border-color: var(--winner-a); }
+.trans-card.selected-b { border-color: var(--winner-b); }
+
+.trans-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.trans-text {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #f8fafc;
+}
+
+.scoring-section {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.section-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.choice-btn {
+    background: #1e293b;
+    border: 2px solid #334155;
+    color: var(--text-main);
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.choice-btn:hover { border-color: var(--accent); }
+
+.choice-btn.active[data-val="A"] { background: var(--winner-a); border-color: var(--winner-a); color: white; }
+.choice-btn.active[data-val="B"] { background: var(--winner-b); border-color: var(--winner-b); color: white; }
+.choice-btn.active[data-val="TIE_GOOD"] { background: var(--tie-good); border-color: var(--tie-good); color: white; }
+.choice-btn.active[data-val="TIE_BAD"] { background: var(--tie-bad); border-color: var(--tie-bad); color: white; }
+.choice-btn.active[data-val="UNSCORABLE_OCR"] { background: var(--unscorable); border-color: var(--unscorable); color: white; }
+
+.sev-btn.active { background: #0284c7; border-color: #0284c7; color: white; }
+
+.tags-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.tag-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    background: #1e293b;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #334155;
+}
+
+.tag-check input { cursor: pointer; }
+
+.notes-input {
+    width: 100%;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: var(--text-main);
+    padding: 10px;
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.hotkey-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Webtoon Translation Blind Review V1</h1>
+    <div class="header-info">
+        <span class="badge" id="progress-badge">Reviewed: 0 / 80</span>
+        <button class="btn" id="export-btn">Export Review JSON</button>
+    </div>
+</div>
+
+<div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('all')">All Items (80)</button>
+    <button class="filter-btn" onclick="setFilter('unreviewed')">Unreviewed (<span id="unreviewed-count">80</span>)</button>
+    <button class="filter-btn" onclick="setFilter('reviewed')">Reviewed (<span id="reviewed-count">0</span>)</button>
+</div>
+
+<div class="main-container">
+    <div class="item-meta">
+        <div><strong id="meta-series">Series Name</strong> &bull; <span id="meta-chapter">Chapter X</span></div>
+        <div>Review ID: <strong id="meta-id">R001</strong> (<span id="meta-index">1 / 80</span>)</div>
+    </div>
+
+    <div class="context-box">
+        <div class="section-label">Context &amp; Source English</div>
+        <div id="prev-context"></div>
+        <div class="source-english" id="source-text">English source text...</div>
+        <div id="next-context"></div>
+        <div id="v3-selected" class="v3-source" style="display:none;"></div>
+    </div>
+
+    <div class="translations-grid">
+        <div class="trans-card" id="card-a">
+            <div class="trans-title">Translation A</div>
+            <div class="trans-text" id="text-a">Translation A text...</div>
+        </div>
+        <div class="trans-card" id="card-b">
+            <div class="trans-title">Translation B</div>
+            <div class="trans-text" id="text-b">Translation B text...</div>
+        </div>
+    </div>
+
+    <div class="scoring-section">
+        <div class="section-label">1. Choose Winner (Keys: 1=A, 2=B, 3=Tie Good, 4=Tie Bad, 5=Unscorable)</div>
+        <div class="button-group" id="winner-group">
+            <button class="choice-btn" data-val="A" onclick="setWinner('A')">Translation A</button>
+            <button class="choice-btn" data-val="B" onclick="setWinner('B')">Translation B</button>
+            <button class="choice-btn" data-val="TIE_GOOD" onclick="setWinner('TIE_GOOD')">TIE GOOD</button>
+            <button class="choice-btn" data-val="TIE_BAD" onclick="setWinner('TIE_BAD')">TIE BAD</button>
+            <button class="choice-btn" data-val="UNSCORABLE_OCR" onclick="setWinner('UNSCORABLE_OCR')">UNSCORABLE OCR</button>
+        </div>
+
+        <div class="section-label">2. Worst Error Severity</div>
+        <div class="button-group" id="severity-group">
+            <button class="choice-btn sev-btn" data-val="NONE" onclick="setSeverity('NONE')">NONE</button>
+            <button class="choice-btn sev-btn" data-val="MINOR" onclick="setSeverity('MINOR')">MINOR</button>
+            <button class="choice-btn sev-btn" data-val="MAJOR" onclick="setSeverity('MAJOR')">MAJOR</button>
+            <button class="choice-btn sev-btn" data-val="CRITICAL" onclick="setSeverity('CRITICAL')">CRITICAL</button>
+        </div>
+
+        <div class="section-label">3. Optional Category Tags</div>
+        <div class="tags-grid" id="tags-container">
+            <!-- Checkboxes generated dynamically -->
+        </div>
+
+        <div class="section-label">4. Optional Notes</div>
+        <textarea class="notes-input" id="notes-input" placeholder="Add optional reviewer notes..." oninput="updateNotes()"></textarea>
+    </div>
+
+    <div class="nav-bar">
+        <button class="btn btn-nav" onclick="prevItem()">&larr; Previous</button>
+        <button class="btn btn-nav" onclick="nextItem()">Next &rarr;</button>
+    </div>
+
+    <div class="hotkey-hint">Shortcuts: [&larr;] Prev &bull; [&rarr;] Next &bull; [1] A &bull; [2] B &bull; [3] Tie Good &bull; [4] Tie Bad &bull; [5] Unscorable</div>
+</div>
+
+<script>
+const BLIND_ITEMS = [{"review_id": "R001", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 1", "previous_context": [], "original_accepted_english": "ARYASCANS.com", "next_context": ["THANKS FOR EARLIER."], "v3_selected_english": "ARYASCANS.com", "translation_a": "", "translation_b": "ARYASCANS.com"}, {"review_id": "R002", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 1", "previous_context": ["ARYASCANS.com", "THANKS FOR EARLIER."], "original_accepted_english": "ARYASCANS.com", "next_context": ["LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R003", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 1", "previous_context": ["YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT.", "JUDGING BY LLO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.", "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON."], "original_accepted_english": "nb", "next_context": ["THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."], "v3_selected_english": "nb", "translation_a": "", "translation_b": "nb"}, {"review_id": "R004", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 1", "previous_context": ["ORDINARY DANGERS WON'T TROUBLE THEM.", "I'M USED TO IT.", "IN THIS ERA OF MONSTERS INVASIONS,"], "original_accepted_english": "ARYASCANS.com", "next_context": ["COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R005", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 1", "previous_context": ["ROGER, CAPTAIN.", "EXTRERNE SPEED", "RELAX, KID. YOU SAW IT YOURSELF JUST NOW."], "original_accepted_english": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.", "next_context": ["ORDINARY DANGERS WON'T TROUBLE THEM."], "v3_selected_english": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.", "translation_a": "KAPTAN Gao Yuan, DÜŞÜNÜLEMEYECEK KADAR BAŞARILI BİR OYUNCU, VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL.", "translation_b": "KAPTEN Gao Yuan BİR ZİRVE 1. seviye yetenek kullanıcısıDIR VE EKİBİNİN KALAN ÜYELERİ DE KOLAY GELİNECEKLER DEĞİLDİR."}, {"review_id": "R006", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 1", "previous_context": ["COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.", "WITHIN THESE SECRET REALMS, DANGER LURKS EVERYWHERE.", "YET THEY ALSO CONCEAL ENDLESS TREASURES."], "original_accepted_english": "MY NAME IS LHO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.", "next_context": ["I HEARD THAT THREE DAYS AGO, A RED GIANT WIELDING A BATTLE AXE APPEARED IN THE BLACKSTONE SECRET REALM."], "v3_selected_english": "MY NAME IS LHO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.", "translation_a": "ADIM LHO TIAN. BEN BİR yetenek kullanıcısı DEĞİLİM—BEN BİR gizli âlem rehberiİM.", "translation_b": "Adım Lho Tian. Ben bir yetenek kullanıcısı değilim, ben bir gizli âlem rehberiim."}, {"review_id": "R007", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 1", "previous_context": ["ARYASCANS.com", "THANKS FOR EARLIER.", "ARYASCANS.com"], "original_accepted_english": "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!", "next_context": ["WORTH EVERY PENNY, KID!"], "v3_selected_english": "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!", "translation_a": "Görünüşe göre param boşa gitmedi. Değerinin karşılığını fazlasıyla veriyorsun, çocuk! / Değerin tartışılmaz, çocuk!", "translation_b": "Görünüşe göre paranın boşa gitmedi. Her kuruşuna değer, çocuk!"}, {"review_id": "R008", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 1", "previous_context": ["ARYASCANS.com", "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!", "WORTH EVERY PENNY, KID!"], "original_accepted_english": "YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT.", "next_context": ["JUDGING BY LLO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY."], "v3_selected_english": "YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT.", "translation_a": "GENÇ MASTER YLI, SİRF BOŞA GİTMEDEN DAHA FAZLASI—BİZ BÜYÜK KAZANÇ YAPTIK.", "translation_b": "Genç Usta Yli, sadece boşa gitmekten kurtulmadık, tam tersine büyük bir başarı elde ettik. / Genç Usta Yli, sadece bir kayıp yaşamamaktan öte, büyük bir şans yakaladık."}, {"review_id": "R009", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 2", "previous_context": [], "original_accepted_english": "ARYASCANS.com", "next_context": ["ARYASCANS.com"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R010", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 2", "previous_context": ["ARYASCANS.com"], "original_accepted_english": "ARYASCANS.com", "next_context": ["吃fm"], "v3_selected_english": "ARYASCANS.com", "translation_a": "", "translation_b": "ARYASCANS.com"}, {"review_id": "R011", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 2", "previous_context": ["ARYASCANS.com", "ARYASCANS.com", "吃fm"], "original_accepted_english": "ARYASCANS.com", "next_context": ["THUMP~"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R012", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 2", "previous_context": ["THUMP~", "A BEAST IS STILL JUST A BEAST!", "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?"], "original_accepted_english": "ARYASCANS.com", "next_context": ["DIE, YOU BEAST!"], "v3_selected_english": "ARYASCANS.com", "translation_a": "", "translation_b": "ARYASCANS.com"}, {"review_id": "R013", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 2", "previous_context": ["YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?", "ARYASCANS.com", "DIE, YOU BEAST!"], "original_accepted_english": "ARYASCANS.com", "next_context": ["TRYING TO RUN?"], "v3_selected_english": "ARYASCANS.com", "translation_a": "", "translation_b": "ARYASCANS.com"}, {"review_id": "R014", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 2", "previous_context": ["DIE, YOU BEAST!", "ARYASCANS.com", "TRYING TO RUN?"], "original_accepted_english": "ARYASCANS.com", "next_context": ["THIS FEELING OF WIELDING SUCH POWER IS TRULY INTOXICATING!"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R015", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 2", "previous_context": ["ARYASCANS.com", "THIS FEELING OF WIELDING SUCH POWER IS TRULY INTOXICATING!", "UNFORTUNATELY, THE BATTLE AXE CONTAINS A VIOLENT AURA THAT PREVENTS ME FROM STAYING TRANSFORMED FOR LONG. OTHERWISE, I'D BECOME A MONSTER THAT KNOWS ONLY SLAUGHTER."], "original_accepted_english": "THESE PEOPLE ARE PRETTY BADLY INJURED. THAT'S GOING TO BE TROUBLESOME.", "next_context": ["IT'S ACTIALLY A MID-GRADE HEALING POTION. WHAT A BUNCH OF RICH FOLKS."], "v3_selected_english": "THESE PEOPLE ARE PRETTY BADLY INJURED. THAT'S GOING TO BE TROUBLESOME.", "translation_a": "Bu insanlar oldukça ciddi şekilde yaralanmış. Bu durum başımıza büyük işler açacak.", "translation_b": "Bu insanlar oldukça ağır yaralandı. Bu sorun yaratacak."}, {"review_id": "R016", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 2", "previous_context": ["ARYASCANS.com", "THUMP~", "A BEAST IS STILL JUST A BEAST!"], "original_accepted_english": "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?", "next_context": ["ARYASCANS.com"], "v3_selected_english": "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?", "translation_a": "Aynı numarayı benden ikinci kez de mi bekliyorsun?", "translation_b": "Aynı hileyi ikinci kez bana işleteceğini sanıyorsun?"}, {"review_id": "R017", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 3", "previous_context": [], "original_accepted_english": "ARYASCANS.com", "next_context": ["ARYASCANS.com"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R018", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 3", "previous_context": ["ARYASCANS.com"], "original_accepted_english": "ARYASCANS.com", "next_context": ["HAHAHA! IT REALLY IS THE BLOOD AXE!"], "v3_selected_english": "ARYASCANS.com", "translation_a": "", "translation_b": "ARYASCANS.com"}, {"review_id": "R019", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 3", "previous_context": ["ABILITY: SECOND AWAKENING — BONY OF STEEL", "HE CAUGHT IT?!", "HAHAHA! NICE ATTACK! AGAIN! COME ON, AGAIN!"], "original_accepted_english": "ARYASCANS.com", "next_context": ["AHHH!!!"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R020", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 3", "previous_context": ["HE CAUGHT IT?!", "HAHAHA! NICE ATTACK! AGAIN! COME ON, AGAIN!", "ARYASCANS.com"], "original_accepted_english": "AHHH!!!", "next_context": ["ARYASCANS.com"], "v3_selected_english": "AHHH!!!", "translation_a": "", "translation_b": "AHHH!!!"}, {"review_id": "R021", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 3", "previous_context": ["HAHAHA! NICE ATTACK! AGAIN! COME ON, AGAIN!", "ARYASCANS.com", "AHHH!!!"], "original_accepted_english": "ARYASCANS.com", "next_context": ["DAMN IT... THE MURDEROLIS AURA WITHIN THE BLOOD AXE IS ALMOST BEYOND WHAT I CAN ENDLRE..."], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R022", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 3", "previous_context": ["AND YOU? HAVE YOU FINALLY REACHED THE LIMIT OF THE POWER THE BLOOD AXE GRANTS YOU?!", "I HAVE TO END THE TRANSFORMATION IMMEDIATELY. OTHERWISE, I'LL LOSE MY MIND AND BECOME A DEMON THAT KNOWS ONLY SLAUGHTER.", "I CAN ONLY RESORT TO MY LAST OPTION."], "original_accepted_english": "ARYASCANS.com", "next_context": ["won"], "v3_selected_english": "ARYASCANS.com", "translation_a": "", "translation_b": "ARYASCANS.com"}, {"review_id": "R023", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 3", "previous_context": ["LOST TO AN ORDINARY PERSON? I'M A LEVEL 2, EARLY-STAGE ABILITY LISER!", "ARYASCANS.com", "YOU CAN DIE NOW."], "original_accepted_english": "N-NO...", "next_context": [], "v3_selected_english": "N-NO...", "translation_a": "Kesinlikle hayır... / Asla...", "translation_b": "HAYIR..."}, {"review_id": "R024", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 3", "previous_context": ["ARYASCANS.com", "ARYASCANS.com"], "original_accepted_english": "HAHAHA! IT REALLY IS THE BLOOD AXE!", "next_context": ["deputy are:"], "v3_selected_english": "HAHAHA! IT REALLY IS THE BLOOD AXE!", "translation_a": "HAHAHA! BU GERÇEKTEN KAN BALTASI!", "translation_b": "HAHAHA! GERÇEKTEN KAN BİÇKİDİR!"}, {"review_id": "R025", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 4", "previous_context": ["I REALLY DON'T HAVE A CHOICE.", "LISING THE ICY POWER OF THE WINTER POTION TO SUPPRESS THE IMPACT OF THE BLOOD AXE'S BALEFUL AURA WAS INDEED A CLEVER SHORTCUT.", "BUT JUST THE LINGERING MEDICINAL EFFECTS ALONE HAVE NEARLY FROZEN MY BODY SOLID AND SHATTERED IT."], "original_accepted_english": "中Ra", "next_context": ["ARYASCANS.com"], "v3_selected_english": "中Ra", "translation_a": "Orta Ra", "translation_b": ""}, {"review_id": "R026", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 4", "previous_context": ["LISING THE ICY POWER OF THE WINTER POTION TO SUPPRESS THE IMPACT OF THE BLOOD AXE'S BALEFUL AURA WAS INDEED A CLEVER SHORTCUT.", "BUT JUST THE LINGERING MEDICINAL EFFECTS ALONE HAVE NEARLY FROZEN MY BODY SOLID AND SHATTERED IT.", "中Ra"], "original_accepted_english": "ARYASCANS.com", "next_context": ["WHOOSH~"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R027", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 4", "previous_context": ["中Ra", "ARYASCANS.com", "WHOOSH~"], "original_accepted_english": "udqa", "next_context": ["ARYASCANS.com"], "v3_selected_english": "udqa", "translation_a": "", "translation_b": "udqa"}, {"review_id": "R028", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 4", "previous_context": ["ARYASCANS.com", "WHOOSH~", "udqa"], "original_accepted_english": "ARYASCANS.com", "next_context": ["ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO."], "v3_selected_english": "ARYASCANS.com", "translation_a": "", "translation_b": "ARYASCANS.com"}, {"review_id": "R029", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 4", "previous_context": ["ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO.", "I'VE ALREADY WASTED A LOT OF TIME. I NEED TO GET THERE AS SOON AS POSSIBLE. THE WIND SPIRIT PEARL COULD BE TAKEN BY SOMEONE ELSE AT ANY MOMENT.", "DARK NETHER FOREST"], "original_accepted_english": "ARYASCANS.com", "next_context": ["MONSTER: SHADOW MANTIS - PEAK TIER 1"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R030", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 4", "previous_context": ["THIS DARK NETHER FOREST REALLY IS STRANGE. EVEN THE OUTER AREA HAS MONSTERS LIKE THIS.", "TOO BAD I'M IN A HURRY. OTHERWISE, I'D DEFINITELY AVOID THIS PLACE.", "FORTHNATELY, I CAME PREPARED."], "original_accepted_english": "ARYASCANS.com", "next_context": ["ARYASCANS.com"], "v3_selected_english": "ARYASCANS.com", "translation_a": "", "translation_b": "ARYASCANS.com"}, {"review_id": "R031", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 4", "previous_context": ["WHOOSH~", "udqa", "ARYASCANS.com"], "original_accepted_english": "ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO.", "next_context": ["I'VE ALREADY WASTED A LOT OF TIME. I NEED TO GET THERE AS SOON AS POSSIBLE. THE WIND SPIRIT PEARL COULD BE TAKEN BY SOMEONE ELSE AT ANY MOMENT."], "v3_selected_english": "ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO.", "translation_a": "Bilgilerimize göre, yaklaşık üç gün önce, Rüzgar-Gök Gürültüsü Kayalıkları yakınında birinin Rüzgar Ruhu İncisi'ni gördüğü tespit edildi.", "translation_b": "Bilgiye göre, rüzgar-thunder kayasının yakınında rüzgar ruhu elması üç gün önce fark edilmiş."}, {"review_id": "R032", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 4", "previous_context": ["ARYASCANS.com", "MONSTER: SHADOW MANTIS - PEAK TIER 1", "THIS DARK NETHER FOREST REALLY IS STRANGE. EVEN THE OUTER AREA HAS MONSTERS LIKE THIS."], "original_accepted_english": "TOO BAD I'M IN A HURRY. OTHERWISE, I'D DEFINITELY AVOID THIS PLACE.", "next_context": ["FORTHNATELY, I CAME PREPARED."], "v3_selected_english": "TOO BAD I'M IN A HURRY. OTHERWISE, I'D DEFINITELY AVOID THIS PLACE.", "translation_a": "Keşke acelem olmasa, ama maalesef zamanım yok. Eğer vaktim olsaydı, kesinlikle bu yerden uzak dururdum.", "translation_b": "Ne yazık ki acelem var. Aksi halde kesinlikle bu yere gitmezdim."}, {"review_id": "R033", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 5", "previous_context": [], "original_accepted_english": "ARYASCANS.com", "next_context": ["Yuan"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R034", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 5", "previous_context": ["ARYASCANS.com"], "original_accepted_english": "Yuan", "next_context": ["WHAT A PAIN. EVERY ONE OF THESE BEASTS IS COMPLETELY FEARLESS OF DEATH!"], "v3_selected_english": "Yuan", "translation_a": "Yuan, Çin para biriminin adıdır. İngilizce'de \"yuan\" olarak kullanılır.", "translation_b": "Yuan"}, {"review_id": "R035", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 5", "previous_context": ["WHAT A PAIN. EVERY ONE OF THESE BEASTS IS COMPLETELY FEARLESS OF DEATH!", "OF DEATH!", "I HAVE TO KILL THEM ALL AT ONCE AND CREATE AN OPENING IN THEIR DEFENSE. THAT'S MY ONLY CHANCE!"], "original_accepted_english": "ARYASCANS.com", "next_context": ["I'M GETTING CLOSE TO THE CAVE ENTRANCE!"], "v3_selected_english": "ARYASCANS.com", "translation_a": "ARYASCANS.com", "translation_b": ""}, {"review_id": "R036", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 5", "previous_context": ["I HAVE TO KILL THEM ALL AT ONCE AND CREATE AN OPENING IN THEIR DEFENSE. THAT'S MY ONLY CHANCE!", "ARYASCANS.com", "I'M GETTING CLOSE TO THE CAVE ENTRANCE!"], "original_accepted_english": "ARYASCANS.com", "next_context": ["I HAVE TO GET"], "v3_selected_english": "ARYASCANS.com", "translation_a": "", "translation_b": "ARYASCANS.com"}, {"review_id": "R037", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 5", "previous_context": ["ARYASCANS.com", "I HAVE TO GET", "I HAVE TO GET OUT OF HERE QUICKLY..."], "original_accepted_english": "fh,", "next_context": ["ALTHOLGH THE HELLFLOWER'S VINES CAN'T REACH INSIDE, THOSE SHADOW MANTISES ARE STILL A HUGE THREAT."], "v3_selected_english": "fh,", "translation_a": "fh,", "translation_b": ""}, {"review_id": "R038", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 5", "previous_context": ["I HAVE TO GET OUT OF HERE QUICKLY...", "fh,", "ALTHOLGH THE HELLFLOWER'S VINES CAN'T REACH INSIDE, THOSE SHADOW MANTISES ARE STILL A HUGE THREAT."], "original_accepted_english": "ARYASCANS.com", "next_context": ["THE EXIT! I'VE FINALLY MADE IT!"], "v3_selected_english": "ARYASCANS.com", "translation_a": "", "translation_b": "ARYASCANS.com"}, {"review_id": "R039", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 5", "previous_context": ["ARYASCANS.com", "THE EXIT! I'VE FINALLY MADE IT!", "SO THAT'S WIND-THUNDER CLIFF?"], "original_accepted_english": "HOW TERRIFYING!", "next_context": ["ARYASCANS.com"], "v3_selected_english": "HOW TERRIFYING!", "translation_a": "Ne kadar korkunç!", "translation_b": "Ne korkunç! / Çok korkunç!"}, {"review_id": "R040", "series": "Axe God: The Road to Invincibility", "chapter": "Chapter 5", "previous_context": ["SO THAT'S WIND-THUNDER CLIFF?", "HOW TERRIFYING!", "ARYASCANS.com"], "original_accepted_english": "DANGER!!!", "next_context": ["WHO'S THERE?"], "v3_selected_english": "DANGER!!!", "translation_a": "TEHLİKE!!!", "translation_b": "DİKKAT!!!\nor\nTEHLİKE!!!"}, {"review_id": "R041", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 1", "previous_context": ["IN THIS GAME, I...", "Lv.998", "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP."], "original_accepted_english": "ASMOTOON.COM", "next_context": ["MAYBE I OVERDID IT... 200 HOURS STRAIGHT IS A BIT MUCH."], "v3_selected_english": "ASMOTOON.COM", "translation_a": "", "translation_b": "ASMOTOON.COM"}, {"review_id": "R042", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 1", "previous_context": ["BUT THE TRUTH WAS...", "BE IT SCHOOL...", "OR SPORTS..."], "original_accepted_english": "ASMOTOON.COM", "next_context": ["I COULD NEVER GET THAT NUMBER-ONE SPOT."], "v3_selected_english": "ASMOTOON.COM", "translation_a": "ASMOTOON.COM", "translation_b": ""}, {"review_id": "R043", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 1", "previous_context": ["HERE, IT'S DIFFERENT.", "IN ZFO...", "I CAN FINALLY BE THE BEST IN THE WORLD."], "original_accepted_english": "ASMOTOON.COM", "next_context": ["OR... SO I THOUGHT."], "v3_selected_english": "ASMOTOON.COM", "translation_a": "", "translation_b": "ASMOTOON.COM"}, {"review_id": "R044", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 1", "previous_context": ["I CAN FINALLY BE THE BEST IN THE WORLD.", "ASMOTOON.COM", "OR... SO I THOUGHT."], "original_accepted_english": "GAH...!!!", "next_context": ["\\begin{array}{l} \\displaystyle \\Delta \\left( \\frac{d}{t} \\right) =\\frac{v \\times \\Delta h}{t} \\times \\frac{v}{d} \\div \\frac{c}{d} = \\frac{(c + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{v \\times \\Delta g}{d} \\times \\frac{x}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x + \\Delta z}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\end{array}"], "v3_selected_english": "GAH...!!!", "translation_a": "", "translation_b": "GAH...!!!"}, {"review_id": "R045", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 1", "previous_context": ["THE WORLD'S MOST POPULAR VRMMO...", "- ONLINE -"], "original_accepted_english": "“ZERO FANTASY ONLINE.”", "next_context": ["COMMONLY KNOWN AS \"ZFO.\""], "v3_selected_english": "“ZERO FANTASY ONLINE.”", "translation_a": "", "translation_b": "\"SIFIR FANTAZİ ONLINE.\""}, {"review_id": "R046", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 1", "previous_context": ["I WANTED TO BE A MASTER WHO WAS AT THE TOP OF MY FIELD...", "TO LEAVE MY MARK ON HISTORY.", "BUT THE TRUTH WAS..."], "original_accepted_english": "BE IT SCHOOL...", "next_context": ["OR SPORTS..."], "v3_selected_english": "BE IT SCHOOL...", "translation_a": "OKUL OLASIN...", "translation_b": ""}, {"review_id": "R047", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 1", "previous_context": ["COMMONLY KNOWN AS \"ZFO.\"", "IN THIS GAME, I...", "Lv.998"], "original_accepted_english": "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.", "next_context": ["ASMOTOON.COM"], "v3_selected_english": "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.", "translation_a": "Oyuncuların hiçbirinin daha önce ulaşamadığı, en yüksek seviyeye ulaşma noktasına gelmiştim.\"\n\nVeya daha akıcı bir şekilde:\n\n\"Tarihte ilk kez, bir oyuncunun ulaşabileceği en yüksek seviyeye ulaşmak üzereydim.", "translation_b": "İlk oyuncu olarak seviye sınırına ulaşmak üzereydim."}, {"review_id": "R048", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 1", "previous_context": ["I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.", "ASMOTOON.COM", "MAYBE I OVERDID IT... 200 HOURS STRAIGHT IS A BIT MUCH."], "original_accepted_english": "ONCE I FINISH THIS, I'M GETTING A REAL MEAL AND CRASHING.", "next_context": ["HONESTLY, I JUST WANTED..."], "v3_selected_english": "ONCE I FINISH THIS, I'M GETTING A REAL MEAL AND CRASHING.", "translation_a": "Bunu bitirince gerçek bir yemek yiyip yatağa yatıyorum.", "translation_b": "Bunu bitirir bitirmez, güzel bir yemek yiyeceğim ve sonra da kendimi yatağa atacağım."}, {"review_id": "R049", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 2", "previous_context": [], "original_accepted_english": "ALLEN LV.13", "next_context": ["I ONLY CAME TO THE FOREST TO TEST OUT [CRAFT]..."], "v3_selected_english": "ALLEN LV.13", "translation_a": "", "translation_b": "ALLEN LV.13"}, {"review_id": "R050", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 2", "previous_context": ["I ONLY CAME TO THE FOREST TO TEST OUT [CRAFT]...", "...BUT I CERTAINLY DIDN'T EXPECT TO RUN INTO A BEAST THIS MASSIVE.", "ROCK GOLEM LV.20"], "original_accepted_english": "ASMOTOON.COM", "next_context": ["GRO OOM!"], "v3_selected_english": "ASMOTOON.COM", "translation_a": "", "translation_b": "ASMOTOON.COM"}, {"review_id": "R051", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 2", "previous_context": ["...BUT I CERTAINLY DIDN'T EXPECT TO RUN INTO A BEAST THIS MASSIVE.", "ROCK GOLEM LV.20", "ASMOTOON.COM"], "original_accepted_english": "GRO OOM!", "next_context": ["(INTEREST-ING..."], "v3_selected_english": "GRO OOM!", "translation_a": "GRO OOM!", "translation_b": ""}, {"review_id": "R052", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 2", "previous_context": ["...BUT THIS IS STILL GOING TO BE A TOUGH FIGHT.", "ACTUALLY, THIS IS PERFECT.", "TIME TO TEST OUT THAT NEW MODIFICATION!"], "original_accepted_english": "ASMOTOON.COM", "next_context": ["《SLOTTED》ASSAULT RIFLE"], "v3_selected_english": "ASMOTOON.COM", "translation_a": "", "translation_b": "ASMOTOON.COM"}, {"review_id": "R053", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 2", "previous_context": ["I BOOSTED MY ATTACK POWER AS HIGH AS IT COULD GO...", "ASSAULT RIFLE ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES > WEAPON RELOADS AUTOMATICALLY. IF THE MAGAZINE IS COMPLETELY EMPTI", "NOTES NEAPON RELOADS AUTOMATICALLY. HOWEVER THE MAGAZINE IS COMPLETELY EMPTIED,"], "original_accepted_english": "NOTES 7 WEAPON RELOADS AUTOMATICALLY. HOWVE IF THE MAGAZINE IS COMPLETELY EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECC", "next_context": ["...BUT THIS IS STILL GOING TO BE A TOUGH FIGHT."], "v3_selected_english": "NOTES: 7. WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETELY EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECONDS.", "translation_a": "NOTLAR: 7. SİLAH OTOMATİK OLARAK YENİDEN DOLUYOR. ANCAK, ŞARJÖR TAMAMEN BOŞALIRSA, BİRKAÇ SANIYE BOYUNCA ATEŞ ETME İŞLEVİ DEVRE DIŞI KALIR.", "translation_b": "NOTLAR: 7. Silah otomatik olarak yeniden doldurulur. Ancak, magazin tamamen boşaltılırsa, saldırı birkaç saniye boyunca devre dışı kalır."}, {"review_id": "R054", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 2", "previous_context": ["TIME TO TEST OUT THAT NEW MODIFICATION!", "ASMOTOON.COM", "《SLOTTED》ASSAULT RIFLE"], "original_accepted_english": "ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES WEAPON RELOADS AUTOMATIC HOWEVER, IF THE MAGAZINE IS EMPTIED, ATTACKING IS DISAB SEVERAL SECONDS.", "next_context": ["WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETE EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECONDS."], "v3_selected_english": "ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES WEAPON RELOADS AUTOMATIC HOWEVER, IF THE MAGAZINE IS EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECONDS.", "translation_a": "SALGI GÜCÜ > 175 MÜKERRER YÜK SİGİ > 30 NOTLAR: WEAPON OTOMATİK YENİDEN YÜKLENİR; ANCAK MAGAZİN BOŞALTIKÇA, SALGI İŞLEVİ BİRKAÇ SANİYE İÇİN KESİLİR.", "translation_b": "Saldırı Gücü > 175\nMermi Kapasitesi > 30\nNOT: Silah otomatik olarak yeniden doldurulur. Ancak, şarjör boşaldığında, birkaç saniye boyunca saldırı yapamazsınız."}, {"review_id": "R055", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 2", "previous_context": ["LET'S TEST IT OUT WITH THIS.", "〈PIERCE〉ASSAULT RIFLE ATTACK POWER〉175 AMMO CAPACITY〉30 SLOT〉NORMAL-GRADE GOLEM'S", "SLOI> NORMAL-GRADE GOLEM'S MAGIC STONE"], "original_accepted_english": "NOIES7 WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETELY E ATTACKING IS DISABLED FOR SEVERAL SECON EQUIPPED MAGIC STONE IS DEPLETED OF MAN MAGIC STONE EFFECT WILL BE LOST.", "next_context": ["PERFECT! THE MAGIC STONE'S EFFECT WAS APPLIED!"], "v3_selected_english": "NOIES7 WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETELY EMPTY, ATTACKING IS DISABLED FOR SEVERAL SECONDS. IF THE EQUIPPED MAGIC STONE IS DEPLETED OF MANA, THE MAGIC STONE EFFECT WILL BE LOST.", "translation_a": "NOIES7 silahı otomatik olarak yeniden doldurulur. Ancak, magazen tamamen boş olduğunda, saldırı birkaç saniye boyunca devre dışı kalır. Ekiplenen sihir taşı mana tükendiğinde, sihir taşı etkisi kaybolur.", "translation_b": "NOIES7 silahı otomatik olarak yeniden doldurulur. Ancak, şarjör tamamen boşaldığında, birkaç saniye boyunca ateş etme işlemi devre dışı kalır. Eğer takılı olan sihir taşı mana'sını tükettiğinde, sihir taşının etkisi kaybolur."}, {"review_id": "R056", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 2", "previous_context": ["WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETE EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECONDS.", "I USED [CRAFT] TO ADD A MAGIC STONE SLOT TO THIS RIFLE...", "...SO LOADING A STONE INTO IT SHOULD GIVE ITS OVERALL FIREPOWER A MASSIVE BOOST."], "original_accepted_english": "INVENTORY.", "next_context": ["GOLEM'S MAGIC STONE"], "v3_selected_english": "INVENTORY.", "translation_a": "ENVANTER.", "translation_b": "EŞYA LİSTESİ."}, {"review_id": "R057", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 3", "previous_context": ["YOU CAN RELEASE HIM NOW.", "ALLEN-KUN, WAS IT...?", "SORRY TO STARTLE YOU."], "original_accepted_english": "ASMOTOON.COM", "next_context": ["YOUR RAPID LEVEL GROWTH CAUGHT OUR ATTENTION, YOU SEE."], "v3_selected_english": "ASMOTOON.COM", "translation_a": "ASMOTOON.COM", "translation_b": ""}, {"review_id": "R058", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 3", "previous_context": ["THE DETAILS OF THE GUN, HUH...", "EVEN IF I TOLD YOU, YOU PROBABLY WOULD NOT UNDERSTAND.", "IT'S A BLUNDLE OF TECHNOLOGY THAT DOESN'T EXIST IN THIS WORLD."], "original_accepted_english": "HMPH.", "next_context": ["ASMOTOON.COM"], "v3_selected_english": "HMPH.", "translation_a": "", "translation_b": "HMPH."}, {"review_id": "R059", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 3", "previous_context": ["EVEN IF I TOLD YOU, YOU PROBABLY WOULD NOT UNDERSTAND.", "IT'S A BLUNDLE OF TECHNOLOGY THAT DOESN'T EXIST IN THIS WORLD.", "HMPH."], "original_accepted_english": "ASMOTOON.COM", "next_context": ["BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\""], "v3_selected_english": "ASMOTOON.COM", "translation_a": "", "translation_b": "ASMOTOON.COM"}, {"review_id": "R060", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 3", "previous_context": ["IT'S A BLUNDLE OF TECHNOLOGY THAT DOESN'T EXIST IN THIS WORLD.", "HMPH.", "ASMOTOON.COM"], "original_accepted_english": "BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\"", "next_context": ["THAT SO-CALLED GLN OF YOURS PROBABLY ISN'T ALL THAT IMPRESSIVE, IS IT?"], "v3_selected_english": "BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\"", "translation_a": "BİRİNE YALAN SÖYLEYEN KİŞİ İÇİN BÜYÜK KELİMELER.", "translation_b": ""}, {"review_id": "R061", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 3", "previous_context": ["ASMOTOON.COM", "BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\"", "THAT SO-CALLED GLN OF YOURS PROBABLY ISN'T ALL THAT IMPRESSIVE, IS IT?"], "original_accepted_english": "AH.", "next_context": ["SO YOU'RE TRYING TO PROVOKE ME INTO GIVING YOU INFO, HUH..."], "v3_selected_english": "AH.", "translation_a": "AH.", "translation_b": ""}, {"review_id": "R062", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 3", "previous_context": ["ADVENTURERS' GUILD HEADQUARTERS, CONFERENCE ROOM", "YOU CAN RELEASE HIM NOW."], "original_accepted_english": "ALLEN-KUN, WAS IT...?", "next_context": ["SORRY TO STARTLE YOU."], "v3_selected_english": "ALLEN-KUN, WAS IT...?", "translation_a": "", "translation_b": "ALLEN-KUN, BU MU...?"}, {"review_id": "R063", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 3", "previous_context": ["ASMOTOON.COM", "YOUR RAPID LEVEL GROWTH CAUGHT OUR ATTENTION, YOU SEE.", "WE REALLY WANTED TO SPEAK WITH YOU DIRECTLY."], "original_accepted_english": "QUITE THE WELCOME... BUT WHATEVER.", "next_context": ["SO... WHAT DO YOU WANT WITH ME?"], "v3_selected_english": "QUITE THE WELCOME... BUT WHATEVER.", "translation_a": "Çok hoşgeldiniz... ama neyse.", "translation_b": "Çok güzel bir karşılama... Ama neyse.\"\n\nVeya, biraz daha samimi bir ifadeyle:\n\n\"Ne kadar da güzel bir karşılama... Ama boşver."}, {"review_id": "R064", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 3", "previous_context": ["WE REALLY WANTED TO SPEAK WITH YOU DIRECTLY.", "QUITE THE WELCOME... BUT WHATEVER.", "SO... WHAT DO YOU WANT WITH ME?"], "original_accepted_english": "F-FIRST OF ALL!", "next_context": ["I'd like you to explain the \"GUN\" that you use."], "v3_selected_english": "F-FIRST OF ALL!", "translation_a": "İLK OLARAK!", "translation_b": "Öncelikle!\" veya \"Başlangıç olarak!"}, {"review_id": "R065", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 4", "previous_context": ["...BUT THE RECOMMENDED LEVEL FOR THIS DUNGEON IS TWENTY-FIVE.", "IT'S FINE.", "I PLANNED ON HUNTING HERE FROM THE BEGINNING ANYWAY."], "original_accepted_english": "ASMOTOON.COM", "next_context": ["WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?"], "v3_selected_english": "ASMOTOON.COM", "translation_a": "", "translation_b": "ASMOTOON.COM"}, {"review_id": "R066", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 4", "previous_context": ["WELL, DO WHATEVER YOU WANT.", "I COULDN'T CARE LESS IF YOU WANT TO PLAY PACK ANIMAL WITH YOUR FRIENDS.", "WAIT A MINUTE!"], "original_accepted_english": "ASMOTOON.COM", "next_context": ["I'm coming with you!"], "v3_selected_english": "ASMOTOON.COM", "translation_a": "ASMOTOON.COM", "translation_b": ""}, {"review_id": "R067", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 4", "previous_context": ["ALLEN-SAN, IT'S TOO DANGEROUS HERE.", "YOU'RE ONLY LEVEL FIFTEEN...", "...BUT THE RECOMMENDED LEVEL FOR THIS DUNGEON IS TWENTY-FIVE."], "original_accepted_english": "IT'S FINE.", "next_context": ["I PLANNED ON HUNTING HERE FROM THE BEGINNING ANYWAY."], "v3_selected_english": "IT'S FINE.", "translation_a": "SORUN YOK.", "translation_b": ""}, {"review_id": "R068", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 4", "previous_context": ["ASMOTOON.COM", "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?", "TACKLING THIS SOLO?"], "original_accepted_english": "WHY DON'T YOU SCROUNGE UP A PARTY?", "next_context": ["THERE ARE PLENTY OF SCRUBS AROUND HERE WHO'D BE RIGHT UP YOUR ALLEY."], "v3_selected_english": "WHY DON'T YOU SCROUNGE UP A PARTY?", "translation_a": "", "translation_b": "Neden bir parti düzenme?"}, {"review_id": "R069", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 4", "previous_context": ["WHY DON'T YOU SCROUNGE UP A PARTY?", "THERE ARE PLENTY OF SCRUBS AROUND HERE WHO'D BE RIGHT UP YOUR ALLEY.", "AH... SO YOU'RE GOING IN WITH A PARTY."], "original_accepted_english": "WITH A PARTY.", "next_context": ["FOR A LEVEL 65, YOU'RE PRETTY USELESS IF YOU ARE MOVING IN A HERD."], "v3_selected_english": "WITH A PARTY.", "translation_a": "", "translation_b": "PARTİYLE BİRLİKTE."}, {"review_id": "R070", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 4", "previous_context": ["AH... SO YOU'RE GOING IN WITH A PARTY.", "WITH A PARTY.", "FOR A LEVEL 65, YOU'RE PRETTY USELESS IF YOU ARE MOVING IN A HERD."], "original_accepted_english": "YOU LITTLE-!!", "next_context": ["WELL, DO WHATEVER YOU WANT."], "v3_selected_english": "YOU LITTLE-!!", "translation_a": "", "translation_b": "Küçük şey!!"}, {"review_id": "R071", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 4", "previous_context": [], "original_accepted_english": "IN FRONT OF THE WOLF MINE DUNGEON", "next_context": ["ALLEN-SAN, IT'S TOO DANGEROUS HERE."], "v3_selected_english": "IN FRONT OF THE WOLF MINE DUNGEON", "translation_a": "\"KURDUN MAĞARASININ ÖNÜNDE\" veya \"KURDUN MAĞARASI GİRİŞİNDE\" gibi çeviriler kullanılabilir.\n\nHangi çevirinin daha uygun olduğu, bağlama bağlıdır. Örneğin, bir oyun veya hikaye bağlamında, \"Kurdun Mağarası Girişinde\" daha doğal durabilir.", "translation_b": "KURT MADEN MAZARININ ÖNÜNDE"}, {"review_id": "R072", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 4", "previous_context": ["IT'S FINE.", "I PLANNED ON HUNTING HERE FROM THE BEGINNING ANYWAY.", "ASMOTOON.COM"], "original_accepted_english": "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?", "next_context": ["TACKLING THIS SOLO?"], "v3_selected_english": "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?", "translation_a": "Hey bekle, bu solo'yu gerçekten tek başına çözmeye mi çalışıyorsun?", "translation_b": "Dur bir dakika, sen ciddi misin, bunu tek başına mı yapıyorsun?\"\n\nVeya daha samimi bir ifadeyle:\n\n\"Hey, ciddi misin? Bunu tek başına mı üstleniyorsun?"}, {"review_id": "R073", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 5", "previous_context": ["NOW THEN...", "A WERE-WOLF THAT CAN'T DODGE BECAUSE ITS LEGS ARE BOUND...", "(IS NOTHING BUT A WEAKLING.)"], "original_accepted_english": "ASMOTOON.COM", "next_context": ["(FAREWELL.)"], "v3_selected_english": "ASMOTOON.COM", "translation_a": "ASMOTOON.COM", "translation_b": ""}, {"review_id": "R074", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 5", "previous_context": ["THAT'S THE END OF THAT.", "TH-THANK YOU SO MUCH!", "ALLEN-SAN, THIS GUN IS..."], "original_accepted_english": "ll,", "next_context": ["OH, FEEL FREE TO USE IT AS YOU LIKE."], "v3_selected_english": "ll,", "translation_a": "ll,", "translation_b": ""}, {"review_id": "R075", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 5", "previous_context": ["JUST AS I PLANNED"], "original_accepted_english": "CRAFT!", "next_context": ["CATCH HIM!"], "v3_selected_english": "CRAFT!", "translation_a": "YARATICILIK!", "translation_b": ""}, {"review_id": "R076", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 5", "previous_context": ["CATCH HIM!", "1-1T STOPPED ...?", "DIDN'T I TELL YOU TO BUY ME"], "original_accepted_english": "SOME TIME AT THE BEGINNING?", "next_context": ["INCRE- DIBLE..."], "v3_selected_english": "SOME TIME AT THE BEGINNING?", "translation_a": "", "translation_b": "BAŞLANGIÇTA BİR ZAMAN MI?"}, {"review_id": "R077", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 5", "previous_context": ["1-1T STOPPED ...?", "DIDN'T I TELL YOU TO BUY ME", "SOME TIME AT THE BEGINNING?"], "original_accepted_english": "INCRE- DIBLE...", "next_context": ["I DIDN'T KNOW CRAFT COULD BE USED LIKE THIS...!"], "v3_selected_english": "INCRE- DIBLE...", "translation_a": "", "translation_b": "İNCREDIBLE..."}, {"review_id": "R078", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 5", "previous_context": ["DIDN'T I TELL YOU TO BUY ME", "SOME TIME AT THE BEGINNING?", "INCRE- DIBLE..."], "original_accepted_english": "I DIDN'T KNOW CRAFT COULD BE USED LIKE THIS...!", "next_context": ["I'M GLAD I TESTED OUT 'CRAFT' AT A DISTANCE."], "v3_selected_english": "I DIDN'T KNOW CRAFT COULD BE USED LIKE THIS...!", "translation_a": "Craft'ın LIKE THIS... diye bir kullanımının olabileceğini bilmiyordum!", "translation_b": ""}, {"review_id": "R079", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 5", "previous_context": ["A WERE-WOLF THAT CAN'T DODGE BECAUSE ITS LEGS ARE BOUND...", "(IS NOTHING BUT A WEAKLING.)", "ASMOTOON.COM"], "original_accepted_english": "(FAREWELL.)", "next_context": ["PHEW..."], "v3_selected_english": "(FAREWELL.)", "translation_a": "(GÜLE GÜLE.)", "translation_b": "(Veda.)"}, {"review_id": "R080", "series": "Reincarnated as a God-Tier Crafter", "chapter": "Chapter 5", "previous_context": ["ALLEN-SAN, YOU SET AN INCREDIBLE RECORD!", "...I'll COME BACK SOLO TOMORROW TO BREAK IT AND TAKE THE TOP SPOT FOR MYSELF.", "HOW MEAN!"], "original_accepted_english": "WELL THEN... NOW THAT WE'VE", "next_context": ["WELL THEN... NOW THAT WE'VE CLEARED IT, LET'S HEAD BACK."], "v3_selected_english": "WELL THEN... NOW THAT WE'VE", "translation_a": "Peki... ŞİMDİ Kİ İŞİN GELDİK... / O ZAMAN... ARTIK...", "translation_b": "Peki o zaman... Şimdi ki"}];
+
+const TAG_LIST = [
+    "meaning", "naturalness", "terminology", "name", "omission", "addition",
+    "hallucination", "pronoun", "tense_aspect", "state_action", "question_semantics",
+    "register", "english_leak", "wrapper_chatbot", "grammar", "ocr_problem", "other"
+];
+
+let currentIndex = 0;
+let currentFilter = "all";
+let answers = {};
+
+// Load from localStorage if available
+function loadLocalAnswers() {
+    try {
+        const saved = localStorage.getItem("human_review_answers_v1");
+        if (saved) {
+            answers = JSON.parse(saved);
+        }
+    } catch (e) {
+        console.error("Failed to load localStorage:", e);
+    }
+}
+
+function saveLocalAnswers() {
+    try {
+        localStorage.setItem("human_review_answers_v1", JSON.stringify(answers));
+    } catch (e) {
+        console.error("Failed to save localStorage:", e);
+    }
+}
+
+function init() {
+    loadLocalAnswers();
+    renderTags();
+    renderItem();
+    updateCounts();
+
+    document.getElementById("export-btn").addEventListener("click", exportJSON);
+    document.addEventListener("keydown", handleKeydown);
+}
+
+function renderTags() {
+    const container = document.getElementById("tags-container");
+    container.innerHTML = TAG_LIST.map(tag => `
+        <label class="tag-check">
+            <input type="checkbox" value="${tag}" onchange="toggleTag('${tag}')" id="tag-${tag}">
+            ${tag}
+        </label>
+    `).join("");
+}
+
+function getFilteredIndices() {
+    return BLIND_ITEMS.map((item, idx) => idx).filter(idx => {
+        const id = BLIND_ITEMS[idx].review_id;
+        const isReviewed = answers[id] && answers[id].winner;
+        if (currentFilter === "unreviewed") return !isReviewed;
+        if (currentFilter === "reviewed") return isReviewed;
+        return true;
+    });
+}
+
+function renderItem() {
+    const item = BLIND_ITEMS[currentIndex];
+    const ans = answers[item.review_id] || { winner: null, severity: "NONE", tags: [], notes: "" };
+
+    document.getElementById("meta-series").textContent = item.series;
+    document.getElementById("meta-chapter").textContent = item.chapter;
+    document.getElementById("meta-id").textContent = item.review_id;
+    document.getElementById("meta-index").textContent = `${currentIndex + 1} / ${BLIND_ITEMS.length}`;
+
+    // Context
+    const prevBox = document.getElementById("prev-context");
+    prevBox.innerHTML = (item.previous_context || []).map(c => `<div class="context-line">&uarr; ${escapeHtml(c)}</div>`).join("");
+
+    document.getElementById("source-text").textContent = item.original_accepted_english;
+
+    const nextBox = document.getElementById("next-context");
+    nextBox.innerHTML = (item.next_context || []).map(c => `<div class="context-line">&darr; ${escapeHtml(c)}</div>`).join("");
+
+    const v3Box = document.getElementById("v3-selected");
+    if (item.v3_selected_english && item.v3_selected_english !== item.original_accepted_english) {
+        v3Box.style.display = "block";
+        v3Box.textContent = "V3 Clarified English: " + item.v3_selected_english;
+    } else {
+        v3Box.style.display = "none";
+    }
+
+    // Translations
+    document.getElementById("text-a").textContent = item.translation_a;
+    document.getElementById("text-b").textContent = item.translation_b;
+
+    // Highlight cards
+    document.getElementById("card-a").className = "trans-card" + (ans.winner === "A" ? " selected-a" : "");
+    document.getElementById("card-b").className = "trans-card" + (ans.winner === "B" ? " selected-b" : "");
+
+    // Winner buttons
+    document.querySelectorAll("#winner-group .choice-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.val === ans.winner);
+    });
+
+    // Severity buttons
+    document.querySelectorAll("#severity-group .choice-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.val === (ans.severity || "NONE"));
+    });
+
+    // Tags
+    TAG_LIST.forEach(tag => {
+        const chk = document.getElementById(`tag-${tag}`);
+        chk.checked = (ans.tags || []).includes(tag);
+    });
+
+    // Notes
+    document.getElementById("notes-input").value = ans.notes || "";
+}
+
+function setWinner(val) {
+    const id = BLIND_ITEMS[currentIndex].review_id;
+    if (!answers[id]) answers[id] = { winner: null, severity: "NONE", tags: [], notes: "" };
+    answers[id].winner = val;
+    saveLocalAnswers();
+    renderItem();
+    updateCounts();
+}
+
+function setSeverity(val) {
+    const id = BLIND_ITEMS[currentIndex].review_id;
+    if (!answers[id]) answers[id] = { winner: null, severity: "NONE", tags: [], notes: "" };
+    answers[id].severity = val;
+    saveLocalAnswers();
+    renderItem();
+}
+
+function toggleTag(tag) {
+    const id = BLIND_ITEMS[currentIndex].review_id;
+    if (!answers[id]) answers[id] = { winner: null, severity: "NONE", tags: [], notes: "" };
+    let tags = answers[id].tags || [];
+    if (tags.includes(tag)) {
+        tags = tags.filter(t => t !== tag);
+    } else {
+        tags.push(tag);
+    }
+    answers[id].tags = tags;
+    saveLocalAnswers();
+}
+
+function updateNotes() {
+    const id = BLIND_ITEMS[currentIndex].review_id;
+    if (!answers[id]) answers[id] = { winner: null, severity: "NONE", tags: [], notes: "" };
+    answers[id].notes = document.getElementById("notes-input").value;
+    saveLocalAnswers();
+}
+
+function updateCounts() {
+    const total = BLIND_ITEMS.length;
+    const reviewedCount = Object.values(answers).filter(a => a.winner).length;
+    const unreviewedCount = total - reviewedCount;
+
+    document.getElementById("progress-badge").textContent = `Reviewed: ${reviewedCount} / ${total}`;
+    document.getElementById("reviewed-count").textContent = reviewedCount;
+    document.getElementById("unreviewed-count").textContent = unreviewedCount;
+}
+
+function setFilter(filter) {
+    currentFilter = filter;
+    document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+    event.target.classList.add("active");
+    const indices = getFilteredIndices();
+    if (indices.length > 0 && !indices.includes(currentIndex)) {
+        currentIndex = indices[0];
+    }
+    renderItem();
+}
+
+function prevItem() {
+    const indices = getFilteredIndices();
+    const pos = indices.indexOf(currentIndex);
+    if (pos > 0) {
+        currentIndex = indices[pos - 1];
+    } else if (currentIndex > 0) {
+        currentIndex--;
+    }
+    renderItem();
+}
+
+function nextItem() {
+    const indices = getFilteredIndices();
+    const pos = indices.indexOf(currentIndex);
+    if (pos >= 0 && pos < indices.length - 1) {
+        currentIndex = indices[pos + 1];
+    } else if (currentIndex < BLIND_ITEMS.length - 1) {
+        currentIndex++;
+    }
+    renderItem();
+}
+
+function handleKeydown(e) {
+    if (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT") return;
+    if (e.key === "ArrowLeft") prevItem();
+    else if (e.key === "ArrowRight") nextItem();
+    else if (e.key === "1") setWinner("A");
+    else if (e.key === "2") setWinner("B");
+    else if (e.key === "3") setWinner("TIE_GOOD");
+    else if (e.key === "4") setWinner("TIE_BAD");
+    else if (e.key === "5") setWinner("UNSCORABLE_OCR");
+}
+
+function exportJSON() {
+    const output = {
+        metadata: {
+            total_items: BLIND_ITEMS.length,
+            exported_at: new Date().toISOString()
+        },
+        reviews: answers
+    };
+    const blob = new Blob([JSON.stringify(output, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "human_review_answers.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+init();
+</script>
+</body>
+</html>

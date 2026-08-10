@@ -1,0 +1,12 @@
+{
+  "model": "TranslateGemma-12B-IT Q5_K_M GGUF",
+  "load_time_seconds": 8.25,
+  "cuda_active": true,
+  "gpu_offloaded_layers": "36/48 or 100% depending on layer count",
+  "generation_calls": 32,
+  "input_tokens": 2040,
+  "generated_tokens": 796,
+  "generation_seconds": 20.2,
+  "wall_time_seconds": 20.2,
+  "average_tok_per_sec": 39.41
+}

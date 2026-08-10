@@ -1,0 +1,107 @@
+{
+  "dataset_hash": "1fc9fc551797bff89a2ece71ae9cc2e513d282e520a26f647d9518b5eb807406",
+  "total_accepted_english_regions": 300,
+  "total_excluded_ocr_regions": 99,
+  "total_chapters": 10,
+  "v3_rewrite_count": 3,
+  "translategemma_summary": {
+    "total_calls": 300,
+    "requires_review_count": 112
+  },
+  "qwen_summary": {
+    "total_calls": 300,
+    "requires_review_count": 61
+  },
+  "chapter_manifest": [
+    {
+      "series_id": "axe_god",
+      "series_name": "Axe God: The Road to Invincibility",
+      "chapter_name": "Chapter 1",
+      "page_count": 177,
+      "detected_regions": 88,
+      "accepted_regions": 30,
+      "excluded_regions": 4
+    },
+    {
+      "series_id": "axe_god",
+      "series_name": "Axe God: The Road to Invincibility",
+      "chapter_name": "Chapter 2",
+      "page_count": 133,
+      "detected_regions": 64,
+      "accepted_regions": 30,
+      "excluded_regions": 8
+    },
+    {
+      "series_id": "axe_god",
+      "series_name": "Axe God: The Road to Invincibility",
+      "chapter_name": "Chapter 3",
+      "page_count": 129,
+      "detected_regions": 66,
+      "accepted_regions": 30,
+      "excluded_regions": 6
+    },
+    {
+      "series_id": "axe_god",
+      "series_name": "Axe God: The Road to Invincibility",
+      "chapter_name": "Chapter 4",
+      "page_count": 157,
+      "detected_regions": 60,
+      "accepted_regions": 30,
+      "excluded_regions": 9
+    },
+    {
+      "series_id": "axe_god",
+      "series_name": "Axe God: The Road to Invincibility",
+      "chapter_name": "Chapter 5",
+      "page_count": 123,
+      "detected_regions": 58,
+      "accepted_regions": 30,
+      "excluded_regions": 5
+    },
+    {
+      "series_id": "god_tier_crafter",
+      "series_name": "Reincarnated as a God-Tier Crafter",
+      "chapter_name": "Chapter 1",
+      "page_count": 23,
+      "detected_regions": 256,
+      "accepted_regions": 30,
+      "excluded_regions": 19
+    },
+    {
+      "series_id": "god_tier_crafter",
+      "series_name": "Reincarnated as a God-Tier Crafter",
+      "chapter_name": "Chapter 2",
+      "page_count": 15,
+      "detected_regions": 176,
+      "accepted_regions": 30,
+      "excluded_regions": 22
+    },
+    {
+      "series_id": "god_tier_crafter",
+      "series_name": "Reincarnated as a God-Tier Crafter",
+      "chapter_name": "Chapter 3",
+      "page_count": 15,
+      "detected_regions": 189,
+      "accepted_regions": 30,
+      "excluded_regions": 8
+    },
+    {
+      "series_id": "god_tier_crafter",
+      "series_name": "Reincarnated as a God-Tier Crafter",
+      "chapter_name": "Chapter 4",
+      "page_count": 15,
+      "detected_regions": 175,
+      "accepted_regions": 30,
+      "excluded_regions": 12
+    },
+    {
+      "series_id": "god_tier_crafter",
+      "series_name": "Reincarnated as a God-Tier Crafter",
+      "chapter_name": "Chapter 5",
+      "page_count": 11,
+      "detected_regions": 127,
+      "accepted_regions": 30,
+      "excluded_regions": 6
+    }
+  ]
+}

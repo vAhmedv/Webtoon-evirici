@@ -1,0 +1,487 @@
+[
+  {
+    "id": 1,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "source_region_id": 10,
+    "previous_context": [],
+    "target_source": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+    "next_context": [
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON."
+    ],
+    "named_terms": [
+      "LUO TIAN",
+      "ABILITY USER",
+      "LEVEL 1"
+    ],
+    "coverage": [
+      "pronoun_reference",
+      "comparison_semantics"
+    ]
+  },
+  {
+    "id": 2,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "source_region_id": 11,
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY."
+    ],
+    "target_source": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+    "next_context": [
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."
+    ],
+    "named_terms": [
+      "YU"
+    ],
+    "coverage": [
+      "register",
+      "dialogue_consistency"
+    ]
+  },
+  {
+    "id": 3,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "source_region_id": 12,
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON."
+    ],
+    "target_source": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+    "next_context": [
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD."
+    ],
+    "named_terms": [
+      "BLACKWIND RAVINE"
+    ],
+    "coverage": [
+      "tense_aspect",
+      "location_reference"
+    ]
+  },
+  {
+    "id": 4,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "source_region_id": 13,
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."
+    ],
+    "target_source": "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+    "next_context": [
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN."
+    ],
+    "named_terms": [
+      "HU SAN"
+    ],
+    "coverage": [
+      "register",
+      "imperative"
+    ]
+  },
+  {
+    "id": 5,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "source_region_id": 14,
+    "previous_context": [
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD."
+    ],
+    "target_source": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+    "next_context": [
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "pronoun_reference",
+      "tense_aspect"
+    ]
+  },
+  {
+    "id": 6,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "source_region_id": 15,
+    "previous_context": [
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN."
+    ],
+    "target_source": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "next_context": [
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW."
+    ],
+    "named_terms": [
+      "GAO YUAN",
+      "ABILITY USER",
+      "LEVEL 1"
+    ],
+    "coverage": [
+      "negation",
+      "comparison_semantics"
+    ]
+  },
+  {
+    "id": 7,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "source_region_id": 16,
+    "previous_context": [
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER."
+    ],
+    "target_source": "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+    "next_context": [
+      "I'M USED TO IT."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "pronoun_reference",
+      "register"
+    ]
+  },
+  {
+    "id": 8,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "source_region_id": 17,
+    "previous_context": [
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW."
+    ],
+    "target_source": "I'M USED TO IT.",
+    "next_context": [
+      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "pronoun_reference",
+      "tense_aspect"
+    ]
+  },
+  {
+    "id": 9,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "source_region_id": 18,
+    "previous_context": [
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+      "I'M USED TO IT."
+    ],
+    "target_source": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+    "next_context": [
+      "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "tense_aspect",
+      "narration"
+    ]
+  },
+  {
+    "id": 10,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "source_region_id": 19,
+    "previous_context": [
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+      "I'M USED TO IT.",
+      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD."
+    ],
+    "target_source": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "next_context": [],
+    "named_terms": [
+      "LUO TIAN",
+      "ABILITY USER",
+      "SECRET REALM",
+      "SECRET REALM GUIDE"
+    ],
+    "coverage": [
+      "negation",
+      "identity_reference"
+    ]
+  },
+  {
+    "id": 11,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_007",
+    "source_region_id": null,
+    "previous_context": [
+      "The raiders keep breaking free.",
+      "Once Frost Chain catches them, they cannot move."
+    ],
+    "target_source": "Frost Chain can hold three targets at once.",
+    "next_context": [
+      "Use it when they reach the gate."
+    ],
+    "named_terms": [
+      "Frost Chain"
+    ],
+    "coverage": [
+      "polysemy",
+      "hold",
+      "ability_term"
+    ]
+  },
+  {
+    "id": 12,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_019",
+    "source_region_id": null,
+    "previous_context": [
+      "There is an extra meal on my hotel bill.",
+      "Only the front desk can add purchases to a room."
+    ],
+    "target_source": "Who charged the meal to my room?",
+    "next_context": [
+      "I want the employee's name."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "polysemy",
+      "charge",
+      "question_semantics",
+      "who"
+    ]
+  },
+  {
+    "id": 13,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_029",
+    "source_region_id": null,
+    "previous_context": [
+      "I checked the chamber and found nobody inside.",
+      "I stepped into the corridor for only a few seconds."
+    ],
+    "target_source": "The chamber had been empty only a moment earlier.",
+    "next_context": [
+      "Now someone was standing beside the window."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "narration",
+      "past_perfect",
+      "state"
+    ]
+  },
+  {
+    "id": 14,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_030",
+    "source_region_id": null,
+    "previous_context": [
+      "The stone floor was clean when I entered.",
+      "I heard dripping behind me."
+    ],
+    "target_source": "Now a line of wet footprints crossed the floor.",
+    "next_context": [
+      "They led toward the sealed door."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "narration",
+      "action_state",
+      "tense_aspect"
+    ]
+  },
+  {
+    "id": 15,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_charge_motion",
+    "source_region_id": null,
+    "previous_context": [
+      "The boar lowered its head and scraped the ground."
+    ],
+    "target_source": "The boar charged before I could draw my sword.",
+    "next_context": [
+      "Its tusks struck the tree behind me."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "polysemy",
+      "charge",
+      "action"
+    ]
+  },
+  {
+    "id": 16,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_leave_exclude",
+    "source_region_id": null,
+    "previous_context": [
+      "This argument is between you and me."
+    ],
+    "target_source": "Leave him out of this.",
+    "next_context": [
+      "He has nothing to do with our dispute."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "polysemy",
+      "leave",
+      "pronoun_reference"
+    ]
+  },
+  {
+    "id": 17,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_leave_place",
+    "source_region_id": null,
+    "previous_context": [
+      "The caretaker will need the key later."
+    ],
+    "target_source": "Leave the key where you found it.",
+    "next_context": [
+      "Do not take it with you."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "polysemy",
+      "leave",
+      "pronoun_reference"
+    ]
+  },
+  {
+    "id": 18,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_leave_depart",
+    "source_region_id": null,
+    "previous_context": [
+      "The gates will be locked at midnight."
+    ],
+    "target_source": "We need to leave before midnight.",
+    "next_context": [
+      "Pack only what you can carry."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "polysemy",
+      "leave",
+      "dialogue"
+    ]
+  },
+  {
+    "id": 19,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_pronoun_reference",
+    "source_region_id": null,
+    "previous_context": [
+      "Mira handed me the cracked compass.",
+      "She said the compass still pointed north."
+    ],
+    "target_source": "I don't trust it.",
+    "next_context": [
+      "The needle keeps spinning."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "pronoun_reference",
+      "negation"
+    ]
+  },
+  {
+    "id": 20,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_question_why",
+    "source_region_id": null,
+    "previous_context": [
+      "Arin abandoned the watch without permission."
+    ],
+    "target_source": "Why did he leave?",
+    "next_context": [
+      "The captain wants an explanation."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "question_semantics",
+      "why",
+      "pronoun_reference"
+    ]
+  },
+  {
+    "id": 21,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_duck",
+    "source_region_id": null,
+    "previous_context": [
+      "An arrow flew toward Lena's head."
+    ],
+    "target_source": "She watched Lena duck.",
+    "next_context": [
+      "The arrow passed over Lena."
+    ],
+    "named_terms": [
+      "Lena"
+    ],
+    "coverage": [
+      "polysemy",
+      "pronoun_reference",
+      "action"
+    ]
+  },
+  {
+    "id": 22,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_phrasal_verb",
+    "source_region_id": null,
+    "previous_context": [
+      "The paralysis spell had kept his legs frozen.",
+      "A minute later, he could move again."
+    ],
+    "target_source": "The spell wore off.",
+    "next_context": [
+      "He stood up without help."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "phrasal_verb",
+      "tense_aspect"
+    ]
+  },
+  {
+    "id": 23,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_present_perfect_progressive",
+    "source_region_id": null,
+    "previous_context": [
+      "The sentries began their vigil before sunrise."
+    ],
+    "target_source": "They have been waiting since dawn.",
+    "next_context": [
+      "They are still at the gate."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "pronoun_reference",
+      "tense_aspect",
+      "ongoing_state"
+    ]
+  },
+  {
+    "id": 24,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_state_action",
+    "source_region_id": null,
+    "previous_context": [
+      "The iron door had not moved all night."
+    ],
+    "target_source": "The door remained shut.",
+    "next_context": [
+      "No one had entered the vault."
+    ],
+    "named_terms": [],
+    "coverage": [
+      "narration",
+      "state",
+      "tense_aspect"
+    ]
+  }
+]

@@ -1,0 +1,549 @@
+[
+  {
+    "id": 1,
+    "source": "Easy. I only asked a question.",
+    "translation": "Kolay. Sadece bir soru sordum.",
+    "context_ids": [],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 2,
+    "source": "Then ask a better one.",
+    "translation": "O zaman daha iyi bir soru sor.",
+    "context_ids": [
+      1
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 3,
+    "source": "You're in a good mood today.",
+    "translation": "Bugün havalısın.",
+    "context_ids": [
+      1,
+      2
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 4,
+    "source": "Don't ruin it.",
+    "translation": "Bozma.",
+    "context_ids": [
+      1,
+      2,
+      3
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 5,
+    "source": "Sir, the western gate is still open.",
+    "translation": "Efendim, batı kapısı hala açık.",
+    "context_ids": [
+      2,
+      3,
+      4
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 6,
+    "source": "I ordered it closed an hour ago.",
+    "translation": "Bir saat önce kapatmasını emretmiştim.",
+    "context_ids": [
+      3,
+      4,
+      5
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 7,
+    "source": "The mechanism is jammed.",
+    "translation": "Mekanizma takılmış.",
+    "context_ids": [
+      4,
+      5,
+      6
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 8,
+    "source": "Then get someone who can fix it.",
+    "translation": "O zaman onu düzeltebilecek birini bul.",
+    "context_ids": [
+      5,
+      6,
+      7
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 9,
+    "source": "Did Arin Sol leave this note?",
+    "translation": "Bu notu Arin Sol mu bıraktı?",
+    "context_ids": [
+      6,
+      7,
+      8
+    ],
+    "approved_terms": {
+      "ARIN SOL": "Arin Sol"
+    },
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": [
+      {
+        "term_id": "T1",
+        "target_form": "Arin Sol"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "source": "It has her seal.",
+    "translation": "Üzerinde mühürü var.",
+    "context_ids": [
+      7,
+      8,
+      9
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 11,
+    "source": "That doesn't prove she wrote it.",
+    "translation": "Bunun yazanının onun olduğunu kanıtlaması gerekmiyor.",
+    "context_ids": [
+      8,
+      9,
+      10
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 12,
+    "source": "No, but it proves she was here.",
+    "translation": "Hayır, ama burada olduğunu kanıtlıyor.",
+    "context_ids": [
+      9,
+      10,
+      11
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 13,
+    "source": "The Moonwell is dry.",
+    "translation": "Ay Pınarı kurumuş.",
+    "context_ids": [
+      10,
+      11,
+      12
+    ],
+    "approved_terms": {
+      "MOONWELL": "Ay Pınarı"
+    },
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": [
+      {
+        "term_id": "MOONWELL",
+        "target_form": "Ay Pınarı"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "source": "It hasn't been dry in three hundred years.",
+    "translation": "Üç yüzyıldır kurumuş değil.",
+    "context_ids": [
+      11,
+      12,
+      13
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 15,
+    "source": "Then something changed underground.",
+    "translation": "O zaman yeraltında bir şeyler değişmiş.",
+    "context_ids": [
+      12,
+      13,
+      14
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 16,
+    "source": "Or someone changed it.",
+    "translation": "Ya da biri değiştirmiş.",
+    "context_ids": [
+      13,
+      14,
+      15
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 17,
+    "source": "That was clever.",
+    "translation": "Akıllıca olmuş.",
+    "context_ids": [
+      14,
+      15,
+      16
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 18,
+    "source": "Was that a compliment?",
+    "translation": "Bu bir övgü müydü?",
+    "context_ids": [
+      15,
+      16,
+      17
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 19,
+    "source": "Don't get used to it.",
+    "translation": "Buna alışma.",
+    "context_ids": [
+      16,
+      17,
+      18
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 20,
+    "source": "Too late.",
+    "translation": "Çok geçti.",
+    "context_ids": [
+      17,
+      18,
+      19
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 21,
+    "source": "Put the knife down.",
+    "translation": "Bıçağı bırak.",
+    "context_ids": [
+      18,
+      19,
+      20
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 22,
+    "source": "I'm not holding a knife.",
+    "translation": "Bıçak tutmuyorum.",
+    "context_ids": [
+      19,
+      20,
+      21
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 23,
+    "source": "...Right.",
+    "translation": "...Evet.",
+    "context_ids": [
+      20,
+      21,
+      22
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 24,
+    "source": "Should I be worried that you had to check?",
+    "translation": "Kontrol etmen gerektiğini endişelenmeli miyim?",
+    "context_ids": [
+      21,
+      22,
+      23
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 25,
+    "source": "Everyone except the captain returned.",
+    "translation": "Sadece kaptan hariç herkes döndü.",
+    "context_ids": [
+      22,
+      23,
+      24
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 26,
+    "source": "Almost nobody was injured.",
+    "translation": "Neredeyse hiç kimse yaralanmadı.",
+    "context_ids": [
+      23,
+      24,
+      25
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 27,
+    "source": "Only two horses are missing.",
+    "translation": "Sadece iki at kayıp.",
+    "context_ids": [
+      24,
+      25,
+      26
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 28,
+    "source": "We still have at least an hour.",
+    "translation": "Hala en az bir saatimiz var.",
+    "context_ids": [
+      25,
+      26,
+      27
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 29,
+    "source": "I didn't tell him to open the vault.",
+    "translation": "Ona kasayı açmasını söylemedim.",
+    "context_ids": [
+      26,
+      27,
+      28
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 30,
+    "source": "I told him not to leave it unguarded.",
+    "translation": "Ona korumasız bırakmamasını söyledim.",
+    "context_ids": [
+      27,
+      28,
+      29
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 31,
+    "source": "Those are very different instructions.",
+    "translation": "Çok farklı emirler bunlar.",
+    "context_ids": [
+      28,
+      29,
+      30
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 32,
+    "source": "Apparently not to him.",
+    "translation": "Görünüşe göre ona değil.",
+    "context_ids": [
+      29,
+      30,
+      31
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 33,
+    "source": "The corridor seemed shorter on the way back.",
+    "translation": "Dönüşte koridor daha kısa görünüyordu.",
+    "context_ids": [
+      30,
+      31,
+      32
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 34,
+    "source": "Perhaps it was only the darkness, but the walls felt closer than before.",
+    "translation": "Belki de sadece karanlık yüzünden ama duvarlar eskisinden daha yakın hissediliyordu.",
+    "context_ids": [
+      31,
+      32,
+      33
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 35,
+    "source": "Somewhere behind them, metal scraped slowly across stone.",
+    "translation": "Arkalarında bir yerde metal, yavaşça taşa sürtünüyordu.",
+    "context_ids": [
+      32,
+      33,
+      34
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 36,
+    "source": "Nobody turned around.",
+    "translation": "Kimse arkasını dönmedi.",
+    "context_ids": [
+      33,
+      34,
+      35
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  }
+]

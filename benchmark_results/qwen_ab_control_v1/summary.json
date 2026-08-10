@@ -1,0 +1,14 @@
+{
+  "model": "Qwen3.5-9B-Q5_K_M-GGUF",
+  "load_time_seconds": 9.25,
+  "cuda_active": true,
+  "gpu_offloaded_layers": "36/36 (100%)",
+  "generation_calls": 3,
+  "retries": 1,
+  "input_tokens": 3974,
+  "generated_tokens": 2940,
+  "generation_seconds": 34.37,
+  "wall_time_seconds": 34.38,
+  "average_tok_per_sec": 85.54,
+  "missing_ids": []
+}

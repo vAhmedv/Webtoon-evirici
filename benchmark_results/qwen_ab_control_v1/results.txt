@@ -1,0 +1,287 @@
+[001]
+SOURCE:
+Hold on. That's not what happened.
+
+TURKISH:
+Dur. Olay öyle gelişmedi.
+
+--------------------------------------------------
+
+[002]
+SOURCE:
+Then tell me what did.
+
+TURKISH:
+Peki, ne olduğunu söyle.
+
+--------------------------------------------------
+
+[003]
+SOURCE:
+You wouldn't believe me.
+
+TURKISH:
+Bana inanmazsın.
+
+--------------------------------------------------
+
+[004]
+SOURCE:
+Try me.
+
+TURKISH:
+Deneme.
+
+--------------------------------------------------
+
+[005]
+SOURCE:
+Captain, we found another entrance.
+
+TURKISH:
+Kaptan, başka bir giriş bulduk.
+
+--------------------------------------------------
+
+[006]
+SOURCE:
+Does anyone else know about it?
+
+TURKISH:
+Başkaları da biliyor mu?
+
+--------------------------------------------------
+
+[007]
+SOURCE:
+Not unless the scouts talked.
+
+TURKISH:
+Keşifçiler konuşmadıysa hayır.
+
+--------------------------------------------------
+
+[008]
+SOURCE:
+They know better than that.
+
+TURKISH:
+Buna daha iyi hallederler.
+
+--------------------------------------------------
+
+[009]
+SOURCE:
+I wouldn't call that a victory.
+
+TURKISH:
+Bunu bir zafer olarak nitelendirmem.
+
+--------------------------------------------------
+
+[010]
+SOURCE:
+We survived, didn't we?
+
+TURKISH:
+Hayatta kaldık değil mi?
+
+--------------------------------------------------
+
+[011]
+SOURCE:
+Barely.
+
+TURKISH:
+Zaten zor.
+
+--------------------------------------------------
+
+[012]
+SOURCE:
+Still counts.
+
+TURKISH:
+Hesaplanır.
+
+--------------------------------------------------
+
+[013]
+SOURCE:
+Leave the lantern where it is.
+
+TURKISH:
+Feneri olduğu yerde bırak.
+
+--------------------------------------------------
+
+[014]
+SOURCE:
+I need to leave before the guards return.
+
+TURKISH:
+Gardiyenler dönmeye başlamadan önce gitmem lazım.
+
+--------------------------------------------------
+
+[015]
+SOURCE:
+She left the key on the table.
+
+TURKISH:
+Anahtar masada bırakmış.
+
+--------------------------------------------------
+
+[016]
+SOURCE:
+Leave him out of this.
+
+TURKISH:
+Bunu ona karıştırmayın.
+
+--------------------------------------------------
+
+[017]
+SOURCE:
+That went well.
+
+TURKISH:
+İşler iyi gitti.
+
+--------------------------------------------------
+
+[018]
+SOURCE:
+Half the building is on fire.
+
+TURKISH:
+Binanın yarısı alevler içinde.
+
+--------------------------------------------------
+
+[019]
+SOURCE:
+I said it went well, not perfectly.
+
+TURKISH:
+Mükemmel gitti demedim, iyi gitti dedim.
+
+--------------------------------------------------
+
+[020]
+SOURCE:
+You're impossible.
+
+TURKISH:
+Sen imkansız.
+
+--------------------------------------------------
+
+[021]
+SOURCE:
+How much did they charge for the repairs?
+
+TURKISH:
+Onarım için ne kadar ücret aldılar?
+
+--------------------------------------------------
+
+[022]
+SOURCE:
+Enough to make me regret breaking it.
+
+TURKISH:
+Kırmasından pişman olmama yetecek kadar.
+
+--------------------------------------------------
+
+[023]
+SOURCE:
+Who charged into the room first?
+
+TURKISH:
+Kim önce odaya girdi?
+
+--------------------------------------------------
+
+[024]
+SOURCE:
+Guess.
+
+TURKISH:
+Tahmin et.
+
+--------------------------------------------------
+
+[025]
+SOURCE:
+Not everyone agreed with the decision.
+
+TURKISH:
+Herkes kararın lehine değildi.
+
+--------------------------------------------------
+
+[026]
+SOURCE:
+Almost everyone kept quiet.
+
+TURKISH:
+Neredeyse herkes susmakla yetindi.
+
+--------------------------------------------------
+
+[027]
+SOURCE:
+Only one person objected.
+
+TURKISH:
+Sadece biri itiraz etti.
+
+--------------------------------------------------
+
+[028]
+SOURCE:
+That doesn't mean the others approved.
+
+TURKISH:
+Bunun başkalarının onayladığı anlamına gelmez.
+
+--------------------------------------------------
+
+[029]
+SOURCE:
+The footprints ended in the middle of the corridor.
+
+TURKISH:
+Ayak izleri koridorun ortasında kesildi.
+
+--------------------------------------------------
+
+[030]
+SOURCE:
+There were no doors, no windows, and nowhere else to go.
+
+TURKISH:
+Kapı yoktu, pencere yoktu, başka bir çıkış da yoktu.
+
+--------------------------------------------------
+
+[031]
+SOURCE:
+For a moment, none of them said anything.
+
+TURKISH:
+Bir süre hiç kimse bir şey söylemedi.
+
+--------------------------------------------------
+
+[032]
+SOURCE:
+Then something knocked from inside the wall.
+
+TURKISH:
+Sonra duvarın içinden bir şey çarptı.
+
+--------------------------------------------------

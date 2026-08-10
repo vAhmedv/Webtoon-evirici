@@ -1,0 +1,328 @@
+[001]
+EN: I told you not to touch that.
+TR: Sana o şeye dokunmamamanı söyledim.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0001
+MICRO_BATCH_REGION_IDS: 1,2,3,4
+BYPASS: -
+
+[002]
+EN: You told me not to open it.
+TR: Bana onu açmamamı söyledin.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0001
+MICRO_BATCH_REGION_IDS: 1,2,3,4
+BYPASS: -
+
+[003]
+EN: That's not the same thing.
+TR: Bu aynı şey değil.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0001
+MICRO_BATCH_REGION_IDS: 1,2,3,4
+BYPASS: -
+
+[004]
+EN: It is when the box explodes.
+TR: Bu, kutu patladığında oluyor.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0001
+MICRO_BATCH_REGION_IDS: 1,2,3,4
+BYPASS: -
+
+[005]
+EN: It's called Silent Chain.
+TR: Bunun adı Silent Chain'dir.
+WARNINGS: -
+MICRO_BATCH_ID: -
+MICRO_BATCH_REGION_IDS: -
+BYPASS: -
+
+[006]
+EN: Silent Chain?
+TR: Silent Chain?
+WARNINGS: -
+MICRO_BATCH_ID: -
+MICRO_BATCH_REGION_IDS: -
+BYPASS: TERM_ONLY
+
+[007]
+EN: Activate Silent Chain.
+TR: "Silent Chain" öğesini etkinleştirin.
+WARNINGS: -
+MICRO_BATCH_ID: -
+MICRO_BATCH_REGION_IDS: -
+BYPASS: -
+
+[008]
+EN: It can hold two enemies at the same time.
+TR: Aynı anda iki düşmanı taşıyabilir.
+WARNINGS: -
+MICRO_BATCH_ID: -
+MICRO_BATCH_REGION_IDS: -
+BYPASS: -
+
+[009]
+EN: Don't use Silent Chain again until I give the signal.
+TR: Ben işaret vermeden Silent Chain'i tekrar kullanmayın.
+*
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0002
+MICRO_BATCH_REGION_IDS: 9,10,11,12
+BYPASS: -
+
+[010]
+EN: I learned it from my father.
+TR: Bunu babamdan öğrendim.
+*
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0002
+MICRO_BATCH_REGION_IDS: 9,10,11,12
+BYPASS: -
+
+[011]
+EN: He never taught you when to stop?
+TR: Hiç ne zaman durmanız gerektiğini öğretmedi mi size?
+*
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0002
+MICRO_BATCH_REGION_IDS: 9,10,11,12
+BYPASS: -
+
+[012]
+EN: Apparently not.
+TR: Görünen o ki, öğretmedi.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0002
+MICRO_BATCH_REGION_IDS: 9,10,11,12
+BYPASS: -
+
+[013]
+EN: These Spirit Stones are for the Guild Master.
+TR: Bunlar Ruh Taşları, Lonca Lideri için kullanılıyor.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0003
+MICRO_BATCH_REGION_IDS: 13,14,15,16
+BYPASS: -
+
+[014]
+EN: Put the Spirit Stones on his desk.
+TR: Ruh Taşlarını onun masasının üzerine koyun.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0003
+MICRO_BATCH_REGION_IDS: 13,14,15,16
+BYPASS: -
+
+[015]
+EN: They paid thirty Spirit Stones for this map.
+TR: Bu harita için otuz Ruh Taşı ödediler.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0003
+MICRO_BATCH_REGION_IDS: 13,14,15,16
+BYPASS: -
+
+[016]
+EN: One Spirit Stone's value can change with its purity.
+TR: Bir Ruh Taşı değeri, saflığına göre değişebilir.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0003
+MICRO_BATCH_REGION_IDS: 13,14,15,16
+BYPASS: -
+
+[017]
+EN: PASSIVE SKILL ACQUIRED: NIGHT SENSE
+TR: Kazanılan Pasif Yetenek: NIGHT SENSE
+WARNINGS: -
+MICRO_BATCH_ID: -
+MICRO_BATCH_REGION_IDS: -
+BYPASS: SYSTEM_UI
+
+[018]
+EN: TITLE ACQUIRED: WHITE WARDEN
+TR: Kazanılan Unvan: WHITE WARDEN
+WARNINGS: -
+MICRO_BATCH_ID: -
+MICRO_BATCH_REGION_IDS: -
+BYPASS: SYSTEM_UI
+
+[019]
+EN: CLASS ADVANCEMENT AVAILABLE
+TR: Sınıf Gelişimi Mevcut
+WARNINGS: -
+MICRO_BATCH_ID: -
+MICRO_BATCH_REGION_IDS: -
+BYPASS: SYSTEM_UI
+
+[020]
+EN: ABILITY COOLDOWN: 21 SECONDS
+TR: Yetenek Bekleme Süresi: 21 saniye
+WARNINGS: -
+MICRO_BATCH_ID: -
+MICRO_BATCH_REGION_IDS: -
+BYPASS: SYSTEM_UI
+
+[021]
+EN: Who charged the medicine to my room?
+TR: İlacı benim odama kim borçlandırdı/yazdı?
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0004
+MICRO_BATCH_REGION_IDS: 21,22,23,24
+BYPASS: -
+
+[022]
+EN: The healer did.
+TR: Şifacı yaptı.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0004
+MICRO_BATCH_REGION_IDS: 21,22,23,24
+BYPASS: -
+
+[023]
+EN: The wolf charged before I could stand up.
+TR: Kurt, ayağa kalkmadan önce saldırdı/hücum etti.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0004
+MICRO_BATCH_REGION_IDS: 21,22,23,24
+BYPASS: -
+
+[024]
+EN: That's a different kind of charge.
+TR: Bu farklı bir tür ücret/masraf.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0004
+MICRO_BATCH_REGION_IDS: 21,22,23,24
+BYPASS: -
+
+[025]
+EN: Leave him out of this.
+TR: Onu bu işin dışında bırakın. / Onu bu durumdan uzak tutun.
+*
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0005
+MICRO_BATCH_REGION_IDS: 25,26,27,28
+BYPASS: -
+
+[026]
+EN: Leave the documents on the table.
+TR: Belgeleri masanın üzerine bırakın.
+*
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0005
+MICRO_BATCH_REGION_IDS: 25,26,27,28
+BYPASS: -
+
+[027]
+EN: We need to leave before sunrise.
+TR: Güneş doğmadan önce gitmemiz gerekiyor.
+*
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0005
+MICRO_BATCH_REGION_IDS: 25,26,27,28
+BYPASS: -
+
+[028]
+EN: Leave the rest to me.
+TR: Kalan her şeyi bana bırakın. / Geri kalanını ben halledeceğim.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0005
+MICRO_BATCH_REGION_IDS: 25,26,27,28
+BYPASS: -
+
+[029]
+EN: Not everyone believed the Guild Master.
+TR: Herkes Lonca Lideri ifadesine inanmadı.
+*
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0006
+MICRO_BATCH_REGION_IDS: 29,30,31,32
+BYPASS: -
+
+[030]
+EN: Almost everyone stayed quiet.
+TR: Neredeyse herkes sessiz kaldı.
+*
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0006
+MICRO_BATCH_REGION_IDS: 29,30,31,32
+BYPASS: -
+
+[031]
+EN: Only one person objected.
+TR: Sadece bir kişi itiraz etti.
+*
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0006
+MICRO_BATCH_REGION_IDS: 29,30,31,32
+BYPASS: -
+
+[032]
+EN: That doesn't mean the others agreed.
+TR: Bu, diğerlerinin de kabul ettiği anlamına gelmez.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0006
+MICRO_BATCH_REGION_IDS: 29,30,31,32
+BYPASS: -
+
+[033]
+EN: Wonderful. Now the door is on fire.
+TR: Harika. Şimdi kapı alevler içinde.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0007
+MICRO_BATCH_REGION_IDS: 33,34,35,36
+BYPASS: -
+
+[034]
+EN: You sound surprisingly calm.
+TR: Şaşırtıcı bir şekilde sakin görünüyorsun.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0007
+MICRO_BATCH_REGION_IDS: 33,34,35,36
+BYPASS: -
+
+[035]
+EN: I'm deciding whether to scream or run.
+TR: Bağırmayı mı yoksa kaçmayı mı yapacağıma karar vermeye çalışıyorum.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0007
+MICRO_BATCH_REGION_IDS: 33,34,35,36
+BYPASS: -
+
+[036]
+EN: You can do both.
+TR: İkisini de yapabilirsin.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0007
+MICRO_BATCH_REGION_IDS: 33,34,35,36
+BYPASS: -
+
+[037]
+EN: The chamber had been empty a few seconds earlier.
+TR: Odanın birkaç saniye önce boş olduğu görülmüştü.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0008
+MICRO_BATCH_REGION_IDS: 37,38,39,40
+BYPASS: -
+
+[038]
+EN: Now three wet footprints crossed the stone floor.
+TR: Şimdi, taş zeminde üç tane ıslak ayak izi vardı.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0008
+MICRO_BATCH_REGION_IDS: 37,38,39,40
+BYPASS: -
+
+[039]
+EN: There was nobody near the far wall.
+TR: Uzak duvara yakınlarda kimse yoktu.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0008
+MICRO_BATCH_REGION_IDS: 37,38,39,40
+BYPASS: -
+
+[040]
+EN: Then one of the footprints turned toward us.
+TR: Sonra, ayak izlerinden biri bize doğru dönmeye başladı.
+WARNINGS: -
+MICRO_BATCH_ID: micro_batch_0008
+MICRO_BATCH_REGION_IDS: 37,38,39,40
+BYPASS: -

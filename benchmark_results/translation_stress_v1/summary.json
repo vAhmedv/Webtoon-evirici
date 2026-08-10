@@ -1,0 +1,35 @@
+{
+  "execution": {
+    "synthetic_items": "180/180",
+    "flores_control": "NOT RUN — dataset unavailable locally",
+    "generation_calls": 26,
+    "retries": 10,
+    "input_tokens": 44140,
+    "generated_tokens": 21706,
+    "generation_seconds": 258.36,
+    "wall_time_seconds": 258.41,
+    "average_tok_per_sec": 84.01,
+    "load_time_seconds": 8.68,
+    "backend": "Qwen3.5-9B-GGUF-Translation",
+    "model": "Qwen3.5-9B-Q5_K_M-GGUF"
+  },
+  "structural_validation": {
+    "missing_ids": [],
+    "duplicate_ids": [],
+    "json_failures": 0,
+    "requires_review_count": 13,
+    "fidelity_flagged_count": 0,
+    "unrelated_glossary_leaked": false
+  },
+  "termbase": {
+    "discovered": 0,
+    "provisional": 0,
+    "ready_for_review": 0,
+    "approved_automatically": 0
+  },
+  "paths": {
+    "results_json": "benchmark_results\\translation_stress_v1\\results.json",
+    "results_txt": "benchmark_results\\translation_stress_v1\\results.txt",
+    "summary_json": "benchmark_results\\translation_stress_v1\\summary.json"
+  }
+}

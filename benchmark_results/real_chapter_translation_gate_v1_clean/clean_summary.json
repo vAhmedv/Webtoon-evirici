@@ -1,0 +1,41 @@
+{
+  "original_total_items": 300,
+  "valid_story_items_count": 226,
+  "total_excluded_items": 74,
+  "exclusion_breakdown": {
+    "EXCLUDE_WATERMARK": 44,
+    "VALID_STORY_TEXT": 226,
+    "EXCLUDE_FRAGMENT": 9,
+    "EXCLUDE_OCR_GARBAGE": 14,
+    "EXCLUDE_SFX": 7
+  },
+  "clean_by_series": {
+    "Axe God: The Road to Invincibility": 99,
+    "Reincarnated as a God-Tier Crafter": 127
+  },
+  "clean_by_chapter": {
+    "Chapter 1": 49,
+    "Chapter 2": 43,
+    "Chapter 3": 43,
+    "Chapter 4": 44,
+    "Chapter 5": 47
+  },
+  "clean_subset_metrics": {
+    "translategemma": {
+      "valid_items": 226,
+      "requires_review": 45,
+      "review_rate_percent": 19.91,
+      "empty_outputs": 40
+    },
+    "qwen35": {
+      "valid_items": 226,
+      "requires_review": 6,
+      "review_rate_percent": 2.65,
+      "empty_outputs": 0
+    }
+  },
+  "contaminated_300_metrics_reference": {
+    "translategemma_review_rate_percent": 37.33,
+    "qwen35_review_rate_percent": 20.33
+  }
+}

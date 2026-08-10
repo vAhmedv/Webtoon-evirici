@@ -1,0 +1,163 @@
+[001]
+EN: I don't use this ability to attack.
+TR: Bu yeteneği saldırmak için kullanmıyorum.
+WARNINGS: -
+
+[002]
+EN: Then what do you use it for?
+TR: Peki, onu ne için kullanıyorsunuz?
+WARNINGS: -
+
+[003]
+EN: It's called Frost Chain.
+TR: Bunun adı Frost Chain'dir.
+WARNINGS: -
+
+[004]
+EN: Frost Chain?
+TR: Frost Chain?
+WARNINGS: -
+
+[005]
+EN: Activate Frost Chain.
+TR: "Frost Chain" öğesini etkinleştirin.
+WARNINGS: -
+
+[006]
+EN: Don't use Frost Chain until I give the signal.
+TR: Frost Chain'i kullanmayın, ben işaret vermeden.
+WARNINGS: -
+
+[007]
+EN: Frost Chain can hold three targets at once.
+TR: Frost Chain aynı anda üç hedefi taşıyabilir.
+WARNINGS: -
+
+[008]
+EN: I learned Frost Chain from my sister.
+TR: Frost Chain'i kız kardeşimden öğrendim.
+WARNINGS: -
+
+[009]
+EN: These Spirit Stones belong to the Guild Master.
+TR: Bu Ruh Taşları, Lonca Liderine aittir.
+WARNINGS: -
+
+[010]
+EN: Leave the Spirit Stones beside the door.
+TR: Kapının yanına Ruh Taşlarını bırakın.
+WARNINGS: -
+
+[011]
+EN: They want twenty Spirit Stones for one bottle.
+TR: They want twenty Ruh Taşları for one bottle.
+
+**Çevirisi:**
+
+Bir şişe için yirmi Ruh Taşları istiyorlar.
+WARNINGS: -
+
+[012]
+EN: A Spirit Stone's value depends on its purity.
+TR: Bir Ruh Taşının değeri, saflığına bağlıdır.
+WARNINGS: -
+
+[013]
+EN: PASSIVE SKILL ACQUIRED: ECHO VEIL
+TR: Kazanılan Pasif Yetenek: ECHO VEIL
+WARNINGS: -
+
+[014]
+EN: TITLE ACQUIRED: BONE WARDEN
+TR: Kazanılan Unvan: BONE WARDEN
+WARNINGS: -
+
+[015]
+EN: CLASS ADVANCEMENT AVAILABLE
+TR: Sınıf Gelişimi Mevcut
+WARNINGS: -
+
+[016]
+EN: ABILITY COOLDOWN: 19 SECONDS
+TR: Yetenek Bekleme Süresi: 19 saniye
+WARNINGS: -
+
+[017]
+EN: Leave him out of this.
+TR: Onu bu işin dışında tutun.
+WARNINGS: -
+
+[018]
+EN: Leave the key where you found it.
+TR: Anahtarı bulduğunuz yerde bırakın.
+WARNINGS: -
+
+[019]
+EN: Who charged the meal to my room?
+TR: Yemek masrafını benim odama kim borçlandırdı?
+WARNINGS: -
+
+[020]
+EN: The boar charged before I could draw my sword.
+TR: Kılıcımı çekmeden önce, domuz bana doğru atıldı.
+WARNINGS: -
+
+[021]
+EN: Not everyone agreed with the Guild Master.
+TR: <FAILED>
+WARNINGS: chatbot_or_explanation_output
+
+[022]
+EN: Almost everyone stayed silent.
+TR: Neredeyse herkes sessiz kaldı.
+WARNINGS: -
+
+[023]
+EN: We need to leave before midnight.
+TR: Gece yarısından önce gitmemiz gerekiyor.
+WARNINGS: -
+
+[024]
+EN: Don't move until the door closes.
+TR: Kapı kapanana kadar kıpırdamayın.
+WARNINGS: -
+
+[025]
+EN: Wonderful. Now the bridge is on fire.
+TR: Harika. Şimdi köprü yangın çıktı.
+WARNINGS: -
+
+[026]
+EN: You don't sound very impressed.
+TR: Çok etkilenmediğin belli oluyor.
+WARNINGS: -
+
+[027]
+EN: That's because I'm trying not to scream.
+TR: Çünkü bağırmamaya çalışıyorum.
+WARNINGS: -
+
+[028]
+EN: Very reassuring.
+TR: Çok güven verici.
+WARNINGS: -
+
+[029]
+EN: The chamber had been empty only a moment earlier.
+TR: Odaya sadece bir an önce girilmişti ve odayı kimse kullanmamıştı.
+WARNINGS: -
+
+[030]
+EN: Now a line of wet footprints crossed the floor.
+TR: Şimdi, zeminde ıslak ayak izlerinden oluşan bir çizgi belirdi.
+WARNINGS: -
+
+[031]
+EN: There was nobody at the other end of the corridor.
+TR: Koridorun diğer ucunda kimse yoktu.
+WARNINGS: -
+
+[032]
+EN: Then one of the footprints moved.
+TR: Sonra, ayak izlerinden biri hareket etti.
+WARNINGS: -

@@ -1,0 +1,205 @@
+[001]
+
+SOURCE:
+I wasn't trying to stop you.
+
+TURKISH:
+Seni durdurmaya çalışmıyordum.
+
+--------------------------------------------------
+
+[002]
+
+SOURCE:
+Then what were you trying to do?
+
+TURKISH:
+Peki, ne yapmaya çalışıyordun?
+
+--------------------------------------------------
+
+[003]
+
+SOURCE:
+Buy us some time.
+
+TURKISH:
+Bize biraz zaman tanıyın.
+
+--------------------------------------------------
+
+[004]
+
+SOURCE:
+You could have warned me.
+
+TURKISH:
+Bana önceden haber verebilirdin.
+
+--------------------------------------------------
+
+[005]
+
+SOURCE:
+It's called Hollow Step.
+
+TURKISH:
+Bunun adı Hollow Step'dir.
+
+--------------------------------------------------
+
+[006]
+
+SOURCE:
+Hollow Step?
+
+TURKISH:
+Hollow Step?
+
+--------------------------------------------------
+
+[007]
+
+SOURCE:
+Activate Hollow Step.
+
+TURKISH:
+Activate Hollow Step.
+
+--------------------------------------------------
+
+[008]
+
+SOURCE:
+Hollow Step only works once every ten seconds.
+
+TURKISH:
+Hollow Step her on saniyede sadece bir kez çalışır.
+
+--------------------------------------------------
+
+[009]
+
+SOURCE:
+I learned Iron Veil from the old master.
+
+TURKISH:
+"Iron Veil" tekniğini eski bir ustadan öğrendim.
+
+--------------------------------------------------
+
+[010]
+
+SOURCE:
+Iron Veil reduces the force of incoming attacks.
+
+TURKISH:
+Iron Veil, gelen saldırıların etkisini azaltır.
+
+--------------------------------------------------
+
+[011]
+
+SOURCE:
+That would have been useful five minutes ago.
+
+TURKISH:
+Bu, beş dakika önce işe yarardı.
+
+--------------------------------------------------
+
+[012]
+
+SOURCE:
+I know.
+
+TURKISH:
+Biliyorum.
+
+--------------------------------------------------
+
+[013]
+
+SOURCE:
+PASSIVE SKILL ACQUIRED: BLOOD SENSE
+
+TURKISH:
+Kazanılan Pasif Yetenek: BLOOD SENSE
+
+--------------------------------------------------
+
+[014]
+
+SOURCE:
+TITLE ACQUIRED: PALE HUNTER
+
+TURKISH:
+Kazanılan Unvan: PALE HUNTER
+
+--------------------------------------------------
+
+[015]
+
+SOURCE:
+CLASS ADVANCEMENT AVAILABLE
+
+TURKISH:
+Sınıf Gelişimi Mevcut
+
+--------------------------------------------------
+
+[016]
+
+SOURCE:
+ABILITY COOLDOWN: 12 SECONDS
+
+TURKISH:
+Yetenek Bekleme Süresi: 12 saniye
+
+--------------------------------------------------
+
+[017]
+
+APPROVED TERMS:
+SPIRIT STONE => Ruh Taşı
+
+SOURCE:
+Leave the Spirit Stones here.
+
+TURKISH:
+Ruh Taşlarını burada bırakın.
+
+--------------------------------------------------
+
+[018]
+
+SOURCE:
+Leave him out of this.
+
+TURKISH:
+Onu bu işin dışında tutun.
+
+--------------------------------------------------
+
+[019]
+
+APPROVED TERMS:
+SPIRIT STONE => Ruh Taşı
+
+SOURCE:
+They charged us forty Spirit Stones.
+
+TURKISH:
+Bize kırk adet Spirit Stone'dan para aldılar.
+
+--------------------------------------------------
+
+[020]
+
+SOURCE:
+The beast charged before we could move.
+
+TURKISH:
+Hareket edebilmemizden önce canavar üzerimize atıldı.
+
+--------------------------------------------------

@@ -1,0 +1,258 @@
+[
+  {
+    "id": 1,
+    "source": "Hold on. That's not what happened.",
+    "translation": "Durun. O öyle olmadı.",
+    "in_tokens": 42,
+    "gen_tokens": 256,
+    "gen_seconds": 9.058
+  },
+  {
+    "id": 2,
+    "source": "Then tell me what did.",
+    "translation": "Peki, ne yaptığını bana söyle.",
+    "in_tokens": 58,
+    "gen_tokens": 17,
+    "gen_seconds": 0.368
+  },
+  {
+    "id": 3,
+    "source": "You wouldn't believe me.",
+    "translation": "Bana inanmazsın.",
+    "in_tokens": 67,
+    "gen_tokens": 15,
+    "gen_seconds": 0.304
+  },
+  {
+    "id": 4,
+    "source": "Try me.",
+    "translation": "Bana bir şey söyle bakalım.",
+    "in_tokens": 60,
+    "gen_tokens": 15,
+    "gen_seconds": 0.319
+  },
+  {
+    "id": 5,
+    "source": "Captain, we found another entrance.",
+    "translation": "Kaptan, başka bir giriş bulduk.",
+    "in_tokens": 61,
+    "gen_tokens": 17,
+    "gen_seconds": 0.338
+  },
+  {
+    "id": 6,
+    "source": "Does anyone else know about it?",
+    "translation": "Başka kimse bundan haberdar mı?",
+    "in_tokens": 61,
+    "gen_tokens": 18,
+    "gen_seconds": 0.355
+  },
+  {
+    "id": 7,
+    "source": "Not unless the scouts talked.",
+    "translation": "Keşif ekibi bahsetmediyse, yok.",
+    "in_tokens": 64,
+    "gen_tokens": 20,
+    "gen_seconds": 0.399
+  },
+  {
+    "id": 8,
+    "source": "They know better than that.",
+    "translation": "Onlar bundan daha iyi haberdarlar.",
+    "in_tokens": 63,
+    "gen_tokens": 17,
+    "gen_seconds": 0.361
+  },
+  {
+    "id": 9,
+    "source": "I wouldn't call that a victory.",
+    "translation": "Bunu bir zafer olarak nitelendiremem.",
+    "in_tokens": 65,
+    "gen_tokens": 20,
+    "gen_seconds": 0.41
+  },
+  {
+    "id": 10,
+    "source": "We survived, didn't we?",
+    "translation": "Hayatta kaldık, değil mi?",
+    "in_tokens": 67,
+    "gen_tokens": 16,
+    "gen_seconds": 0.334
+  },
+  {
+    "id": 11,
+    "source": "Barely.",
+    "translation": "Zorlukla.",
+    "in_tokens": 64,
+    "gen_tokens": 13,
+    "gen_seconds": 0.276
+  },
+  {
+    "id": 12,
+    "source": "Still counts.",
+    "translation": "Hâlâ sayılıyor.",
+    "in_tokens": 58,
+    "gen_tokens": 14,
+    "gen_seconds": 0.309
+  },
+  {
+    "id": 13,
+    "source": "Leave the lantern where it is.",
+    "translation": "Feneri olduğu yerde bırakın.",
+    "in_tokens": 57,
+    "gen_tokens": 16,
+    "gen_seconds": 0.346
+  },
+  {
+    "id": 14,
+    "source": "I need to leave before the guards return.",
+    "translation": "Muhafızlar geri dönmeden önce gitmem gerekiyor.",
+    "in_tokens": 63,
+    "gen_tokens": 20,
+    "gen_seconds": 0.396
+  },
+  {
+    "id": 15,
+    "source": "She left the key on the table.",
+    "translation": "Anahtarı masanın üzerine bıraktı.",
+    "in_tokens": 68,
+    "gen_tokens": 18,
+    "gen_seconds": 0.356
+  },
+  {
+    "id": 16,
+    "source": "Leave him out of this.",
+    "translation": "Onu bu işin dışında tutun.",
+    "in_tokens": 67,
+    "gen_tokens": 17,
+    "gen_seconds": 0.363
+  },
+  {
+    "id": 17,
+    "source": "That went well.",
+    "translation": "İyi gitti.",
+    "in_tokens": 62,
+    "gen_tokens": 12,
+    "gen_seconds": 0.269
+  },
+  {
+    "id": 18,
+    "source": "Half the building is on fire.",
+    "translation": "Binanın yarısı yanıyor.",
+    "in_tokens": 61,
+    "gen_tokens": 15,
+    "gen_seconds": 0.32
+  },
+  {
+    "id": 19,
+    "source": "I said it went well, not perfectly.",
+    "translation": "İyi gitti\" dedim, mükemmel gitti demedim.",
+    "in_tokens": 64,
+    "gen_tokens": 22,
+    "gen_seconds": 0.429
+  },
+  {
+    "id": 20,
+    "source": "You're impossible.",
+    "translation": "Sen çok zor birisin.",
+    "in_tokens": 65,
+    "gen_tokens": 14,
+    "gen_seconds": 0.317
+  },
+  {
+    "id": 21,
+    "source": "How much did they charge for the repairs?",
+    "translation": "Tamirat için ne kadar para aldılar?",
+    "in_tokens": 67,
+    "gen_tokens": 17,
+    "gen_seconds": 0.34
+  },
+  {
+    "id": 22,
+    "source": "Enough to make me regret breaking it.",
+    "translation": "Bunu kırdığıma pişman olmamı sağlayacak kadar yüksek bir fiyat.",
+    "in_tokens": 66,
+    "gen_tokens": 20,
+    "gen_seconds": 0.405
+  },
+  {
+    "id": 23,
+    "source": "Who charged into the room first?",
+    "translation": "Odaya ilk giren kişi kimdi?",
+    "in_tokens": 68,
+    "gen_tokens": 18,
+    "gen_seconds": 0.378
+  },
+  {
+    "id": 24,
+    "source": "Guess.",
+    "translation": "Tahmin et.",
+    "in_tokens": 61,
+    "gen_tokens": 12,
+    "gen_seconds": 0.282
+  },
+  {
+    "id": 25,
+    "source": "Not everyone agreed with the decision.",
+    "translation": "Herkes bu karara katılmadı.",
+    "in_tokens": 60,
+    "gen_tokens": 16,
+    "gen_seconds": 0.347
+  },
+  {
+    "id": 26,
+    "source": "Almost everyone kept quiet.",
+    "translation": "Neredeyse herkes sessiz kaldı.",
+    "in_tokens": 58,
+    "gen_tokens": 16,
+    "gen_seconds": 0.323
+  },
+  {
+    "id": 27,
+    "source": "Only one person objected.",
+    "translation": "Sadece bir kişi itiraz etti.",
+    "in_tokens": 61,
+    "gen_tokens": 17,
+    "gen_seconds": 0.339
+  },
+  {
+    "id": 28,
+    "source": "That doesn't mean the others approved.",
+    "translation": "Bu, diğerlerinin de kabul ettiği anlamına gelmez.",
+    "in_tokens": 63,
+    "gen_tokens": 19,
+    "gen_seconds": 0.382
+  },
+  {
+    "id": 29,
+    "source": "The footprints ended in the middle of the corridor.",
+    "translation": "Ayak izleri, koridorun ortasında bitti.",
+    "in_tokens": 68,
+    "gen_tokens": 21,
+    "gen_seconds": 0.428
+  },
+  {
+    "id": 30,
+    "source": "There were no doors, no windows, and nowhere else to go.",
+    "translation": "Kapılar yoktu, pencereler yoktu ve gidebileceğiniz başka bir yer de yoktu.",
+    "in_tokens": 77,
+    "gen_tokens": 30,
+    "gen_seconds": 0.553
+  },
+  {
+    "id": 31,
+    "source": "For a moment, none of them said anything.",
+    "translation": "Bir an için, hiçbiri bir şey söylemedi.",
+    "in_tokens": 78,
+    "gen_tokens": 20,
+    "gen_seconds": 0.416
+  },
+  {
+    "id": 32,
+    "source": "Then something knocked from inside the wall.",
+    "translation": "Sonra, duvardan bir şey geldi.",
+    "in_tokens": 76,
+    "gen_tokens": 18,
+    "gen_seconds": 0.376
+  }
+]

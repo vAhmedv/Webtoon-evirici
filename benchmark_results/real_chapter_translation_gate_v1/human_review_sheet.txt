@@ -1,0 +1,2136 @@
+[axe_god_chapter1_002]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_003]
+EN: THANKS FOR EARLIER.
+TG: None
+QW: Daha önceki için teşekkürler.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_004]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_005]
+EN: LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!
+TG: Görünüşe göre param boşa gitmedi. Değerinin karşılığını fazlasıyla veriyorsun, çocuk! / Değerin tartışılmaz, çocuk!
+QW: Görünüşe göre paranın boşa gitmedi. Her kuruşuna değer, çocuk!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_006]
+EN: WORTH EVERY PENNY, KID!
+TG: None
+QW: HER PENNİNE DEĞER! ÇOCUK!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_007]
+EN: YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT.
+TG: Genç Usta Yli, sadece boşa gitmekten kurtulmadık, tam tersine büyük bir başarı elde ettik. / Genç Usta Yli, sadece bir kayıp yaşamamaktan öte, büyük bir şans yakaladık.
+QW: GENÇ MASTER YLI, SİRF BOŞA GİTMEDEN DAHA FAZLASI—BİZ BÜYÜK KAZANÇ YAPTIK.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_008]
+EN: JUDGING BY LLO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+TG: Llo Tian'ın şu anki performansına bakılırsa, okçuluk konusunda uzmanlaşmış bir yetenek kullanıcısı ile neredeyse aynı seviyede.
+
+(Burada yetenek kullanıcısı ve 1. seviye yerine uygun bir kelime veya kelimeler gelmesi gerekir. Örneğin, "atlet" veya "sporcu" gibi.)
+QW: Llo Tian'ın şu anki performansına bakılırsa, yaylı atıcılığa uzmanlaşmış bir 1. seviye yetenek kullanıcısı ile neredeyse eşdeğer.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_009]
+EN: YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+TG: GENÇ EFENDİ Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMALİYIZ.
+QW: GENÇ HANZİM Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMALIYIZ.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_010]
+EN: nb
+TG: None
+QW: nb
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_011]
+EN: THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+TG: Bu gri kurt yaratıklarının, önümüzde bulunan Blackwind Ravine bölgesinde faaliyet gösterdiği düşünülüyor.
+QW: Bu gri kurt yaratıkları, biziň öndə Blackwind Ravine öndə faal olmalı.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_012]
+EN: THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+TG: Burada ortaya çıkmaları muhtemelen iyi bir alamettir.
+QW: Burada belirmelerinin muhtemelen iyi bir işaret olmadığı gerçeği.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_013]
+EN: HI SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+TG: San, sen en hızlısın. Öndeki yolu keşfet.
+QW: Merhaba San, en hızlısın. Önümüzdeki yolu keşfet.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_014]
+EN: IF ANYTHING HAPPENS, COME BACK AND REPORT IMMEDIATELY.
+TG: Herhangi bir sorun olursa, hemen geri gelin ve durumu bildirin.
+QW: Eğer bir şey olursa, geri dön ve derhal rapor ver.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_015]
+EN: ROGER, CAPTAIN.
+TG: ROGER, KAPTAN.
+QW: ROGER, KAPTAN.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_017]
+EN: EXTRERNE SPEED
+TG: None
+QW: DİŞİ HIZ
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_018]
+EN: RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+TG: Sakin ol, çocuk. Sen de az önce gördün işte.
+QW: Sakin ol, çocuk. Kendin de yeni gördün.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_019]
+EN: CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+TG: KAPTAN Gao Yuan, DÜŞÜNÜLEMEYECEK KADAR BAŞARILI BİR OYUNCU, VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL.
+QW: KAPTEN Gao Yuan BİR ZİRVE 1. seviye yetenek kullanıcısıDIR VE EKİBİNİN KALAN ÜYELERİ DE KOLAY GELİNECEKLER DEĞİLDİR.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_020]
+EN: ORDINARY DANGERS WON'T TROUBLE THEM.
+TG: Sıradan tehlikeler onları rahatsız etmeyecek.
+QW: Sıradan tehlikeler onları rahatsız etmeyecek.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_021]
+EN: I'M USED TO IT.
+TG: None
+QW: TO IT'e alıştım.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_022]
+EN: IN THIS ERA OF MONSTERS INVASIONS,
+TG: Bu canavarların istilası döneminde,
+QW: MONSTRLARIN İSTILASI BÜYÜK BİR DÖNEMDE,
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_023]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_024]
+EN: COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL
+TG: Sayısız mekansal gizli âlemler oluşmuştur.
+QW: Sayısız uzaysal gizli âlemler hepsini oluşturmuştur.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_025]
+EN: COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+TG: None
+QW: Sayısız uzaysal gizli âlemler tüm dünyada oluşmuştur.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_026]
+EN: WITHIN THESE SECRET REALMS, DANGER LURKS EVERYWHERE.
+TG: None
+QW: Bu gizli âlemlerin içinde tehlike her yerde gizlenmiştir.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_027]
+EN: YET THEY ALSO CONCEAL ENDLESS TREASURES.
+TG: Ancak aynı zamanda sayısız hazineleri de saklarlar.
+QW: Ancak sonsuz hazineleri de gizlerler.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_028]
+EN: MY NAME IS LHO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.
+TG: Adım Lho Tian. Ben bir yetenek kullanıcısı değilim, ben bir gizli âlem rehberiim.
+QW: ADIM LHO TIAN. BEN BİR yetenek kullanıcısı DEĞİLİM—BEN BİR gizli âlem rehberiİM.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_029]
+EN: I HEARD THAT THREE DAYS AGO, A RED GIANT WIELDING A BATTLE AXE APPEARED IN THE BLACKSTONE SECRET REALM.
+TG: Üç gün önce, BLACKSTONE'daki bir yerde, savaş baltası taşıyan, devasa kırmızı bir figürün ortaya çıktığını duydum.
+QW: Üç gün önce, Kırmızı Dev'in bir savaş mekiğiyle Blackstone gizli âlemde belirdiğini duydum.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_030]
+EN: IT KILLS BOTH MONSTERS AND ABILITY USERS ON SIGHT. IT'S EXTREMELY BRUTAL.
+TG: Hem canavarlara hem de ABİLİTE USERS ON SIGHT'e hasar verir. Son derece acımasızdır.
+QW: İT hem canavarları hem de yetenekleri öldürür USERS ON SIGHT. ÇOK KATİ.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_031]
+EN: AND THIS RICH SECOND-GENERATION HEIR, WANG YU, IS MY EMPLOYER.
+TG: Ve bu zengin, ikinci kuşak varis olan, WANG Yu, benim işverendim.
+QW: VE BU ZENGİN İKİNCİ NESİL MİRASÇISI, WANG Yu, BENİM İŞVERENİM.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter1_032]
+EN: IT'S PROBABLY TRUE.
+TG: Muhtemelen doğrudur.
+QW: Muhtemelen doğru.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_002]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_005]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_006]
+EN: 吃fm
+TG: None
+QW: FM'yi ye
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_007]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_008]
+EN: THUMP~
+TG: None
+QW: VUR~
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_009]
+EN: A BEAST IS STILL JUST A BEAST!
+TG: Bir canavar her zaman sadece bir canavardır!
+QW: Bir canavar her zaman sadece bir canavardır!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_010]
+EN: YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?
+TG: Aynı numarayı benden ikinci kez de mi bekliyorsun?
+QW: Aynı hileyi ikinci kez bana işleteceğini sanıyorsun?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_011]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_012]
+EN: DIE, YOU BEAST!
+TG: None
+QW: ÖL, YARANSIZ!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_013]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_014]
+EN: TRYING TO RUN?
+TG: TRYING TO RUN?
+QW: TRYING TO RUN?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_015]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_017]
+EN: THIS FEELING OF WIELDING SUCH POWER IS TRULY INTOXICATING!
+TG: Bu kadar gücü elinde bulundurmanın hissi gerçekten sarhoş edici!
+QW: Bu güçle hükmetme hissi gerçekten sarhoş edici!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_018]
+EN: UNFORTUNATELY, THE BATTLE AXE CONTAINS A VIOLENT AURA THAT PREVENTS ME FROM STAYING TRANSFORMED FOR LONG. OTHERWISE, I'D BECOME A MONSTER THAT KNOWS ONLY SLAUGHTER.
+TG: Ne yazık ki, bu savaş baltası, üzerimde uzun süre bu şekilde kalmamı engelleyen şiddetli bir enerjiye sahip. Aksi takdirde, sadece katliamtan başka bir şey bilmeyen bir canavara dönüşürdüm.
+QW: Ne yazık ki, Savaş Balta'sı şiddetli bir aura içerir ve bu da dönüşümümün uzun süre devam etmemini engeller. Aksi takdirde, sadece katliamı bilen bir canavar olurdu.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_019]
+EN: THESE PEOPLE ARE PRETTY BADLY INJURED. THAT'S GOING TO BE TROUBLESOME.
+TG: Bu insanlar oldukça ciddi şekilde yaralanmış. Bu durum başımıza büyük işler açacak.
+QW: Bu insanlar oldukça ağır yaralandı. Bu sorun yaratacak.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_020]
+EN: IT'S ACTIALLY A MID-GRADE HEALING POTION. WHAT A BUNCH OF RICH FOLKS.
+TG: Aslında bu, orta seviyede bir iyileştirme iksiri. Ne kadar da zengin insanlar var.
+QW: Aslında orta seviye bir iyileştirme iksiri. Ne kadar zengin insanlar.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_021]
+EN: WITH MEDICINE THIS GOOD, IT'D BE HARD TO DIE EVEN IF THEY WANTED TO.
+TG: Bu kadar iyi bir ilaç varken, insanlar ölmek isteseler bile zorlanırdı.
+QW: Bu kadar iyi bir tıbbın olduğu bir yerde, isteseler bile ölmek zor olurdu.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_022]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_023]
+EN: BLACKROCK CITY INSPECTOR - JIANG BIAO
+TG: BLACKROCK ŞEHİR İNCELEYİCİSİ - JIANG BIAO
+QW: SİYAH TAŞ KENTİ MUAYENEÇİ - JIANG BIAO
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_024]
+EN: LHO TIAN... IT REALLY IS YOU?!
+TG: LHO TIAN... SEN MİSİN GERÇEKTEN?!
+QW: LHO TIAN... GERÇEKTEN SEN MİSİN?!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_025]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_026]
+EN: ARYAS CANS.com
+TG: None
+QW: ARYAS CANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_027]
+EN: THAT'S RIGHT.
+TG: Doğru.
+QW: DOĞRU.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_028]
+EN: INSPECTOR, IS THERE A PROBLEM?
+TG: MÜFETTİŞ, BİR SORUN VAR MI?
+QW: MÜFETTİŞ, BİR SORUN VAR MI?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_029]
+EN: NOTHING MUCH! I WAS PATROLLING NEARBY JUST NOW AND SENSED A BURST OF VIOLENT ENERGY.
+TG: ÇOK BİR ŞEY YOK! ŞİMDİ TAM DA YAKINLARDA PATROL ATIYORDUM VE ŞİDDETLİ BİR ENERJİ PATLAMASI HİSSETTİM.
+QW: Çok önemli bir şey yok! Sadece yakın çevrede patrouyeliyordum ve ani bir şiddetli enerji patlaması hissettim.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_030]
+EN: Y-FH
+TG: None
+QW: Y-FH
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_031]
+EN: DID THAT MYSTERIOUS AXE-WIELDING GIANT APPEAR?
+TG: O gizemli, balta kullanan dev ortaya çıktı mı?
+QW: O gizemli meçhul kılıçlı dev göründü mü?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_032]
+EN: THAT'S RIGHT. OUR TEAM ENCOUNTERED A MUTATED MONSTER AND WAS NEARLY WIPED OUT.
+TG: Doğru. Ekibimiz, mutasyona uğramış bir canavarla karşılaştı ve neredeyse tamamen yok oldu.
+QW: HAKLIYIZ. EKİBİMİZ MÜTEHARİP BİR CANLILIKLA KARŞILAŞTI VE NEREDEYSE TAMAMEN YOK OLMAYA YAKLAŞTI.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_034]
+EN: Moral
+TG: None
+QW: Ahlak
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter2_035]
+EN: FORTHNATELY, THE MYSTERIOUS GIANT SHOWED UP, KILLED THE MONSTER, AND THEN DISAPPEARED.
+TG: Neyse ki, gizemli dev ortaya çıktı, canavarı öldürdü ve sonra ortadan kayboldu.
+QW: Ne yazık ki, gizemli dev ortaya çıktı, canavarı öldürdü ve ardından kayboldu.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_002]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_003]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_004]
+EN: HAHAHA! IT REALLY IS THE BLOOD AXE!
+TG: HAHAHA! BU GERÇEKTEN KAN BALTASI!
+QW: HAHAHA! GERÇEKTEN KAN BİÇKİDİR!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_005]
+EN: deputy are:
+TG: None
+QW: yardımcılar şunlardır:
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_006]
+EN: IT CAN GIVE EVEN AN ORDINARY PERSON WHO HASN'T AWAKENED AN ABILITY THIS KIND OF POWER!
+TG: Bu, henüz "uyanmış" olmayan sıradan bir kişiye bile THIS KIND OF POWER yeteneği verebilir!
+QW: YENİDEN DOĞMAMISININ YENİDEN DOĞMASI İÇİN GEREKLİ OLAN HER ŞEYİ SAĞLAYABİLİR!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_007]
+EN: SINCE YOu ALREADY KNOW... THEN TAKE THAT SECRET WITH YOU TO HELL!
+TG: Zaten biliyorsun... O ZAMAN O SIRRI BERABERİNE CEHENEEME GÖTÜR!
+QW: ZATEN BİLDİĞİNİZ İÇİN... O SIRRI CENNETE GİDİNCE YANINIZDA TAAŞIN!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_009]
+EN: KID, DON'T GET COCKY JUST BECAUSE YOU KILLED A NEWLY MUTATED GHOST-HEAD EVIL LEOPARD!
+TG: Oğlum, yeni mutasyona uğramış, hayalet kafalı, kötücül bir leoparı öldürdüğün için kendini beğenme!
+QW: KID, YENİ MÜTEŞABİK BİR GÖZLÜK KAFALI KÖTÜ LEOPARDI KİLDİĞİN İÇİN KIBRİTİ YENİDEN YAKMA!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_010]
+EN: ABILITY: SECOND AWAKENING — BONY OF STEEL
+TG: None
+QW: YETENEK: SECOND AWAKENING — ÇELİK İSKELET
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_013]
+EN: HE CAUGHT IT?!
+TG: None
+QW: KAPTI MI?!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_014]
+EN: HAHAHA! NICE ATTACK! AGAIN! COME ON, AGAIN!
+TG: HAHAHA! HARİKA SALDIRI! TEKRAR! HAYDİ, TEKRAR!
+QW: HAHAHA! GÜZEL SÜPER SALDIRI! TEKRAR! HADİ, TEKRAR!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_015]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_016]
+EN: AHHH!!!
+TG: None
+QW: AHHH!!!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_017]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_018]
+EN: DAMN IT... THE MURDEROLIS AURA WITHIN THE BLOOD AXE IS ALMOST BEYOND WHAT I CAN ENDLRE...
+TG: Lanet olsun... Kan Balyozu'nun içindeki cinayet aurası, benim kaldırabileceğim sınırın neredeyse çok ötesinde...
+QW: KAFUR... KAN KILIÇI'NİN İÇİNDEKİ KATİLOLIS ETKİSİ, DAYANABİLECEĞİMİN ÖTESİNDE NEREDEYSE...
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_019]
+EN: KID, MY BODY OF STEEL IS FAMED FOR ITS TOLGHNESS AND ENDURANCE.
+TG: ÇOCUK, ÇELİK GÖVDEYMİŞİM, DAYANIKLILIK VE SAĞLAMLIĞI İLE ÜNLÜ.
+QW: KID, ÇELİK GÖVDEMİN DAYANIKLILIĞI VE SÜRDÜRÜLEBİLİRLİĞİ İLE ÜNLÜDÜR.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_020]
+EN: AND YOU? HAVE YOU FINALLY REACHED THE LIMIT OF THE POWER THE BLOOD AXE GRANTS YOU?!
+TG: SİZ NE HAKKINIZDA? KAN BALTASI SİZE VERDİĞİ GÜCÜN SINIRINA SONUNDA ULAŞTINIZ MI?
+QW: VE SEN? SONUÇTA KAN BİÇKİSİ'NİN SANA VERDİĞİ GÜCÜN SINIRINA ULAŞTIN MI?!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_021]
+EN: I HAVE TO END THE TRANSFORMATION IMMEDIATELY. OTHERWISE, I'LL LOSE MY MIND AND BECOME A DEMON THAT KNOWS ONLY SLAUGHTER.
+TG: ŞU AN DERHAL BU DEĞİŞİMİ DURDURMAM GEREK. YOKSA Aklımı kaybedecek ve sadece katliamtan başka bir şey bilmeyen bir iblise dönüşeceğim.
+QW: Dönüşümü hemen sonlandırmam gerekiyor. Aksi takdirde aklımı kaybedip sadece katliamı bilen bir şeytana dönüşeceğim.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_023]
+EN: I CAN ONLY RESORT TO MY LAST OPTION.
+TG: Sadece son çareme başvurabilirim.
+QW: Son çaremize başvurmak zorundayım.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_024]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_025]
+EN: won
+TG: None
+QW: kazandı
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_026]
+EN: YOU'RE INSANE! YOU'VE COMPLETELY LOST IT!
+TG: None
+QW: DELİSİN! TAMAMEN ZİHİNİNİ KAYBETMİŞSİN!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_027]
+EN: THE WINTER POTION?! YOUR SOUL WILL BE FROZEN FOREVER! YOU'LL BE DOOMED FOR ALL ETERNITY!
+TG: None
+QW: Kış İksiri?! Ruhun sonsuza dek donacak! Sonsuzluk boyunca lanetleneceksin!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_028]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_029]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_030]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_031]
+EN: I... ACTUALLY LOST?
+TG: I... ACTUALLY LOST?
+QW: I... ACTUALLY LOST?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_032]
+EN: LOST TO AN ORDINARY PERSON? I'M A LEVEL 2, EARLY-STAGE ABILITY LISER!
+TG: SADE BİR KİŞİ İÇİN ANLAMSIZ MI? BEN BİR SEVİYE 2, ERKEN AŞAMA YETENEĞE SAHİP LISER'İM!
+QW: Normal bir kişi için kayıp mı? Ben Seviye 2, Erken Dönem Yetenek LISER'im!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_033]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_034]
+EN: YOU CAN DIE NOW.
+TG: Şimdi ölebilirsin.
+QW: ŞİMDİ ÖLEBİLİRSİN.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter3_035]
+EN: N-NO...
+TG: Kesinlikle hayır... / Asla...
+QW: HAYIR...
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_002]
+EN: RULE OF WILDERNESS SURVIVAL: NEVER LIGHT A FIRE AT NIGHT, OR YOU'LL ATTRACT THE EYES LURKING IN THE DARKNESS.
+TG: DOĞA İÇİ HAYATTA KALMA KURALI: GECE GÖZLERİNİZİ ÇEKEN ŞEYLERİ ÇEKECEĞİ İÇİN ASLA ATEŞ YAKMAYIN.
+QW: Çölde Hayatta Kalma Kuralı: Gece ateş yakmayın, yoksa karanlıkta bekleyen bakışları üzerinize çeker.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_003]
+EN: BUT...
+TG: AMA...
+QW: AMA...
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_004]
+EN: I REALLY DON'T HAVE A CHOICE.
+TG: Gerçekten başka seçeneğim yok.
+QW: Gerçekten bir seçeneğim yok.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_005]
+EN: LISING THE ICY POWER OF THE WINTER POTION TO SUPPRESS THE IMPACT OF THE BLOOD AXE'S BALEFUL AURA WAS INDEED A CLEVER SHORTCUT.
+TG: Kış İksirinin buz gibi gücünü kullanarak, Kan Balyozu'nun ölümcül etkisini bastırmak gerçekten zekice bir yoldu.
+QW: Kış zehrinin buzlu gücünü kullanıp Kan Kılıç'ın karanlık aura etkisini bastırmak gerçekten akıllıca bir kısayoldu.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_007]
+EN: BUT JUST THE LINGERING MEDICINAL EFFECTS ALONE HAVE NEARLY FROZEN MY BODY SOLID AND SHATTERED IT.
+TG: Ancak, ilacın bıraktığı etkiler o kadar güçlüydü ki, neredeyse bedenimi tamamen dondurdu ve paramparça etti.
+QW: Ancak sadece kalıcı tıbbi etkiler bile vücudumu neredeyse dondurup parçalamaya yetti.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_008]
+EN: 中Ra
+TG: None
+QW: Orta Ra
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_009]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_010]
+EN: WHOOSH~
+TG: None
+QW: HUUUŞ~
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_011]
+EN: udqa
+TG: None
+QW: udqa
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_012]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_013]
+EN: ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO.
+TG: Bilgilerimize göre, yaklaşık üç gün önce, Rüzgar-Gök Gürültüsü Kayalıkları yakınında birinin Rüzgar Ruhu İncisi'ni gördüğü tespit edildi.
+QW: Bilgiye göre, rüzgar-thunder kayasının yakınında rüzgar ruhu elması üç gün önce fark edilmiş.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_014]
+EN: I'VE ALREADY WASTED A LOT OF TIME. I NEED TO GET THERE AS SOON AS POSSIBLE. THE WIND SPIRIT PEARL COULD BE TAKEN BY SOMEONE ELSE AT ANY MOMENT.
+TG: Zaten çok fazla zaman kaybettim. Oraya mümkün olan en kısa sürede gitmem gerekiyor. Rüzgar Ruhu İncisi, herhangi bir anda başka biri tarafından alınabilir.
+QW: Zaten çok zaman kaybettim. Oraya mümkün olan en kısa sürede varmalıyım. Rüzgar Ruhü İncisi her an başkası tarafından alınabilir.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_015]
+EN: DARK NETHER FOREST
+TG: None
+QW: KARANLIK ÇİFTLİK ORMANI
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_016]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_017]
+EN: MONSTER: SHADOW MANTIS - PEAK TIER 1
+TG: None
+QW: MONSTRO: GÖLGE KIZILGINCI - ZİRVE SEVİYE 1
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_018]
+EN: THIS DARK NETHER FOREST REALLY IS STRANGE. EVEN THE OUTER AREA HAS MONSTERS LIKE THIS.
+TG: Bu karanlık orman gerçekten çok tuhaf. Hatta dış bölgelerinde bile bu tür canavarlar var.
+QW: Bu karanlık Nether ormanı gerçekten garip. Dış bölgede bile bu tür canavarlar var.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_019]
+EN: TOO BAD I'M IN A HURRY. OTHERWISE, I'D DEFINITELY AVOID THIS PLACE.
+TG: Keşke acelem olmasa, ama maalesef zamanım yok. Eğer vaktim olsaydı, kesinlikle bu yerden uzak dururdum.
+QW: Ne yazık ki acelem var. Aksi halde kesinlikle bu yere gitmezdim.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_020]
+EN: FORTHNATELY, I CAME PREPARED.
+TG: Neyse ki, hazırlıklı gelmiştim.
+QW: Ne yazık ki, hazırlıklı geldim.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_022]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_026]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_027]
+EN: MY TURN!
+TG: Benim sıram!
+QW: SIRAM!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_028]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_029]
+EN: DEMONIC PLANT: HELLFLOWER - EARLY TIER 2
+TG: Şeytani Bitki: CEHENNEM ÇİÇEĞİ - BAŞLANGIÇ SEVİYE 2
+QW: MELEKİ BİTKİ: CENNET ÇİÇEĞİ - ERKEN 2. SEVİYE
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_030]
+EN: I'M HERE.
+TG: Ben buradayım.
+QW: BURAYIM.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_031]
+EN: IT REALLY IS A HELLFLOWER, THIS MUST BE THE CENTER OF THE DARK NETHER FOREST.
+TG: Bu gerçekten bir cehennem çiçeği, burası kesinlikle Karanlık Orman'ın merkezi olmalı.
+QW: Gerçekten bir cehennem çiçeği, bu Karanlık Alt Ormanın merkezinde olmalı.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_032]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_033]
+EN: SO THERE REALLY IS A CAVE, THIS SHOULD BE THE SHORTCHT TO WIND-THUNDER CLIFF.
+TG: Yani gerçekten bir mağara var, bu Wind-Thunder Kayalıklarına giden en kısa yol olmalı.
+QW: Yani gerçekten bir mağara var, bu Rüzgar-Yıldırım Kayağına giden kısa yol olmalı.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_034]
+EN: ONLY OLD-TIMERS WHO'VE SPENT YEARS IN THE BLACKROCK SECRET REALM KNOW ABOUT THIS SHORTCUT.
+TG: Bu kısayolu sadece Blackrock'ta yıllarını geçirmiş, eski çalışanlar bilir.
+QW: Bu kısayolun sadece Blackrock'ta yıllarca geçirmiş eski usul kişilerden haberi vardır.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_035]
+EN: I ONLY HEARD ABOUT IT WHEN FATHER AND THE OTHERS WERE CHATTING WHEN I WAS LITTLE.
+TG: Bunu sadece küçükken, babam ve diğerleri sohbet ederken duyduğumu hatırlıyorum.
+QW: Küçükken babam ve diğerlerinin sohbet ederken duyduğum için bunu sadece o zaman öğrendim.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter4_036]
+EN: HM? SOMETHING'S MOVING.
+TG: Hm? Bir şeyler hareket ediyor.
+QW: HM? BİRŞEYİN HAREKET ETTİĞİ GÖRÜLDÜ.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_002]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_003]
+EN: Yuan
+TG: Yuan, Çin para biriminin adıdır. İngilizce'de "yuan" olarak kullanılır.
+QW: Yuan
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_004]
+EN: WHAT A PAIN. EVERY ONE OF THESE BEASTS IS COMPLETELY FEARLESS OF DEATH!
+TG: Ne kadar can sıkıcı! Bu yaratıkların her biri ölümden tamamen korkmuyor!
+QW: Ne kadar can sıkıcı. Bu yaratıklardan her biri ölümden hiç korkmuyor!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_005]
+EN: OF DEATH!
+TG: ÖLÜM!
+QW: ÖLÜMÜN!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_006]
+EN: I HAVE TO KILL THEM ALL AT ONCE AND CREATE AN OPENING IN THEIR DEFENSE. THAT'S MY ONLY CHANCE!
+TG: Onları hepsini aynı anda öldürmek zorundayım ve savunmalarında bir açık yaratmalıyım. Bu benim tek şansım!
+QW: Hepsini aynı anda öldürmem ve savunmalarında bir açıklık yaratmam gerekiyor. Bu benim tek şansım!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_007]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_008]
+EN: I'M GETTING CLOSE TO THE CAVE ENTRANCE!
+TG: Mağara girişine yaklaşıyorum!
+QW: MAVİNİN GİRİŞİNE YAKLAŞIYORUM!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_009]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_010]
+EN: I HAVE TO GET
+TG: None
+QW: Almam gerekiyor.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_011]
+EN: I HAVE TO GET OUT OF HERE QUICKLY...
+TG: Buradan hemen gitmem gerekiyor...
+QW: Buradan hızlıca çıkmalıyım...
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_012]
+EN: fh,
+TG: None
+QW: fh,
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_013]
+EN: ALTHOLGH THE HELLFLOWER'S VINES CAN'T REACH INSIDE, THOSE SHADOW MANTISES ARE STILL A HUGE THREAT.
+TG: CEHENNEM ÇİÇEĞİ'NİN SARMAŞIKLARI İÇERİYE ULAŞAMASA DA, GÖLGE ÇEKİÇLER HALA BÜYÜK BİR TEHLİKE.
+QW: Hellflower'un sarmaşıkları içeri ulaşsa bile, o gölge mantısları hala büyük bir tehdit oluşturuyor.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_014]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_015]
+EN: THE EXIT! I'VE FINALLY MADE IT!
+TG: ÇIKIŞ! SONUNDA BAŞARDIM!
+QW: ÇIKIŞ! SONUÇTA YAPTIM!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_016]
+EN: SO THAT'S WIND-THUNDER CLIFF?
+TG: SO THAT'S WIND-THUNDER CLIFF?
+QW: SO THAT'S WIND-THUNDER CLIFF?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_017]
+EN: HOW TERRIFYING!
+TG: Ne korkunç! / Çok korkunç!
+QW: Ne kadar korkunç!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_018]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_019]
+EN: DANGER!!!
+TG: DİKKAT!!!
+or
+TEHLİKE!!!
+QW: TEHLİKE!!!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_021]
+EN: WHO'S THERE?
+TG: WHO'S THERE?
+QW: WHO'S THERE?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_022]
+EN: SO THE BLOOD AXE REALLY IS IN YOUR HANDS.
+TG: Yani, KANLI BALTA GERÇEKTEN DE SİZİN ELİNİZDE.
+QW: Yani Kan Bıçağı gerçekten elinizde.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_023]
+EN: ARYASCANS.com
+TG: None
+QW: ARYASCANS.com
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_024]
+EN: I DIDN'T WAIT HERE FOR MOST OF THE DAY FOR NOTHING. JIANG BIAO DIED BY YOUR HAND, DIDN'T HE?
+TG: GÜNÜN ÇOĞU BOYUNCA BURADA BEKLEMEDİM, AMA NEDEN? JIANG BIAO, SENİN ELİNDEN ÖLDÜ, DEĞİL Mİ?
+QW: Günün büyük bir kısmını burada boşuna beklememiştim. Jiang Biao, elinle öldürülmedi mi?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_025]
+EN: CAPTAIN ROSS?!
+TG: CAPTAIN ROSS?!
+QW: CAPTAIN ROSS?!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_026]
+EN: IF I FIGHT ROSS, I'LL DIE! I HAVE TO GET AWAY AS SOON AS POSSIBLE.
+TG: Eğer ROSS ile kavga edersem, öleceğim! Mümkün olan en kısa sürede oradan uzaklaşmalıyım.
+QW: Eğer Ross ile dövüşürsem ölürüm! Mümkün olan en kısa sürede kaçmalıyım.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_027]
+EN: HOW DID YOU FIND ME?
+TG: Beni nasıl buldun?
+QW: Beni nasıl buldun?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_028]
+EN: YOLUI WERE WILLING TO EXPOSE THE BLOOD AXE JUST TO VENTURE INTO THE SECRET REALM. YOU MLIST REALLY WANT THE WIND SPIRIT PEARL, HUH?
+TG: Kan Baltası'nı ortaya çıkarmaya bile razıydılar, sadece gizli âlem bölgesine girmek için. Anlaşılan, Rüzgar Ruhu İncisi'ni gerçekten çok istiyorsunuz, değil mi?
+QW: Yolui, sadece gizli âleme girmek için Kanlı Balta'yı ortaya çıkarmaya bile razı oldu. Rüzgar Ruhü İncisi'ni gerçekten istiyorsun, değil mi?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_029]
+EN: WITH TIME RUNNING OUT FOR YOU, OTHER THAN TAKING THIS CAVE SHORTCUT, DID YOU HAVE ANY OTHER CHOICE?
+TG: Zamandan çok az kaldığına göre, bu mağara kısayolunu kullanmak dışında başka bir seçeneğin var mıydı?
+QW: Zamanınız tükenirken, bu mağara kısayolunu kullanmaktan başka bir seçeneğiniz vardı mı?
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_030]
+EN: ALRIGHT, FOR THE SAKE OF THE FORMER CHIEF INSPECTOR, HAND OVER THE BLOOD AXE AND I WON'T KILL YOU.
+TG: TAMAM, EMEKLİ BAŞ İNCELEYİCİ'NİN HATIRINA, KAN BALTASINI TESLİM ET VE SENİ ÖLDÜRMEM.
+QW: Tamam, eski baş dedektifin rızası için kan kılıcını ver, seni öldürmeyeceğim.
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_031]
+EN: IF YOU WANT THE BLOOD AXE, COME AND TAKE IT YOURSELF!
+TG: Eğer kanlı baltayı istiyorsanız, gelin ve kendiniz alın!
+QW: KAN BİÇKİSİNİ İSTİYORSAN, GEL VE KENDİN AL!
+WINNER: [ ]
+NOTE: [ ]
+
+[axe_god_chapter5_032]
+EN: SINCE YOU'RE SO EAGER TO DIE, I'LL GRANT YOUR WISH.
+TG: Çünkü ölüm için bu kadar heveslisin, dileğin kabul edildi.
+QW: Ölmek için bu kadar aceleci olduğunuz için dileğinizi kabul ediyorum.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_001]
+EN: THE WORLD'S MOST POPULAR VRMMO...
+TG: Dünyanın en popüler VRMMO oyunu...
+QW: DÜNYANIN EN POPÜLER VRMMO'SU...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_002]
+EN: - ONLINE -
+TG: - ÇEVRİMİÇİ -
+QW: - ÇEVİRİ -
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_003]
+EN: “ZERO FANTASY ONLINE.”
+TG: None
+QW: "SIFIR FANTAZİ ONLINE."
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_004]
+EN: COMMONLY KNOWN AS "ZFO."
+TG: Genellikle "ZFO" olarak bilinen...
+QW: GENEL OLARAK "ZFO" OLARAK BİLİNİR.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_005]
+EN: IN THIS GAME, I...
+TG: Bu oyunda ben...
+QW: BU OYUNDA, BEN...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_006]
+EN: Lv.998
+TG: Seviye 998.
+QW: Seviye 998
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_007]
+EN: I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.
+TG: Oyuncuların hiçbirinin daha önce ulaşamadığı, en yüksek seviyeye ulaşma noktasına gelmiştim."
+
+Veya daha akıcı bir şekilde:
+
+"Tarihte ilk kez, bir oyuncunun ulaşabileceği en yüksek seviyeye ulaşmak üzereydim.
+QW: İlk oyuncu olarak seviye sınırına ulaşmak üzereydim.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_013]
+EN: ASMOTOON.COM
+TG: None
+QW: ASMOTOON.COM
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_014]
+EN: MAYBE I OVERDID IT... 200 HOURS STRAIGHT IS A BIT MUCH.
+TG: Belki abarttım... 200 saat kesintisiz çalışmak biraz fazla.
+QW: Belki çok fazla yaptım... 200 saat aralıksız biraz fazla.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_015]
+EN: ONCE I FINISH THIS, I'M GETTING A REAL MEAL AND CRASHING.
+TG: Bunu bitirir bitirmez, güzel bir yemek yiyeceğim ve sonra da kendimi yatağa atacağım.
+QW: Bunu bitirince gerçek bir yemek yiyip yatağa yatıyorum.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_016]
+EN: HONESTLY, I JUST WANTED...
+TG: Dürüst olmak gerekirse, ben sadece...
+QW: DURAKLA, SÖZÜMÜ BİTMEDİ.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_017]
+EN: TO ACHIEVE SOMETHING GREAT.
+TG: Büyük bir şeyi başarmak.
+QW: BİRŞEYİ MUHTEŞEM YAPMAK İÇİN.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_018]
+EN: I WANTED TO BE A MASTER WHO WAS AT THE TOP OF MY FIELD...
+TG: Ben, kendi alanımda zirvede olan bir uzman olmak istiyordum...
+QW: Ben, kendi alanımın zirvesinde olan bir ustalık olmak istiyordum...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_019]
+EN: TO LEAVE MY MARK ON HISTORY.
+TG: Tarihe damgamı vurmak.
+QW: TARİHE İMZAMIZI BIRAKMAK.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_020]
+EN: BUT THE TRUTH WAS...
+TG: AMA GERÇEK ŞU İDİ...
+QW: AMA GERÇEK ŞUNUYDU...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_021]
+EN: BE IT SCHOOL...
+TG: None
+QW: OKUL OLASIN...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_022]
+EN: OR SPORTS...
+TG: VEYA SPORLAR...
+QW: VE SPORLAR...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_023]
+EN: ASMOTOON.COM
+TG: None
+QW: ASMOTOON.COM
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_024]
+EN: I COULD NEVER GET THAT NUMBER-ONE SPOT.
+TG: Asla o birincilik yerini elde edemedim.
+QW: O bir numaralı sırayı asla alamadım.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_025]
+EN: BUT HERE...
+TG: AMA BURADA...
+QW: AMA BURADA...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_026]
+EN: HERE, IT'S DIFFERENT.
+TG: Burada farklı.
+QW: Burada durum farklı.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_027]
+EN: IN ZFO...
+TG: None
+QW: ZFO içinde...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_028]
+EN: I CAN FINALLY BE THE BEST IN THE WORLD.
+TG: Sonunda dünyanın en iyisi olabilirim.
+QW: Sonunda dünyadaki en iyisi olabilirim.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_029]
+EN: ASMOTOON.COM
+TG: None
+QW: ASMOTOON.COM
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_030]
+EN: OR... SO I THOUGHT.
+TG: Veya... BENİM DÜŞÜNCEM BUYDU.
+QW: VE... BU KADAR DÜŞÜNDÜM.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_031]
+EN: GAH...!!!
+TG: None
+QW: GAH...!!!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_032]
+EN: \begin{array}{l} \displaystyle \Delta \left( \frac{d}{t} \right) =\frac{v \times \Delta h}{t} \times \frac{v}{d} \div \frac{c}{d} = \frac{(c + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{v \times \Delta g}{d} \times \frac{x}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x + \Delta z}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\end{array}
+TG: None
+QW: \begin{array}{l} \displaystyle \Delta \left( \frac{d}{t} \right) =\frac{v \times \Delta h}{t} \times \frac{v}{d} \div \frac{c}{d} = \frac{(c + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{v \times \Delta g}{d} \times \frac{x}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x + \Delta z}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_033]
+EN: WHAT...?
+TG: None
+QW: NE...?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_034]
+EN: YOU'VE GOTTA BE KIDDING ME...
+TG: None
+QW: Bunu şaka mı ediyorsun...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter1_035]
+EN: NO... NOT NOW...!
+TG: Hayır... Şimdi değil...!
+QW: Hayır... Şimdi değil...!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_002]
+EN: ALLEN LV.13
+TG: None
+QW: ALLEN LV.13
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_003]
+EN: I ONLY CAME TO THE FOREST TO TEST OUT [CRAFT]...
+TG: Sadece [ZANAAT] ürünlerini denemek için ormana geldim...
+QW: Ormana sadece [YAPIM] yeteneğimi denemek için geldim...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_004]
+EN: ...BUT I CERTAINLY DIDN'T EXPECT TO RUN INTO A BEAST THIS MASSIVE.
+TG: ...AMA BU KADAR BÜYÜK BİR YARASAYLA KARŞILAŞACAĞIMI KESİNLİKLE BEKLEMİYORDUM.
+QW: ...AMA BUNCA KÜTLEDE BİR CANLILIKLA KARŞILAŞACAKTIN, BUNU KESİNLİKLE BEKLEMİYORDUM.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_006]
+EN: ROCK GOLEM LV.20
+TG: None
+QW: ROK İLETTANİ LV.20
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_007]
+EN: ASMOTOON.COM
+TG: None
+QW: ASMOTOON.COM
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_008]
+EN: GRO OOM!
+TG: None
+QW: GRO OOM!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_009]
+EN: (INTEREST-ING...
+TG: (İLGİNÇ...)
+QW: (İLGİ ÇEKİCİ...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_010]
+EN: NOT ONLY DOES IT BOAST OVERWHELMING DEFENSE...
+TG: SADECE ETKİLEYİCİ BİR SAVUNMASI YOK DİYE DEĞİL...
+QW: Sadece ezici bir savunmaya sahip olmasıyla da övünmüyor...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_011]
+EN: ...IT EVEN POSSESSES SELF-HEALING CAPABILITIES.
+TG: ...HATTA KENDİNİ TAMİR EDEBİLME ÖZELLİĞİ VAR.
+QW: ...Hatta kendi kendini iyileştirme yeteneğine de sahiptir.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_012]
+EN: I BOOSTED MY ATTACK POWER AS HIGH AS IT COULD GO...
+TG: Saldırı gücümü alabildiğim kadar yükselttim...
+QW: Saldırı gücümü maksimuma çıkardım...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_013]
+EN: ASSAULT RIFLE ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES > WEAPON RELOADS AUTOMATICALLY. IF THE MAGAZINE IS COMPLETELY EMPTI
+TG: None
+QW: TÜFEK SALDIRI GÜCÜ > 175 MÜNEKKEP KAPASİTESİ > 30 NOTLAR > SİLAH OTOMATİK YÜKLENİR. EĞER MAGAZİN TAMAMEN BOŞSA
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_014]
+EN: NOTES NEAPON RELOADS AUTOMATICALLY. HOWEVER THE MAGAZINE IS COMPLETELY EMPTIED,
+TG: NEAPON silahı otomatik olarak yeniden doldurulur. Ancak, şarjör tamamen boşalır.
+QW: NOTES, NEAPON otomatik olarak yeniden yüklenir. Ancak magazin tamamen boşaltılır.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_015]
+EN: NOTES: 7. WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETELY EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECONDS.
+TG: NOTLAR: 7. SİLAH OTOMATİK OLARAK YENİDEN DOLUYOR. ANCAK, ŞARJÖR TAMAMEN BOŞALIRSA, BİRKAÇ SANIYE BOYUNCA ATEŞ ETME İŞLEVİ DEVRE DIŞI KALIR.
+QW: NOTLAR: 7. Silah otomatik olarak yeniden doldurulur. Ancak, magazin tamamen boşaltılırsa, saldırı birkaç saniye boyunca devre dışı kalır.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_016]
+EN: ...BUT THIS IS STILL GOING TO BE A TOUGH FIGHT.
+TG: ...AMA BU HALA ÇOK ZOR BİR MÜCADELE OLACAK.
+QW: ...AMA BU HÂLÂ ZORLUK TAŞIYAN BİR MÜCADELE OLACAK.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_017]
+EN: ACTUALLY, THIS IS PERFECT.
+TG: Aslında, bu mükemmel.
+QW: Aslında bu mükemmel.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_018]
+EN: TIME TO TEST OUT THAT NEW MODIFICATION!
+TG: Şimdi o yeni modifikasyonu deneme zamanı!
+QW: YENİ OYUN DEĞİŞİKLİĞİNİ SINAMAK ZAMANI!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_019]
+EN: ASMOTOON.COM
+TG: None
+QW: ASMOTOON.COM
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_020]
+EN: 《SLOTTED》ASSAULT RIFLE
+TG: None
+QW: SLOTTED ASALTI RİFLİ
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_021]
+EN: ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES WEAPON RELOADS AUTOMATIC HOWEVER, IF THE MAGAZINE IS EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECONDS.
+TG: Saldırı Gücü > 175
+Mermi Kapasitesi > 30
+NOT: Silah otomatik olarak yeniden doldurulur. Ancak, şarjör boşaldığında, birkaç saniye boyunca saldırı yapamazsınız.
+QW: SALGI GÜCÜ > 175 MÜKERRER YÜK SİGİ > 30 NOTLAR: WEAPON OTOMATİK YENİDEN YÜKLENİR; ANCAK MAGAZİN BOŞALTIKÇA, SALGI İŞLEVİ BİRKAÇ SANİYE İÇİN KESİLİR.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_022]
+EN: WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETE EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECONDS.
+TG: Silah otomatik olarak yeniden doldurulur. Ancak, şarjör tamamen boşaldığında, birkaç saniye boyunca ateş etme işlemi devre dışı kalır.
+QW: Silah otomatik olarak yeniden doldurulur. Ancak, magazin tamamen boşaltılırsa, saldırı birkaç saniye boyunca devre dışı kalır.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_023]
+EN: I USED [CRAFT] TO ADD A MAGIC STONE SLOT TO THIS RIFLE...
+TG: Bu tüfeğe, [CRAFT] kullanarak bir sihir taşı yuvası ekledim...
+QW: Bu tüfeğe [CRAFT] kullanarak bir sihir taşı yuvası ekledim...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_024]
+EN: ...SO LOADING A STONE INTO IT SHOULD GIVE ITS OVERALL FIREPOWER A MASSIVE BOOST.
+TG: ...Yani içine bir taş yerleştirmek, genel ateş gücünü önemli ölçüde artırmalı.
+QW: ...BİR TAŞ YÜKLENMESİ, GENEL ATEŞ GÜCÜNE KATILIKLI BİR ARTIŞ SAĞLAMALIDIR.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_026]
+EN: INVENTORY.
+TG: ENVANTER.
+QW: EŞYA LİSTESİ.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_027]
+EN: GOLEM'S MAGIC STONE
+TG: None
+QW: GÖLEMİN SIHİR TAŞI
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_028]
+EN: A GOLEM'S MAGIC STONE I PICKED UP ON THE WAY HERE.
+TG: Yolda bulduğum, bir Golem'in büyülü taşı.
+QW: Buraya gelirken bulduğum bir Golem Büyü Taşı.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_029]
+EN: LET'S TEST IT OUT WITH THIS.
+TG: Şunu kullanarak deneyelim.
+QW: Şunu deneyelim.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_030]
+EN: 〈PIERCE〉ASSAULT RIFLE ATTACK POWER〉175 AMMO CAPACITY〉30 SLOT〉NORMAL-GRADE GOLEM'S
+TG: İşte çeviri:
+
+〈PIERCE〉HÜCUM TÜFEĞİ, SALDIRI GÜCÜ〉175, MERT GÜCÜ〉30, NORMAL KALİTELİ GOLEM'İN.
+QW: 〈PIERCE〉ASALTI KALIŞI SALDIRI GÜCÜ〉175 MÜKERRER SAYISI〉30 KUTU〉NORMAL SINIF GÖLEMIN
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_031]
+EN: SLOI> NORMAL-GRADE GOLEM'S MAGIC STONE
+TG: SLOI> SİRADAN SEVİYEDE GOLEM'İN BİLGİ TAŞI
+QW: SLOI> NORMAL SINIF GÖLEMIN SIHİR TAŞI
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_032]
+EN: NOIES7 WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETELY EMPTY, ATTACKING IS DISABLED FOR SEVERAL SECONDS. IF THE EQUIPPED MAGIC STONE IS DEPLETED OF MANA, THE MAGIC STONE EFFECT WILL BE LOST.
+TG: NOIES7 silahı otomatik olarak yeniden doldurulur. Ancak, şarjör tamamen boşaldığında, birkaç saniye boyunca ateş etme işlemi devre dışı kalır. Eğer takılı olan sihir taşı mana'sını tükettiğinde, sihir taşının etkisi kaybolur.
+QW: NOIES7 silahı otomatik olarak yeniden doldurulur. Ancak, magazen tamamen boş olduğunda, saldırı birkaç saniye boyunca devre dışı kalır. Ekiplenen sihir taşı mana tükendiğinde, sihir taşı etkisi kaybolur.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter2_033]
+EN: PERFECT! THE MAGIC STONE'S EFFECT WAS APPLIED!
+TG: Mükemmel! Büyülü taşın etkisi uygulandı!
+QW: MÜKEMMEL! SIHİR TAŞININ ETKİSİ UYGULANDI!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_001]
+EN: ADVENTURERS' GUILD HEADQUARTERS, CONFERENCE ROOM
+TG: MACERAPERESTLER DERNEĞİ MERKEZİ, TOPLANTI ODASI
+QW: Macera Tüccarları Birliği Merkezi, Konferans Odası
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_002]
+EN: YOU CAN RELEASE HIM NOW.
+TG: Şimdi onu serbest bırakabilirsiniz.
+QW: Şimdi onu serbest bırakabilirsiniz.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_003]
+EN: ALLEN-KUN, WAS IT...?
+TG: None
+QW: ALLEN-KUN, BU MU...?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_004]
+EN: SORRY TO STARTLE YOU.
+TG: Sizi korkuttuğum için üzgünüm.
+QW: KORKUTMAK İÇİN ÜZGÜNÜM.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_005]
+EN: ASMOTOON.COM
+TG: None
+QW: ASMOTOON.COM
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_006]
+EN: YOUR RAPID LEVEL GROWTH CAUGHT OUR ATTENTION, YOU SEE.
+TG: Seviyenizin çok hızlı bir şekilde yükselmesi dikkatimizi çekti, gördüğünüz gibi.
+QW: Hızlı seviye gelişiminiz dikkatimizi çekti, görüyorsunuz.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_007]
+EN: WE REALLY WANTED TO SPEAK WITH YOU DIRECTLY.
+TG: Sizinle doğrudan konuşmak istiyorduk.
+QW: SİZLE DOĞRUDAN KONUŞMAK İSTİYORDUK.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_008]
+EN: QUITE THE WELCOME... BUT WHATEVER.
+TG: Çok güzel bir karşılama... Ama neyse."
+
+Veya, biraz daha samimi bir ifadeyle:
+
+"Ne kadar da güzel bir karşılama... Ama boşver.
+QW: Çok hoşgeldiniz... ama neyse.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_009]
+EN: SO... WHAT DO YOU WANT WITH ME?
+TG: Peki... Benden ne istiyorsun?
+QW: Peki... Benden ne istiyorsun?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_010]
+EN: F-FIRST OF ALL!
+TG: Öncelikle!" veya "Başlangıç olarak!
+QW: İLK OLARAK!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_011]
+EN: I'd like you to explain the "GUN" that you use.
+TG: None
+QW: "KULLAN" ettiğiniz "KULLAN"'ı açıklayabilir misiniz?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_012]
+EN: THE DETAILS OF THE GUN, HUH...
+TG: Silahın detayları mı...
+QW: Silahın detayları, huh...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_014]
+EN: EVEN IF I TOLD YOU, YOU PROBABLY WOULD NOT UNDERSTAND.
+TG: Sana anlatsam bile, muhtemelen anlamazsın.
+QW: Bile olsa bile, muhtemelen anlamazsın.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_015]
+EN: IT'S A BLUNDLE OF TECHNOLOGY THAT DOESN'T EXIST IN THIS WORLD.
+TG: Bu, bu dünyada bulunmayan, hayal ürünü bir teknoloji.
+QW: Bu, bu dünyada mevcut olmayan bir teknoloji yığını.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_016]
+EN: HMPH.
+TG: None
+QW: HMPH.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_017]
+EN: ASMOTOON.COM
+TG: None
+QW: ASMOTOON.COM
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_018]
+EN: BIG WORDS FOR SOMEONE WHO'S JUST A "CRAFTER."
+TG: None
+QW: BİRİNE YALAN SÖYLEYEN KİŞİ İÇİN BÜYÜK KELİMELER.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_019]
+EN: THAT SO-CALLED GLN OF YOURS PROBABLY ISN'T ALL THAT IMPRESSIVE, IS IT?
+TG: Sizin o meşhur dediğiniz GLN'iniz muhtemelen o kadar da etkileyici değil, değil mi?
+QW: O "meşhur" GLN'iniz muhtemelen o kadar etkileyici değil, değil mi?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_020]
+EN: AH.
+TG: None
+QW: AH.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_021]
+EN: SO YOU'RE TRYING TO PROVOKE ME INTO GIVING YOU INFO, HUH...
+TG: Anlaşıldı, beni kışkırtarak benden bilgi almaya çalışıyorsun, ha?
+QW: Yani beni bilgi vermeye itmeye çalışıyorsun, ha...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_022]
+EN: CRAFT.
+TG: None
+QW: ZANAAT.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_023]
+EN: THEN I'LL GIVE YOU THE SAME GUN I HANDED OUT TO THE FARMERS.
+TG: O zaman size, çiftçilere verdiğim aynı silahı vereceğim.
+QW: Sonra size çiftçilere verdiğim aynı silahı vereceğim.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_025]
+EN: FEEL FREE TO ANALYZE IT AS MUCH AS YOU WANT.
+TG: İstediğiniz kadar analiz edebilirsiniz.
+QW: İstediğiniz kadar analiz etmeye özgürsünüz.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_026]
+EN: 《MASS-PRODUCED》ASSAULT RIFLE
+TG: "Seri Üretimli Hücum Tüfeği" veya "Toplu Üretilen Hücum Tüfeği"
+
+Her iki çeviri de doğru ve yaygın olarak kullanılabilir. "Seri üretim" ve "toplu üretim" kelimeleri aynı anlama gelir.
+QW: 《MASS-PRODUCED》ASALTI RİFLİ
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_027]
+EN: ATTACK POWER > 50 * ALLEN'S LEVEL MAGAZINE CAPACITY > 30 NOTES
+TG: None
+QW: SALDIRI GÜCÜ > 50 * ALLEN'İN SEVİYESİ DERGİ KAPASİTESİ > 30 NOTLAR
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_028]
+EN: MAGAZINE CAPACITY » 30 NOTES » AUTOMATICALLY RELOADS, BUT CANNOT ATTACK FOR A FEW SECONDS ONCE THE MAGAZINE IS EMPTY.
+TG: Şarjör Kapasitesi: 30
+Notlar: Otomatik olarak şarjörü doldurur, ancak şarjör boşaldığında birkaç saniye boyunca ateş edemez.
+QW: MAGAZINE KAPASİTESİ » 30 NOT » OTOMATİK YENİDEN YÜKLENİR, FAKAT MAGAZİN BOŞALDIKTAN SONRA BİRKAÇ SANİYE SÜRECEK ATAK YAPAMAZ.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_029]
+EN: WHA...?!
+TG: None
+QW: DÜNYA SAĞLIK ÖRGÜTÜ...?!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_030]
+EN: ATTACK POWER 50?!
+TG: ATTACK POWER 50?!
+QW: ATTACK POWER 50?!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_031]
+EN: THAT'S ON PAR WITH A KNIGHT OF THE SAME LEVEL!
+TG: Bu, aynı seviyedeki bir şövalyenin gücüne/seviyesine eşdeğer!
+QW: BU, AYNI SEVİYEDEKİ BİR ŞİVALİHİN YAPABİLECEĞİ KADAR!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter3_032]
+EN: AND IT CAN FIRE 30 ROUNDS IN A ROW... THAT'S IMPOSSIBLE...!
+TG: Ve bu, ard arda 30 mermi atabiliyor... Bu imkansız!
+QW: VE ARKA ARAYA 30 MERMİ ATABİLİR... BU IMKANSIZDIR...!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_001]
+EN: IN FRONT OF THE WOLF MINE DUNGEON
+TG: "KURDUN MAĞARASININ ÖNÜNDE" veya "KURDUN MAĞARASI GİRİŞİNDE" gibi çeviriler kullanılabilir.
+
+Hangi çevirinin daha uygun olduğu, bağlama bağlıdır. Örneğin, bir oyun veya hikaye bağlamında, "Kurdun Mağarası Girişinde" daha doğal durabilir.
+QW: KURT MADEN MAZARININ ÖNÜNDE
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_002]
+EN: ALLEN-SAN, IT'S TOO DANGEROUS HERE.
+TG: ALLEN-SAN, BURASI ÇOK TEHLİKELİ.
+QW: Allen-San, burada çok tehlikeli.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_003]
+EN: YOU'RE ONLY LEVEL FIFTEEN...
+TG: Sadece on beşinci seviyedesin...
+QW: Sadece on beşinci seviyesindesin...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_004]
+EN: ...BUT THE RECOMMENDED LEVEL FOR THIS DUNGEON IS TWENTY-FIVE.
+TG: ...AMA BU ZİNDAN İÇİN ÖNERİLEN SEVİYE YİRMİ BEŞTİR.
+QW: ...Fakat bu labirent için önerilen seviye 25'tir.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_005]
+EN: IT'S FINE.
+TG: None
+QW: SORUN YOK.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_006]
+EN: I PLANNED ON HUNTING HERE FROM THE BEGINNING ANYWAY.
+TG: Aslında, burayı baştan beri avlanmak için planlamıştım.
+QW: Baştan beri burada avlanmayı planlamıştım zaten.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_007]
+EN: ASMOTOON.COM
+TG: None
+QW: ASMOTOON.COM
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_008]
+EN: WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?
+TG: Dur bir dakika, sen ciddi misin, bunu tek başına mı yapıyorsun?"
+
+Veya daha samimi bir ifadeyle:
+
+"Hey, ciddi misin? Bunu tek başına mı üstleniyorsun?
+QW: Hey bekle, bu solo'yu gerçekten tek başına çözmeye mi çalışıyorsun?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_009]
+EN: TACKLING THIS SOLO?
+TG: Bu işi tek başına mı üstleniyorsun?
+QW: Bunu yalnızca mı çözüyorsun?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_010]
+EN: WHY DON'T YOU SCROUNGE UP A PARTY?
+TG: None
+QW: Neden bir parti düzenme?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_012]
+EN: THERE ARE PLENTY OF SCRUBS AROUND HERE WHO'D BE RIGHT UP YOUR ALLEY.
+TG: Burada, senin tarzına çok uygun birçok kişi var. / Burası seninle çok iyi anlaşacak birçok insanla dolu.
+QW: Burada seninle aynı fikirde olan çok sayıda genç kız var.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_013]
+EN: AH... SO YOU'RE GOING IN WITH A PARTY.
+TG: Ah... demek ki bir grupla gidiyorsunuz.
+QW: AH... YANLIŞ ANLADIM, PARTİYE GİDİYORSUNUZ.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_014]
+EN: WITH A PARTY.
+TG: None
+QW: PARTİYLE BİRLİKTE.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_015]
+EN: FOR A LEVEL 65, YOU'RE PRETTY USELESS IF YOU ARE MOVING IN A HERD.
+TG: 65. seviyedeki bir karakter için, bir grup içinde hareket etmek oldukça işe yaramaz olmanıza neden olabilir.
+QW: Seviye 65 için, sürü halinde hareket ediyorsanız oldukça faydasızsınız.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_016]
+EN: YOU LITTLE-!!
+TG: None
+QW: Küçük şey!!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_018]
+EN: WELL, DO WHATEVER YOU WANT.
+TG: None
+QW: İSTEDİĞİNİ YAP.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_019]
+EN: I COULDN'T CARE LESS IF YOU WANT TO PLAY PACK ANIMAL WITH YOUR FRIENDS.
+TG: Eğer arkadaşlarınızla 'pack animal' gibi davranmak istiyorsanız, beni hiç ilgilendirmez."
+
+Veya daha samimi bir ifadeyle:
+
+"Arkadaşlarınızla nasıl vakit geçirdiğiniz, beni umursamıyor.
+QW: Eğer arkadaşlarınızla Pak Hayvanı oynamak istiyorsanız, bana hiç umrunda değilim.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_020]
+EN: WAIT A MINUTE!
+TG: Bir dakika!
+QW: Bir dakika!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_021]
+EN: ASMOTOON.COM
+TG: None
+QW: ASMOTOON.COM
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_022]
+EN: I'm coming with you!
+TG: Ben de seninle geliyorum!
+QW: Senle birlikte geliyorum!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_023]
+EN: PARTY INVITATION
+TG: Davet
+
+or
+
+Parti Daveti
+QW: PARTİ DAVETİ
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_026]
+EN: I'll pass.
+TG: None
+QW: Ben geçeceğim.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_027]
+EN: YOU HAVE BEEN INVITED TO A PARTY BY EMMA (LV. 20 PRIEST).
+TG: Emma (20. seviye Rahibe) sizi bir partiye davet etti.
+QW: Emma (20. Seviye Rahip) tarafından bir partiye davetlisiniz.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_028]
+EN: ACCEPT
+TG: Kabul et.
+QW: KABUL
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_029]
+EN: DECLINE
+TG: None
+QW: REDDETMEK
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_030]
+EN: W-WAIT A SECOND!!
+TG: Bir saniye! / Durun bir dakika!
+QW: V-VAKIT DUR!!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_031]
+EN: NO, SERIOUSLY!
+TG: Ciddi söylüyorum!" veya "Şaka yapmıyorum!
+QW: HAYIR, CİDDİYLE!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_032]
+EN: PLEASE LET ME COME ALONG!
+TG: Lütfen beni de yanınıza alın!
+QW: Lütfen beni de yanınıza alın!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_033]
+EN: I'M PARTIALLY RESPONSIBLE FOR HOW THINGS TURNED OUT.
+TG: Olanların nasıl sonuçlandığı konusunda benim de bir sorumluluğum var."
+
+Veya daha vurgulu bir şekilde:
+
+"Olanların böyle sonuçlanmasında benim de payım var.
+QW: Nasıl sonuçlandığı konusunda kısmen sorumluyum.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter4_034]
+EN: YOU HAVE BEEN INVITED TO A PARTY BY EMMA (LV. 20 PRIEST).
+TG: Emma (20. seviye Rahibe) sizi bir partiye davet etti.
+QW: Emma (20. Seviye Rahip) tarafından bir partiye davetlisiniz.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_001]
+EN: JUST AS I PLANNED
+TG: Tam planladığım gibi.
+QW: İstediğim gibi oldu
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_002]
+EN: CRAFT!
+TG: None
+QW: YARATICILIK!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_003]
+EN: CATCH HIM!
+TG: Onu yakala!
+QW: KAPTA O!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_004]
+EN: 1-1T STOPPED ...?
+TG: 1-1T STOPPED ...?
+QW: 1-1T STOPPED ...?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_005]
+EN: DIDN'T I TELL YOU TO BUY ME
+TG: Sana almamı söylememiş miydim?
+QW: Sana almayı söylemedim mi?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_006]
+EN: SOME TIME AT THE BEGINNING?
+TG: None
+QW: BAŞLANGIÇTA BİR ZAMAN MI?
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_007]
+EN: INCRE- DIBLE...
+TG: None
+QW: İNCREDIBLE...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_008]
+EN: I DIDN'T KNOW CRAFT COULD BE USED LIKE THIS...!
+TG: None
+QW: Craft'ın LIKE THIS... diye bir kullanımının olabileceğini bilmiyordum!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_009]
+EN: I'M GLAD I TESTED OUT 'CRAFT' AT A DISTANCE.
+TG: None
+QW: 'CRAFT' yetenekini uzaktan test ettiğimi için mutluyum.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_010]
+EN: NOW THEN...
+TG: None
+QW: ŞİMDİ O HALDE...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_011]
+EN: A WERE-WOLF THAT CAN'T DODGE BECAUSE ITS LEGS ARE BOUND...
+TG: Bacakları bağlandığı için kaçamayan bir kurt adam...
+QW: DOLANMIŞ BACAKLARI YÜZÜNDEN KAÇAMAYAN BİR KURTADAM...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_012]
+EN: (IS NOTHING BUT A WEAKLING.)
+TG: (SADECE ZAYIF BİR KİŞİ.)
+QW: (HEPSİ ZİHİNSEL OLARAK ZAYIF.)
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_013]
+EN: ASMOTOON.COM
+TG: None
+QW: ASMOTOON.COM
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_014]
+EN: (FAREWELL.)
+TG: (GÜLE GÜLE.)
+QW: (Veda.)
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_015]
+EN: PHEW...
+TG: None
+QW: HİHİHİ...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_017]
+EN: ALLEN-SAN! I FINISHED OFF THE QUEEN, TOO!
+TG: ALLEN-SAN! BEN DE KIZI YENİLDİM!
+QW: ALLEN-SAN! KRALİÇAYI DA SONA ETTİM!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_018]
+EN: GOOD.
+TG: İyi.
+QW: İYİ.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_019]
+EN: CONGRATULATIONS! YOU HAVE CLEARED THE <WOLF MINE> CLEAR TIME > 9M 48S (NEW ALL-TIME RECORD!)
+TG: TEBRİKLER! <WOLF MINE> seviyesini geçtiniz. Geçiş süreniz: 9 dakika 48 saniye (YENİ TÜM ZAMANLAR REKORU!)
+QW: TEBRİKLER! <KURT MADENİ> ZORUNLU ZAMANINI 9M 48S ALTINDA TAMAMLADIN (YENİ REKOR!)
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_020]
+EN: ALLEN-SAN, YOU SET AN INCREDIBLE RECORD!
+TG: ALLEN-SAN, İNANILMAZ BİR REKOR KIRDINIZ!
+QW: ALLEN-SAN, EŞSİZ BİR REKORD KURDUNUZ!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_021]
+EN: ...I'll COME BACK SOLO TOMORROW TO BREAK IT AND TAKE THE TOP SPOT FOR MYSELF.
+TG: ...Yarın tek başıma geri geleceğim, onu parçalayacağım ve zirveye kendim yerleşeceğim.
+QW: ...Yarın tek başıma geri döneceğim, bunu çözeceğim ve zirveyi kendime alacağım.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_022]
+EN: HOW MEAN!
+TG: None
+QW: Ne kadar saçma!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_023]
+EN: WELL THEN... NOW THAT WE'VE
+TG: Peki... ŞİMDİ Kİ İŞİN GELDİK... / O ZAMAN... ARTIK...
+QW: Peki o zaman... Şimdi ki
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_024]
+EN: WELL THEN... NOW THAT WE'VE CLEARED IT, LET'S HEAD BACK.
+TG: Peki... Şimdi her şeyi netleştirdiğimize göre, geri dönelim.
+QW: Peki o halde... Şimdi bu konuyu hallettik, geri dönelim.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_025]
+EN: YES!
+TG: Evet!
+QW: EVET!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_026]
+EN: THAT'S THE END OF THAT.
+TG: İşte bu kadar. / Bu konu burada kapansın. / Artık yeter.
+QW: BUNUN SONU O.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_027]
+EN: TH-THANK YOU SO MUCH!
+TG: ÇOK TEŞEKKÜR EDERİM!
+QW: TEŞEKKÜRLER!
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_028]
+EN: ALLEN-SAN, THIS GUN IS...
+TG: ALLEN-SAN, BU TABANCA...
+QW: ALLEN-SAN, BU TABANCA...
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_029]
+EN: ll,
+TG: None
+QW: ll,
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_030]
+EN: OH, FEEL FREE TO USE IT AS YOU LIKE.
+TG: Elbette, istediğiniz gibi kullanabilirsiniz. / Lütfen, istediğiniz gibi kullanmaktan çekinmeyin.
+QW: OH, İSTEDİĞİNİZ KİŞİSELLEŞTİRMEYİ YAPIN.
+WINNER: [ ]
+NOTE: [ ]
+
+[god_tier_crafter_chapter5_031]
+EN: ISN'T THAT GUY... THE ADVENTURER WHO WAS ARGUING WITH LUCAS?
+TG: Şu adam... Lucas ile tartışan maceraperest mi?
+QW: O adam değil mi... Lucas ile tartışan maceracı?
+WINNER: [ ]
+NOTE: [ ]

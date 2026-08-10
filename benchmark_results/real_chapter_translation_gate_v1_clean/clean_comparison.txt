@@ -1,0 +1,1170 @@
+REAL CHAPTER TRANSLATION GATE V1 — CLEAN SUBSET COMPARISON
+======================================================================
+Valid Story Items: 226 / 300 (Excluded 74 noise items)
+
+Item #001 [axe_god_chapter1_003] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: THANKS FOR EARLIER.
+  TG:     
+  Qwen:   Daha önceki için teşekkürler.
+
+Item #002 [axe_god_chapter1_005] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!
+  TG:     Görünüşe göre param boşa gitmedi. Değerinin karşılığını fazlasıyla veriyorsun, çocuk! / Değerin tartışılmaz, çocuk!
+  Qwen:   Görünüşe göre paranın boşa gitmedi. Her kuruşuna değer, çocuk!
+
+Item #003 [axe_god_chapter1_007] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT.
+  TG:     Genç Usta Yli, sadece boşa gitmekten kurtulmadık, tam tersine büyük bir başarı elde ettik. / Genç Usta Yli, sadece bir kayıp yaşamamaktan öte, büyük bir şans yakaladık.
+  Qwen:   GENÇ MASTER YLI, SİRF BOŞA GİTMEDEN DAHA FAZLASI—BİZ BÜYÜK KAZANÇ YAPTIK.
+
+Item #004 [axe_god_chapter1_008] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: JUDGING BY LLO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+  TG:     Llo Tian'ın şu anki performansına bakılırsa, okçuluk konusunda uzmanlaşmış bir yetenek kullanıcısı ile neredeyse aynı seviyede.
+
+(Burada yetenek kullanıcısı ve 1. seviye yerine uygun bir kelime veya kelimeler gelmesi gerekir. Örneğin, "atlet" veya "sporcu" gibi.)
+  Qwen:   Llo Tian'ın şu anki performansına bakılırsa, yaylı atıcılığa uzmanlaşmış bir 1. seviye yetenek kullanıcısı ile neredeyse eşdeğer.
+
+Item #005 [axe_god_chapter1_009] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+  TG:     GENÇ EFENDİ Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMALİYIZ.
+  Qwen:   GENÇ HANZİM Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMALIYIZ.
+
+Item #006 [axe_god_chapter1_011] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+  TG:     Bu gri kurt yaratıklarının, önümüzde bulunan Blackwind Ravine bölgesinde faaliyet gösterdiği düşünülüyor.
+  Qwen:   Bu gri kurt yaratıkları, biziň öndə Blackwind Ravine öndə faal olmalı.
+
+Item #007 [axe_god_chapter1_012] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+  TG:     Burada ortaya çıkmaları muhtemelen iyi bir alamettir.
+  Qwen:   Burada belirmelerinin muhtemelen iyi bir işaret olmadığı gerçeği.
+
+Item #008 [axe_god_chapter1_013] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: HI SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+  TG:     San, sen en hızlısın. Öndeki yolu keşfet.
+  Qwen:   Merhaba San, en hızlısın. Önümüzdeki yolu keşfet.
+
+Item #009 [axe_god_chapter1_014] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: IF ANYTHING HAPPENS, COME BACK AND REPORT IMMEDIATELY.
+  TG:     Herhangi bir sorun olursa, hemen geri gelin ve durumu bildirin.
+  Qwen:   Eğer bir şey olursa, geri dön ve derhal rapor ver.
+
+Item #010 [axe_god_chapter1_015] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: ROGER, CAPTAIN.
+  TG:     ROGER, KAPTAN.
+  Qwen:   ROGER, KAPTAN.
+
+Item #011 [axe_god_chapter1_017] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: EXTRERNE SPEED
+  TG:     
+  Qwen:   DİŞİ HIZ
+
+Item #012 [axe_god_chapter1_018] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+  TG:     Sakin ol, çocuk. Sen de az önce gördün işte.
+  Qwen:   Sakin ol, çocuk. Kendin de yeni gördün.
+
+Item #013 [axe_god_chapter1_019] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+  TG:     KAPTAN Gao Yuan, DÜŞÜNÜLEMEYECEK KADAR BAŞARILI BİR OYUNCU, VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL.
+  Qwen:   KAPTEN Gao Yuan BİR ZİRVE 1. seviye yetenek kullanıcısıDIR VE EKİBİNİN KALAN ÜYELERİ DE KOLAY GELİNECEKLER DEĞİLDİR.
+
+Item #014 [axe_god_chapter1_020] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: ORDINARY DANGERS WON'T TROUBLE THEM.
+  TG:     Sıradan tehlikeler onları rahatsız etmeyecek.
+  Qwen:   Sıradan tehlikeler onları rahatsız etmeyecek.
+
+Item #015 [axe_god_chapter1_021] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: I'M USED TO IT.
+  TG:     
+  Qwen:   TO IT'e alıştım.
+
+Item #016 [axe_god_chapter1_022] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: IN THIS ERA OF MONSTERS INVASIONS,
+  TG:     Bu canavarların istilası döneminde,
+  Qwen:   MONSTRLARIN İSTILASI BÜYÜK BİR DÖNEMDE,
+
+Item #017 [axe_god_chapter1_025] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+  TG:     
+  Qwen:   Sayısız uzaysal gizli âlemler tüm dünyada oluşmuştur.
+
+Item #018 [axe_god_chapter1_026] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: WITHIN THESE SECRET REALMS, DANGER LURKS EVERYWHERE.
+  TG:     
+  Qwen:   Bu gizli âlemlerin içinde tehlike her yerde gizlenmiştir.
+
+Item #019 [axe_god_chapter1_027] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: YET THEY ALSO CONCEAL ENDLESS TREASURES.
+  TG:     Ancak aynı zamanda sayısız hazineleri de saklarlar.
+  Qwen:   Ancak sonsuz hazineleri de gizlerler.
+
+Item #020 [axe_god_chapter1_028] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: MY NAME IS LHO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.
+  TG:     Adım Lho Tian. Ben bir yetenek kullanıcısı değilim, ben bir gizli âlem rehberiim.
+  Qwen:   ADIM LHO TIAN. BEN BİR yetenek kullanıcısı DEĞİLİM—BEN BİR gizli âlem rehberiİM.
+
+Item #021 [axe_god_chapter1_029] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: I HEARD THAT THREE DAYS AGO, A RED GIANT WIELDING A BATTLE AXE APPEARED IN THE BLACKSTONE SECRET REALM.
+  TG:     Üç gün önce, BLACKSTONE'daki bir yerde, savaş baltası taşıyan, devasa kırmızı bir figürün ortaya çıktığını duydum.
+  Qwen:   Üç gün önce, Kırmızı Dev'in bir savaş mekiğiyle Blackstone gizli âlemde belirdiğini duydum.
+
+Item #022 [axe_god_chapter1_030] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: IT KILLS BOTH MONSTERS AND ABILITY USERS ON SIGHT. IT'S EXTREMELY BRUTAL.
+  TG:     Hem canavarlara hem de ABİLİTE USERS ON SIGHT'e hasar verir. Son derece acımasızdır.
+  Qwen:   İT hem canavarları hem de yetenekleri öldürür USERS ON SIGHT. ÇOK KATİ.
+
+Item #023 [axe_god_chapter1_031] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: AND THIS RICH SECOND-GENERATION HEIR, WANG YU, IS MY EMPLOYER.
+  TG:     Ve bu zengin, ikinci kuşak varis olan, WANG Yu, benim işverendim.
+  Qwen:   VE BU ZENGİN İKİNCİ NESİL MİRASÇISI, WANG Yu, BENİM İŞVERENİM.
+
+Item #024 [axe_god_chapter1_032] (Axe God: The Road to Invincibility / Chapter 1)
+  Source: IT'S PROBABLY TRUE.
+  TG:     Muhtemelen doğrudur.
+  Qwen:   Muhtemelen doğru.
+
+Item #025 [axe_god_chapter2_009] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: A BEAST IS STILL JUST A BEAST!
+  TG:     Bir canavar her zaman sadece bir canavardır!
+  Qwen:   Bir canavar her zaman sadece bir canavardır!
+
+Item #026 [axe_god_chapter2_010] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?
+  TG:     Aynı numarayı benden ikinci kez de mi bekliyorsun?
+  Qwen:   Aynı hileyi ikinci kez bana işleteceğini sanıyorsun?
+
+Item #027 [axe_god_chapter2_012] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: DIE, YOU BEAST!
+  TG:     
+  Qwen:   ÖL, YARANSIZ!
+
+Item #028 [axe_god_chapter2_014] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: TRYING TO RUN?
+  TG:     TRYING TO RUN?
+  Qwen:   TRYING TO RUN?
+
+Item #029 [axe_god_chapter2_017] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: THIS FEELING OF WIELDING SUCH POWER IS TRULY INTOXICATING!
+  TG:     Bu kadar gücü elinde bulundurmanın hissi gerçekten sarhoş edici!
+  Qwen:   Bu güçle hükmetme hissi gerçekten sarhoş edici!
+
+Item #030 [axe_god_chapter2_018] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: UNFORTUNATELY, THE BATTLE AXE CONTAINS A VIOLENT AURA THAT PREVENTS ME FROM STAYING TRANSFORMED FOR LONG. OTHERWISE, I'D BECOME A MONSTER THAT KNOWS ONLY SLAUGHTER.
+  TG:     Ne yazık ki, bu savaş baltası, üzerimde uzun süre bu şekilde kalmamı engelleyen şiddetli bir enerjiye sahip. Aksi takdirde, sadece katliamtan başka bir şey bilmeyen bir canavara dönüşürdüm.
+  Qwen:   Ne yazık ki, Savaş Balta'sı şiddetli bir aura içerir ve bu da dönüşümümün uzun süre devam etmemini engeller. Aksi takdirde, sadece katliamı bilen bir canavar olurdu.
+
+Item #031 [axe_god_chapter2_019] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: THESE PEOPLE ARE PRETTY BADLY INJURED. THAT'S GOING TO BE TROUBLESOME.
+  TG:     Bu insanlar oldukça ciddi şekilde yaralanmış. Bu durum başımıza büyük işler açacak.
+  Qwen:   Bu insanlar oldukça ağır yaralandı. Bu sorun yaratacak.
+
+Item #032 [axe_god_chapter2_020] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: IT'S ACTIALLY A MID-GRADE HEALING POTION. WHAT A BUNCH OF RICH FOLKS.
+  TG:     Aslında bu, orta seviyede bir iyileştirme iksiri. Ne kadar da zengin insanlar var.
+  Qwen:   Aslında orta seviye bir iyileştirme iksiri. Ne kadar zengin insanlar.
+
+Item #033 [axe_god_chapter2_021] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: WITH MEDICINE THIS GOOD, IT'D BE HARD TO DIE EVEN IF THEY WANTED TO.
+  TG:     Bu kadar iyi bir ilaç varken, insanlar ölmek isteseler bile zorlanırdı.
+  Qwen:   Bu kadar iyi bir tıbbın olduğu bir yerde, isteseler bile ölmek zor olurdu.
+
+Item #034 [axe_god_chapter2_023] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: BLACKROCK CITY INSPECTOR - JIANG BIAO
+  TG:     BLACKROCK ŞEHİR İNCELEYİCİSİ - JIANG BIAO
+  Qwen:   SİYAH TAŞ KENTİ MUAYENEÇİ - JIANG BIAO
+
+Item #035 [axe_god_chapter2_024] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: LHO TIAN... IT REALLY IS YOU?!
+  TG:     LHO TIAN... SEN MİSİN GERÇEKTEN?!
+  Qwen:   LHO TIAN... GERÇEKTEN SEN MİSİN?!
+
+Item #036 [axe_god_chapter2_028] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: INSPECTOR, IS THERE A PROBLEM?
+  TG:     MÜFETTİŞ, BİR SORUN VAR MI?
+  Qwen:   MÜFETTİŞ, BİR SORUN VAR MI?
+
+Item #037 [axe_god_chapter2_029] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: NOTHING MUCH! I WAS PATROLLING NEARBY JUST NOW AND SENSED A BURST OF VIOLENT ENERGY.
+  TG:     ÇOK BİR ŞEY YOK! ŞİMDİ TAM DA YAKINLARDA PATROL ATIYORDUM VE ŞİDDETLİ BİR ENERJİ PATLAMASI HİSSETTİM.
+  Qwen:   Çok önemli bir şey yok! Sadece yakın çevrede patrouyeliyordum ve ani bir şiddetli enerji patlaması hissettim.
+
+Item #038 [axe_god_chapter2_031] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: DID THAT MYSTERIOUS AXE-WIELDING GIANT APPEAR?
+  TG:     O gizemli, balta kullanan dev ortaya çıktı mı?
+  Qwen:   O gizemli meçhul kılıçlı dev göründü mü?
+
+Item #039 [axe_god_chapter2_032] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: THAT'S RIGHT. OUR TEAM ENCOUNTERED A MUTATED MONSTER AND WAS NEARLY WIPED OUT.
+  TG:     Doğru. Ekibimiz, mutasyona uğramış bir canavarla karşılaştı ve neredeyse tamamen yok oldu.
+  Qwen:   HAKLIYIZ. EKİBİMİZ MÜTEHARİP BİR CANLILIKLA KARŞILAŞTI VE NEREDEYSE TAMAMEN YOK OLMAYA YAKLAŞTI.
+
+Item #040 [axe_god_chapter2_034] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: Moral
+  TG:     
+  Qwen:   Ahlak
+
+Item #041 [axe_god_chapter2_035] (Axe God: The Road to Invincibility / Chapter 2)
+  Source: FORTHNATELY, THE MYSTERIOUS GIANT SHOWED UP, KILLED THE MONSTER, AND THEN DISAPPEARED.
+  TG:     Neyse ki, gizemli dev ortaya çıktı, canavarı öldürdü ve sonra ortadan kayboldu.
+  Qwen:   Ne yazık ki, gizemli dev ortaya çıktı, canavarı öldürdü ve ardından kayboldu.
+
+Item #042 [axe_god_chapter3_004] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: HAHAHA! IT REALLY IS THE BLOOD AXE!
+  TG:     HAHAHA! BU GERÇEKTEN KAN BALTASI!
+  Qwen:   HAHAHA! GERÇEKTEN KAN BİÇKİDİR!
+
+Item #043 [axe_god_chapter3_005] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: deputy are:
+  TG:     
+  Qwen:   yardımcılar şunlardır:
+
+Item #044 [axe_god_chapter3_006] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: IT CAN GIVE EVEN AN ORDINARY PERSON WHO HASN'T AWAKENED AN ABILITY THIS KIND OF POWER!
+  TG:     Bu, henüz "uyanmış" olmayan sıradan bir kişiye bile THIS KIND OF POWER yeteneği verebilir!
+  Qwen:   YENİDEN DOĞMAMISININ YENİDEN DOĞMASI İÇİN GEREKLİ OLAN HER ŞEYİ SAĞLAYABİLİR!
+
+Item #045 [axe_god_chapter3_007] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: SINCE YOu ALREADY KNOW... THEN TAKE THAT SECRET WITH YOU TO HELL!
+  TG:     Zaten biliyorsun... O ZAMAN O SIRRI BERABERİNE CEHENEEME GÖTÜR!
+  Qwen:   ZATEN BİLDİĞİNİZ İÇİN... O SIRRI CENNETE GİDİNCE YANINIZDA TAAŞIN!
+
+Item #046 [axe_god_chapter3_009] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: KID, DON'T GET COCKY JUST BECAUSE YOU KILLED A NEWLY MUTATED GHOST-HEAD EVIL LEOPARD!
+  TG:     Oğlum, yeni mutasyona uğramış, hayalet kafalı, kötücül bir leoparı öldürdüğün için kendini beğenme!
+  Qwen:   KID, YENİ MÜTEŞABİK BİR GÖZLÜK KAFALI KÖTÜ LEOPARDI KİLDİĞİN İÇİN KIBRİTİ YENİDEN YAKMA!
+
+Item #047 [axe_god_chapter3_010] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: ABILITY: SECOND AWAKENING — BONY OF STEEL
+  TG:     
+  Qwen:   YETENEK: SECOND AWAKENING — ÇELİK İSKELET
+
+Item #048 [axe_god_chapter3_013] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: HE CAUGHT IT?!
+  TG:     
+  Qwen:   KAPTI MI?!
+
+Item #049 [axe_god_chapter3_014] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: HAHAHA! NICE ATTACK! AGAIN! COME ON, AGAIN!
+  TG:     HAHAHA! HARİKA SALDIRI! TEKRAR! HAYDİ, TEKRAR!
+  Qwen:   HAHAHA! GÜZEL SÜPER SALDIRI! TEKRAR! HADİ, TEKRAR!
+
+Item #050 [axe_god_chapter3_018] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: DAMN IT... THE MURDEROLIS AURA WITHIN THE BLOOD AXE IS ALMOST BEYOND WHAT I CAN ENDLRE...
+  TG:     Lanet olsun... Kan Balyozu'nun içindeki cinayet aurası, benim kaldırabileceğim sınırın neredeyse çok ötesinde...
+  Qwen:   KAFUR... KAN KILIÇI'NİN İÇİNDEKİ KATİLOLIS ETKİSİ, DAYANABİLECEĞİMİN ÖTESİNDE NEREDEYSE...
+
+Item #051 [axe_god_chapter3_019] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: KID, MY BODY OF STEEL IS FAMED FOR ITS TOLGHNESS AND ENDURANCE.
+  TG:     ÇOCUK, ÇELİK GÖVDEYMİŞİM, DAYANIKLILIK VE SAĞLAMLIĞI İLE ÜNLÜ.
+  Qwen:   KID, ÇELİK GÖVDEMİN DAYANIKLILIĞI VE SÜRDÜRÜLEBİLİRLİĞİ İLE ÜNLÜDÜR.
+
+Item #052 [axe_god_chapter3_020] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: AND YOU? HAVE YOU FINALLY REACHED THE LIMIT OF THE POWER THE BLOOD AXE GRANTS YOU?!
+  TG:     SİZ NE HAKKINIZDA? KAN BALTASI SİZE VERDİĞİ GÜCÜN SINIRINA SONUNDA ULAŞTINIZ MI?
+  Qwen:   VE SEN? SONUÇTA KAN BİÇKİSİ'NİN SANA VERDİĞİ GÜCÜN SINIRINA ULAŞTIN MI?!
+
+Item #053 [axe_god_chapter3_021] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: I HAVE TO END THE TRANSFORMATION IMMEDIATELY. OTHERWISE, I'LL LOSE MY MIND AND BECOME A DEMON THAT KNOWS ONLY SLAUGHTER.
+  TG:     ŞU AN DERHAL BU DEĞİŞİMİ DURDURMAM GEREK. YOKSA Aklımı kaybedecek ve sadece katliamtan başka bir şey bilmeyen bir iblise dönüşeceğim.
+  Qwen:   Dönüşümü hemen sonlandırmam gerekiyor. Aksi takdirde aklımı kaybedip sadece katliamı bilen bir şeytana dönüşeceğim.
+
+Item #054 [axe_god_chapter3_023] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: I CAN ONLY RESORT TO MY LAST OPTION.
+  TG:     Sadece son çareme başvurabilirim.
+  Qwen:   Son çaremize başvurmak zorundayım.
+
+Item #055 [axe_god_chapter3_026] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: YOU'RE INSANE! YOU'VE COMPLETELY LOST IT!
+  TG:     
+  Qwen:   DELİSİN! TAMAMEN ZİHİNİNİ KAYBETMİŞSİN!
+
+Item #056 [axe_god_chapter3_027] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: THE WINTER POTION?! YOUR SOUL WILL BE FROZEN FOREVER! YOU'LL BE DOOMED FOR ALL ETERNITY!
+  TG:     
+  Qwen:   Kış İksiri?! Ruhun sonsuza dek donacak! Sonsuzluk boyunca lanetleneceksin!
+
+Item #057 [axe_god_chapter3_031] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: I... ACTUALLY LOST?
+  TG:     I... ACTUALLY LOST?
+  Qwen:   I... ACTUALLY LOST?
+
+Item #058 [axe_god_chapter3_032] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: LOST TO AN ORDINARY PERSON? I'M A LEVEL 2, EARLY-STAGE ABILITY LISER!
+  TG:     SADE BİR KİŞİ İÇİN ANLAMSIZ MI? BEN BİR SEVİYE 2, ERKEN AŞAMA YETENEĞE SAHİP LISER'İM!
+  Qwen:   Normal bir kişi için kayıp mı? Ben Seviye 2, Erken Dönem Yetenek LISER'im!
+
+Item #059 [axe_god_chapter3_034] (Axe God: The Road to Invincibility / Chapter 3)
+  Source: YOU CAN DIE NOW.
+  TG:     Şimdi ölebilirsin.
+  Qwen:   ŞİMDİ ÖLEBİLİRSİN.
+
+Item #060 [axe_god_chapter4_002] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: RULE OF WILDERNESS SURVIVAL: NEVER LIGHT A FIRE AT NIGHT, OR YOU'LL ATTRACT THE EYES LURKING IN THE DARKNESS.
+  TG:     DOĞA İÇİ HAYATTA KALMA KURALI: GECE GÖZLERİNİZİ ÇEKEN ŞEYLERİ ÇEKECEĞİ İÇİN ASLA ATEŞ YAKMAYIN.
+  Qwen:   Çölde Hayatta Kalma Kuralı: Gece ateş yakmayın, yoksa karanlıkta bekleyen bakışları üzerinize çeker.
+
+Item #061 [axe_god_chapter4_004] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: I REALLY DON'T HAVE A CHOICE.
+  TG:     Gerçekten başka seçeneğim yok.
+  Qwen:   Gerçekten bir seçeneğim yok.
+
+Item #062 [axe_god_chapter4_005] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: LISING THE ICY POWER OF THE WINTER POTION TO SUPPRESS THE IMPACT OF THE BLOOD AXE'S BALEFUL AURA WAS INDEED A CLEVER SHORTCUT.
+  TG:     Kış İksirinin buz gibi gücünü kullanarak, Kan Balyozu'nun ölümcül etkisini bastırmak gerçekten zekice bir yoldu.
+  Qwen:   Kış zehrinin buzlu gücünü kullanıp Kan Kılıç'ın karanlık aura etkisini bastırmak gerçekten akıllıca bir kısayoldu.
+
+Item #063 [axe_god_chapter4_007] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: BUT JUST THE LINGERING MEDICINAL EFFECTS ALONE HAVE NEARLY FROZEN MY BODY SOLID AND SHATTERED IT.
+  TG:     Ancak, ilacın bıraktığı etkiler o kadar güçlüydü ki, neredeyse bedenimi tamamen dondurdu ve paramparça etti.
+  Qwen:   Ancak sadece kalıcı tıbbi etkiler bile vücudumu neredeyse dondurup parçalamaya yetti.
+
+Item #064 [axe_god_chapter4_013] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO.
+  TG:     Bilgilerimize göre, yaklaşık üç gün önce, Rüzgar-Gök Gürültüsü Kayalıkları yakınında birinin Rüzgar Ruhu İncisi'ni gördüğü tespit edildi.
+  Qwen:   Bilgiye göre, rüzgar-thunder kayasının yakınında rüzgar ruhu elması üç gün önce fark edilmiş.
+
+Item #065 [axe_god_chapter4_014] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: I'VE ALREADY WASTED A LOT OF TIME. I NEED TO GET THERE AS SOON AS POSSIBLE. THE WIND SPIRIT PEARL COULD BE TAKEN BY SOMEONE ELSE AT ANY MOMENT.
+  TG:     Zaten çok fazla zaman kaybettim. Oraya mümkün olan en kısa sürede gitmem gerekiyor. Rüzgar Ruhu İncisi, herhangi bir anda başka biri tarafından alınabilir.
+  Qwen:   Zaten çok zaman kaybettim. Oraya mümkün olan en kısa sürede varmalıyım. Rüzgar Ruhü İncisi her an başkası tarafından alınabilir.
+
+Item #066 [axe_god_chapter4_017] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: MONSTER: SHADOW MANTIS - PEAK TIER 1
+  TG:     
+  Qwen:   MONSTRO: GÖLGE KIZILGINCI - ZİRVE SEVİYE 1
+
+Item #067 [axe_god_chapter4_018] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: THIS DARK NETHER FOREST REALLY IS STRANGE. EVEN THE OUTER AREA HAS MONSTERS LIKE THIS.
+  TG:     Bu karanlık orman gerçekten çok tuhaf. Hatta dış bölgelerinde bile bu tür canavarlar var.
+  Qwen:   Bu karanlık Nether ormanı gerçekten garip. Dış bölgede bile bu tür canavarlar var.
+
+Item #068 [axe_god_chapter4_019] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: TOO BAD I'M IN A HURRY. OTHERWISE, I'D DEFINITELY AVOID THIS PLACE.
+  TG:     Keşke acelem olmasa, ama maalesef zamanım yok. Eğer vaktim olsaydı, kesinlikle bu yerden uzak dururdum.
+  Qwen:   Ne yazık ki acelem var. Aksi halde kesinlikle bu yere gitmezdim.
+
+Item #069 [axe_god_chapter4_020] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: FORTHNATELY, I CAME PREPARED.
+  TG:     Neyse ki, hazırlıklı gelmiştim.
+  Qwen:   Ne yazık ki, hazırlıklı geldim.
+
+Item #070 [axe_god_chapter4_027] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: MY TURN!
+  TG:     Benim sıram!
+  Qwen:   SIRAM!
+
+Item #071 [axe_god_chapter4_029] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: DEMONIC PLANT: HELLFLOWER - EARLY TIER 2
+  TG:     Şeytani Bitki: CEHENNEM ÇİÇEĞİ - BAŞLANGIÇ SEVİYE 2
+  Qwen:   MELEKİ BİTKİ: CENNET ÇİÇEĞİ - ERKEN 2. SEVİYE
+
+Item #072 [axe_god_chapter4_030] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: I'M HERE.
+  TG:     Ben buradayım.
+  Qwen:   BURAYIM.
+
+Item #073 [axe_god_chapter4_031] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: IT REALLY IS A HELLFLOWER, THIS MUST BE THE CENTER OF THE DARK NETHER FOREST.
+  TG:     Bu gerçekten bir cehennem çiçeği, burası kesinlikle Karanlık Orman'ın merkezi olmalı.
+  Qwen:   Gerçekten bir cehennem çiçeği, bu Karanlık Alt Ormanın merkezinde olmalı.
+
+Item #074 [axe_god_chapter4_033] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: SO THERE REALLY IS A CAVE, THIS SHOULD BE THE SHORTCHT TO WIND-THUNDER CLIFF.
+  TG:     Yani gerçekten bir mağara var, bu Wind-Thunder Kayalıklarına giden en kısa yol olmalı.
+  Qwen:   Yani gerçekten bir mağara var, bu Rüzgar-Yıldırım Kayağına giden kısa yol olmalı.
+
+Item #075 [axe_god_chapter4_034] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: ONLY OLD-TIMERS WHO'VE SPENT YEARS IN THE BLACKROCK SECRET REALM KNOW ABOUT THIS SHORTCUT.
+  TG:     Bu kısayolu sadece Blackrock'ta yıllarını geçirmiş, eski çalışanlar bilir.
+  Qwen:   Bu kısayolun sadece Blackrock'ta yıllarca geçirmiş eski usul kişilerden haberi vardır.
+
+Item #076 [axe_god_chapter4_035] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: I ONLY HEARD ABOUT IT WHEN FATHER AND THE OTHERS WERE CHATTING WHEN I WAS LITTLE.
+  TG:     Bunu sadece küçükken, babam ve diğerleri sohbet ederken duyduğumu hatırlıyorum.
+  Qwen:   Küçükken babam ve diğerlerinin sohbet ederken duyduğum için bunu sadece o zaman öğrendim.
+
+Item #077 [axe_god_chapter4_036] (Axe God: The Road to Invincibility / Chapter 4)
+  Source: HM? SOMETHING'S MOVING.
+  TG:     Hm? Bir şeyler hareket ediyor.
+  Qwen:   HM? BİRŞEYİN HAREKET ETTİĞİ GÖRÜLDÜ.
+
+Item #078 [axe_god_chapter5_003] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: Yuan
+  TG:     Yuan, Çin para biriminin adıdır. İngilizce'de "yuan" olarak kullanılır.
+  Qwen:   Yuan
+
+Item #079 [axe_god_chapter5_004] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: WHAT A PAIN. EVERY ONE OF THESE BEASTS IS COMPLETELY FEARLESS OF DEATH!
+  TG:     Ne kadar can sıkıcı! Bu yaratıkların her biri ölümden tamamen korkmuyor!
+  Qwen:   Ne kadar can sıkıcı. Bu yaratıklardan her biri ölümden hiç korkmuyor!
+
+Item #080 [axe_god_chapter5_005] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: OF DEATH!
+  TG:     ÖLÜM!
+  Qwen:   ÖLÜMÜN!
+
+Item #081 [axe_god_chapter5_006] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: I HAVE TO KILL THEM ALL AT ONCE AND CREATE AN OPENING IN THEIR DEFENSE. THAT'S MY ONLY CHANCE!
+  TG:     Onları hepsini aynı anda öldürmek zorundayım ve savunmalarında bir açık yaratmalıyım. Bu benim tek şansım!
+  Qwen:   Hepsini aynı anda öldürmem ve savunmalarında bir açıklık yaratmam gerekiyor. Bu benim tek şansım!
+
+Item #082 [axe_god_chapter5_008] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: I'M GETTING CLOSE TO THE CAVE ENTRANCE!
+  TG:     Mağara girişine yaklaşıyorum!
+  Qwen:   MAVİNİN GİRİŞİNE YAKLAŞIYORUM!
+
+Item #083 [axe_god_chapter5_011] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: I HAVE TO GET OUT OF HERE QUICKLY...
+  TG:     Buradan hemen gitmem gerekiyor...
+  Qwen:   Buradan hızlıca çıkmalıyım...
+
+Item #084 [axe_god_chapter5_013] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: ALTHOLGH THE HELLFLOWER'S VINES CAN'T REACH INSIDE, THOSE SHADOW MANTISES ARE STILL A HUGE THREAT.
+  TG:     CEHENNEM ÇİÇEĞİ'NİN SARMAŞIKLARI İÇERİYE ULAŞAMASA DA, GÖLGE ÇEKİÇLER HALA BÜYÜK BİR TEHLİKE.
+  Qwen:   Hellflower'un sarmaşıkları içeri ulaşsa bile, o gölge mantısları hala büyük bir tehdit oluşturuyor.
+
+Item #085 [axe_god_chapter5_015] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: THE EXIT! I'VE FINALLY MADE IT!
+  TG:     ÇIKIŞ! SONUNDA BAŞARDIM!
+  Qwen:   ÇIKIŞ! SONUÇTA YAPTIM!
+
+Item #086 [axe_god_chapter5_016] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: SO THAT'S WIND-THUNDER CLIFF?
+  TG:     SO THAT'S WIND-THUNDER CLIFF?
+  Qwen:   SO THAT'S WIND-THUNDER CLIFF?
+
+Item #087 [axe_god_chapter5_017] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: HOW TERRIFYING!
+  TG:     Ne korkunç! / Çok korkunç!
+  Qwen:   Ne kadar korkunç!
+
+Item #088 [axe_god_chapter5_019] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: DANGER!!!
+  TG:     DİKKAT!!!
+or
+TEHLİKE!!!
+  Qwen:   TEHLİKE!!!
+
+Item #089 [axe_god_chapter5_021] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: WHO'S THERE?
+  TG:     WHO'S THERE?
+  Qwen:   WHO'S THERE?
+
+Item #090 [axe_god_chapter5_022] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: SO THE BLOOD AXE REALLY IS IN YOUR HANDS.
+  TG:     Yani, KANLI BALTA GERÇEKTEN DE SİZİN ELİNİZDE.
+  Qwen:   Yani Kan Bıçağı gerçekten elinizde.
+
+Item #091 [axe_god_chapter5_024] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: I DIDN'T WAIT HERE FOR MOST OF THE DAY FOR NOTHING. JIANG BIAO DIED BY YOUR HAND, DIDN'T HE?
+  TG:     GÜNÜN ÇOĞU BOYUNCA BURADA BEKLEMEDİM, AMA NEDEN? JIANG BIAO, SENİN ELİNDEN ÖLDÜ, DEĞİL Mİ?
+  Qwen:   Günün büyük bir kısmını burada boşuna beklememiştim. Jiang Biao, elinle öldürülmedi mi?
+
+Item #092 [axe_god_chapter5_025] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: CAPTAIN ROSS?!
+  TG:     CAPTAIN ROSS?!
+  Qwen:   CAPTAIN ROSS?!
+
+Item #093 [axe_god_chapter5_026] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: IF I FIGHT ROSS, I'LL DIE! I HAVE TO GET AWAY AS SOON AS POSSIBLE.
+  TG:     Eğer ROSS ile kavga edersem, öleceğim! Mümkün olan en kısa sürede oradan uzaklaşmalıyım.
+  Qwen:   Eğer Ross ile dövüşürsem ölürüm! Mümkün olan en kısa sürede kaçmalıyım.
+
+Item #094 [axe_god_chapter5_027] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: HOW DID YOU FIND ME?
+  TG:     Beni nasıl buldun?
+  Qwen:   Beni nasıl buldun?
+
+Item #095 [axe_god_chapter5_028] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: YOLUI WERE WILLING TO EXPOSE THE BLOOD AXE JUST TO VENTURE INTO THE SECRET REALM. YOU MLIST REALLY WANT THE WIND SPIRIT PEARL, HUH?
+  TG:     Kan Baltası'nı ortaya çıkarmaya bile razıydılar, sadece gizli âlem bölgesine girmek için. Anlaşılan, Rüzgar Ruhu İncisi'ni gerçekten çok istiyorsunuz, değil mi?
+  Qwen:   Yolui, sadece gizli âleme girmek için Kanlı Balta'yı ortaya çıkarmaya bile razı oldu. Rüzgar Ruhü İncisi'ni gerçekten istiyorsun, değil mi?
+
+Item #096 [axe_god_chapter5_029] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: WITH TIME RUNNING OUT FOR YOU, OTHER THAN TAKING THIS CAVE SHORTCUT, DID YOU HAVE ANY OTHER CHOICE?
+  TG:     Zamandan çok az kaldığına göre, bu mağara kısayolunu kullanmak dışında başka bir seçeneğin var mıydı?
+  Qwen:   Zamanınız tükenirken, bu mağara kısayolunu kullanmaktan başka bir seçeneğiniz vardı mı?
+
+Item #097 [axe_god_chapter5_030] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: ALRIGHT, FOR THE SAKE OF THE FORMER CHIEF INSPECTOR, HAND OVER THE BLOOD AXE AND I WON'T KILL YOU.
+  TG:     TAMAM, EMEKLİ BAŞ İNCELEYİCİ'NİN HATIRINA, KAN BALTASINI TESLİM ET VE SENİ ÖLDÜRMEM.
+  Qwen:   Tamam, eski baş dedektifin rızası için kan kılıcını ver, seni öldürmeyeceğim.
+
+Item #098 [axe_god_chapter5_031] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: IF YOU WANT THE BLOOD AXE, COME AND TAKE IT YOURSELF!
+  TG:     Eğer kanlı baltayı istiyorsanız, gelin ve kendiniz alın!
+  Qwen:   KAN BİÇKİSİNİ İSTİYORSAN, GEL VE KENDİN AL!
+
+Item #099 [axe_god_chapter5_032] (Axe God: The Road to Invincibility / Chapter 5)
+  Source: SINCE YOU'RE SO EAGER TO DIE, I'LL GRANT YOUR WISH.
+  TG:     Çünkü ölüm için bu kadar heveslisin, dileğin kabul edildi.
+  Qwen:   Ölmek için bu kadar aceleci olduğunuz için dileğinizi kabul ediyorum.
+
+Item #100 [god_tier_crafter_chapter1_001] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: THE WORLD'S MOST POPULAR VRMMO...
+  TG:     Dünyanın en popüler VRMMO oyunu...
+  Qwen:   DÜNYANIN EN POPÜLER VRMMO'SU...
+
+Item #101 [god_tier_crafter_chapter1_002] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: - ONLINE -
+  TG:     - ÇEVRİMİÇİ -
+  Qwen:   - ÇEVİRİ -
+
+Item #102 [god_tier_crafter_chapter1_003] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: “ZERO FANTASY ONLINE.”
+  TG:     
+  Qwen:   "SIFIR FANTAZİ ONLINE."
+
+Item #103 [god_tier_crafter_chapter1_004] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: COMMONLY KNOWN AS "ZFO."
+  TG:     Genellikle "ZFO" olarak bilinen...
+  Qwen:   GENEL OLARAK "ZFO" OLARAK BİLİNİR.
+
+Item #104 [god_tier_crafter_chapter1_005] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: IN THIS GAME, I...
+  TG:     Bu oyunda ben...
+  Qwen:   BU OYUNDA, BEN...
+
+Item #105 [god_tier_crafter_chapter1_006] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: Lv.998
+  TG:     Seviye 998.
+  Qwen:   Seviye 998
+
+Item #106 [god_tier_crafter_chapter1_007] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.
+  TG:     Oyuncuların hiçbirinin daha önce ulaşamadığı, en yüksek seviyeye ulaşma noktasına gelmiştim."
+
+Veya daha akıcı bir şekilde:
+
+"Tarihte ilk kez, bir oyuncunun ulaşabileceği en yüksek seviyeye ulaşmak üzereydim.
+  Qwen:   İlk oyuncu olarak seviye sınırına ulaşmak üzereydim.
+
+Item #107 [god_tier_crafter_chapter1_014] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: MAYBE I OVERDID IT... 200 HOURS STRAIGHT IS A BIT MUCH.
+  TG:     Belki abarttım... 200 saat kesintisiz çalışmak biraz fazla.
+  Qwen:   Belki çok fazla yaptım... 200 saat aralıksız biraz fazla.
+
+Item #108 [god_tier_crafter_chapter1_015] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: ONCE I FINISH THIS, I'M GETTING A REAL MEAL AND CRASHING.
+  TG:     Bunu bitirir bitirmez, güzel bir yemek yiyeceğim ve sonra da kendimi yatağa atacağım.
+  Qwen:   Bunu bitirince gerçek bir yemek yiyip yatağa yatıyorum.
+
+Item #109 [god_tier_crafter_chapter1_016] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: HONESTLY, I JUST WANTED...
+  TG:     Dürüst olmak gerekirse, ben sadece...
+  Qwen:   DURAKLA, SÖZÜMÜ BİTMEDİ.
+
+Item #110 [god_tier_crafter_chapter1_017] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: TO ACHIEVE SOMETHING GREAT.
+  TG:     Büyük bir şeyi başarmak.
+  Qwen:   BİRŞEYİ MUHTEŞEM YAPMAK İÇİN.
+
+Item #111 [god_tier_crafter_chapter1_018] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: I WANTED TO BE A MASTER WHO WAS AT THE TOP OF MY FIELD...
+  TG:     Ben, kendi alanımda zirvede olan bir uzman olmak istiyordum...
+  Qwen:   Ben, kendi alanımın zirvesinde olan bir ustalık olmak istiyordum...
+
+Item #112 [god_tier_crafter_chapter1_019] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: TO LEAVE MY MARK ON HISTORY.
+  TG:     Tarihe damgamı vurmak.
+  Qwen:   TARİHE İMZAMIZI BIRAKMAK.
+
+Item #113 [god_tier_crafter_chapter1_020] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: BUT THE TRUTH WAS...
+  TG:     AMA GERÇEK ŞU İDİ...
+  Qwen:   AMA GERÇEK ŞUNUYDU...
+
+Item #114 [god_tier_crafter_chapter1_021] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: BE IT SCHOOL...
+  TG:     
+  Qwen:   OKUL OLASIN...
+
+Item #115 [god_tier_crafter_chapter1_022] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: OR SPORTS...
+  TG:     VEYA SPORLAR...
+  Qwen:   VE SPORLAR...
+
+Item #116 [god_tier_crafter_chapter1_024] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: I COULD NEVER GET THAT NUMBER-ONE SPOT.
+  TG:     Asla o birincilik yerini elde edemedim.
+  Qwen:   O bir numaralı sırayı asla alamadım.
+
+Item #117 [god_tier_crafter_chapter1_025] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: BUT HERE...
+  TG:     AMA BURADA...
+  Qwen:   AMA BURADA...
+
+Item #118 [god_tier_crafter_chapter1_026] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: HERE, IT'S DIFFERENT.
+  TG:     Burada farklı.
+  Qwen:   Burada durum farklı.
+
+Item #119 [god_tier_crafter_chapter1_027] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: IN ZFO...
+  TG:     
+  Qwen:   ZFO içinde...
+
+Item #120 [god_tier_crafter_chapter1_028] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: I CAN FINALLY BE THE BEST IN THE WORLD.
+  TG:     Sonunda dünyanın en iyisi olabilirim.
+  Qwen:   Sonunda dünyadaki en iyisi olabilirim.
+
+Item #121 [god_tier_crafter_chapter1_030] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: OR... SO I THOUGHT.
+  TG:     Veya... BENİM DÜŞÜNCEM BUYDU.
+  Qwen:   VE... BU KADAR DÜŞÜNDÜM.
+
+Item #122 [god_tier_crafter_chapter1_032] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: \begin{array}{l} \displaystyle \Delta \left( \frac{d}{t} \right) =\frac{v \times \Delta h}{t} \times \frac{v}{d} \div \frac{c}{d} = \frac{(c + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{v \times \Delta g}{d} \times \frac{x}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x + \Delta z}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\end{array}
+  TG:     
+  Qwen:   \begin{array}{l} \displaystyle \Delta \left( \frac{d}{t} \right) =\frac{v \times \Delta h}{t} \times \frac{v}{d} \div \frac{c}{d} = \frac{(c + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{v \times \Delta g}{d} \times \frac{x}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x + \Delta z}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times \Delta g}{d} \\\qquad \displaystyle=\frac{x \times \Delta g}{d} = \frac{(z + \Delta z) \times
+
+Item #123 [god_tier_crafter_chapter1_034] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: YOU'VE GOTTA BE KIDDING ME...
+  TG:     
+  Qwen:   Bunu şaka mı ediyorsun...
+
+Item #124 [god_tier_crafter_chapter1_035] (Reincarnated as a God-Tier Crafter / Chapter 1)
+  Source: NO... NOT NOW...!
+  TG:     Hayır... Şimdi değil...!
+  Qwen:   Hayır... Şimdi değil...!
+
+Item #125 [god_tier_crafter_chapter2_002] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: ALLEN LV.13
+  TG:     
+  Qwen:   ALLEN LV.13
+
+Item #126 [god_tier_crafter_chapter2_003] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: I ONLY CAME TO THE FOREST TO TEST OUT [CRAFT]...
+  TG:     Sadece [ZANAAT] ürünlerini denemek için ormana geldim...
+  Qwen:   Ormana sadece [YAPIM] yeteneğimi denemek için geldim...
+
+Item #127 [god_tier_crafter_chapter2_004] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: ...BUT I CERTAINLY DIDN'T EXPECT TO RUN INTO A BEAST THIS MASSIVE.
+  TG:     ...AMA BU KADAR BÜYÜK BİR YARASAYLA KARŞILAŞACAĞIMI KESİNLİKLE BEKLEMİYORDUM.
+  Qwen:   ...AMA BUNCA KÜTLEDE BİR CANLILIKLA KARŞILAŞACAKTIN, BUNU KESİNLİKLE BEKLEMİYORDUM.
+
+Item #128 [god_tier_crafter_chapter2_006] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: ROCK GOLEM LV.20
+  TG:     
+  Qwen:   ROK İLETTANİ LV.20
+
+Item #129 [god_tier_crafter_chapter2_009] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: (INTEREST-ING...
+  TG:     (İLGİNÇ...)
+  Qwen:   (İLGİ ÇEKİCİ...
+
+Item #130 [god_tier_crafter_chapter2_010] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: NOT ONLY DOES IT BOAST OVERWHELMING DEFENSE...
+  TG:     SADECE ETKİLEYİCİ BİR SAVUNMASI YOK DİYE DEĞİL...
+  Qwen:   Sadece ezici bir savunmaya sahip olmasıyla da övünmüyor...
+
+Item #131 [god_tier_crafter_chapter2_011] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: ...IT EVEN POSSESSES SELF-HEALING CAPABILITIES.
+  TG:     ...HATTA KENDİNİ TAMİR EDEBİLME ÖZELLİĞİ VAR.
+  Qwen:   ...Hatta kendi kendini iyileştirme yeteneğine de sahiptir.
+
+Item #132 [god_tier_crafter_chapter2_012] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: I BOOSTED MY ATTACK POWER AS HIGH AS IT COULD GO...
+  TG:     Saldırı gücümü alabildiğim kadar yükselttim...
+  Qwen:   Saldırı gücümü maksimuma çıkardım...
+
+Item #133 [god_tier_crafter_chapter2_013] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: ASSAULT RIFLE ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES > WEAPON RELOADS AUTOMATICALLY. IF THE MAGAZINE IS COMPLETELY EMPTI
+  TG:     
+  Qwen:   TÜFEK SALDIRI GÜCÜ > 175 MÜNEKKEP KAPASİTESİ > 30 NOTLAR > SİLAH OTOMATİK YÜKLENİR. EĞER MAGAZİN TAMAMEN BOŞSA
+
+Item #134 [god_tier_crafter_chapter2_014] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: NOTES NEAPON RELOADS AUTOMATICALLY. HOWEVER THE MAGAZINE IS COMPLETELY EMPTIED,
+  TG:     NEAPON silahı otomatik olarak yeniden doldurulur. Ancak, şarjör tamamen boşalır.
+  Qwen:   NOTES, NEAPON otomatik olarak yeniden yüklenir. Ancak magazin tamamen boşaltılır.
+
+Item #135 [god_tier_crafter_chapter2_015] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: NOTES 7 WEAPON RELOADS AUTOMATICALLY. HOWVE IF THE MAGAZINE IS COMPLETELY EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECC
+  TG:     NOTLAR: 7. SİLAH OTOMATİK OLARAK YENİDEN DOLUYOR. ANCAK, ŞARJÖR TAMAMEN BOŞALIRSA, BİRKAÇ SANIYE BOYUNCA ATEŞ ETME İŞLEVİ DEVRE DIŞI KALIR.
+  Qwen:   NOTLAR: 7. Silah otomatik olarak yeniden doldurulur. Ancak, magazin tamamen boşaltılırsa, saldırı birkaç saniye boyunca devre dışı kalır.
+
+Item #136 [god_tier_crafter_chapter2_016] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: ...BUT THIS IS STILL GOING TO BE A TOUGH FIGHT.
+  TG:     ...AMA BU HALA ÇOK ZOR BİR MÜCADELE OLACAK.
+  Qwen:   ...AMA BU HÂLÂ ZORLUK TAŞIYAN BİR MÜCADELE OLACAK.
+
+Item #137 [god_tier_crafter_chapter2_017] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: ACTUALLY, THIS IS PERFECT.
+  TG:     Aslında, bu mükemmel.
+  Qwen:   Aslında bu mükemmel.
+
+Item #138 [god_tier_crafter_chapter2_018] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: TIME TO TEST OUT THAT NEW MODIFICATION!
+  TG:     Şimdi o yeni modifikasyonu deneme zamanı!
+  Qwen:   YENİ OYUN DEĞİŞİKLİĞİNİ SINAMAK ZAMANI!
+
+Item #139 [god_tier_crafter_chapter2_020] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: 《SLOTTED》ASSAULT RIFLE
+  TG:     
+  Qwen:   SLOTTED ASALTI RİFLİ
+
+Item #140 [god_tier_crafter_chapter2_021] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES WEAPON RELOADS AUTOMATIC HOWEVER, IF THE MAGAZINE IS EMPTIED, ATTACKING IS DISAB SEVERAL SECONDS.
+  TG:     Saldırı Gücü > 175
+Mermi Kapasitesi > 30
+NOT: Silah otomatik olarak yeniden doldurulur. Ancak, şarjör boşaldığında, birkaç saniye boyunca saldırı yapamazsınız.
+  Qwen:   SALGI GÜCÜ > 175 MÜKERRER YÜK SİGİ > 30 NOTLAR: WEAPON OTOMATİK YENİDEN YÜKLENİR; ANCAK MAGAZİN BOŞALTIKÇA, SALGI İŞLEVİ BİRKAÇ SANİYE İÇİN KESİLİR.
+
+Item #141 [god_tier_crafter_chapter2_022] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETE EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECONDS.
+  TG:     Silah otomatik olarak yeniden doldurulur. Ancak, şarjör tamamen boşaldığında, birkaç saniye boyunca ateş etme işlemi devre dışı kalır.
+  Qwen:   Silah otomatik olarak yeniden doldurulur. Ancak, magazin tamamen boşaltılırsa, saldırı birkaç saniye boyunca devre dışı kalır.
+
+Item #142 [god_tier_crafter_chapter2_023] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: I USED [CRAFT] TO ADD A MAGIC STONE SLOT TO THIS RIFLE...
+  TG:     Bu tüfeğe, [CRAFT] kullanarak bir sihir taşı yuvası ekledim...
+  Qwen:   Bu tüfeğe [CRAFT] kullanarak bir sihir taşı yuvası ekledim...
+
+Item #143 [god_tier_crafter_chapter2_024] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: ...SO LOADING A STONE INTO IT SHOULD GIVE ITS OVERALL FIREPOWER A MASSIVE BOOST.
+  TG:     ...Yani içine bir taş yerleştirmek, genel ateş gücünü önemli ölçüde artırmalı.
+  Qwen:   ...BİR TAŞ YÜKLENMESİ, GENEL ATEŞ GÜCÜNE KATILIKLI BİR ARTIŞ SAĞLAMALIDIR.
+
+Item #144 [god_tier_crafter_chapter2_026] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: INVENTORY.
+  TG:     ENVANTER.
+  Qwen:   EŞYA LİSTESİ.
+
+Item #145 [god_tier_crafter_chapter2_028] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: A GOLEM'S MAGIC STONE I PICKED UP ON THE WAY HERE.
+  TG:     Yolda bulduğum, bir Golem'in büyülü taşı.
+  Qwen:   Buraya gelirken bulduğum bir Golem Büyü Taşı.
+
+Item #146 [god_tier_crafter_chapter2_029] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: LET'S TEST IT OUT WITH THIS.
+  TG:     Şunu kullanarak deneyelim.
+  Qwen:   Şunu deneyelim.
+
+Item #147 [god_tier_crafter_chapter2_030] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: 〈PIERCE〉ASSAULT RIFLE ATTACK POWER〉175 AMMO CAPACITY〉30 SLOT〉NORMAL-GRADE GOLEM'S
+  TG:     İşte çeviri:
+
+〈PIERCE〉HÜCUM TÜFEĞİ, SALDIRI GÜCÜ〉175, MERT GÜCÜ〉30, NORMAL KALİTELİ GOLEM'İN.
+  Qwen:   〈PIERCE〉ASALTI KALIŞI SALDIRI GÜCÜ〉175 MÜKERRER SAYISI〉30 KUTU〉NORMAL SINIF GÖLEMIN
+
+Item #148 [god_tier_crafter_chapter2_031] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: SLOI> NORMAL-GRADE GOLEM'S MAGIC STONE
+  TG:     SLOI> SİRADAN SEVİYEDE GOLEM'İN BİLGİ TAŞI
+  Qwen:   SLOI> NORMAL SINIF GÖLEMIN SIHİR TAŞI
+
+Item #149 [god_tier_crafter_chapter2_032] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: NOIES7 WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETELY E ATTACKING IS DISABLED FOR SEVERAL SECON EQUIPPED MAGIC STONE IS DEPLETED OF MAN MAGIC STONE EFFECT WILL BE LOST.
+  TG:     NOIES7 silahı otomatik olarak yeniden doldurulur. Ancak, şarjör tamamen boşaldığında, birkaç saniye boyunca ateş etme işlemi devre dışı kalır. Eğer takılı olan sihir taşı mana'sını tükettiğinde, sihir taşının etkisi kaybolur.
+  Qwen:   NOIES7 silahı otomatik olarak yeniden doldurulur. Ancak, magazen tamamen boş olduğunda, saldırı birkaç saniye boyunca devre dışı kalır. Ekiplenen sihir taşı mana tükendiğinde, sihir taşı etkisi kaybolur.
+
+Item #150 [god_tier_crafter_chapter2_033] (Reincarnated as a God-Tier Crafter / Chapter 2)
+  Source: PERFECT! THE MAGIC STONE'S EFFECT WAS APPLIED!
+  TG:     Mükemmel! Büyülü taşın etkisi uygulandı!
+  Qwen:   MÜKEMMEL! SIHİR TAŞININ ETKİSİ UYGULANDI!
+
+Item #151 [god_tier_crafter_chapter3_001] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: ADVENTURERS' GUILD HEADQUARTERS, CONFERENCE ROOM
+  TG:     MACERAPERESTLER DERNEĞİ MERKEZİ, TOPLANTI ODASI
+  Qwen:   Macera Tüccarları Birliği Merkezi, Konferans Odası
+
+Item #152 [god_tier_crafter_chapter3_002] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: YOU CAN RELEASE HIM NOW.
+  TG:     Şimdi onu serbest bırakabilirsiniz.
+  Qwen:   Şimdi onu serbest bırakabilirsiniz.
+
+Item #153 [god_tier_crafter_chapter3_003] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: ALLEN-KUN, WAS IT...?
+  TG:     
+  Qwen:   ALLEN-KUN, BU MU...?
+
+Item #154 [god_tier_crafter_chapter3_004] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: SORRY TO STARTLE YOU.
+  TG:     Sizi korkuttuğum için üzgünüm.
+  Qwen:   KORKUTMAK İÇİN ÜZGÜNÜM.
+
+Item #155 [god_tier_crafter_chapter3_006] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: YOUR RAPID LEVEL GROWTH CAUGHT OUR ATTENTION, YOU SEE.
+  TG:     Seviyenizin çok hızlı bir şekilde yükselmesi dikkatimizi çekti, gördüğünüz gibi.
+  Qwen:   Hızlı seviye gelişiminiz dikkatimizi çekti, görüyorsunuz.
+
+Item #156 [god_tier_crafter_chapter3_007] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: WE REALLY WANTED TO SPEAK WITH YOU DIRECTLY.
+  TG:     Sizinle doğrudan konuşmak istiyorduk.
+  Qwen:   SİZLE DOĞRUDAN KONUŞMAK İSTİYORDUK.
+
+Item #157 [god_tier_crafter_chapter3_008] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: QUITE THE WELCOME... BUT WHATEVER.
+  TG:     Çok güzel bir karşılama... Ama neyse."
+
+Veya, biraz daha samimi bir ifadeyle:
+
+"Ne kadar da güzel bir karşılama... Ama boşver.
+  Qwen:   Çok hoşgeldiniz... ama neyse.
+
+Item #158 [god_tier_crafter_chapter3_009] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: SO... WHAT DO YOU WANT WITH ME?
+  TG:     Peki... Benden ne istiyorsun?
+  Qwen:   Peki... Benden ne istiyorsun?
+
+Item #159 [god_tier_crafter_chapter3_010] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: F-FIRST OF ALL!
+  TG:     Öncelikle!" veya "Başlangıç olarak!
+  Qwen:   İLK OLARAK!
+
+Item #160 [god_tier_crafter_chapter3_011] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: I'd like you to explain the "GUN" that you use.
+  TG:     
+  Qwen:   "KULLAN" ettiğiniz "KULLAN"'ı açıklayabilir misiniz?
+
+Item #161 [god_tier_crafter_chapter3_012] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: THE DETAILS OF THE GUN, HUH...
+  TG:     Silahın detayları mı...
+  Qwen:   Silahın detayları, huh...
+
+Item #162 [god_tier_crafter_chapter3_014] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: EVEN IF I TOLD YOU, YOU PROBABLY WOULD NOT UNDERSTAND.
+  TG:     Sana anlatsam bile, muhtemelen anlamazsın.
+  Qwen:   Bile olsa bile, muhtemelen anlamazsın.
+
+Item #163 [god_tier_crafter_chapter3_015] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: IT'S A BLUNDLE OF TECHNOLOGY THAT DOESN'T EXIST IN THIS WORLD.
+  TG:     Bu, bu dünyada bulunmayan, hayal ürünü bir teknoloji.
+  Qwen:   Bu, bu dünyada mevcut olmayan bir teknoloji yığını.
+
+Item #164 [god_tier_crafter_chapter3_018] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: BIG WORDS FOR SOMEONE WHO'S JUST A "CRAFTER."
+  TG:     
+  Qwen:   BİRİNE YALAN SÖYLEYEN KİŞİ İÇİN BÜYÜK KELİMELER.
+
+Item #165 [god_tier_crafter_chapter3_019] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: THAT SO-CALLED GLN OF YOURS PROBABLY ISN'T ALL THAT IMPRESSIVE, IS IT?
+  TG:     Sizin o meşhur dediğiniz GLN'iniz muhtemelen o kadar da etkileyici değil, değil mi?
+  Qwen:   O "meşhur" GLN'iniz muhtemelen o kadar etkileyici değil, değil mi?
+
+Item #166 [god_tier_crafter_chapter3_021] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: SO YOU'RE TRYING TO PROVOKE ME INTO GIVING YOU INFO, HUH...
+  TG:     Anlaşıldı, beni kışkırtarak benden bilgi almaya çalışıyorsun, ha?
+  Qwen:   Yani beni bilgi vermeye itmeye çalışıyorsun, ha...
+
+Item #167 [god_tier_crafter_chapter3_022] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: CRAFT.
+  TG:     
+  Qwen:   ZANAAT.
+
+Item #168 [god_tier_crafter_chapter3_023] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: THEN I'LL GIVE YOU THE SAME GUN I HANDED OUT TO THE FARMERS.
+  TG:     O zaman size, çiftçilere verdiğim aynı silahı vereceğim.
+  Qwen:   Sonra size çiftçilere verdiğim aynı silahı vereceğim.
+
+Item #169 [god_tier_crafter_chapter3_025] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: FEEL FREE TO ANALYZE IT AS MUCH AS YOU WANT.
+  TG:     İstediğiniz kadar analiz edebilirsiniz.
+  Qwen:   İstediğiniz kadar analiz etmeye özgürsünüz.
+
+Item #170 [god_tier_crafter_chapter3_026] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: 《MASS-PRODUCED》ASSAULT RIFLE
+  TG:     "Seri Üretimli Hücum Tüfeği" veya "Toplu Üretilen Hücum Tüfeği"
+
+Her iki çeviri de doğru ve yaygın olarak kullanılabilir. "Seri üretim" ve "toplu üretim" kelimeleri aynı anlama gelir.
+  Qwen:   《MASS-PRODUCED》ASALTI RİFLİ
+
+Item #171 [god_tier_crafter_chapter3_027] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: ATTACK POWER > 50 * ALLEN'S LEVEL MAGAZINE CAPACITY > 30 NOTES
+  TG:     
+  Qwen:   SALDIRI GÜCÜ > 50 * ALLEN'İN SEVİYESİ DERGİ KAPASİTESİ > 30 NOTLAR
+
+Item #172 [god_tier_crafter_chapter3_028] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: MAGAZINE CAPACITY » 30 NOTES » AUTOMATICALLY RELOADS, BUT CANNOT ATTACK FOR A FEW SECONDS ONCE THE MAGAZINE IS EMPTY.
+  TG:     Şarjör Kapasitesi: 30
+Notlar: Otomatik olarak şarjörü doldurur, ancak şarjör boşaldığında birkaç saniye boyunca ateş edemez.
+  Qwen:   MAGAZINE KAPASİTESİ » 30 NOT » OTOMATİK YENİDEN YÜKLENİR, FAKAT MAGAZİN BOŞALDIKTAN SONRA BİRKAÇ SANİYE SÜRECEK ATAK YAPAMAZ.
+
+Item #173 [god_tier_crafter_chapter3_030] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: ATTACK POWER 50?!
+  TG:     ATTACK POWER 50?!
+  Qwen:   ATTACK POWER 50?!
+
+Item #174 [god_tier_crafter_chapter3_031] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: THAT'S ON PAR WITH A KNIGHT OF THE SAME LEVEL!
+  TG:     Bu, aynı seviyedeki bir şövalyenin gücüne/seviyesine eşdeğer!
+  Qwen:   BU, AYNI SEVİYEDEKİ BİR ŞİVALİHİN YAPABİLECEĞİ KADAR!
+
+Item #175 [god_tier_crafter_chapter3_032] (Reincarnated as a God-Tier Crafter / Chapter 3)
+  Source: AND IT CAN FIRE 30 ROUNDS IN A ROW... THAT'S IMPOSSIBLE...!
+  TG:     Ve bu, ard arda 30 mermi atabiliyor... Bu imkansız!
+  Qwen:   VE ARKA ARAYA 30 MERMİ ATABİLİR... BU IMKANSIZDIR...!
+
+Item #176 [god_tier_crafter_chapter4_001] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: IN FRONT OF THE WOLF MINE DUNGEON
+  TG:     "KURDUN MAĞARASININ ÖNÜNDE" veya "KURDUN MAĞARASI GİRİŞİNDE" gibi çeviriler kullanılabilir.
+
+Hangi çevirinin daha uygun olduğu, bağlama bağlıdır. Örneğin, bir oyun veya hikaye bağlamında, "Kurdun Mağarası Girişinde" daha doğal durabilir.
+  Qwen:   KURT MADEN MAZARININ ÖNÜNDE
+
+Item #177 [god_tier_crafter_chapter4_002] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: ALLEN-SAN, IT'S TOO DANGEROUS HERE.
+  TG:     ALLEN-SAN, BURASI ÇOK TEHLİKELİ.
+  Qwen:   Allen-San, burada çok tehlikeli.
+
+Item #178 [god_tier_crafter_chapter4_003] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: YOU'RE ONLY LEVEL FIFTEEN...
+  TG:     Sadece on beşinci seviyedesin...
+  Qwen:   Sadece on beşinci seviyesindesin...
+
+Item #179 [god_tier_crafter_chapter4_004] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: ...BUT THE RECOMMENDED LEVEL FOR THIS DUNGEON IS TWENTY-FIVE.
+  TG:     ...AMA BU ZİNDAN İÇİN ÖNERİLEN SEVİYE YİRMİ BEŞTİR.
+  Qwen:   ...Fakat bu labirent için önerilen seviye 25'tir.
+
+Item #180 [god_tier_crafter_chapter4_005] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: IT'S FINE.
+  TG:     
+  Qwen:   SORUN YOK.
+
+Item #181 [god_tier_crafter_chapter4_006] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: I PLANNED ON HUNTING HERE FROM THE BEGINNING ANYWAY.
+  TG:     Aslında, burayı baştan beri avlanmak için planlamıştım.
+  Qwen:   Baştan beri burada avlanmayı planlamıştım zaten.
+
+Item #182 [god_tier_crafter_chapter4_008] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?
+  TG:     Dur bir dakika, sen ciddi misin, bunu tek başına mı yapıyorsun?"
+
+Veya daha samimi bir ifadeyle:
+
+"Hey, ciddi misin? Bunu tek başına mı üstleniyorsun?
+  Qwen:   Hey bekle, bu solo'yu gerçekten tek başına çözmeye mi çalışıyorsun?
+
+Item #183 [god_tier_crafter_chapter4_010] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: WHY DON'T YOU SCROUNGE UP A PARTY?
+  TG:     
+  Qwen:   Neden bir parti düzenme?
+
+Item #184 [god_tier_crafter_chapter4_012] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: THERE ARE PLENTY OF SCRUBS AROUND HERE WHO'D BE RIGHT UP YOUR ALLEY.
+  TG:     Burada, senin tarzına çok uygun birçok kişi var. / Burası seninle çok iyi anlaşacak birçok insanla dolu.
+  Qwen:   Burada seninle aynı fikirde olan çok sayıda genç kız var.
+
+Item #185 [god_tier_crafter_chapter4_013] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: AH... SO YOU'RE GOING IN WITH A PARTY.
+  TG:     Ah... demek ki bir grupla gidiyorsunuz.
+  Qwen:   AH... YANLIŞ ANLADIM, PARTİYE GİDİYORSUNUZ.
+
+Item #186 [god_tier_crafter_chapter4_015] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: FOR A LEVEL 65, YOU'RE PRETTY USELESS IF YOU ARE MOVING IN A HERD.
+  TG:     65. seviyedeki bir karakter için, bir grup içinde hareket etmek oldukça işe yaramaz olmanıza neden olabilir.
+  Qwen:   Seviye 65 için, sürü halinde hareket ediyorsanız oldukça faydasızsınız.
+
+Item #187 [god_tier_crafter_chapter4_016] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: YOU LITTLE-!!
+  TG:     
+  Qwen:   Küçük şey!!
+
+Item #188 [god_tier_crafter_chapter4_018] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: WELL, DO WHATEVER YOU WANT.
+  TG:     
+  Qwen:   İSTEDİĞİNİ YAP.
+
+Item #189 [god_tier_crafter_chapter4_019] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: I COULDN'T CARE LESS IF YOU WANT TO PLAY PACK ANIMAL WITH YOUR FRIENDS.
+  TG:     Eğer arkadaşlarınızla 'pack animal' gibi davranmak istiyorsanız, beni hiç ilgilendirmez."
+
+Veya daha samimi bir ifadeyle:
+
+"Arkadaşlarınızla nasıl vakit geçirdiğiniz, beni umursamıyor.
+  Qwen:   Eğer arkadaşlarınızla Pak Hayvanı oynamak istiyorsanız, bana hiç umrunda değilim.
+
+Item #190 [god_tier_crafter_chapter4_020] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: WAIT A MINUTE!
+  TG:     Bir dakika!
+  Qwen:   Bir dakika!
+
+Item #191 [god_tier_crafter_chapter4_022] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: I'm coming with you!
+  TG:     Ben de seninle geliyorum!
+  Qwen:   Senle birlikte geliyorum!
+
+Item #192 [god_tier_crafter_chapter4_023] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: PARTY INVITATION
+  TG:     Davet
+
+or
+
+Parti Daveti
+  Qwen:   PARTİ DAVETİ
+
+Item #193 [god_tier_crafter_chapter4_026] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: I'll pass.
+  TG:     
+  Qwen:   Ben geçeceğim.
+
+Item #194 [god_tier_crafter_chapter4_027] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: YOU HAVE BEEN INVITED TO A PARTY BY EMMA (LV. 20 PRIEST).
+  TG:     Emma (20. seviye Rahibe) sizi bir partiye davet etti.
+  Qwen:   Emma (20. Seviye Rahip) tarafından bir partiye davetlisiniz.
+
+Item #195 [god_tier_crafter_chapter4_028] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: ACCEPT
+  TG:     Kabul et.
+  Qwen:   KABUL
+
+Item #196 [god_tier_crafter_chapter4_029] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: DECLINE
+  TG:     
+  Qwen:   REDDETMEK
+
+Item #197 [god_tier_crafter_chapter4_030] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: W-WAIT A SECOND!!
+  TG:     Bir saniye! / Durun bir dakika!
+  Qwen:   V-VAKIT DUR!!
+
+Item #198 [god_tier_crafter_chapter4_031] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: NO, SERIOUSLY!
+  TG:     Ciddi söylüyorum!" veya "Şaka yapmıyorum!
+  Qwen:   HAYIR, CİDDİYLE!
+
+Item #199 [god_tier_crafter_chapter4_032] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: PLEASE LET ME COME ALONG!
+  TG:     Lütfen beni de yanınıza alın!
+  Qwen:   Lütfen beni de yanınıza alın!
+
+Item #200 [god_tier_crafter_chapter4_033] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: I'M PARTIALLY RESPONSIBLE FOR HOW THINGS TURNED OUT.
+  TG:     Olanların nasıl sonuçlandığı konusunda benim de bir sorumluluğum var."
+
+Veya daha vurgulu bir şekilde:
+
+"Olanların böyle sonuçlanmasında benim de payım var.
+  Qwen:   Nasıl sonuçlandığı konusunda kısmen sorumluyum.
+
+Item #201 [god_tier_crafter_chapter4_034] (Reincarnated as a God-Tier Crafter / Chapter 4)
+  Source: YOU HAVE BEEN INVITED TO A PARTY BY EMMA (LV. 20 PRIEST).
+  TG:     Emma (20. seviye Rahibe) sizi bir partiye davet etti.
+  Qwen:   Emma (20. Seviye Rahip) tarafından bir partiye davetlisiniz.
+
+Item #202 [god_tier_crafter_chapter5_001] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: JUST AS I PLANNED
+  TG:     Tam planladığım gibi.
+  Qwen:   İstediğim gibi oldu
+
+Item #203 [god_tier_crafter_chapter5_002] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: CRAFT!
+  TG:     
+  Qwen:   YARATICILIK!
+
+Item #204 [god_tier_crafter_chapter5_003] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: CATCH HIM!
+  TG:     Onu yakala!
+  Qwen:   KAPTA O!
+
+Item #205 [god_tier_crafter_chapter5_004] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: 1-1T STOPPED ...?
+  TG:     1-1T STOPPED ...?
+  Qwen:   1-1T STOPPED ...?
+
+Item #206 [god_tier_crafter_chapter5_005] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: DIDN'T I TELL YOU TO BUY ME
+  TG:     Sana almamı söylememiş miydim?
+  Qwen:   Sana almayı söylemedim mi?
+
+Item #207 [god_tier_crafter_chapter5_006] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: SOME TIME AT THE BEGINNING?
+  TG:     
+  Qwen:   BAŞLANGIÇTA BİR ZAMAN MI?
+
+Item #208 [god_tier_crafter_chapter5_007] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: INCRE- DIBLE...
+  TG:     
+  Qwen:   İNCREDIBLE...
+
+Item #209 [god_tier_crafter_chapter5_008] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: I DIDN'T KNOW CRAFT COULD BE USED LIKE THIS...!
+  TG:     
+  Qwen:   Craft'ın LIKE THIS... diye bir kullanımının olabileceğini bilmiyordum!
+
+Item #210 [god_tier_crafter_chapter5_009] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: I'M GLAD I TESTED OUT 'CRAFT' AT A DISTANCE.
+  TG:     
+  Qwen:   'CRAFT' yetenekini uzaktan test ettiğimi için mutluyum.
+
+Item #211 [god_tier_crafter_chapter5_010] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: NOW THEN...
+  TG:     
+  Qwen:   ŞİMDİ O HALDE...
+
+Item #212 [god_tier_crafter_chapter5_011] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: A WERE-WOLF THAT CAN'T DODGE BECAUSE ITS LEGS ARE BOUND...
+  TG:     Bacakları bağlandığı için kaçamayan bir kurt adam...
+  Qwen:   DOLANMIŞ BACAKLARI YÜZÜNDEN KAÇAMAYAN BİR KURTADAM...
+
+Item #213 [god_tier_crafter_chapter5_012] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: (IS NOTHING BUT A WEAKLING.)
+  TG:     (SADECE ZAYIF BİR KİŞİ.)
+  Qwen:   (HEPSİ ZİHİNSEL OLARAK ZAYIF.)
+
+Item #214 [god_tier_crafter_chapter5_014] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: (FAREWELL.)
+  TG:     (GÜLE GÜLE.)
+  Qwen:   (Veda.)
+
+Item #215 [god_tier_crafter_chapter5_017] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: ALLEN-SAN! I FINISHED OFF THE QUEEN, TOO!
+  TG:     ALLEN-SAN! BEN DE KIZI YENİLDİM!
+  Qwen:   ALLEN-SAN! KRALİÇAYI DA SONA ETTİM!
+
+Item #216 [god_tier_crafter_chapter5_019] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: CONGRATULATIONS! YOU HAVE CLEARED THE <WOLF MINE> CLEAR TIME > 9M 48S (NEW ALL-TIME RECORD!)
+  TG:     TEBRİKLER! <WOLF MINE> seviyesini geçtiniz. Geçiş süreniz: 9 dakika 48 saniye (YENİ TÜM ZAMANLAR REKORU!)
+  Qwen:   TEBRİKLER! <KURT MADENİ> ZORUNLU ZAMANINI 9M 48S ALTINDA TAMAMLADIN (YENİ REKOR!)
+
+Item #217 [god_tier_crafter_chapter5_020] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: ALLEN-SAN, YOU SET AN INCREDIBLE RECORD!
+  TG:     ALLEN-SAN, İNANILMAZ BİR REKOR KIRDINIZ!
+  Qwen:   ALLEN-SAN, EŞSİZ BİR REKORD KURDUNUZ!
+
+Item #218 [god_tier_crafter_chapter5_021] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: ...I'll COME BACK SOLO TOMORROW TO BREAK IT AND TAKE THE TOP SPOT FOR MYSELF.
+  TG:     ...Yarın tek başıma geri geleceğim, onu parçalayacağım ve zirveye kendim yerleşeceğim.
+  Qwen:   ...Yarın tek başıma geri döneceğim, bunu çözeceğim ve zirveyi kendime alacağım.
+
+Item #219 [god_tier_crafter_chapter5_022] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: HOW MEAN!
+  TG:     
+  Qwen:   Ne kadar saçma!
+
+Item #220 [god_tier_crafter_chapter5_024] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: WELL THEN... NOW THAT WE'VE CLEARED IT, LET'S HEAD BACK.
+  TG:     Peki... Şimdi her şeyi netleştirdiğimize göre, geri dönelim.
+  Qwen:   Peki o halde... Şimdi bu konuyu hallettik, geri dönelim.
+
+Item #221 [god_tier_crafter_chapter5_025] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: YES!
+  TG:     Evet!
+  Qwen:   EVET!
+
+Item #222 [god_tier_crafter_chapter5_026] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: THAT'S THE END OF THAT.
+  TG:     İşte bu kadar. / Bu konu burada kapansın. / Artık yeter.
+  Qwen:   BUNUN SONU O.
+
+Item #223 [god_tier_crafter_chapter5_027] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: TH-THANK YOU SO MUCH!
+  TG:     ÇOK TEŞEKKÜR EDERİM!
+  Qwen:   TEŞEKKÜRLER!
+
+Item #224 [god_tier_crafter_chapter5_028] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: ALLEN-SAN, THIS GUN IS...
+  TG:     ALLEN-SAN, BU TABANCA...
+  Qwen:   ALLEN-SAN, BU TABANCA...
+
+Item #225 [god_tier_crafter_chapter5_030] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: OH, FEEL FREE TO USE IT AS YOU LIKE.
+  TG:     Elbette, istediğiniz gibi kullanabilirsiniz. / Lütfen, istediğiniz gibi kullanmaktan çekinmeyin.
+  Qwen:   OH, İSTEDİĞİNİZ KİŞİSELLEŞTİRMEYİ YAPIN.
+
+Item #226 [god_tier_crafter_chapter5_031] (Reincarnated as a God-Tier Crafter / Chapter 5)
+  Source: ISN'T THAT GUY... THE ADVENTURER WHO WAS ARGUING WITH LUCAS?
+  TG:     Şu adam... Lucas ile tartışan maceraperest mi?
+  Qwen:   O adam değil mi... Lucas ile tartışan maceracı?

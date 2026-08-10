@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "source": "I don't fight with this ability.",
+    "translation": "Bu yeteneği kullanarak savaşmıyorum.",
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 2,
+    "source": "Then what is it for?",
+    "translation": "O zaman ne işe yarıyor?",
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 3,
+    "source": "It's called Silver Thread.",
+    "translation": "Bunun adı Silver Thread'dir.",
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 4,
+    "source": "Silver Thread?",
+    "translation": "Silver Thread?",
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 5,
+    "source": "I can use it to detect movement.",
+    "translation": "Bunu hareket algılamak için kullanabilirim.",
+    "validation_warnings": [],
+    "requires_review": false
+  },
+  {
+    "id": 6,
+    "source": "That's more useful than it sounds.",
+    "translation": "Bu, görünenden daha faydalı.",
+    "validation_warnings": [],
+    "requires_review": false
+  }
+]

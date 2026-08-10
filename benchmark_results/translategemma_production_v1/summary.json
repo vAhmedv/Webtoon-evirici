@@ -1,0 +1,25 @@
+{
+  "execution": {
+    "synthetic_items": "17/17",
+    "generation_calls": 17,
+    "retries": 0,
+    "input_tokens": 888,
+    "generated_tokens": 688,
+    "generation_seconds": 12.39,
+    "wall_time_seconds": 12.39,
+    "average_tok_per_sec": 55.53,
+    "load_time_seconds": 10.68,
+    "backend": "TranslateGemma-12B-GGUF-Translation",
+    "model": "TranslateGemma-12B-IT-Q5_K_M-GGUF"
+  },
+  "structural_validation": {
+    "missing_ids": [],
+    "requires_review_count": 0,
+    "unrelated_glossary_leaked": false
+  },
+  "paths": {
+    "results_json": "benchmark_results\\translategemma_production_v1\\results.json",
+    "results_txt": "benchmark_results\\translategemma_production_v1\\results.txt",
+    "summary_json": "benchmark_results\\translategemma_production_v1\\summary.json"
+  }
+}

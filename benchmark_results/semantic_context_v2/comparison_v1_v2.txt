@@ -1,0 +1,1106 @@
+SEMANTIC CONTEXT V2 — V1 VS V2 HUMAN QUALITY REVIEW
+No automatic quality winner is declared.
+
+============================================================
+[001]
+
+PREVIOUS:
+<NONE>
+
+TARGET:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+
+NEXT:
+YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW -> Based on the observation of Luo Tian's recent actions or results
+- HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY -> Luo Tian's current capability is nearly equivalent to that of a specific type of expert (Level 1 archer)
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+
+SELECTED TARGET:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+ŞU ANKI PERFORMANSINA GÖRE, OKÇULUKTA UZMANLAŞMIŞ BİR yetenek kullanıcısı KADAR YAKIN BİR SEVİYEDE.
+
+V2 CONTEXT TRANSLATION:
+ŞU ANKI PERFORMANSINA GÖRE, OKÇULUKTA UZMANLAŞMIŞ BİR yetenek kullanıcısı KADAR YAKIN BİR SEVİYEDE.
+
+WARNINGS:
+approved_term_missing
+============================================================
+
+============================================================
+[002]
+
+PREVIOUS:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+
+TARGET:
+YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+
+NEXT:
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+<NONE>
+
+V2 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types:
+- preposition_misinterpretation
+semantic notes:
+- careful from here on -> vigilant regarding the upcoming threat mentioned in the next context
+
+CLARIFIED TARGET:
+Young Master Yu, Captain Gao, we need to be vigilant for the rest of the journey ahead.
+
+SELECTED TARGET:
+YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+
+VALIDATION:
+FALLBACK
+- named_term_loss
+
+V1 / BASELINE TRANSLATION:
+GENÇ USTAD Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMAMIZ GEREKİYOR.
+
+V2 CONTEXT TRANSLATION:
+GENÇ USTAD Yu, KAPTAN GAO, BURADAN İTİBAREN DİKKATLİ OLMAMIZ GEREKİYOR.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[003]
+
+PREVIOUS:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+
+TARGET:
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+
+NEXT:
+HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- active -> unknown
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+
+SELECTED TARGET:
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+BU GRİ KURT YARASALARIN, BİZİM ÖNÜMÜZDEKİ Blackwind Ravine BÖLGESİNDE OLDUĞU DÜŞÜNÜLÜYOR.
+
+V2 CONTEXT TRANSLATION:
+BU GRİ KURT YARASALARIN, BİZİM ÖNÜMÜZDEKİ Blackwind Ravine BÖLGESİNDE OLDUĞU DÜŞÜNÜLÜYOR.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[004]
+
+PREVIOUS:
+JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.
+YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+
+TARGET:
+HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+
+NEXT:
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- HU SAN -> A specific character's name
+- GO SCOUT THE PATH AHEAD -> A command to investigate the route forward
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+
+SELECTED TARGET:
+HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Hu San, SEN EN HIZLISIN. ÖNDEKİ YOLU KEŞFET.
+
+V2 CONTEXT TRANSLATION:
+Hu San, SEN EN HIZLISIN. ÖNDEKİ YOLU KEŞFET.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[005]
+
+PREVIOUS:
+YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+
+TARGET:
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+
+NEXT:
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- THE FACT THAT THEY'VE APPEARED HERE -> The fact that the Gray Wolf Beasts have appeared here
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+
+SELECTED TARGET:
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Burada ortaya çıkmaları muhtemelen iyi bir işaret değildir.
+
+V2 CONTEXT TRANSLATION:
+Burada ortaya çıkmaları muhtemelen iyi bir işaret değildir.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[006]
+
+PREVIOUS:
+THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.
+HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+
+TARGET:
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+
+NEXT:
+RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- PEAK LEVEL 1 ABILITY USER -> Unknown; context mentions 'Gray Wolf Beasts' and 'scout the path' but provides no definition for 'Level 1 Ability User' or 'Peak' in this specific setting.
+
+V2 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types:
+- ambiguous_quantifier
+- ambiguous_modifier_scope
+semantic notes:
+- THE REST OF THE TEAM ARE NO PUSHOVERS EITHER -> The remaining members of the team are also strong and not easy to defeat.
+
+CLARIFIED TARGET:
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE ALSO NOT EASY TO DEFEAT.
+
+SELECTED TARGET:
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+
+VALIDATION:
+FALLBACK
+- polarity_changed
+
+V1 / BASELINE TRANSLATION:
+KAPTAN Gao Yuan, DİNAMİK BİR OYUNCU VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL.
+
+V2 CONTEXT TRANSLATION:
+KAPTAN Gao Yuan, DİNAMİK BİR OYUNCU VE DİĞER TAKIM ARKADAŞLARI DA RAHAT DEĞİL.
+
+WARNINGS:
+approved_term_missing
+============================================================
+
+============================================================
+[007]
+
+PREVIOUS:
+HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+
+TARGET:
+RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+
+NEXT:
+I'M USED TO IT.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- RELAX, KID. YOU SAW IT YOURSELF JUST NOW. -> The target sentence is ambiguous without knowing what 'IT' refers to. It could mean 'the enemy's appearance', 'the danger', 'a specific event', or 'your own capability'. The context mentions a 'bad sign' and 'fastest' scout, but does not explicitly confirm the specific event the speaker is referring to.
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+
+SELECTED TARGET:
+RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Sakin ol, çocuk. Sen de az önce gördün.
+
+V2 CONTEXT TRANSLATION:
+Sakin ol, çocuk. Sen de az önce gördün.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[008]
+
+PREVIOUS:
+THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+
+TARGET:
+I'M USED TO IT.
+
+NEXT:
+COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+<NONE>
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+I'M USED TO IT.
+
+SELECTED TARGET:
+I'M USED TO IT.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+BEN TO IT'e ALISKINIM.
+
+V2 CONTEXT TRANSLATION:
+BEN TO IT'e ALISKINIM.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[009]
+
+PREVIOUS:
+CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.
+RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+I'M USED TO IT.
+
+TARGET:
+COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+
+NEXT:
+MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- SECRET REALM -> A specific type of location or dimension within the story's universe, distinct from general 'realms' or 'secret places'.
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+
+SELECTED TARGET:
+COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+DÜNYA ÇAPINDA SAYISIZ JEOLOJİK YAP[I] OLUŞMUŞTUR.
+
+V2 CONTEXT TRANSLATION:
+DÜNYA ÇAPINDA SAYISIZ JEOLOJİK YAP[I] OLUŞMUŞTUR.
+
+WARNINGS:
+approved_term_missing
+============================================================
+
+============================================================
+[010]
+
+PREVIOUS:
+RELAX, KID. YOU SAW IT YOURSELF JUST NOW.
+I'M USED TO IT.
+COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.
+
+TARGET:
+MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.
+
+NEXT:
+<NONE>
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- SECRET REALM GUIDE -> A guide who leads people through secret realms (specifically spatial secret realms mentioned in context), not a guide who is 'secret' or hidden.
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.
+
+SELECTED TARGET:
+MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+BENİM İSMİM Luo Tian'TİR. BEN BİR yetenek kullanıcısı DEĞİLİM, BİR gizli âlem rehberiİM.
+
+V2 CONTEXT TRANSLATION:
+BENİM İSMİM Luo Tian'TİR. BEN BİR yetenek kullanıcısı DEĞİLİM, BİR gizli âlem rehberiİM.
+
+WARNINGS:
+approved_term_missing
+============================================================
+
+============================================================
+[011]
+
+PREVIOUS:
+The raiders keep breaking free.
+Once Frost Chain catches them, they cannot move.
+
+TARGET:
+Frost Chain can hold three targets at once.
+
+NEXT:
+Use it when they reach the gate.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- hold three targets at once -> simultaneously immobilize up to three distinct entities
+
+V2 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types:
+- verb_semantics
+semantic notes:
+- hold -> restrain or immobilize
+
+CLARIFIED TARGET:
+Frost Chain can restrain three targets at once.
+
+SELECTED TARGET:
+Frost Chain can restrain three targets at once.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Frost Chain aynı anda üç hedefi taşıyabilir.
+
+V2 CONTEXT TRANSLATION:
+Frost Chain aynı anda üç hedefe karşı koyabilir.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[012]
+
+PREVIOUS:
+There is an extra meal on my hotel bill.
+Only the front desk can add purchases to a room.
+
+TARGET:
+Who charged the meal to my room?
+
+NEXT:
+I want the employee's name.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- Who charged the meal to my room? -> The speaker is asking for the identity of the person or entity responsible for adding the meal charge to their hotel account.
+
+V2 RESOLVER:
+rewrite_needed: None
+confidence: None
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+<NONE>
+
+SELECTED TARGET:
+Who charged the meal to my room?
+
+VALIDATION:
+FALLBACK
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Yemeğin ücreti benim odama nasıl yazıldı?
+
+V2 CONTEXT TRANSLATION:
+Yemeğin ücreti benim odama nasıl yazıldı?
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[013]
+
+PREVIOUS:
+I checked the chamber and found nobody inside.
+I stepped into the corridor for only a few seconds.
+
+TARGET:
+The chamber had been empty only a moment earlier.
+
+NEXT:
+Now someone was standing beside the window.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- The chamber had been empty only a moment earlier. -> The chamber was empty at a specific time in the past relative to the current narrative moment.
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+The chamber had been empty only a moment earlier.
+
+SELECTED TARGET:
+The chamber had been empty only a moment earlier.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Oda, sadece bir an önce boştu.
+
+V2 CONTEXT TRANSLATION:
+Oda, sadece bir an önce boştu.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[014]
+
+PREVIOUS:
+The stone floor was clean when I entered.
+I heard dripping behind me.
+
+TARGET:
+Now a line of wet footprints crossed the floor.
+
+NEXT:
+They led toward the sealed door.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- wet footprints -> tracks left by a person walking
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+Now a line of wet footprints crossed the floor.
+
+SELECTED TARGET:
+Now a line of wet footprints crossed the floor.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu.
+
+V2 CONTEXT TRANSLATION:
+Şimdi, ıslak ayak izlerinin oluşturduğu bir çizgi, zemini kaplıyordu.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[015]
+
+PREVIOUS:
+The boar lowered its head and scraped the ground.
+
+TARGET:
+The boar charged before I could draw my sword.
+
+NEXT:
+Its tusks struck the tree behind me.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- charged -> moved forward rapidly and aggressively to attack
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+The boar charged before I could draw my sword.
+
+SELECTED TARGET:
+The boar charged before I could draw my sword.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Kılıcımı çekmeden önce domuz bana doğru saldırdı.
+
+V2 CONTEXT TRANSLATION:
+Kılıcımı çekmeden önce domuz bana doğru saldırdı.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[016]
+
+PREVIOUS:
+This argument is between you and me.
+
+TARGET:
+Leave him out of this.
+
+NEXT:
+He has nothing to do with our dispute.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- Leave him out of this -> Exclude the third party from the current argument or discussion.
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+Leave him out of this.
+
+SELECTED TARGET:
+Leave him out of this.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Onu bu işin dışında tutun.
+
+V2 CONTEXT TRANSLATION:
+Onu bu işin dışında tutun.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[017]
+
+PREVIOUS:
+The caretaker will need the key later.
+
+TARGET:
+Leave the key where you found it.
+
+NEXT:
+Do not take it with you.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- the key -> unknown specific key
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+Leave the key where you found it.
+
+SELECTED TARGET:
+Leave the key where you found it.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Anahtarı bulduğunuz yerde bırakın.
+
+V2 CONTEXT TRANSLATION:
+Anahtarı bulduğunuz yerde bırakın.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[018]
+
+PREVIOUS:
+The gates will be locked at midnight.
+
+TARGET:
+We need to leave before midnight.
+
+NEXT:
+Pack only what you can carry.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- before midnight -> prior to the time the gates are locked
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+We need to leave before midnight.
+
+SELECTED TARGET:
+We need to leave before midnight.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Oradan gece yarısından önce ayrılmamız gerekiyor.
+
+V2 CONTEXT TRANSLATION:
+Oradan gece yarısından önce ayrılmamız gerekiyor.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[019]
+
+PREVIOUS:
+Mira handed me the cracked compass.
+She said the compass still pointed north.
+
+TARGET:
+I don't trust it.
+
+NEXT:
+The needle keeps spinning.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- it -> unknown
+
+V2 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types:
+- pronoun_reference
+semantic notes:
+- it -> the cracked compass
+
+CLARIFIED TARGET:
+I don't trust the cracked compass.
+
+SELECTED TARGET:
+I don't trust it.
+
+VALIDATION:
+FALLBACK
+- tense_aspect_changed
+
+V1 / BASELINE TRANSLATION:
+Buna güvenmiyorum.
+
+V2 CONTEXT TRANSLATION:
+Buna güvenmiyorum.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[020]
+
+PREVIOUS:
+Arin abandoned the watch without permission.
+
+TARGET:
+Why did he leave?
+
+NEXT:
+The captain wants an explanation.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- leave -> departed from a location
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+Why did he leave?
+
+SELECTED TARGET:
+Why did he leave?
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Neden ayrıldı?
+
+V2 CONTEXT TRANSLATION:
+Neden ayrıldı?
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[021]
+
+PREVIOUS:
+An arrow flew toward Lena's head.
+
+TARGET:
+She watched Lena duck.
+
+NEXT:
+The arrow passed over Lena.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- duck -> to lower the head or body quickly to avoid a blow
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+She watched Lena duck.
+
+SELECTED TARGET:
+She watched Lena duck.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+O, Lena'nın eğildiğini gördü.
+
+V2 CONTEXT TRANSLATION:
+O, Lena'nın eğildiğini gördü.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[022]
+
+PREVIOUS:
+The paralysis spell had kept his legs frozen.
+A minute later, he could move again.
+
+TARGET:
+The spell wore off.
+
+NEXT:
+He stood up without help.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- The spell wore off -> The magical effect of the paralysis spell ended, restoring the subject's ability to move.
+
+V2 RESOLVER:
+rewrite_needed: True
+confidence: 0.95
+risk_types:
+- ambiguous_verb_phrase
+semantic notes:
+- The spell wore off -> The effects of the paralysis spell ended, allowing movement.
+
+CLARIFIED TARGET:
+The paralysis spell's effects ended.
+
+SELECTED TARGET:
+The paralysis spell's effects ended.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Büyünün etkisi geçti.
+
+V2 CONTEXT TRANSLATION:
+Felç büyüsünün etkileri sona erdi.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[023]
+
+PREVIOUS:
+The sentries began their vigil before sunrise.
+
+TARGET:
+They have been waiting since dawn.
+
+NEXT:
+They are still at the gate.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- dawn -> sunrise
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+They have been waiting since dawn.
+
+SELECTED TARGET:
+They have been waiting since dawn.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Onlar, şafaktan beri bekliyorlar.
+
+V2 CONTEXT TRANSLATION:
+Onlar, şafaktan beri bekliyorlar.
+
+WARNINGS:
+<NONE>
+============================================================
+
+============================================================
+[024]
+
+PREVIOUS:
+The iron door had not moved all night.
+
+TARGET:
+The door remained shut.
+
+NEXT:
+No one had entered the vault.
+
+V1 RESOLVER:
+rewrite used: no
+semantic notes:
+- The door remained shut. -> The state of the door being closed is confirmed.
+
+V2 RESOLVER:
+rewrite_needed: False
+confidence: 0.0
+risk_types:
+<NONE>
+semantic notes:
+<NONE>
+
+CLARIFIED TARGET:
+The door remained shut.
+
+SELECTED TARGET:
+The door remained shut.
+
+VALIDATION:
+PASS
+- no deterministic validation failures
+
+V1 / BASELINE TRANSLATION:
+Kapı kapalı kaldı.
+
+V2 CONTEXT TRANSLATION:
+Kapı kapalı kaldı.
+
+WARNINGS:
+<NONE>
+============================================================

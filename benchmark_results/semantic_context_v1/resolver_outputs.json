@@ -1,0 +1,944 @@
+[
+  {
+    "id": 1,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [],
+    "target_source": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+    "next_context": [
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON."
+    ],
+    "named_terms": [
+      "LUO TIAN",
+      "ABILITY USER",
+      "LEVEL 1"
+    ],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW",
+        "intended_sense": "Based on the observation of Luo Tian's recent actions or results",
+        "evidence": "The phrase 'judging by' combined with 'performance just now' indicates an evaluation of past observable behavior, not a hypothetical scenario or a different type of assessment."
+      },
+      {
+        "span": "HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY",
+        "intended_sense": "Luo Tian's current capability is nearly equivalent to that of a specific type of expert (Level 1 archer)",
+        "evidence": "The context implies a direct comparison of skill levels derived from the immediate performance mentioned in the first clause."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "Present tense (stative comparison)",
+    "referents": [
+      "Luo Tian",
+      "Level 1 ability user who specializes in archery"
+    ],
+    "register_hint": "Formal/Narrative",
+    "clarified_target": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+    "selected_target": "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW\",\n      \"intended_sense\": \"Based on the observation of Luo Tian's recent actions or results\",\n      \"evidence\": \"The phrase 'judging by' combined with 'performance just now' indicates an evaluation of past observable behavior, not a hypothetical scenario or a different type of assessment.\"\n    },\n    {\n      \"span\": \"HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY\",\n      \"intended_sense\": \"Luo Tian's current capability is nearly equivalent to that of a specific type of expert (Level 1 archer)\",\n      \"evidence\": \"The context implies a direct comparison of skill levels derived from the immediate performance mentioned in the first clause.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"Present tense (stative comparison)\",\n  \"referents\": [\n    \"Luo Tian\",\n    \"Level 1 ability user who specializes in archery\"\n  ],\n  \"register_hint\": \"Formal/Narrative\",\n  \"clarified_target\": \"JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n(none)\n\nTARGET:\nJUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.\n\nNEXT CONTEXT:\n1. YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 2,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY."
+    ],
+    "target_source": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+    "next_context": [
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."
+    ],
+    "named_terms": [
+      "YU"
+    ],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": "imperative",
+    "referents": [],
+    "register_hint": null,
+    "clarified_target": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+    "selected_target": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [],\n  \"question_type\": null,\n  \"tense_aspect\": \"imperative\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.\n\nTARGET:\nYOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.\n\nNEXT CONTEXT:\n1. THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 3,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON."
+    ],
+    "target_source": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+    "next_context": [
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD."
+    ],
+    "named_terms": [
+      "BLACKWIND RAVINE"
+    ],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "active",
+        "intended_sense": "unknown",
+        "evidence": "The word 'active' is ambiguous; it could mean 'currently moving/awake' or 'present/located'. The context mentions the ravine is 'ahead', but does not specify if the beasts are currently there or just generally inhabit that area. Without explicit confirmation of their current presence, the intended sense cannot be determined."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "present simple",
+    "referents": [
+      "gray wolf beasts",
+      "Blackwind Ravine"
+    ],
+    "register_hint": null,
+    "clarified_target": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+    "selected_target": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"active\",\n      \"intended_sense\": \"unknown\",\n      \"evidence\": \"The word 'active' is ambiguous; it could mean 'currently moving/awake' or 'present/located'. The context mentions the ravine is 'ahead', but does not specify if the beasts are currently there or just generally inhabit that area. Without explicit confirmation of their current presence, the intended sense cannot be determined.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"present simple\",\n  \"referents\": [\n    \"gray wolf beasts\",\n    \"Blackwind Ravine\"\n  ],\n  \"register_hint\": null,\n  \"clarified_target\": \"THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.\n2. YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.\n\nTARGET:\nTHESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.\n\nNEXT CONTEXT:\n1. HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 4,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."
+    ],
+    "target_source": "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+    "next_context": [
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN."
+    ],
+    "named_terms": [
+      "HU SAN"
+    ],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "HU SAN",
+        "intended_sense": "A specific character's name",
+        "evidence": "Context mentions 'Young Master Yu' and 'Captain Gao', establishing a pattern of using proper names for characters; 'Hu San' follows this pattern."
+      },
+      {
+        "span": "GO SCOUT THE PATH AHEAD",
+        "intended_sense": "A command to investigate the route forward",
+        "evidence": "Context mentions 'Gray Wolf Beasts' active in 'Blackwind Ravine ahead of us', creating a logical need for path scouting."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "Imperative",
+    "referents": [
+      "Hu San",
+      "Young Master Yu",
+      "Captain Gao",
+      "Gray Wolf Beasts",
+      "Blackwind Ravine"
+    ],
+    "register_hint": "Formal/Commanding",
+    "clarified_target": "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+    "selected_target": "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"HU SAN\",\n      \"intended_sense\": \"A specific character's name\",\n      \"evidence\": \"Context mentions 'Young Master Yu' and 'Captain Gao', establishing a pattern of using proper names for characters; 'Hu San' follows this pattern.\"\n    },\n    {\n      \"span\": \"GO SCOUT THE PATH AHEAD\",\n      \"intended_sense\": \"A command to investigate the route forward\",\n      \"evidence\": \"Context mentions 'Gray Wolf Beasts' active in 'Blackwind Ravine ahead of us', creating a logical need for path scouting.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"Imperative\",\n  \"referents\": [\n    \"Hu San\",\n    \"Young Master Yu\",\n    \"Captain Gao\",\n    \"Gray Wolf Beasts\",\n    \"Blackwind Ravine\"\n  ],\n  \"register_hint\": \"Formal/Commanding\",\n  \"clarified_target\": \"HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. JUDGING BY LUO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.\n2. YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.\n3. THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.\n\nTARGET:\nHU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.\n\nNEXT CONTEXT:\n1. THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 5,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD."
+    ],
+    "target_source": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+    "next_context": [
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER."
+    ],
+    "named_terms": [],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "THE FACT THAT THEY'VE APPEARED HERE",
+        "intended_sense": "The fact that the Gray Wolf Beasts have appeared here",
+        "evidence": "Context mentions 'Gray Wolf Beasts' are supposed to be in Blackwind Ravine ahead, but does not specify their name or identity in the target sentence."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "present perfect",
+    "referents": [],
+    "register_hint": null,
+    "clarified_target": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+    "selected_target": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"THE FACT THAT THEY'VE APPEARED HERE\",\n      \"intended_sense\": \"The fact that the Gray Wolf Beasts have appeared here\",\n      \"evidence\": \"Context mentions 'Gray Wolf Beasts' are supposed to be in Blackwind Ravine ahead, but does not specify their name or identity in the target sentence.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"present perfect\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.\n2. THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.\n3. HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.\n\nTARGET:\nTHE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.\n\nNEXT CONTEXT:\n1. CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 6,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN."
+    ],
+    "target_source": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "next_context": [
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW."
+    ],
+    "named_terms": [
+      "GAO YUAN",
+      "ABILITY USER",
+      "LEVEL 1"
+    ],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "PEAK LEVEL 1 ABILITY USER",
+        "intended_sense": "Unknown; context mentions 'Gray Wolf Beasts' and 'scout the path' but provides no definition for 'Level 1 Ability User' or 'Peak' in this specific setting.",
+        "evidence": "Previous context discusses wolf beasts and scouting; next context is a reassurance about a visual event. No prior text defines the hierarchy of 'Level 1' or the nature of 'Ability Users'."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "present",
+    "referents": [
+      "Captain Gao Yuan",
+      "the rest of the team"
+    ],
+    "register_hint": null,
+    "clarified_target": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "selected_target": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"PEAK LEVEL 1 ABILITY USER\",\n      \"intended_sense\": \"Unknown; context mentions 'Gray Wolf Beasts' and 'scout the path' but provides no definition for 'Level 1 Ability User' or 'Peak' in this specific setting.\",\n      \"evidence\": \"Previous context discusses wolf beasts and scouting; next context is a reassurance about a visual event. No prior text defines the hierarchy of 'Level 1' or the nature of 'Ability Users'.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"present\",\n  \"referents\": [\n    \"Captain Gao Yuan\",\n    \"the rest of the team\"\n  ],\n  \"register_hint\": null,\n  \"clarified_target\": \"CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.\n2. HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.\n3. THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.\n\nTARGET:\nCAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.\n\nNEXT CONTEXT:\n1. RELAX, KID. YOU SAW IT YOURSELF JUST NOW.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 7,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.",
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER."
+    ],
+    "target_source": "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+    "next_context": [
+      "I'M USED TO IT."
+    ],
+    "named_terms": [],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+        "intended_sense": "The target sentence is ambiguous without knowing what 'IT' refers to. It could mean 'the enemy's appearance', 'the danger', 'a specific event', or 'your own capability'. The context mentions a 'bad sign' and 'fastest' scout, but does not explicitly confirm the specific event the speaker is referring to.",
+        "evidence": "Context mentions 'THEY'VE APPEARED HERE' and 'CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER', but the specific 'IT' in the target is not explicitly defined in the immediate surrounding sentences."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "past simple",
+    "referents": [],
+    "register_hint": null,
+    "clarified_target": "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+    "selected_target": "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"RELAX, KID. YOU SAW IT YOURSELF JUST NOW.\",\n      \"intended_sense\": \"The target sentence is ambiguous without knowing what 'IT' refers to. It could mean 'the enemy's appearance', 'the danger', 'a specific event', or 'your own capability'. The context mentions a 'bad sign' and 'fastest' scout, but does not explicitly confirm the specific event the speaker is referring to.\",\n      \"evidence\": \"Context mentions 'THEY'VE APPEARED HERE' and 'CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER', but the specific 'IT' in the target is not explicitly defined in the immediate surrounding sentences.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"past simple\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"RELAX, KID. YOU SAW IT YOURSELF JUST NOW.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. HU SAN, YOU'RE THE FASTEST. GO SCOUT THE PATH AHEAD.\n2. THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.\n3. CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.\n\nTARGET:\nRELAX, KID. YOU SAW IT YOURSELF JUST NOW.\n\nNEXT CONTEXT:\n1. I'M USED TO IT.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 8,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW."
+    ],
+    "target_source": "I'M USED TO IT.",
+    "next_context": [
+      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD."
+    ],
+    "named_terms": [],
+    "ambiguous": null,
+    "confidence": null,
+    "semantic_notes": [],
+    "question_type": null,
+    "tense_aspect": null,
+    "referents": [],
+    "register_hint": null,
+    "clarified_target": "I'M USED TO IT.",
+    "selected_target": "I'M USED TO IT.",
+    "clarification_used": false,
+    "rejection_reason": "malformed_json",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": true,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"I'M USED TO IT\",\n      \"intended_sense\": null,\n      \"evidence\": null\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"present perfect passive\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"I'M USED TO IT\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.\n2. CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.\n3. RELAX, KID. YOU SAW IT YOURSELF JUST NOW.\n\nTARGET:\nI'M USED TO IT.\n\nNEXT CONTEXT:\n1. COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 9,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+      "I'M USED TO IT."
+    ],
+    "target_source": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+    "next_context": [
+      "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE."
+    ],
+    "named_terms": [],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "SECRET REALM",
+        "intended_sense": "A specific type of location or dimension within the story's universe, distinct from general 'realms' or 'secret places'.",
+        "evidence": "The next context explicitly defines the speaker's role as a 'SECRET REALM GUIDE', confirming that 'SECRET REALM' is a specific proper noun or defined term in this narrative, not a generic description."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "present perfect",
+    "referents": [
+      "CAPTAIN GAO YUAN",
+      "LUO TIAN",
+      "ABILITY USER",
+      "SECRET REALM GUIDE"
+    ],
+    "register_hint": "fantasy/sci-fi narration",
+    "clarified_target": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+    "selected_target": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"SECRET REALM\",\n      \"intended_sense\": \"A specific type of location or dimension within the story's universe, distinct from general 'realms' or 'secret places'.\",\n      \"evidence\": \"The next context explicitly defines the speaker's role as a 'SECRET REALM GUIDE', confirming that 'SECRET REALM' is a specific proper noun or defined term in this narrative, not a generic description.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"present perfect\",\n  \"referents\": [\n    \"CAPTAIN GAO YUAN\",\n    \"LUO TIAN\",\n    \"ABILITY USER\",\n    \"SECRET REALM GUIDE\"\n  ],\n  \"register_hint\": \"fantasy/sci-fi narration\",\n  \"clarified_target\": \"COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.\n2. RELAX, KID. YOU SAW IT YOURSELF JUST NOW.\n3. I'M USED TO IT.\n\nTARGET:\nCOUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.\n\nNEXT CONTEXT:\n1. MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 10,
+    "synthetic_context": false,
+    "source_origin": "scripts/qwen_translation_smoke_test.py::BUBBLES",
+    "previous_context": [
+      "RELAX, KID. YOU SAW IT YOURSELF JUST NOW.",
+      "I'M USED TO IT.",
+      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD."
+    ],
+    "target_source": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "next_context": [],
+    "named_terms": [
+      "LUO TIAN",
+      "ABILITY USER",
+      "SECRET REALM",
+      "SECRET REALM GUIDE"
+    ],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "SECRET REALM GUIDE",
+        "intended_sense": "A guide who leads people through secret realms (specifically spatial secret realms mentioned in context), not a guide who is 'secret' or hidden.",
+        "evidence": "Context mentions 'COUNTLESS SPATIAL SECRET REALMS HAVE FORMED', establishing 'secret realm' as a specific noun phrase referring to hidden locations, making 'guide' the role of the speaker."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "present simple",
+    "referents": [
+      "LUO TIAN",
+      "SECRET REALM"
+    ],
+    "register_hint": "formal introduction",
+    "clarified_target": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER—I'M A SECRET REALM GUIDE.",
+    "selected_target": "MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"SECRET REALM GUIDE\",\n      \"intended_sense\": \"A guide who leads people through secret realms (specifically spatial secret realms mentioned in context), not a guide who is 'secret' or hidden.\",\n      \"evidence\": \"Context mentions 'COUNTLESS SPATIAL SECRET REALMS HAVE FORMED', establishing 'secret realm' as a specific noun phrase referring to hidden locations, making 'guide' the role of the speaker.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"present simple\",\n  \"referents\": [\n    \"LUO TIAN\",\n    \"SECRET REALM\"\n  ],\n  \"register_hint\": \"formal introduction\",\n  \"clarified_target\": \"MY NAME IS LUO TIAN. I'M NOT AN ABILITY USER—I'M A SECRET REALM GUIDE.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. RELAX, KID. YOU SAW IT YOURSELF JUST NOW.\n2. I'M USED TO IT.\n3. COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.\n\nTARGET:\nMY NAME IS LUO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.\n\nNEXT CONTEXT:\n(none)\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 11,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_007",
+    "previous_context": [
+      "The raiders keep breaking free.",
+      "Once Frost Chain catches them, they cannot move."
+    ],
+    "target_source": "Frost Chain can hold three targets at once.",
+    "next_context": [
+      "Use it when they reach the gate."
+    ],
+    "named_terms": [
+      "Frost Chain"
+    ],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "hold three targets at once",
+        "intended_sense": "simultaneously immobilize up to three distinct entities",
+        "evidence": "Context 1 establishes multiple 'raiders' breaking free; Context 2 confirms 'Frost Chain' immobilizes them ('cannot move'); the phrase 'at once' in the target specifies the capacity for simultaneous action on multiple targets."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "present simple (ability/fact)",
+    "referents": [
+      "Frost Chain",
+      "three targets"
+    ],
+    "register_hint": "game mechanics / rule description",
+    "clarified_target": "Frost Chain can hold three targets at once.",
+    "selected_target": "Frost Chain can hold three targets at once.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"hold three targets at once\",\n      \"intended_sense\": \"simultaneously immobilize up to three distinct entities\",\n      \"evidence\": \"Context 1 establishes multiple 'raiders' breaking free; Context 2 confirms 'Frost Chain' immobilizes them ('cannot move'); the phrase 'at once' in the target specifies the capacity for simultaneous action on multiple targets.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"present simple (ability/fact)\",\n  \"referents\": [\n    \"Frost Chain\",\n    \"three targets\"\n  ],\n  \"register_hint\": \"game mechanics / rule description\",\n  \"clarified_target\": \"Frost Chain can hold three targets at once.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. The raiders keep breaking free.\n2. Once Frost Chain catches them, they cannot move.\n\nTARGET:\nFrost Chain can hold three targets at once.\n\nNEXT CONTEXT:\n1. Use it when they reach the gate.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 12,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_019",
+    "previous_context": [
+      "There is an extra meal on my hotel bill.",
+      "Only the front desk can add purchases to a room."
+    ],
+    "target_source": "Who charged the meal to my room?",
+    "next_context": [
+      "I want the employee's name."
+    ],
+    "named_terms": [],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "Who charged the meal to my room?",
+        "intended_sense": "The speaker is asking for the identity of the person or entity responsible for adding the meal charge to their hotel account.",
+        "evidence": "Context 1 establishes that an extra meal exists on the bill. Context 2 states that only the front desk can add purchases. However, the specific agent (e.g., a specific clerk, the system, or the front desk as a department) who performed the action is not explicitly named in the immediate context, making the referent of 'Who' technically ambiguous between a specific individual and the department."
+      }
+    ],
+    "question_type": "interrogative",
+    "tense_aspect": "past simple",
+    "referents": [],
+    "register_hint": null,
+    "clarified_target": "Who charged the meal to my room?",
+    "selected_target": "Who charged the meal to my room?",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"Who charged the meal to my room?\",\n      \"intended_sense\": \"The speaker is asking for the identity of the person or entity responsible for adding the meal charge to their hotel account.\",\n      \"evidence\": \"Context 1 establishes that an extra meal exists on the bill. Context 2 states that only the front desk can add purchases. However, the specific agent (e.g., a specific clerk, the system, or the front desk as a department) who performed the action is not explicitly named in the immediate context, making the referent of 'Who' technically ambiguous between a specific individual and the department.\"\n    }\n  ],\n  \"question_type\": \"interrogative\",\n  \"tense_aspect\": \"past simple\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"Who charged the meal to my room?\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. There is an extra meal on my hotel bill.\n2. Only the front desk can add purchases to a room.\n\nTARGET:\nWho charged the meal to my room?\n\nNEXT CONTEXT:\n1. I want the employee's name.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 13,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_029",
+    "previous_context": [
+      "I checked the chamber and found nobody inside.",
+      "I stepped into the corridor for only a few seconds."
+    ],
+    "target_source": "The chamber had been empty only a moment earlier.",
+    "next_context": [
+      "Now someone was standing beside the window."
+    ],
+    "named_terms": [],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "The chamber had been empty only a moment earlier.",
+        "intended_sense": "The chamber was empty at a specific time in the past relative to the current narrative moment.",
+        "evidence": "The context confirms the chamber was empty ('found nobody inside') and the narrator left ('stepped into the corridor'), but does not specify the duration of the emptiness or the exact timing of the change relative to the narrator's departure, making the phrase 'only a moment earlier' semantically ambiguous regarding whether the emptiness persisted until the narrator's return or if something changed in that brief interval."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "past perfect",
+    "referents": [],
+    "register_hint": null,
+    "clarified_target": "The chamber had been empty only a moment earlier.",
+    "selected_target": "The chamber had been empty only a moment earlier.",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"The chamber had been empty only a moment earlier.\",\n      \"intended_sense\": \"The chamber was empty at a specific time in the past relative to the current narrative moment.\",\n      \"evidence\": \"The context confirms the chamber was empty ('found nobody inside') and the narrator left ('stepped into the corridor'), but does not specify the duration of the emptiness or the exact timing of the change relative to the narrator's departure, making the phrase 'only a moment earlier' semantically ambiguous regarding whether the emptiness persisted until the narrator's return or if something changed in that brief interval.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"past perfect\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"The chamber had been empty only a moment earlier.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. I checked the chamber and found nobody inside.\n2. I stepped into the corridor for only a few seconds.\n\nTARGET:\nThe chamber had been empty only a moment earlier.\n\nNEXT CONTEXT:\n1. Now someone was standing beside the window.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 14,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_adaptation_of_v4_030",
+    "previous_context": [
+      "The stone floor was clean when I entered.",
+      "I heard dripping behind me."
+    ],
+    "target_source": "Now a line of wet footprints crossed the floor.",
+    "next_context": [
+      "They led toward the sealed door."
+    ],
+    "named_terms": [],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "wet footprints",
+        "intended_sense": "tracks left by a person walking",
+        "evidence": "The context describes a clean floor, dripping sounds, and footprints leading to a door, which confirms the physical action of walking rather than any other meaning of 'footprints'."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "simple past",
+    "referents": [
+      "wet footprints"
+    ],
+    "register_hint": null,
+    "clarified_target": "Now a line of wet footprints crossed the floor.",
+    "selected_target": "Now a line of wet footprints crossed the floor.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"wet footprints\",\n      \"intended_sense\": \"tracks left by a person walking\",\n      \"evidence\": \"The context describes a clean floor, dripping sounds, and footprints leading to a door, which confirms the physical action of walking rather than any other meaning of 'footprints'.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"simple past\",\n  \"referents\": [\n    \"wet footprints\"\n  ],\n  \"register_hint\": null,\n  \"clarified_target\": \"Now a line of wet footprints crossed the floor.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. The stone floor was clean when I entered.\n2. I heard dripping behind me.\n\nTARGET:\nNow a line of wet footprints crossed the floor.\n\nNEXT CONTEXT:\n1. They led toward the sealed door.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 15,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_charge_motion",
+    "previous_context": [
+      "The boar lowered its head and scraped the ground."
+    ],
+    "target_source": "The boar charged before I could draw my sword.",
+    "next_context": [
+      "Its tusks struck the tree behind me."
+    ],
+    "named_terms": [],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "charged",
+        "intended_sense": "moved forward rapidly and aggressively to attack",
+        "evidence": "The context describes a boar (a dangerous animal) and the narrator's attempt to draw a sword for defense, followed by the boar's tusks striking a tree. This sequence confirms 'charged' refers to an aggressive attack run, not a neutral movement or a metaphorical charge."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "past simple",
+    "referents": [
+      "boar",
+      "I",
+      "sword",
+      "tree"
+    ],
+    "register_hint": "narrative",
+    "clarified_target": "The boar charged before I could draw my sword.",
+    "selected_target": "The boar charged before I could draw my sword.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"charged\",\n      \"intended_sense\": \"moved forward rapidly and aggressively to attack\",\n      \"evidence\": \"The context describes a boar (a dangerous animal) and the narrator's attempt to draw a sword for defense, followed by the boar's tusks striking a tree. This sequence confirms 'charged' refers to an aggressive attack run, not a neutral movement or a metaphorical charge.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"past simple\",\n  \"referents\": [\n    \"boar\",\n    \"I\",\n    \"sword\",\n    \"tree\"\n  ],\n  \"register_hint\": \"narrative\",\n  \"clarified_target\": \"The boar charged before I could draw my sword.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. The boar lowered its head and scraped the ground.\n\nTARGET:\nThe boar charged before I could draw my sword.\n\nNEXT CONTEXT:\n1. Its tusks struck the tree behind me.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 16,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_leave_exclude",
+    "previous_context": [
+      "This argument is between you and me."
+    ],
+    "target_source": "Leave him out of this.",
+    "next_context": [
+      "He has nothing to do with our dispute."
+    ],
+    "named_terms": [],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "Leave him out of this",
+        "intended_sense": "Exclude the third party from the current argument or discussion.",
+        "evidence": "The following context explicitly states 'He has nothing to do with our dispute', confirming that 'him' refers to an unrelated third party and 'this' refers to the 'argument' mentioned in the previous context."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "Imperative",
+    "referents": [
+      {
+        "text": "him",
+        "role": "Third party excluded from the dispute"
+      },
+      {
+        "text": "this",
+        "role": "The argument between the speaker and listener"
+      }
+    ],
+    "register_hint": "Neutral/Colloquial",
+    "clarified_target": "Leave him out of this.",
+    "selected_target": "Leave him out of this.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"Leave him out of this\",\n      \"intended_sense\": \"Exclude the third party from the current argument or discussion.\",\n      \"evidence\": \"The following context explicitly states 'He has nothing to do with our dispute', confirming that 'him' refers to an unrelated third party and 'this' refers to the 'argument' mentioned in the previous context.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"Imperative\",\n  \"referents\": [\n    {\n      \"text\": \"him\",\n      \"role\": \"Third party excluded from the dispute\"\n    },\n    {\n      \"text\": \"this\",\n      \"role\": \"The argument between the speaker and listener\"\n    }\n  ],\n  \"register_hint\": \"Neutral/Colloquial\",\n  \"clarified_target\": \"Leave him out of this.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. This argument is between you and me.\n\nTARGET:\nLeave him out of this.\n\nNEXT CONTEXT:\n1. He has nothing to do with our dispute.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 17,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_leave_place",
+    "previous_context": [
+      "The caretaker will need the key later."
+    ],
+    "target_source": "Leave the key where you found it.",
+    "next_context": [
+      "Do not take it with you."
+    ],
+    "named_terms": [],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "the key",
+        "intended_sense": "unknown specific key",
+        "evidence": "The previous context mentions 'the key' in a general future need, while the next context says 'it', but neither specifies which key or where 'you found it' refers to, leaving the specific referent ambiguous."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "imperative",
+    "referents": [],
+    "register_hint": null,
+    "clarified_target": "Leave the key where you found it.",
+    "selected_target": "Leave the key where you found it.",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"the key\",\n      \"intended_sense\": \"unknown specific key\",\n      \"evidence\": \"The previous context mentions 'the key' in a general future need, while the next context says 'it', but neither specifies which key or where 'you found it' refers to, leaving the specific referent ambiguous.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"imperative\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"Leave the key where you found it.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. The caretaker will need the key later.\n\nTARGET:\nLeave the key where you found it.\n\nNEXT CONTEXT:\n1. Do not take it with you.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 18,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_leave_depart",
+    "previous_context": [
+      "The gates will be locked at midnight."
+    ],
+    "target_source": "We need to leave before midnight.",
+    "next_context": [
+      "Pack only what you can carry."
+    ],
+    "named_terms": [],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "before midnight",
+        "intended_sense": "prior to the time the gates are locked",
+        "evidence": "The previous context states 'The gates will be locked at midnight', establishing 'midnight' as the critical deadline for departure."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "present simple (modal 'need')",
+    "referents": [
+      {
+        "text": "midnight",
+        "role": "time limit"
+      }
+    ],
+    "register_hint": "imperative/instructional",
+    "clarified_target": "We need to leave before midnight.",
+    "selected_target": "We need to leave before midnight.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"before midnight\",\n      \"intended_sense\": \"prior to the time the gates are locked\",\n      \"evidence\": \"The previous context states 'The gates will be locked at midnight', establishing 'midnight' as the critical deadline for departure.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"present simple (modal 'need')\",\n  \"referents\": [\n    {\n      \"text\": \"midnight\",\n      \"role\": \"time limit\"\n    }\n  ],\n  \"register_hint\": \"imperative/instructional\",\n  \"clarified_target\": \"We need to leave before midnight.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. The gates will be locked at midnight.\n\nTARGET:\nWe need to leave before midnight.\n\nNEXT CONTEXT:\n1. Pack only what you can carry.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 19,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_pronoun_reference",
+    "previous_context": [
+      "Mira handed me the cracked compass.",
+      "She said the compass still pointed north."
+    ],
+    "target_source": "I don't trust it.",
+    "next_context": [
+      "The needle keeps spinning."
+    ],
+    "named_terms": [],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "it",
+        "intended_sense": "unknown",
+        "evidence": "The pronoun 'it' could refer to the compass, the needle, or the act of pointing north, but the context does not provide enough information to distinguish between these possibilities with certainty."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "present simple",
+    "referents": [
+      "compass",
+      "needle"
+    ],
+    "register_hint": null,
+    "clarified_target": "I don't trust it.",
+    "selected_target": "I don't trust it.",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"it\",\n      \"intended_sense\": \"unknown\",\n      \"evidence\": \"The pronoun 'it' could refer to the compass, the needle, or the act of pointing north, but the context does not provide enough information to distinguish between these possibilities with certainty.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"present simple\",\n  \"referents\": [\n    \"compass\",\n    \"needle\"\n  ],\n  \"register_hint\": null,\n  \"clarified_target\": \"I don't trust it.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. Mira handed me the cracked compass.\n2. She said the compass still pointed north.\n\nTARGET:\nI don't trust it.\n\nNEXT CONTEXT:\n1. The needle keeps spinning.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 20,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_question_why",
+    "previous_context": [
+      "Arin abandoned the watch without permission."
+    ],
+    "target_source": "Why did he leave?",
+    "next_context": [
+      "The captain wants an explanation."
+    ],
+    "named_terms": [],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "leave",
+        "intended_sense": "departed from a location",
+        "evidence": "The context mentions abandoning a watch and a captain wanting an explanation, but does not specify a location or event that 'leave' refers to."
+      }
+    ],
+    "question_type": "wh-question",
+    "tense_aspect": "past simple",
+    "referents": [],
+    "register_hint": null,
+    "clarified_target": "Why did he leave?",
+    "selected_target": "Why did he leave?",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"leave\",\n      \"intended_sense\": \"departed from a location\",\n      \"evidence\": \"The context mentions abandoning a watch and a captain wanting an explanation, but does not specify a location or event that 'leave' refers to.\"\n    }\n  ],\n  \"question_type\": \"WH-question\",\n  \"tense_aspect\": \"past simple\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"Why did he leave?\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. Arin abandoned the watch without permission.\n\nTARGET:\nWhy did he leave?\n\nNEXT CONTEXT:\n1. The captain wants an explanation.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 21,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_polysemy_duck",
+    "previous_context": [
+      "An arrow flew toward Lena's head."
+    ],
+    "target_source": "She watched Lena duck.",
+    "next_context": [
+      "The arrow passed over Lena."
+    ],
+    "named_terms": [
+      "Lena"
+    ],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "duck",
+        "intended_sense": "to lower the head or body quickly to avoid a blow",
+        "evidence": "The previous context mentions an arrow flying toward Lena's head, and the next context states the arrow passed over her, confirming the action was a defensive evasion of the projectile."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "simple past",
+    "referents": [
+      {
+        "text": "Lena",
+        "role": "subject of the action"
+      },
+      {
+        "text": "arrow",
+        "role": "object to be avoided"
+      }
+    ],
+    "register_hint": null,
+    "clarified_target": "She watched Lena duck.",
+    "selected_target": "She watched Lena duck.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"duck\",\n      \"intended_sense\": \"to lower the head or body quickly to avoid a blow\",\n      \"evidence\": \"The previous context mentions an arrow flying toward Lena's head, and the next context states the arrow passed over her, confirming the action was a defensive evasion of the projectile.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"simple past\",\n  \"referents\": [\n    {\n      \"text\": \"Lena\",\n      \"role\": \"subject of the action\"\n    },\n    {\n      \"text\": \"arrow\",\n      \"role\": \"object to be avoided\"\n    }\n  ],\n  \"register_hint\": null,\n  \"clarified_target\": \"She watched Lena duck.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. An arrow flew toward Lena's head.\n\nTARGET:\nShe watched Lena duck.\n\nNEXT CONTEXT:\n1. The arrow passed over Lena.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 22,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_phrasal_verb",
+    "previous_context": [
+      "The paralysis spell had kept his legs frozen.",
+      "A minute later, he could move again."
+    ],
+    "target_source": "The spell wore off.",
+    "next_context": [
+      "He stood up without help."
+    ],
+    "named_terms": [],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "The spell wore off",
+        "intended_sense": "The magical effect of the paralysis spell ended, restoring the subject's ability to move.",
+        "evidence": "Context 1 states the spell kept legs frozen; Context 2 states he could move again; Context 3 shows him standing up without help, confirming the restoration of motor function."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "past simple",
+    "referents": [
+      "The spell (paralysis spell)",
+      "he"
+    ],
+    "register_hint": "narrative",
+    "clarified_target": "The spell wore off.",
+    "selected_target": "The spell wore off.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"The spell wore off\",\n      \"intended_sense\": \"The magical effect of the paralysis spell ended, restoring the subject's ability to move.\",\n      \"evidence\": \"Context 1 states the spell kept legs frozen; Context 2 states he could move again; Context 3 shows him standing up without help, confirming the restoration of motor function.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"past simple\",\n  \"referents\": [\n    \"The spell (paralysis spell)\",\n    \"he\"\n  ],\n  \"register_hint\": \"narrative\",\n  \"clarified_target\": \"The spell wore off.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. The paralysis spell had kept his legs frozen.\n2. A minute later, he could move again.\n\nTARGET:\nThe spell wore off.\n\nNEXT CONTEXT:\n1. He stood up without help.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 23,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_present_perfect_progressive",
+    "previous_context": [
+      "The sentries began their vigil before sunrise."
+    ],
+    "target_source": "They have been waiting since dawn.",
+    "next_context": [
+      "They are still at the gate."
+    ],
+    "named_terms": [],
+    "ambiguous": false,
+    "confidence": 0.95,
+    "semantic_notes": [
+      {
+        "span": "dawn",
+        "intended_sense": "sunrise",
+        "evidence": "The previous context states sentries began their vigil 'before sunrise', and the next context confirms they are 'still at the gate', establishing a continuous timeline where 'dawn' refers to the same time period as 'sunrise'."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "present perfect continuous",
+    "referents": [
+      "They (the sentries)"
+    ],
+    "register_hint": null,
+    "clarified_target": "They have been waiting since sunrise.",
+    "selected_target": "They have been waiting since dawn.",
+    "clarification_used": false,
+    "rejection_reason": "not_ambiguous",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": false,\n  \"confidence\": 0.95,\n  \"semantic_notes\": [\n    {\n      \"span\": \"dawn\",\n      \"intended_sense\": \"sunrise\",\n      \"evidence\": \"The previous context states sentries began their vigil 'before sunrise', and the next context confirms they are 'still at the gate', establishing a continuous timeline where 'dawn' refers to the same time period as 'sunrise'.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"present perfect continuous\",\n  \"referents\": [\n    \"They (the sentries)\"\n  ],\n  \"register_hint\": null,\n  \"clarified_target\": \"They have been waiting since sunrise.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. The sentries began their vigil before sunrise.\n\nTARGET:\nThey have been waiting since dawn.\n\nNEXT CONTEXT:\n1. They are still at the gate.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  },
+  {
+    "id": 24,
+    "synthetic_context": true,
+    "source_origin": "synthetic_context_v1_state_action",
+    "previous_context": [
+      "The iron door had not moved all night."
+    ],
+    "target_source": "The door remained shut.",
+    "next_context": [
+      "No one had entered the vault."
+    ],
+    "named_terms": [],
+    "ambiguous": true,
+    "confidence": 0.0,
+    "semantic_notes": [
+      {
+        "span": "The door remained shut.",
+        "intended_sense": "The state of the door being closed is confirmed.",
+        "evidence": "The context mentions an 'iron door' and a 'vault', but does not specify which door is being referred to in the target sentence, nor does it clarify if 'shut' implies a specific mechanism or state beyond general closure."
+      }
+    ],
+    "question_type": null,
+    "tense_aspect": "past simple",
+    "referents": [],
+    "register_hint": null,
+    "clarified_target": "The door remained shut.",
+    "selected_target": "The door remained shut.",
+    "clarification_used": false,
+    "rejection_reason": "unchanged_target",
+    "validation_failures": [],
+    "resolver_failed": false,
+    "malformed_json": false,
+    "raw_response": "{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"The door remained shut.\",\n      \"intended_sense\": \"The state of the door being closed is confirmed.\",\n      \"evidence\": \"The context mentions an 'iron door' and a 'vault', but does not specify which door is being referred to in the target sentence, nor does it clarify if 'shut' implies a specific mechanism or state beyond general closure.\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"past simple\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"The door remained shut.\"\n}",
+    "rendered_prompt": "You are a semantic disambiguation assistant for English dialogue and narration.\n\nYour task is NOT to translate into Turkish.\nUse the nearby context only to determine the intended meaning of the TARGET sentence.\nDo not invent story facts.\nDo not add information not supported by the target or context.\nDo not paraphrase for style.\nDo not rewrite named terms.\nDo not translate proper names or abilities.\n\nReturn JSON only. Do not use Markdown or add prose before or after the JSON.\n\nPREVIOUS CONTEXT:\n1. The iron door had not moved all night.\n\nTARGET:\nThe door remained shut.\n\nNEXT CONTEXT:\n1. No one had entered the vault.\n\nRequired JSON schema:\n{\n  \"ambiguous\": true,\n  \"confidence\": 0.0,\n  \"semantic_notes\": [\n    {\n      \"span\": \"...\",\n      \"intended_sense\": \"...\",\n      \"evidence\": \"...\"\n    }\n  ],\n  \"question_type\": null,\n  \"tense_aspect\": \"...\",\n  \"referents\": [],\n  \"register_hint\": null,\n  \"clarified_target\": \"...\"\n}\n\nThe clarified_target must remain English and preserve all named terms, numbers, polarity, question type, and tense/aspect. Make only the minimum change required to disambiguate meaning. If no clarification is necessary, set clarified_target exactly equal to TARGET. If context does not support a confident resolution, do not guess: keep ambiguous true, use confidence below the acceptance threshold, and set clarified_target exactly equal to TARGET."
+  }
+]

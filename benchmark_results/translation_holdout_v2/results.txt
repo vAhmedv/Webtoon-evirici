@@ -1,0 +1,873 @@
+[001]
+
+SOURCE:
+Take it easy. Nobody's blaming you.
+
+TURKISH:
+Sakin ol. Kimse seni suçlamıyor.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[002]
+
+CONTEXT:
+001 | Take it easy. Nobody's blaming you.
+
+SOURCE:
+That's not what I meant.
+
+TURKISH:
+Demek istediğim bu değildi.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[003]
+
+CONTEXT:
+001 | Take it easy. Nobody's blaming you.
+002 | That's not what I meant.
+
+SOURCE:
+You always say that after things go wrong.
+
+TURKISH:
+Her şey ters gittiğinde hep bunu söylersin.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[004]
+
+CONTEXT:
+001 | Take it easy. Nobody's blaming you.
+002 | That's not what I meant.
+003 | You always say that after things go wrong.
+
+SOURCE:
+And somehow you always survive to complain about it.
+
+TURKISH:
+Ve bir şekilde her zaman şikayet etmek için hayatta kalıyorsun.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[005]
+
+CONTEXT:
+002 | That's not what I meant.
+003 | You always say that after things go wrong.
+004 | And somehow you always survive to complain about it.
+
+SOURCE:
+Commander, the scouts haven't returned yet.
+
+TURKISH:
+Komutan, keşifçiler henüz dönmedi.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[006]
+
+CONTEXT:
+003 | You always say that after things go wrong.
+004 | And somehow you always survive to complain about it.
+005 | Commander, the scouts haven't returned yet.
+
+SOURCE:
+How long have they been gone?
+
+TURKISH:
+Ne kadar süredir gitmişler?
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[007]
+
+CONTEXT:
+004 | And somehow you always survive to complain about it.
+005 | Commander, the scouts haven't returned yet.
+006 | How long have they been gone?
+
+SOURCE:
+Nearly three hours.
+
+TURKISH:
+Yaklaşık üç saat.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[008]
+
+CONTEXT:
+005 | Commander, the scouts haven't returned yet.
+006 | How long have they been gone?
+007 | Nearly three hours.
+
+SOURCE:
+Then we stop waiting at sunset.
+
+TURKISH:
+O zaman gün batımında beklemeyi bırakalım.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[009]
+
+CONTEXT:
+006 | How long have they been gone?
+007 | Nearly three hours.
+008 | Then we stop waiting at sunset.
+
+APPROVED TERMS:
+JIAN WEI => Jian Wei
+
+SOURCE:
+Is that Jian Wei's coat?
+
+TURKISH:
+Bu Jian Wei'nin ceketi mi?
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[010]
+
+CONTEXT:
+007 | Nearly three hours.
+008 | Then we stop waiting at sunset.
+009 | Is that Jian Wei's coat?
+
+APPROVED TERMS:
+MEI REN => Mei Ren
+
+SOURCE:
+No. It belongs to Mei Ren.
+
+TURKISH:
+Hayır. Mei Ren'e ait.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[011]
+
+CONTEXT:
+008 | Then we stop waiting at sunset.
+009 | Is that Jian Wei's coat?
+010 | No. It belongs to Mei Ren.
+
+SOURCE:
+I borrowed it from her this morning.
+
+TURKISH:
+Bunu bu sabah ondan ödünç aldım.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[012]
+
+CONTEXT:
+009 | Is that Jian Wei's coat?
+010 | No. It belongs to Mei Ren.
+011 | I borrowed it from her this morning.
+
+SOURCE:
+You could have mentioned that earlier.
+
+TURKISH:
+Bunu daha önce söyleyebilirdin.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[013]
+
+CONTEXT:
+010 | No. It belongs to Mei Ren.
+011 | I borrowed it from her this morning.
+012 | You could have mentioned that earlier.
+
+APPROVED TERMS:
+SPIRIT GATE => Ruh Geçidi
+
+SOURCE:
+The Spirit Gate will remain closed until dawn.
+
+TURKISH:
+Ruh Geçidi şafak vaktine kadar kapalı kalacak.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[014]
+
+CONTEXT:
+011 | I borrowed it from her this morning.
+012 | You could have mentioned that earlier.
+013 | The Spirit Gate will remain closed until dawn.
+
+APPROVED TERMS:
+SPIRIT GATE => Ruh Geçidi
+
+SOURCE:
+Two Spirit Gates were destroyed during the siege.
+
+TURKISH:
+Sürek sırasında iki Ruh Geçidi yok edildi.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[015]
+
+CONTEXT:
+012 | You could have mentioned that earlier.
+013 | The Spirit Gate will remain closed until dawn.
+014 | Two Spirit Gates were destroyed during the siege.
+
+APPROVED TERMS:
+SOUL LANTERN => Ruh Feneri
+
+SOURCE:
+Protect the Soul Lantern at all costs.
+
+TURKISH:
+Ruh Feneri'ni her şeye rağmen koru.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[016]
+
+CONTEXT:
+013 | The Spirit Gate will remain closed until dawn.
+014 | Two Spirit Gates were destroyed during the siege.
+015 | Protect the Soul Lantern at all costs.
+
+APPROVED TERMS:
+SOUL LANTERN => Ruh Feneri
+
+SOURCE:
+Without the Soul Lantern, we can't find our way back.
+
+TURKISH:
+Ruh Feneri olmadan geri yolunu bulamayız.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[017]
+
+CONTEXT:
+014 | Two Spirit Gates were destroyed during the siege.
+015 | Protect the Soul Lantern at all costs.
+016 | Without the Soul Lantern, we can't find our way back.
+
+SOURCE:
+Don't touch that switch.
+
+TURKISH:
+O düğmeye dokurma.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[018]
+
+CONTEXT:
+015 | Protect the Soul Lantern at all costs.
+016 | Without the Soul Lantern, we can't find our way back.
+017 | Don't touch that switch.
+
+SOURCE:
+Why? Is it dangerous?
+
+TURKISH:
+Neden? Tehlikeli mi?
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[019]
+
+CONTEXT:
+016 | Without the Soul Lantern, we can't find our way back.
+017 | Don't touch that switch.
+018 | Why? Is it dangerous?
+
+SOURCE:
+Worse. It's connected to the alarm.
+
+TURKISH:
+Daha kötüsü. Alarmla bağlantılı.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[020]
+
+CONTEXT:
+017 | Don't touch that switch.
+018 | Why? Is it dangerous?
+019 | Worse. It's connected to the alarm.
+
+SOURCE:
+And you waited until now to tell me?
+
+TURKISH:
+Ve şimdiye kadar bana söylemek için bekledin?
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[021]
+
+CONTEXT:
+018 | Why? Is it dangerous?
+019 | Worse. It's connected to the alarm.
+020 | And you waited until now to tell me?
+
+SOURCE:
+Just perfect.
+
+TURKISH:
+Tamamına kadar mükemmel.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[022]
+
+CONTEXT:
+019 | Worse. It's connected to the alarm.
+020 | And you waited until now to tell me?
+021 | Just perfect.
+
+SOURCE:
+What?
+
+TURKISH:
+Ne?
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[023]
+
+CONTEXT:
+020 | And you waited until now to tell me?
+021 | Just perfect.
+022 | What?
+
+SOURCE:
+Nothing. Keep walking.
+
+TURKISH:
+Hiçbir şey. Yürümeye devam et.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[024]
+
+CONTEXT:
+021 | Just perfect.
+022 | What?
+023 | Nothing. Keep walking.
+
+SOURCE:
+You're terrible at pretending you're not angry.
+
+TURKISH:
+Öfkeli olmadığını taklit etmekte çok kötüsün.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[025]
+
+CONTEXT:
+022 | What?
+023 | Nothing. Keep walking.
+024 | You're terrible at pretending you're not angry.
+
+SOURCE:
+Who charged first?
+
+TURKISH:
+Kim ilk atıldı?
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[026]
+
+CONTEXT:
+023 | Nothing. Keep walking.
+024 | You're terrible at pretending you're not angry.
+025 | Who charged first?
+
+SOURCE:
+The cavalry.
+
+TURKISH:
+Süvari.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[027]
+
+CONTEXT:
+024 | You're terrible at pretending you're not angry.
+025 | Who charged first?
+026 | The cavalry.
+
+SOURCE:
+And who charged you fifty coins for this?
+
+TURKISH:
+Peki bunu için sana elli paraya kim fatura çekti?
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[028]
+
+CONTEXT:
+025 | Who charged first?
+026 | The cavalry.
+027 | And who charged you fifty coins for this?
+
+SOURCE:
+The innkeeper.
+
+TURKISH:
+Han sahibi.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[029]
+
+CONTEXT:
+026 | The cavalry.
+027 | And who charged you fifty coins for this?
+028 | The innkeeper.
+
+SOURCE:
+Leave the door open.
+
+TURKISH:
+Kapıyı açık bırak.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[030]
+
+CONTEXT:
+027 | And who charged you fifty coins for this?
+028 | The innkeeper.
+029 | Leave the door open.
+
+SOURCE:
+Leave him alone.
+
+TURKISH:
+Ona dokunma.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[031]
+
+CONTEXT:
+028 | The innkeeper.
+029 | Leave the door open.
+030 | Leave him alone.
+
+SOURCE:
+Leave the package with the guard.
+
+TURKISH:
+Paketi gardiyanın yanında bırak.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[032]
+
+CONTEXT:
+029 | Leave the door open.
+030 | Leave him alone.
+031 | Leave the package with the guard.
+
+SOURCE:
+We need to leave before sunrise.
+
+TURKISH:
+Gün doğmadan ayrılmamız lazım.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[033]
+
+CONTEXT:
+030 | Leave him alone.
+031 | Leave the package with the guard.
+032 | We need to leave before sunrise.
+
+SOURCE:
+I didn't say she stole the key.
+
+TURKISH:
+Onun anahtarı çaldığını söylemedim.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[034]
+
+CONTEXT:
+031 | Leave the package with the guard.
+032 | We need to leave before sunrise.
+033 | I didn't say she stole the key.
+
+SOURCE:
+I said she knew where it was.
+
+TURKISH:
+Onun nerede olduğunu bildiğini söyledim.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[035]
+
+CONTEXT:
+032 | We need to leave before sunrise.
+033 | I didn't say she stole the key.
+034 | I said she knew where it was.
+
+SOURCE:
+There's a difference.
+
+TURKISH:
+Bir fark var.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[036]
+
+CONTEXT:
+033 | I didn't say she stole the key.
+034 | I said she knew where it was.
+035 | There's a difference.
+
+SOURCE:
+A rather important one.
+
+TURKISH:
+Çok önemli bir fark.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[037]
+
+CONTEXT:
+034 | I said she knew where it was.
+035 | There's a difference.
+036 | A rather important one.
+
+SOURCE:
+Almost everyone made it out.
+
+TURKISH:
+Neredeyse herkes kurtuldu.
+
+WARNINGS: ['still_english']
+FIDELITY FLAGS: []
+REQUIRES REVIEW: True
+--------------------------------------------------
+
+[038]
+
+CONTEXT:
+035 | There's a difference.
+036 | A rather important one.
+037 | Almost everyone made it out.
+
+SOURCE:
+Not everyone was so lucky.
+
+TURKISH:
+Herkes bu kadar şanslı değildi.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[039]
+
+CONTEXT:
+036 | A rather important one.
+037 | Almost everyone made it out.
+038 | Not everyone was so lucky.
+
+SOURCE:
+Only one guard stayed behind.
+
+TURKISH:
+Sadece bir gardiyan kaldı.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[040]
+
+CONTEXT:
+037 | Almost everyone made it out.
+038 | Not everyone was so lucky.
+039 | Only one guard stayed behind.
+
+SOURCE:
+At least four prisoners are still missing.
+
+TURKISH:
+En az dört tutsak hala kayıp.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[041]
+
+CONTEXT:
+038 | Not everyone was so lucky.
+039 | Only one guard stayed behind.
+040 | At least four prisoners are still missing.
+
+SOURCE:
+If the bridge is still standing, we'll cross there.
+
+TURKISH:
+Köprü ayakta kalırsa, oradan geçeceğiz.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[042]
+
+CONTEXT:
+039 | Only one guard stayed behind.
+040 | At least four prisoners are still missing.
+041 | If the bridge is still standing, we'll cross there.
+
+SOURCE:
+If it isn't, we turn back.
+
+TURKISH:
+Aksi takdirde geri döneriz.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[043]
+
+CONTEXT:
+040 | At least four prisoners are still missing.
+041 | If the bridge is still standing, we'll cross there.
+042 | If it isn't, we turn back.
+
+SOURCE:
+Even if they offer us twice the money?
+
+TURKISH:
+Bize iki kat para teklif etseler bile?
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[044]
+
+CONTEXT:
+041 | If the bridge is still standing, we'll cross there.
+042 | If it isn't, we turn back.
+043 | Even if they offer us twice the money?
+
+SOURCE:
+Especially then.
+
+TURKISH:
+Özellikle de o zaman.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[045]
+
+CONTEXT:
+042 | If it isn't, we turn back.
+043 | Even if they offer us twice the money?
+044 | Especially then.
+
+SOURCE:
+The room looked untouched, but something about the dust bothered him.
+
+TURKISH:
+Oda dokunulmamış görünüyordu ama tozdan bir şey onu rahatsız ediyordu.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[046]
+
+CONTEXT:
+043 | Even if they offer us twice the money?
+044 | Especially then.
+045 | The room looked untouched, but something about the dust bothered him.
+
+SOURCE:
+A narrow trail ran from the window to the empty display case.
+
+TURKISH:
+Pencereden boş vitrinin olduğu yere kadar dar bir iz uzanıyordu.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[047]
+
+CONTEXT:
+044 | Especially then.
+045 | The room looked untouched, but something about the dust bothered him.
+046 | A narrow trail ran from the window to the empty display case.
+
+SOURCE:
+Whoever had entered hadn't searched the room at random.
+
+TURKISH:
+Giren kim olursa olsun, odada rastgele arama yapmamış.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------
+
+[048]
+
+CONTEXT:
+045 | The room looked untouched, but something about the dust bothered him.
+046 | A narrow trail ran from the window to the empty display case.
+047 | Whoever had entered hadn't searched the room at random.
+
+SOURCE:
+They had known exactly what they were looking for.
+
+TURKISH:
+Aramakta oldukları şeyi tam olarak biliyorlardı.
+
+WARNINGS: []
+FIDELITY FLAGS: []
+REQUIRES REVIEW: False
+--------------------------------------------------

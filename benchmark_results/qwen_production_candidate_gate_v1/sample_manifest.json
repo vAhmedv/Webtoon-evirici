@@ -1,0 +1,1201 @@
+[
+  {
+    "review_id": "R001",
+    "benchmark_id": "axe_god_chapter1_002",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 1",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R002",
+    "benchmark_id": "axe_god_chapter1_004",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 1",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R003",
+    "benchmark_id": "axe_god_chapter1_010",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 1",
+    "source": "nb",
+    "v3_selected_source": "nb",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R004",
+    "benchmark_id": "axe_god_chapter1_023",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 1",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R005",
+    "benchmark_id": "axe_god_chapter1_019",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 1",
+    "source": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "v3_selected_source": "CAPTAIN GAO YUAN IS A PEAK LEVEL 1 ABILITY USER, AND THE REST OF THE TEAM ARE NO PUSHOVERS EITHER.",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1"
+    ]
+  },
+  {
+    "review_id": "R006",
+    "benchmark_id": "axe_god_chapter1_028",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 1",
+    "source": "MY NAME IS LHO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "v3_selected_source": "MY NAME IS LHO TIAN. I'M NOT AN ABILITY USER-I'M A SECRET REALM GUIDE.",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1"
+    ]
+  },
+  {
+    "review_id": "R007",
+    "benchmark_id": "axe_god_chapter1_005",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 1",
+    "source": "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!",
+    "v3_selected_source": "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.46"
+    ]
+  },
+  {
+    "review_id": "R008",
+    "benchmark_id": "axe_god_chapter1_007",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 1",
+    "source": "YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT.",
+    "v3_selected_source": "YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT.",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.57"
+    ]
+  },
+  {
+    "review_id": "R009",
+    "benchmark_id": "axe_god_chapter2_002",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 2",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R010",
+    "benchmark_id": "axe_god_chapter2_005",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 2",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R011",
+    "benchmark_id": "axe_god_chapter2_007",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 2",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R012",
+    "benchmark_id": "axe_god_chapter2_011",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 2",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R013",
+    "benchmark_id": "axe_god_chapter2_013",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 2",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R014",
+    "benchmark_id": "axe_god_chapter2_015",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 2",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R015",
+    "benchmark_id": "axe_god_chapter2_019",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 2",
+    "source": "THESE PEOPLE ARE PRETTY BADLY INJURED. THAT'S GOING TO BE TROUBLESOME.",
+    "v3_selected_source": "THESE PEOPLE ARE PRETTY BADLY INJURED. THAT'S GOING TO BE TROUBLESOME.",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.34"
+    ]
+  },
+  {
+    "review_id": "R016",
+    "benchmark_id": "axe_god_chapter2_010",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 2",
+    "source": "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?",
+    "v3_selected_source": "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ"
+    ]
+  },
+  {
+    "review_id": "R017",
+    "benchmark_id": "axe_god_chapter3_002",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 3",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R018",
+    "benchmark_id": "axe_god_chapter3_003",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 3",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R019",
+    "benchmark_id": "axe_god_chapter3_015",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 3",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R020",
+    "benchmark_id": "axe_god_chapter3_016",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 3",
+    "source": "AHHH!!!",
+    "v3_selected_source": "AHHH!!!",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R021",
+    "benchmark_id": "axe_god_chapter3_017",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 3",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R022",
+    "benchmark_id": "axe_god_chapter3_024",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 3",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R023",
+    "benchmark_id": "axe_god_chapter3_035",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 3",
+    "source": "N-NO...",
+    "v3_selected_source": "N-NO...",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.72"
+    ]
+  },
+  {
+    "review_id": "R024",
+    "benchmark_id": "axe_god_chapter3_004",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 3",
+    "source": "HAHAHA! IT REALLY IS THE BLOOD AXE!",
+    "v3_selected_source": "HAHAHA! IT REALLY IS THE BLOOD AXE!",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ"
+    ]
+  },
+  {
+    "review_id": "R025",
+    "benchmark_id": "axe_god_chapter4_008",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 4",
+    "source": "中Ra",
+    "v3_selected_source": "中Ra",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R026",
+    "benchmark_id": "axe_god_chapter4_009",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 4",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R027",
+    "benchmark_id": "axe_god_chapter4_011",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 4",
+    "source": "udqa",
+    "v3_selected_source": "udqa",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R028",
+    "benchmark_id": "axe_god_chapter4_012",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 4",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R029",
+    "benchmark_id": "axe_god_chapter4_016",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 4",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R030",
+    "benchmark_id": "axe_god_chapter4_022",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 4",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R031",
+    "benchmark_id": "axe_god_chapter4_013",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 4",
+    "source": "ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO.",
+    "v3_selected_source": "ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO.",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.32"
+    ]
+  },
+  {
+    "review_id": "R032",
+    "benchmark_id": "axe_god_chapter4_019",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 4",
+    "source": "TOO BAD I'M IN A HURRY. OTHERWISE, I'D DEFINITELY AVOID THIS PLACE.",
+    "v3_selected_source": "TOO BAD I'M IN A HURRY. OTHERWISE, I'D DEFINITELY AVOID THIS PLACE.",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.38"
+    ]
+  },
+  {
+    "review_id": "R033",
+    "benchmark_id": "axe_god_chapter5_002",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 5",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R034",
+    "benchmark_id": "axe_god_chapter5_003",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 5",
+    "source": "Yuan",
+    "v3_selected_source": "Yuan",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_0.94"
+    ]
+  },
+  {
+    "review_id": "R035",
+    "benchmark_id": "axe_god_chapter5_007",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 5",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R036",
+    "benchmark_id": "axe_god_chapter5_009",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 5",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R037",
+    "benchmark_id": "axe_god_chapter5_012",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 5",
+    "source": "fh,",
+    "v3_selected_source": "fh,",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R038",
+    "benchmark_id": "axe_god_chapter5_014",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 5",
+    "source": "ARYASCANS.com",
+    "v3_selected_source": "ARYASCANS.com",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R039",
+    "benchmark_id": "axe_god_chapter5_017",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 5",
+    "source": "HOW TERRIFYING!",
+    "v3_selected_source": "HOW TERRIFYING!",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.35"
+    ]
+  },
+  {
+    "review_id": "R040",
+    "benchmark_id": "axe_god_chapter5_019",
+    "series": "Axe God: The Road to Invincibility",
+    "chapter": "Chapter 5",
+    "source": "DANGER!!!",
+    "v3_selected_source": "DANGER!!!",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.57"
+    ]
+  },
+  {
+    "review_id": "R041",
+    "benchmark_id": "god_tier_crafter_chapter1_013",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 1",
+    "source": "ASMOTOON.COM",
+    "v3_selected_source": "ASMOTOON.COM",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R042",
+    "benchmark_id": "god_tier_crafter_chapter1_023",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 1",
+    "source": "ASMOTOON.COM",
+    "v3_selected_source": "ASMOTOON.COM",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R043",
+    "benchmark_id": "god_tier_crafter_chapter1_029",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 1",
+    "source": "ASMOTOON.COM",
+    "v3_selected_source": "ASMOTOON.COM",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R044",
+    "benchmark_id": "god_tier_crafter_chapter1_031",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 1",
+    "source": "GAH...!!!",
+    "v3_selected_source": "GAH...!!!",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R045",
+    "benchmark_id": "god_tier_crafter_chapter1_003",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 1",
+    "source": "“ZERO FANTASY ONLINE.”",
+    "v3_selected_source": "“ZERO FANTASY ONLINE.”",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R046",
+    "benchmark_id": "god_tier_crafter_chapter1_021",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 1",
+    "source": "BE IT SCHOOL...",
+    "v3_selected_source": "BE IT SCHOOL...",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R047",
+    "benchmark_id": "god_tier_crafter_chapter1_007",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 1",
+    "source": "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.",
+    "v3_selected_source": "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.75"
+    ]
+  },
+  {
+    "review_id": "R048",
+    "benchmark_id": "god_tier_crafter_chapter1_015",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 1",
+    "source": "ONCE I FINISH THIS, I'M GETTING A REAL MEAL AND CRASHING.",
+    "v3_selected_source": "ONCE I FINISH THIS, I'M GETTING A REAL MEAL AND CRASHING.",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.35"
+    ]
+  },
+  {
+    "review_id": "R049",
+    "benchmark_id": "god_tier_crafter_chapter2_002",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 2",
+    "source": "ALLEN LV.13",
+    "v3_selected_source": "ALLEN LV.13",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R050",
+    "benchmark_id": "god_tier_crafter_chapter2_007",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 2",
+    "source": "ASMOTOON.COM",
+    "v3_selected_source": "ASMOTOON.COM",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R051",
+    "benchmark_id": "god_tier_crafter_chapter2_008",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 2",
+    "source": "GRO OOM!",
+    "v3_selected_source": "GRO OOM!",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R052",
+    "benchmark_id": "god_tier_crafter_chapter2_019",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 2",
+    "source": "ASMOTOON.COM",
+    "v3_selected_source": "ASMOTOON.COM",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R053",
+    "benchmark_id": "god_tier_crafter_chapter2_015",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 2",
+    "source": "NOTES 7 WEAPON RELOADS AUTOMATICALLY. HOWVE IF THE MAGAZINE IS COMPLETELY EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECC",
+    "v3_selected_source": "NOTES: 7. WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETELY EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECONDS.",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "v3_rewrite_used",
+      "translations_differ"
+    ]
+  },
+  {
+    "review_id": "R054",
+    "benchmark_id": "god_tier_crafter_chapter2_021",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 2",
+    "source": "ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES WEAPON RELOADS AUTOMATIC HOWEVER, IF THE MAGAZINE IS EMPTIED, ATTACKING IS DISAB SEVERAL SECONDS.",
+    "v3_selected_source": "ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES WEAPON RELOADS AUTOMATIC HOWEVER, IF THE MAGAZINE IS EMPTIED, ATTACKING IS DISABLED FOR SEVERAL SECONDS.",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "v3_rewrite_used",
+      "translations_differ"
+    ]
+  },
+  {
+    "review_id": "R055",
+    "benchmark_id": "god_tier_crafter_chapter2_032",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 2",
+    "source": "NOIES7 WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETELY E ATTACKING IS DISABLED FOR SEVERAL SECON EQUIPPED MAGIC STONE IS DEPLETED OF MAN MAGIC STONE EFFECT WILL BE LOST.",
+    "v3_selected_source": "NOIES7 WEAPON RELOADS AUTOMATICALLY. HOWEVER, IF THE MAGAZINE IS COMPLETELY EMPTY, ATTACKING IS DISABLED FOR SEVERAL SECONDS. IF THE EQUIPPED MAGIC STONE IS DEPLETED OF MANA, THE MAGIC STONE EFFECT WILL BE LOST.",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "v3_rewrite_used",
+      "translations_differ"
+    ]
+  },
+  {
+    "review_id": "R056",
+    "benchmark_id": "god_tier_crafter_chapter2_026",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 2",
+    "source": "INVENTORY.",
+    "v3_selected_source": "INVENTORY.",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.31"
+    ]
+  },
+  {
+    "review_id": "R057",
+    "benchmark_id": "god_tier_crafter_chapter3_005",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 3",
+    "source": "ASMOTOON.COM",
+    "v3_selected_source": "ASMOTOON.COM",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R058",
+    "benchmark_id": "god_tier_crafter_chapter3_016",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 3",
+    "source": "HMPH.",
+    "v3_selected_source": "HMPH.",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R059",
+    "benchmark_id": "god_tier_crafter_chapter3_017",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 3",
+    "source": "ASMOTOON.COM",
+    "v3_selected_source": "ASMOTOON.COM",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R060",
+    "benchmark_id": "god_tier_crafter_chapter3_018",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 3",
+    "source": "BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\"",
+    "v3_selected_source": "BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\"",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R061",
+    "benchmark_id": "god_tier_crafter_chapter3_020",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 3",
+    "source": "AH.",
+    "v3_selected_source": "AH.",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R062",
+    "benchmark_id": "god_tier_crafter_chapter3_003",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 3",
+    "source": "ALLEN-KUN, WAS IT...?",
+    "v3_selected_source": "ALLEN-KUN, WAS IT...?",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R063",
+    "benchmark_id": "god_tier_crafter_chapter3_008",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 3",
+    "source": "QUITE THE WELCOME... BUT WHATEVER.",
+    "v3_selected_source": "QUITE THE WELCOME... BUT WHATEVER.",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.77"
+    ]
+  },
+  {
+    "review_id": "R064",
+    "benchmark_id": "god_tier_crafter_chapter3_010",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 3",
+    "source": "F-FIRST OF ALL!",
+    "v3_selected_source": "F-FIRST OF ALL!",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.69"
+    ]
+  },
+  {
+    "review_id": "R065",
+    "benchmark_id": "god_tier_crafter_chapter4_007",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 4",
+    "source": "ASMOTOON.COM",
+    "v3_selected_source": "ASMOTOON.COM",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R066",
+    "benchmark_id": "god_tier_crafter_chapter4_021",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 4",
+    "source": "ASMOTOON.COM",
+    "v3_selected_source": "ASMOTOON.COM",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R067",
+    "benchmark_id": "god_tier_crafter_chapter4_005",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 4",
+    "source": "IT'S FINE.",
+    "v3_selected_source": "IT'S FINE.",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R068",
+    "benchmark_id": "god_tier_crafter_chapter4_010",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 4",
+    "source": "WHY DON'T YOU SCROUNGE UP A PARTY?",
+    "v3_selected_source": "WHY DON'T YOU SCROUNGE UP A PARTY?",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R069",
+    "benchmark_id": "god_tier_crafter_chapter4_014",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 4",
+    "source": "WITH A PARTY.",
+    "v3_selected_source": "WITH A PARTY.",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R070",
+    "benchmark_id": "god_tier_crafter_chapter4_016",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 4",
+    "source": "YOU LITTLE-!!",
+    "v3_selected_source": "YOU LITTLE-!!",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R071",
+    "benchmark_id": "god_tier_crafter_chapter4_001",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 4",
+    "source": "IN FRONT OF THE WOLF MINE DUNGEON",
+    "v3_selected_source": "IN FRONT OF THE WOLF MINE DUNGEON",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.89"
+    ]
+  },
+  {
+    "review_id": "R072",
+    "benchmark_id": "god_tier_crafter_chapter4_008",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 4",
+    "source": "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?",
+    "v3_selected_source": "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.55"
+    ]
+  },
+  {
+    "review_id": "R073",
+    "benchmark_id": "god_tier_crafter_chapter5_013",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 5",
+    "source": "ASMOTOON.COM",
+    "v3_selected_source": "ASMOTOON.COM",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R074",
+    "benchmark_id": "god_tier_crafter_chapter5_029",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 5",
+    "source": "ll,",
+    "v3_selected_source": "ll,",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "both_requires_review",
+      "tg_warnings_1",
+      "qwen_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R075",
+    "benchmark_id": "god_tier_crafter_chapter5_002",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 5",
+    "source": "CRAFT!",
+    "v3_selected_source": "CRAFT!",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R076",
+    "benchmark_id": "god_tier_crafter_chapter5_006",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 5",
+    "source": "SOME TIME AT THE BEGINNING?",
+    "v3_selected_source": "SOME TIME AT THE BEGINNING?",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R077",
+    "benchmark_id": "god_tier_crafter_chapter5_007",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 5",
+    "source": "INCRE- DIBLE...",
+    "v3_selected_source": "INCRE- DIBLE...",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R078",
+    "benchmark_id": "god_tier_crafter_chapter5_008",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 5",
+    "source": "I DIDN'T KNOW CRAFT COULD BE USED LIKE THIS...!",
+    "v3_selected_source": "I DIDN'T KNOW CRAFT COULD BE USED LIKE THIS...!",
+    "sampling_bucket": "high_information",
+    "sampling_reason": [
+      "translations_differ",
+      "tg_requires_review",
+      "tg_warnings_1",
+      "length_ratio_diff_1.00"
+    ]
+  },
+  {
+    "review_id": "R079",
+    "benchmark_id": "god_tier_crafter_chapter5_014",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 5",
+    "source": "(FAREWELL.)",
+    "v3_selected_source": "(FAREWELL.)",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.42"
+    ]
+  },
+  {
+    "review_id": "R080",
+    "benchmark_id": "god_tier_crafter_chapter5_023",
+    "series": "Reincarnated as a God-Tier Crafter",
+    "chapter": "Chapter 5",
+    "source": "WELL THEN... NOW THAT WE'VE",
+    "v3_selected_source": "WELL THEN... NOW THAT WE'VE",
+    "sampling_bucket": "control",
+    "sampling_reason": [
+      "translations_differ",
+      "length_ratio_diff_0.55"
+    ]
+  }
+]

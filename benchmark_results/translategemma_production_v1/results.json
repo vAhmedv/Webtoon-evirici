@@ -1,0 +1,256 @@
+[
+  {
+    "id": 1,
+    "source": "Wait. You're telling me this door was open when you arrived?",
+    "translation": "Bekle. Bana bu kapının senin geldiğinde açık olduğunu söylüyorsun?",
+    "context_ids": [],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 2,
+    "source": "That's what I said.",
+    "translation": "Ben de onu söyledim.",
+    "context_ids": [
+      1
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 3,
+    "source": "Then why is there dust on the handle?",
+    "translation": "Peki, neden sapında toz var?",
+    "context_ids": [
+      1,
+      2
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 4,
+    "source": "Master Ren wants us back before nightfall.",
+    "translation": "Usta Ren, gece çökmeden önce geri dönmemizi istiyor.",
+    "context_ids": [
+      1,
+      2,
+      3
+    ],
+    "approved_terms": {
+      "MASTER REN": "Usta Ren"
+    },
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 5,
+    "source": "Tell Master Ren we'll return when the job is finished.",
+    "translation": "Usta Ren'e, iş bittiğinde geri döneceğimizi söyleyin.",
+    "context_ids": [
+      2,
+      3,
+      4
+    ],
+    "approved_terms": {
+      "MASTER REN": "Usta Ren"
+    },
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 6,
+    "source": "The Spirit Core is reacting to something underground.",
+    "translation": "Ruh Çekirdeği, yer altında bir şeye tepki veriyor.",
+    "context_ids": [
+      3,
+      4,
+      5
+    ],
+    "approved_terms": {
+      "SPIRIT CORE": "Ruh Çekirdeği"
+    },
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 7,
+    "source": "Don't touch it until we know what caused it.",
+    "translation": "Bunun neyin sebep olduğunu bilene kadar ona dokunmayın.",
+    "context_ids": [
+      4,
+      5,
+      6
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 8,
+    "source": "Brilliant. Now we're locked in.",
+    "translation": "Harika. Şimdi artık geri dönüş yok.",
+    "context_ids": [
+      5,
+      6,
+      7
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 9,
+    "source": "You were the one who closed the door.",
+    "translation": "Kapıyı kapatan sensin.",
+    "context_ids": [
+      6,
+      7,
+      8
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 10,
+    "source": "I didn't know it would seal itself.",
+    "translation": "Bunun kendi kendine kapanacağını bilmiyordum.",
+    "context_ids": [
+      7,
+      8,
+      9
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 11,
+    "source": "Not everyone in the village supports us.",
+    "translation": "Köydeki herkes bizi desteklemiyor.",
+    "context_ids": [
+      8,
+      9,
+      10
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 12,
+    "source": "That doesn't make them our enemies.",
+    "translation": "Bu, onları bizim düşmanımız yapmaz.",
+    "context_ids": [
+      9,
+      10,
+      11
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 13,
+    "source": "Leave the documents with the clerk.",
+    "translation": "Belgeleri memura teslim edin.",
+    "context_ids": [
+      10,
+      11,
+      12
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 14,
+    "source": "We need to leave before the patrol comes back.",
+    "translation": "Devriye ekibi geri dönmeden önce buradan gitmemiz gerekiyor.",
+    "context_ids": [
+      11,
+      12,
+      13
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 15,
+    "source": "The footsteps stopped just beyond the wall.",
+    "translation": "Adımlar, duvardan hemen sonra durdu.\n<|end|>",
+    "context_ids": [
+      12,
+      13,
+      14
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 16,
+    "source": "For several seconds, the corridor was completely silent.",
+    "translation": "Birkaç saniye boyunca, koridor tamamen sessizdi.",
+    "context_ids": [
+      13,
+      14,
+      15
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  },
+  {
+    "id": 17,
+    "source": "Then someone whispered his name.",
+    "translation": "Sonra biri, fısıltıyla adını söyledi.",
+    "context_ids": [
+      14,
+      15,
+      16
+    ],
+    "approved_terms": {},
+    "validation_warnings": [],
+    "fidelity_flags": [],
+    "requires_review": false,
+    "term_usages": []
+  }
+]

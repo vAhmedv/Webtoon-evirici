@@ -1,0 +1,415 @@
+[001]
+
+SOURCE:
+Hold on. That's not what happened.
+
+QWEN:
+Dur. Olay öyle gelişmedi.
+
+TRANSLATEGEMMA:
+Durun. O öyle olmadı.
+
+--------------------------------------------------
+
+[002]
+
+SOURCE:
+Then tell me what did.
+
+QWEN:
+Peki, ne olduğunu söyle.
+
+TRANSLATEGEMMA:
+Peki, ne yaptığını bana söyle.
+
+--------------------------------------------------
+
+[003]
+
+SOURCE:
+You wouldn't believe me.
+
+QWEN:
+Bana inanmazsın.
+
+TRANSLATEGEMMA:
+Bana inanmazsın.
+
+--------------------------------------------------
+
+[004]
+
+SOURCE:
+Try me.
+
+QWEN:
+Deneme.
+
+TRANSLATEGEMMA:
+Bana bir şey söyle bakalım.
+
+--------------------------------------------------
+
+[005]
+
+SOURCE:
+Captain, we found another entrance.
+
+QWEN:
+Kaptan, başka bir giriş bulduk.
+
+TRANSLATEGEMMA:
+Kaptan, başka bir giriş bulduk.
+
+--------------------------------------------------
+
+[006]
+
+SOURCE:
+Does anyone else know about it?
+
+QWEN:
+Başkaları da biliyor mu?
+
+TRANSLATEGEMMA:
+Başka kimse bundan haberdar mı?
+
+--------------------------------------------------
+
+[007]
+
+SOURCE:
+Not unless the scouts talked.
+
+QWEN:
+Keşifçiler konuşmadıysa hayır.
+
+TRANSLATEGEMMA:
+Keşif ekibi bahsetmediyse, yok.
+
+--------------------------------------------------
+
+[008]
+
+SOURCE:
+They know better than that.
+
+QWEN:
+Buna daha iyi hallederler.
+
+TRANSLATEGEMMA:
+Onlar bundan daha iyi haberdarlar.
+
+--------------------------------------------------
+
+[009]
+
+SOURCE:
+I wouldn't call that a victory.
+
+QWEN:
+Bunu bir zafer olarak nitelendirmem.
+
+TRANSLATEGEMMA:
+Bunu bir zafer olarak nitelendiremem.
+
+--------------------------------------------------
+
+[010]
+
+SOURCE:
+We survived, didn't we?
+
+QWEN:
+Hayatta kaldık değil mi?
+
+TRANSLATEGEMMA:
+Hayatta kaldık, değil mi?
+
+--------------------------------------------------
+
+[011]
+
+SOURCE:
+Barely.
+
+QWEN:
+Zaten zor.
+
+TRANSLATEGEMMA:
+Zorlukla.
+
+--------------------------------------------------
+
+[012]
+
+SOURCE:
+Still counts.
+
+QWEN:
+Hesaplanır.
+
+TRANSLATEGEMMA:
+Hâlâ sayılıyor.
+
+--------------------------------------------------
+
+[013]
+
+SOURCE:
+Leave the lantern where it is.
+
+QWEN:
+Feneri olduğu yerde bırak.
+
+TRANSLATEGEMMA:
+Feneri olduğu yerde bırakın.
+
+--------------------------------------------------
+
+[014]
+
+SOURCE:
+I need to leave before the guards return.
+
+QWEN:
+Gardiyenler dönmeye başlamadan önce gitmem lazım.
+
+TRANSLATEGEMMA:
+Muhafızlar geri dönmeden önce gitmem gerekiyor.
+
+--------------------------------------------------
+
+[015]
+
+SOURCE:
+She left the key on the table.
+
+QWEN:
+Anahtar masada bırakmış.
+
+TRANSLATEGEMMA:
+Anahtarı masanın üzerine bıraktı.
+
+--------------------------------------------------
+
+[016]
+
+SOURCE:
+Leave him out of this.
+
+QWEN:
+Bunu ona karıştırmayın.
+
+TRANSLATEGEMMA:
+Onu bu işin dışında tutun.
+
+--------------------------------------------------
+
+[017]
+
+SOURCE:
+That went well.
+
+QWEN:
+İşler iyi gitti.
+
+TRANSLATEGEMMA:
+İyi gitti.
+
+--------------------------------------------------
+
+[018]
+
+SOURCE:
+Half the building is on fire.
+
+QWEN:
+Binanın yarısı alevler içinde.
+
+TRANSLATEGEMMA:
+Binanın yarısı yanıyor.
+
+--------------------------------------------------
+
+[019]
+
+SOURCE:
+I said it went well, not perfectly.
+
+QWEN:
+Mükemmel gitti demedim, iyi gitti dedim.
+
+TRANSLATEGEMMA:
+İyi gitti" dedim, mükemmel gitti demedim.
+
+--------------------------------------------------
+
+[020]
+
+SOURCE:
+You're impossible.
+
+QWEN:
+Sen imkansız.
+
+TRANSLATEGEMMA:
+Sen çok zor birisin.
+
+--------------------------------------------------
+
+[021]
+
+SOURCE:
+How much did they charge for the repairs?
+
+QWEN:
+Onarım için ne kadar ücret aldılar?
+
+TRANSLATEGEMMA:
+Tamirat için ne kadar para aldılar?
+
+--------------------------------------------------
+
+[022]
+
+SOURCE:
+Enough to make me regret breaking it.
+
+QWEN:
+Kırmasından pişman olmama yetecek kadar.
+
+TRANSLATEGEMMA:
+Bunu kırdığıma pişman olmamı sağlayacak kadar yüksek bir fiyat.
+
+--------------------------------------------------
+
+[023]
+
+SOURCE:
+Who charged into the room first?
+
+QWEN:
+Kim önce odaya girdi?
+
+TRANSLATEGEMMA:
+Odaya ilk giren kişi kimdi?
+
+--------------------------------------------------
+
+[024]
+
+SOURCE:
+Guess.
+
+QWEN:
+Tahmin et.
+
+TRANSLATEGEMMA:
+Tahmin et.
+
+--------------------------------------------------
+
+[025]
+
+SOURCE:
+Not everyone agreed with the decision.
+
+QWEN:
+Herkes kararın lehine değildi.
+
+TRANSLATEGEMMA:
+Herkes bu karara katılmadı.
+
+--------------------------------------------------
+
+[026]
+
+SOURCE:
+Almost everyone kept quiet.
+
+QWEN:
+Neredeyse herkes susmakla yetindi.
+
+TRANSLATEGEMMA:
+Neredeyse herkes sessiz kaldı.
+
+--------------------------------------------------
+
+[027]
+
+SOURCE:
+Only one person objected.
+
+QWEN:
+Sadece biri itiraz etti.
+
+TRANSLATEGEMMA:
+Sadece bir kişi itiraz etti.
+
+--------------------------------------------------
+
+[028]
+
+SOURCE:
+That doesn't mean the others approved.
+
+QWEN:
+Bunun başkalarının onayladığı anlamına gelmez.
+
+TRANSLATEGEMMA:
+Bu, diğerlerinin de kabul ettiği anlamına gelmez.
+
+--------------------------------------------------
+
+[029]
+
+SOURCE:
+The footprints ended in the middle of the corridor.
+
+QWEN:
+Ayak izleri koridorun ortasında kesildi.
+
+TRANSLATEGEMMA:
+Ayak izleri, koridorun ortasında bitti.
+
+--------------------------------------------------
+
+[030]
+
+SOURCE:
+There were no doors, no windows, and nowhere else to go.
+
+QWEN:
+Kapı yoktu, pencere yoktu, başka bir çıkış da yoktu.
+
+TRANSLATEGEMMA:
+Kapılar yoktu, pencereler yoktu ve gidebileceğiniz başka bir yer de yoktu.
+
+--------------------------------------------------
+
+[031]
+
+SOURCE:
+For a moment, none of them said anything.
+
+QWEN:
+Bir süre hiç kimse bir şey söylemedi.
+
+TRANSLATEGEMMA:
+Bir an için, hiçbiri bir şey söylemedi.
+
+--------------------------------------------------
+
+[032]
+
+SOURCE:
+Then something knocked from inside the wall.
+
+QWEN:
+Sonra duvarın içinden bir şey çarptı.
+
+TRANSLATEGEMMA:
+Sonra, duvardan bir şey geldi.
+
+--------------------------------------------------

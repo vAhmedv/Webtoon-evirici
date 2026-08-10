@@ -1,0 +1,653 @@
+[
+  {
+    "id": 1,
+    "source": "I told you not to touch that.",
+    "translation": "Sana o şeye dokunmamamanı söyledim.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Sana o şeye dokunmamamanı söyledim.",
+    "micro_batch_id": "micro_batch_0001",
+    "micro_batch_region_ids": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 2,
+    "source": "You told me not to open it.",
+    "translation": "Bana onu açmamamı söyledin.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bana onu açmamamı söyledin.",
+    "micro_batch_id": "micro_batch_0001",
+    "micro_batch_region_ids": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 3,
+    "source": "That's not the same thing.",
+    "translation": "Bu aynı şey değil.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bu aynı şey değil.",
+    "micro_batch_id": "micro_batch_0001",
+    "micro_batch_region_ids": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 4,
+    "source": "It is when the box explodes.",
+    "translation": "Bu, kutu patladığında oluyor.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bu, kutu patladığında oluyor.",
+    "micro_batch_id": "micro_batch_0001",
+    "micro_batch_region_ids": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 5,
+    "source": "It's called Silent Chain.",
+    "translation": "Bunun adı Silent Chain'dir.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bunun adı __WTTERM0001__'dir.",
+    "micro_batch_id": null,
+    "micro_batch_region_ids": [],
+    "bypass_type": null
+  },
+  {
+    "id": 6,
+    "source": "Silent Chain?",
+    "translation": "Silent Chain?",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "[Term-Only Bypass]",
+    "micro_batch_id": null,
+    "micro_batch_region_ids": [],
+    "bypass_type": "TERM_ONLY"
+  },
+  {
+    "id": 7,
+    "source": "Activate Silent Chain.",
+    "translation": "\"Silent Chain\" öğesini etkinleştirin.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "\"__WTTERM0001__\" öğesini etkinleştirin.",
+    "micro_batch_id": null,
+    "micro_batch_region_ids": [],
+    "bypass_type": null
+  },
+  {
+    "id": 8,
+    "source": "It can hold two enemies at the same time.",
+    "translation": "Aynı anda iki düşmanı taşıyabilir.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Aynı anda iki düşmanı taşıyabilir.",
+    "micro_batch_id": null,
+    "micro_batch_region_ids": [],
+    "bypass_type": null
+  },
+  {
+    "id": 9,
+    "source": "Don't use Silent Chain again until I give the signal.",
+    "translation": "Ben işaret vermeden Silent Chain'i tekrar kullanmayın.\n*",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Ben işaret vermeden __WTTERM0001__'i tekrar kullanmayın.\n*",
+    "micro_batch_id": "micro_batch_0002",
+    "micro_batch_region_ids": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 10,
+    "source": "I learned it from my father.",
+    "translation": "Bunu babamdan öğrendim.\n*",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bunu babamdan öğrendim.\n*",
+    "micro_batch_id": "micro_batch_0002",
+    "micro_batch_region_ids": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 11,
+    "source": "He never taught you when to stop?",
+    "translation": "Hiç ne zaman durmanız gerektiğini öğretmedi mi size?\n*",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Hiç ne zaman durmanız gerektiğini öğretmedi mi size?\n*",
+    "micro_batch_id": "micro_batch_0002",
+    "micro_batch_region_ids": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 12,
+    "source": "Apparently not.",
+    "translation": "Görünen o ki, öğretmedi.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Görünen o ki, öğretmedi.",
+    "micro_batch_id": "micro_batch_0002",
+    "micro_batch_region_ids": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 13,
+    "source": "These Spirit Stones are for the Guild Master.",
+    "translation": "Bunlar Ruh Taşları, Lonca Lideri için kullanılıyor.",
+    "approved_terms": {
+      "SPIRIT STONE": "Ruh Taşı",
+      "GUILD MASTER": "Lonca Lideri"
+    },
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bunlar __WTTERM0001__'ler, __WTTERM0002__ için kullanılıyor.",
+    "micro_batch_id": "micro_batch_0003",
+    "micro_batch_region_ids": [
+      13,
+      14,
+      15,
+      16
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 14,
+    "source": "Put the Spirit Stones on his desk.",
+    "translation": "Ruh Taşlarını onun masasının üzerine koyun.",
+    "approved_terms": {
+      "SPIRIT STONE": "Ruh Taşı"
+    },
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "__WTTERM0001__'leri onun masasının üzerine koyun.",
+    "micro_batch_id": "micro_batch_0003",
+    "micro_batch_region_ids": [
+      13,
+      14,
+      15,
+      16
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 15,
+    "source": "They paid thirty Spirit Stones for this map.",
+    "translation": "Bu harita için otuz Ruh Taşı ödediler.",
+    "approved_terms": {
+      "SPIRIT STONE": "Ruh Taşı"
+    },
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bu harita için otuz __WTTERM0001__ ödediler.",
+    "micro_batch_id": "micro_batch_0003",
+    "micro_batch_region_ids": [
+      13,
+      14,
+      15,
+      16
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 16,
+    "source": "One Spirit Stone's value can change with its purity.",
+    "translation": "Bir Ruh Taşı değeri, saflığına göre değişebilir.",
+    "approved_terms": {
+      "SPIRIT STONE": "Ruh Taşı"
+    },
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bir __WTTERM0001__ değeri, saflığına göre değişebilir.",
+    "micro_batch_id": "micro_batch_0003",
+    "micro_batch_region_ids": [
+      13,
+      14,
+      15,
+      16
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 17,
+    "source": "PASSIVE SKILL ACQUIRED: NIGHT SENSE",
+    "translation": "Kazanılan Pasif Yetenek: NIGHT SENSE",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "[System UI Lexicon]",
+    "micro_batch_id": null,
+    "micro_batch_region_ids": [],
+    "bypass_type": "SYSTEM_UI"
+  },
+  {
+    "id": 18,
+    "source": "TITLE ACQUIRED: WHITE WARDEN",
+    "translation": "Kazanılan Unvan: WHITE WARDEN",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "[System UI Lexicon]",
+    "micro_batch_id": null,
+    "micro_batch_region_ids": [],
+    "bypass_type": "SYSTEM_UI"
+  },
+  {
+    "id": 19,
+    "source": "CLASS ADVANCEMENT AVAILABLE",
+    "translation": "Sınıf Gelişimi Mevcut",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "[System UI Lexicon]",
+    "micro_batch_id": null,
+    "micro_batch_region_ids": [],
+    "bypass_type": "SYSTEM_UI"
+  },
+  {
+    "id": 20,
+    "source": "ABILITY COOLDOWN: 21 SECONDS",
+    "translation": "Yetenek Bekleme Süresi: 21 saniye",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "[System UI Lexicon]",
+    "micro_batch_id": null,
+    "micro_batch_region_ids": [],
+    "bypass_type": "SYSTEM_UI"
+  },
+  {
+    "id": 21,
+    "source": "Who charged the medicine to my room?",
+    "translation": "İlacı benim odama kim borçlandırdı/yazdı?",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "İlacı benim odama kim borçlandırdı/yazdı?",
+    "micro_batch_id": "micro_batch_0004",
+    "micro_batch_region_ids": [
+      21,
+      22,
+      23,
+      24
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 22,
+    "source": "The healer did.",
+    "translation": "Şifacı yaptı.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Şifacı yaptı.",
+    "micro_batch_id": "micro_batch_0004",
+    "micro_batch_region_ids": [
+      21,
+      22,
+      23,
+      24
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 23,
+    "source": "The wolf charged before I could stand up.",
+    "translation": "Kurt, ayağa kalkmadan önce saldırdı/hücum etti.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Kurt, ayağa kalkmadan önce saldırdı/hücum etti.",
+    "micro_batch_id": "micro_batch_0004",
+    "micro_batch_region_ids": [
+      21,
+      22,
+      23,
+      24
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 24,
+    "source": "That's a different kind of charge.",
+    "translation": "Bu farklı bir tür ücret/masraf.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bu farklı bir tür ücret/masraf.",
+    "micro_batch_id": "micro_batch_0004",
+    "micro_batch_region_ids": [
+      21,
+      22,
+      23,
+      24
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 25,
+    "source": "Leave him out of this.",
+    "translation": "Onu bu işin dışında bırakın. / Onu bu durumdan uzak tutun.\n*",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Onu bu işin dışında bırakın. / Onu bu durumdan uzak tutun.\n*",
+    "micro_batch_id": "micro_batch_0005",
+    "micro_batch_region_ids": [
+      25,
+      26,
+      27,
+      28
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 26,
+    "source": "Leave the documents on the table.",
+    "translation": "Belgeleri masanın üzerine bırakın.\n*",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Belgeleri masanın üzerine bırakın.\n*",
+    "micro_batch_id": "micro_batch_0005",
+    "micro_batch_region_ids": [
+      25,
+      26,
+      27,
+      28
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 27,
+    "source": "We need to leave before sunrise.",
+    "translation": "Güneş doğmadan önce gitmemiz gerekiyor.\n*",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Güneş doğmadan önce gitmemiz gerekiyor.\n*",
+    "micro_batch_id": "micro_batch_0005",
+    "micro_batch_region_ids": [
+      25,
+      26,
+      27,
+      28
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 28,
+    "source": "Leave the rest to me.",
+    "translation": "Kalan her şeyi bana bırakın. / Geri kalanını ben halledeceğim.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Kalan her şeyi bana bırakın. / Geri kalanını ben halledeceğim.",
+    "micro_batch_id": "micro_batch_0005",
+    "micro_batch_region_ids": [
+      25,
+      26,
+      27,
+      28
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 29,
+    "source": "Not everyone believed the Guild Master.",
+    "translation": "Herkes Lonca Lideri ifadesine inanmadı.\n*",
+    "approved_terms": {
+      "GUILD MASTER": "Lonca Lideri"
+    },
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Herkes __WTTERM0001__ ifadesine inanmadı.\n*",
+    "micro_batch_id": "micro_batch_0006",
+    "micro_batch_region_ids": [
+      29,
+      30,
+      31,
+      32
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 30,
+    "source": "Almost everyone stayed quiet.",
+    "translation": "Neredeyse herkes sessiz kaldı.\n*",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Neredeyse herkes sessiz kaldı.\n*",
+    "micro_batch_id": "micro_batch_0006",
+    "micro_batch_region_ids": [
+      29,
+      30,
+      31,
+      32
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 31,
+    "source": "Only one person objected.",
+    "translation": "Sadece bir kişi itiraz etti.\n*",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Sadece bir kişi itiraz etti.\n*",
+    "micro_batch_id": "micro_batch_0006",
+    "micro_batch_region_ids": [
+      29,
+      30,
+      31,
+      32
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 32,
+    "source": "That doesn't mean the others agreed.",
+    "translation": "Bu, diğerlerinin de kabul ettiği anlamına gelmez.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bu, diğerlerinin de kabul ettiği anlamına gelmez.",
+    "micro_batch_id": "micro_batch_0006",
+    "micro_batch_region_ids": [
+      29,
+      30,
+      31,
+      32
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 33,
+    "source": "Wonderful. Now the door is on fire.",
+    "translation": "Harika. Şimdi kapı alevler içinde.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Harika. Şimdi kapı alevler içinde.",
+    "micro_batch_id": "micro_batch_0007",
+    "micro_batch_region_ids": [
+      33,
+      34,
+      35,
+      36
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 34,
+    "source": "You sound surprisingly calm.",
+    "translation": "Şaşırtıcı bir şekilde sakin görünüyorsun.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Şaşırtıcı bir şekilde sakin görünüyorsun.",
+    "micro_batch_id": "micro_batch_0007",
+    "micro_batch_region_ids": [
+      33,
+      34,
+      35,
+      36
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 35,
+    "source": "I'm deciding whether to scream or run.",
+    "translation": "Bağırmayı mı yoksa kaçmayı mı yapacağıma karar vermeye çalışıyorum.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Bağırmayı mı yoksa kaçmayı mı yapacağıma karar vermeye çalışıyorum.",
+    "micro_batch_id": "micro_batch_0007",
+    "micro_batch_region_ids": [
+      33,
+      34,
+      35,
+      36
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 36,
+    "source": "You can do both.",
+    "translation": "İkisini de yapabilirsin.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "İkisini de yapabilirsin.",
+    "micro_batch_id": "micro_batch_0007",
+    "micro_batch_region_ids": [
+      33,
+      34,
+      35,
+      36
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 37,
+    "source": "The chamber had been empty a few seconds earlier.",
+    "translation": "Odanın birkaç saniye önce boş olduğu görülmüştü.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Odanın birkaç saniye önce boş olduğu görülmüştü.",
+    "micro_batch_id": "micro_batch_0008",
+    "micro_batch_region_ids": [
+      37,
+      38,
+      39,
+      40
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 38,
+    "source": "Now three wet footprints crossed the stone floor.",
+    "translation": "Şimdi, taş zeminde üç tane ıslak ayak izi vardı.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Şimdi, taş zeminde üç tane ıslak ayak izi vardı.",
+    "micro_batch_id": "micro_batch_0008",
+    "micro_batch_region_ids": [
+      37,
+      38,
+      39,
+      40
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 39,
+    "source": "There was nobody near the far wall.",
+    "translation": "Uzak duvara yakınlarda kimse yoktu.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Uzak duvara yakınlarda kimse yoktu.",
+    "micro_batch_id": "micro_batch_0008",
+    "micro_batch_region_ids": [
+      37,
+      38,
+      39,
+      40
+    ],
+    "bypass_type": null
+  },
+  {
+    "id": 40,
+    "source": "Then one of the footprints turned toward us.",
+    "translation": "Sonra, ayak izlerinden biri bize doğru dönmeye başladı.",
+    "approved_terms": {},
+    "validation_warnings": [],
+    "requires_review": false,
+    "raw_model_response": "Sonra, ayak izlerinden biri bize doğru dönmeye başladı.",
+    "micro_batch_id": "micro_batch_0008",
+    "micro_batch_region_ids": [
+      37,
+      38,
+      39,
+      40
+    ],
+    "bypass_type": null
+  }
+]
