@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import re
+from copy import deepcopy
 from pathlib import Path
 
 SOURCE_DIR = Path("benchmark_results/real_chapter_translation_gate_v1")
@@ -113,6 +114,26 @@ def find_subsequence_fragments(items: list[dict]) -> dict[str, str]:
     return fragments
 
 
+def rebuild_clean_context_windows(items: list[dict]) -> list[dict]:
+    """Rebuild context using only retained story items from the same chapter."""
+    cleaned = [deepcopy(item) for item in items]
+    by_chapter: dict[tuple[str, str], list[dict]] = {}
+    for item in cleaned:
+        by_chapter.setdefault((item["series"], item["chapter"]), []).append(item)
+
+    for chapter_items in by_chapter.values():
+        for idx, item in enumerate(chapter_items):
+            item["previous_context"] = [
+                chapter_items[pos]["original_accepted_english"]
+                for pos in range(max(0, idx - 3), idx)
+            ]
+            item["next_context"] = [
+                chapter_items[pos]["original_accepted_english"]
+                for pos in range(idx + 1, min(len(chapter_items), idx + 2))
+            ]
+    return cleaned
+
+
 def main() -> None:
     print("=== Cleaning Real Chapter Translation Gate V1 Dataset ===")
 
@@ -171,6 +192,9 @@ def main() -> None:
                 "source": src,
                 "status": cat,
             })
+
+    # Future resolver/translation context must contain only retained story text.
+    valid_story_items = rebuild_clean_context_windows(valid_story_items)
 
     # Verify no lost IDs
     total_processed = len(valid_story_items) + len(excluded_items)

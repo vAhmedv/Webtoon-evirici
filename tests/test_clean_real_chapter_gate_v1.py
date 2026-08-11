@@ -14,12 +14,29 @@ from scripts.create_clean_real_chapter_gate_v1 import (
     is_domain_or_watermark,
     is_sfx_vocalization,
     is_ocr_garbage,
+    rebuild_clean_context_windows,
 )
 from scripts.analyze_clean_production_candidate_human_review import analyze_clean_human_answers
 
 ORIGINAL_GATE_DIR = Path("benchmark_results/real_chapter_translation_gate_v1")
 CLEAN_GATE_DIR = Path("benchmark_results/real_chapter_translation_gate_v1_clean")
 BLIND_PACK_DIR = Path("benchmark_results/qwen_production_candidate_gate_v1_clean")
+
+
+def test_clean_context_windows_exclude_removed_noise_and_duplicates() -> None:
+    retained = [
+        {"id": "a", "series": "S", "chapter": "C", "original_accepted_english": "FIRST STORY."},
+        {"id": "b", "series": "S", "chapter": "C", "original_accepted_english": "SECOND STORY."},
+        {"id": "c", "series": "S", "chapter": "C", "original_accepted_english": "THIRD STORY."},
+    ]
+    rebuilt = rebuild_clean_context_windows(retained)
+    assert rebuilt[1]["previous_context"] == ["FIRST STORY."]
+    assert rebuilt[1]["next_context"] == ["THIRD STORY."]
+    assert all(
+        "ARYASCANS" not in " ".join(item["previous_context"] + item["next_context"])
+        for item in rebuilt
+    )
+    assert "previous_context" not in retained[0]
 
 
 def test_filters_domain_sfx_garbage_and_preserves_proper_names():

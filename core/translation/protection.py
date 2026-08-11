@@ -16,18 +16,25 @@ if TYPE_CHECKING:
 
 
 NAMED_TERM_PATTERNS = [
-    re.compile(r"\b(it's|is)\s+called\s+([A-Z][a-z0-9]+(?:\s+[A-Z][a-z0-9]+)*)", re.IGNORECASE),
-    re.compile(r"\bactivate\s+([A-Z][a-z0-9]+(?:\s+[A-Z][a-z0-9]+)*)", re.IGNORECASE),
-    re.compile(r"\b(used|uses|using)\s+([A-Z][a-z0-9]+(?:\s+[A-Z][a-z0-9]+)*)", re.IGNORECASE),
-    re.compile(r"\blearned\s+([A-Z][a-z0-9]+(?:\s+[A-Z][a-z0-9]+)*)", re.IGNORECASE),
-    re.compile(r"^([A-Z][a-z0-9]+(?:\s+[A-Z][a-z0-9]+)+)\s+(is|allows|keeps|requires|remains|failed|cooldown|breaks)", re.MULTILINE),
-    re.compile(r"(?:PASSIVE SKILL|TITLE|UNIQUE TRAIT|SKILL|ABILITY)\s*(?:ACQUIRED|AVAILABLE)?:?\s*([A-Z0-9\s]{3,30})", re.IGNORECASE),
+    # Bracketed ALL-CAPS tokens are UI-style named abilities/terms.  Protect the
+    # identity inside the brackets while leaving the structural markers intact.
+    re.compile(r"\[(?P<term>[A-Z][A-Z0-9 _-]{1,38}[A-Z0-9])\]"),
+    re.compile(r"\b(?i:it's|is)\s+(?i:called)\s+(?P<term>[A-Z][a-z0-9]+(?:\s+[A-Z][a-z0-9]+)*)"),
+    re.compile(r"\b(?i:activate)\s+(?P<term>[A-Z][a-z0-9]+(?:\s+[A-Z][a-z0-9]+)*)"),
+    re.compile(r"\b(?i:learned)\s+(?P<term>[A-Z][a-z0-9]+(?:\s+[A-Z][a-z0-9]+)*)"),
+    re.compile(r"^(?P<term>[A-Z][a-z0-9]+(?:\s+[A-Z][a-z0-9]+)+)\s+(?:is|allows|keeps|requires|remains|failed|cooldown|breaks)\b", re.MULTILINE),
+    re.compile(
+        r"^\s*(?:PASSIVE SKILL|TITLE|UNIQUE TRAIT|SKILL|ABILITY)"
+        r"\s*(?:ACQUIRED|AVAILABLE)?\s*:?\s*(?P<term>[A-Z][A-Z0-9 -]{2,29})\s*$",
+        re.MULTILINE,
+    ),
 ]
 
 EXCLUDED_WORDS = {
     "THE", "A", "AN", "AND", "OR", "BUT", "NOT", "IF", "THEN", "WHEN", "WHERE", "WHY",
     "HOW", "WHAT", "WHO", "MY", "YOUR", "HIS", "HER", "ITS", "OUR", "THEIR", "THIS", "THAT",
     "IT", "HE", "SHE", "THEY", "WE", "YOU", "I", "CAN", "COULD", "WOULD", "SHOULD", "MUST",
+    "TO", "OF", "FOR", "FROM", "WITH", "WITHOUT", "ON", "IN", "AT", "BY", "AS", "UP", "DOWN",
 }
 
 OPAQUE_SENTINEL_PATTERN = re.compile(r"__WTTERM(?:[0-9A-Z_]+)?", re.IGNORECASE)
@@ -74,14 +81,20 @@ def detect_named_terms_in_items(
 
         for pattern in NAMED_TERM_PATTERNS:
             for match in pattern.finditer(source):
-                group_idx = len(match.groups())
-                term_str = match.group(group_idx).strip(" .?!,:;\"'")
+                term_str = match.group("term").strip(" .?!,:;\"'")
 
                 words = term_str.split()
                 if not words:
                     continue
 
                 if len(words) == 1 and words[0].upper() in EXCLUDED_WORDS:
+                    continue
+
+                # Function-word-only spans are grammar, never named entities.
+                # This prevents false sentinels such as "TO IT" without relying
+                # on phrase-specific blacklists.
+                lexical_words = [re.sub(r"[^A-Za-z]", "", word).upper() for word in words]
+                if lexical_words and all(word in EXCLUDED_WORDS for word in lexical_words):
                     continue
 
                 if all(w[0].isupper() for w in words if w and w[0].isalpha()):
@@ -219,6 +232,22 @@ def _inflect_target(target: str, category: str, proper_name: bool) -> str:
     if category == "bare":
         return target
 
+    if category in {"copular", "person_1sg", "person_2sg", "person_1pl", "person_2pl"}:
+        vowel = _four_way_vowel(target)
+        ends_vowel = _last_alpha(target) in _TURKISH_VOWELS
+        if category == "copular":
+            onset = "t" if _last_alpha(target) in "fstkçşhp" else "d"
+            suffix = onset + vowel + "r"
+        elif category == "person_1sg":
+            suffix = ("y" if ends_vowel else "") + vowel + "m"
+        elif category == "person_2sg":
+            suffix = "s" + vowel + "n"
+        elif category == "person_1pl":
+            suffix = ("y" if ends_vowel else "") + vowel + "z"
+        else:
+            suffix = "s" + vowel + "n" + vowel + "z"
+        return target + ("'" if proper_name else "") + suffix
+
     plural = category == "plural" or category.startswith("plural_")
     case = category.removeprefix("plural_") if category.startswith("plural_") else ""
 
@@ -243,6 +272,17 @@ def _suffix_category(source_suffix: str, translated_suffix: str) -> str | None:
 
     if source_suffix == "'s":
         return "gen"
+
+    nominal_sets = {
+        "copular": {"dır", "dir", "dur", "dür", "tır", "tir", "tur", "tür"},
+        "person_1sg": {"ım", "im", "um", "üm", "yım", "yim", "yum", "yüm"},
+        "person_2sg": {"sın", "sin", "sun", "sün"},
+        "person_1pl": {"ız", "iz", "uz", "üz", "yız", "yiz", "yuz", "yüz"},
+        "person_2pl": {"sınız", "siniz", "sunuz", "sünüz"},
+    }
+    for category, forms in nominal_sets.items():
+        if suffix in forms:
+            return category
 
     plural_sets = {
         "plural_abl": {"lerden", "lardan", "lerinden", "larından"},
@@ -276,6 +316,7 @@ def _target_surface_forms(meta: ProtectedTermMeta) -> set[str]:
     categories = {
         "bare", "gen", "acc", "dat", "loc", "abl", "plural",
         "plural_gen", "plural_acc", "plural_dat", "plural_loc", "plural_abl",
+        "copular", "person_1sg", "person_2sg", "person_1pl", "person_2pl",
     }
     return {_inflect_target(meta.target_base, category, meta.proper_name) for category in categories}
 

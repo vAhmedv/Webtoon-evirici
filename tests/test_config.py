@@ -14,10 +14,11 @@ def test_load_config_returns_config() -> None:
     assert ".webp" in cfg.input_extensions
     assert cfg.output_format == "webp"
     assert cfg.translator.enabled is True
-    assert cfg.translator.provider == "translategemma_gguf"
-    assert cfg.translator.model_path == r"C:\AI\Models\translategemma-12b-it-q5_k_m.gguf"
-    assert cfg.translator.llama_executable == r"C:\AI\llama-cpp-cuda\llama.exe"
-    assert cfg.translator.fallback_provider == "qwen_gguf"
+    assert cfg.translator.provider == "hy_mt2_gguf"
+    assert cfg.translator.server_url == "http://127.0.0.1:8085"
+    assert cfg.translator.model_path == r"C:\AI\Models\HY-MT2-7B-Q8_0.gguf"
+    assert cfg.translator.llama_executable == r"C:\AI\llama-cpp-cuda\llama-server.exe"
+    assert cfg.translator.fallback_provider is None
 
 
 def test_load_config_defaults_when_file_missing(tmp_path) -> None:

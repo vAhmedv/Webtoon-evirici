@@ -12,7 +12,7 @@ import subprocess
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 from loguru import logger
@@ -30,6 +30,7 @@ from core.translation.protection import (
     restore_protected_translation,
     validate_protected_terms,
 )
+from core.translation.source_normalization import normalize_translation_source_case
 from core.translation.system_text import is_system_ui_line, translate_system_ui_line
 from providers.translation.base import (
     TranslationInput,
@@ -76,8 +77,10 @@ class QwenGGUFMetricsV2:
 @dataclass(frozen=True)
 class _PreparedTranslationItemV2:
     item: TranslationItem
+    normalized_source: str
     prepared_text: str
-    placeholder_map: dict[str, str]
+    placeholder_map: dict[str, Any]
+    detected_named_terms: tuple[str, ...] = ()
     system_ui_translation: str | None = None
     term_only_translation: str | None = None
 
@@ -298,13 +301,26 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
         return raw_text, "", False
 
     def _prepare_item(self, item: TranslationItem, inp: TranslationInput) -> _PreparedTranslationItemV2:
-        source_text = item.source.strip()
+        original_source = item.source.strip()
+        explicit_glossary: dict[str, str] = {}
+        for entry in inp.glossary or []:
+            if "->" in entry:
+                source_term, target_term = entry.split("->", 1)
+                explicit_glossary[source_term.strip()] = target_term.strip()
+        source_text = normalize_translation_source_case(
+            original_source,
+            profile=inp.profile,
+            approved_terms=explicit_glossary,
+        )
         approved_terms, _ = get_relevant_terms_for_item(
             source_text,
             inp.profile,
             inp.candidate_store,
         )
-        detected_named_terms = detect_named_terms_in_items([item], candidate_store=inp.candidate_store)
+        normalized_item = replace(item, source=source_text)
+        detected_named_terms = detect_named_terms_in_items(
+            [normalized_item], candidate_store=inp.candidate_store
+        )
 
         proper_name_terms: set[str] = set()
         if inp.profile:
@@ -314,22 +330,20 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
                 if contains_candidate_phrase(key, source_text)
             }
 
-        if inp.glossary:
-            for entry in inp.glossary:
-                if "->" not in entry:
-                    continue
-                source_term, target_term = entry.split("->", 1)
-                source_term = source_term.strip()
+        if explicit_glossary:
+            for source_term, target_term in explicit_glossary.items():
                 if contains_candidate_phrase(source_term, source_text):
-                    approved_terms[source_term.upper()] = target_term.strip()
+                    approved_terms[source_term.upper()] = target_term
 
         if is_system_ui_line(source_text):
             translated_ui = translate_system_ui_line(source_text, approved_terms=approved_terms)
             if translated_ui:
                 return _PreparedTranslationItemV2(
                     item=item,
+                    normalized_source=source_text,
                     prepared_text=source_text,
                     placeholder_map={},
+                    detected_named_terms=tuple(sorted(detected_named_terms)),
                     system_ui_translation=translated_ui,
                 )
 
@@ -341,8 +355,10 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
         if is_bypass and term_trans:
             return _PreparedTranslationItemV2(
                 item=item,
+                normalized_source=source_text,
                 prepared_text=source_text,
                 placeholder_map={},
+                detected_named_terms=tuple(sorted(detected_named_terms)),
                 term_only_translation=term_trans,
             )
 
@@ -354,8 +370,10 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
         )
         return _PreparedTranslationItemV2(
             item=item,
+            normalized_source=source_text,
             prepared_text=prepared_text,
             placeholder_map=placeholder_map,
+            detected_named_terms=tuple(sorted(detected_named_terms)),
         )
 
     def _finalize_prepared_item(

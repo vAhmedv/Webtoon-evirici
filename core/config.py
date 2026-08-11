@@ -45,7 +45,7 @@ class OCRConfig:
 
     enabled: bool = False
     engine: str | None = None
-    provider: str | None = None
+    provider: str | None = "hy_mt2_gguf"
     min_confidence: float = 0.5
     crop_padding: int = 20
     upscale_small_regions: bool = False
@@ -61,6 +61,7 @@ class TranslatorConfig:
     qwen_model: str | None = None
     model_path: str | None = None
     llama_executable: str | None = None
+    server_url: str | None = None
     fallback_provider: str | None = None
 
 

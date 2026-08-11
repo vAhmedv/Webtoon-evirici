@@ -35,10 +35,11 @@ ocr:
 
 translator:
   enabled: true
-  provider: translategemma_gguf
-  model_path: C:\AI\Models\translategemma-12b-it-q5_k_m.gguf
-  llama_executable: C:\AI\llama-cpp-cuda\llama.exe
-  fallback_provider: qwen_gguf
+  provider: hy_mt2_gguf
+  model_path: C:\AI\Models\HY-MT2-7B-Q8_0.gguf
+  llama_executable: C:\AI\llama-cpp-cuda\llama-server.exe
+  server_url: http://127.0.0.1:8085
+  fallback_provider: null
 
 inpainter:
   enabled: false

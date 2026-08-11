@@ -24,6 +24,7 @@ from core.translation.series_profile import SeriesProfile
 from core.translation.system_text import is_system_ui_line, translate_system_ui_line
 from core.translation.translategemma_template import render_translategemma_prompt
 from providers.translation import (
+    HyMT2GGUFTranslationProvider,
     QwenGGUFTranslationProvider,
     TranslateGemmaGGUFTranslationProvider,
     TranslationInput,
@@ -40,7 +41,7 @@ class TestTranslateGemmaHardening(unittest.TestCase):
 
     def test_factory_default_and_explicit_backends(self):
         default_p = get_translation_provider()
-        self.assertIsInstance(default_p, TranslateGemmaGGUFTranslationProvider)
+        self.assertIsInstance(default_p, HyMT2GGUFTranslationProvider)
 
         gemma_p = get_translation_provider(backend="translategemma_gguf")
         self.assertIsInstance(gemma_p, TranslateGemmaGGUFTranslationProvider)
