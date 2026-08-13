@@ -6,6 +6,7 @@ and writes visual_review_manifest.json, performance_report.json, and performance
 
 from __future__ import annotations
 
+import copy
 from dataclasses import replace
 import json
 import math
@@ -33,6 +34,167 @@ SOURCE_CHAPTER = Path(
 )
 E2E_OUTPUT_DIR = ROOT / "e2e_output" / "real_tachidesk_chapter_1"
 OUTPUT_REVIEW_DIR = ROOT / "review_output" / "chapter1_final_visual_review"
+
+
+def rebase_geometry_to_crop(
+    block: TextBlock,
+    page_y_offset: int,
+    crop_x1: int,
+    crop_y1: int,
+) -> TextBlock:
+    """Rebase all bounding boxes and metadata geometry into crop-local coordinates.
+
+    Performs deep-copy / fresh object construction to prevent mutating original region metadata.
+    """
+    rebased_members = []
+    for r in block.members:
+        # Rebase global_bbox to crop-local space
+        r_local_y1 = r.global_bbox.y1 - page_y_offset - crop_y1
+        r_local_y2 = r.global_bbox.y2 - page_y_offset - crop_y1
+        r_local_x1 = r.global_bbox.x1 - crop_x1
+        r_local_x2 = r.global_bbox.x2 - crop_x1
+        new_bbox = BBox(r_local_x1, r_local_y1, r_local_x2, r_local_y2)
+
+        new_meta = copy.deepcopy(r.metadata) if r.metadata else {}
+
+        # polygon
+        if "polygon" in new_meta and isinstance(new_meta["polygon"], list):
+            new_meta["polygon"] = [
+                [px - crop_x1, py - page_y_offset - crop_y1]
+                for px, py in new_meta["polygon"]
+                if isinstance(px, (int, float)) and isinstance(py, (int, float))
+            ]
+
+        # line_polygons
+        if "line_polygons" in new_meta and isinstance(new_meta["line_polygons"], list):
+            new_meta["line_polygons"] = [
+                [[px - crop_x1, py - page_y_offset - crop_y1] for px, py in poly]
+                if isinstance(poly, list) else poly
+                for poly in new_meta["line_polygons"]
+            ]
+
+        # segmentation_polygon / segmentation_polygons
+        if "segmentation_polygon" in new_meta and isinstance(new_meta["segmentation_polygon"], list):
+            new_meta["segmentation_polygon"] = [
+                [px - crop_x1, py - page_y_offset - crop_y1]
+                for px, py in new_meta["segmentation_polygon"]
+            ]
+        if "segmentation_polygons" in new_meta and isinstance(new_meta["segmentation_polygons"], list):
+            new_meta["segmentation_polygons"] = [
+                [[px - crop_x1, py - page_y_offset - crop_y1] for px, py in poly]
+                if isinstance(poly, list) else poly
+                for poly in new_meta["segmentation_polygons"]
+            ]
+
+        # ctd_block_bbox / ctd_block_bboxes
+        if "ctd_block_bbox" in new_meta and isinstance(new_meta["ctd_block_bbox"], (list, tuple)) and len(new_meta["ctd_block_bbox"]) == 4:
+            b = new_meta["ctd_block_bbox"]
+            new_meta["ctd_block_bbox"] = [b[0] - crop_x1, b[1] - page_y_offset - crop_y1, b[2] - crop_x1, b[3] - page_y_offset - crop_y1]
+        if "ctd_block_bboxes" in new_meta and isinstance(new_meta["ctd_block_bboxes"], list):
+            new_meta["ctd_block_bboxes"] = [
+                [b[0] - crop_x1, b[1] - page_y_offset - crop_y1, b[2] - crop_x1, b[3] - page_y_offset - crop_y1]
+                if isinstance(b, (list, tuple)) and len(b) == 4 else b
+                for b in new_meta["ctd_block_bboxes"]
+            ]
+
+        # ctd_line_memberships
+        if "ctd_line_memberships" in new_meta and isinstance(new_meta["ctd_line_memberships"], list):
+            new_memberships = []
+            for item in new_meta["ctd_line_memberships"]:
+                if isinstance(item, dict):
+                    item_copy = copy.deepcopy(item)
+                    if "polygon" in item_copy and isinstance(item_copy["polygon"], list):
+                        item_copy["polygon"] = [
+                            [px - crop_x1, py - page_y_offset - crop_y1]
+                            for px, py in item_copy["polygon"]
+                        ]
+                    new_memberships.append(item_copy)
+                else:
+                    new_memberships.append(item)
+            new_meta["ctd_line_memberships"] = new_memberships
+
+        # ctd_line_mapping inside region metadata
+        if "ctd_line_mapping" in new_meta and isinstance(new_meta["ctd_line_mapping"], list):
+            new_mappings = []
+            for item in new_meta["ctd_line_mapping"]:
+                if isinstance(item, dict):
+                    item_copy = copy.deepcopy(item)
+                    if "polygon" in item_copy and isinstance(item_copy["polygon"], list):
+                        item_copy["polygon"] = [
+                            [px - crop_x1, py - page_y_offset - crop_y1]
+                            for px, py in item_copy["polygon"]
+                        ]
+                    new_mappings.append(item_copy)
+                else:
+                    new_mappings.append(item)
+            new_meta["ctd_line_mapping"] = new_mappings
+
+        rebased_r = replace(r, global_bbox=new_bbox, metadata=new_meta)
+        rebased_members.append(rebased_r)
+
+    # Rebase merged_bbox for TextBlock
+    b_local_x1 = block.merged_bbox.x1 - crop_x1
+    b_local_y1 = block.merged_bbox.y1 - page_y_offset - crop_y1
+    b_local_x2 = block.merged_bbox.x2 - crop_x1
+    b_local_y2 = block.merged_bbox.y2 - page_y_offset - crop_y1
+    new_merged_bbox = BBox(b_local_x1, b_local_y1, b_local_x2, b_local_y2)
+
+    new_block_meta = copy.deepcopy(block.metadata) if block.metadata else {}
+    if "ctd_line_mapping" in new_block_meta and isinstance(new_block_meta["ctd_line_mapping"], list):
+        new_mappings = []
+        for item in new_block_meta["ctd_line_mapping"]:
+            if isinstance(item, dict):
+                item_copy = copy.deepcopy(item)
+                if "polygon" in item_copy and isinstance(item_copy["polygon"], list):
+                    item_copy["polygon"] = [
+                        [px - crop_x1, py - page_y_offset - crop_y1]
+                        for px, py in item_copy["polygon"]
+                    ]
+                new_mappings.append(item_copy)
+            else:
+                new_mappings.append(item)
+        new_block_meta["ctd_line_mapping"] = new_mappings
+
+    return replace(
+        block,
+        members=tuple(rebased_members),
+        merged_bbox=new_merged_bbox,
+        metadata=new_block_meta,
+    )
+
+
+def build_page_identity_map(
+    source_pages: Sequence[Page],
+    exported_paths: Sequence[Path],
+) -> dict[str, Path]:
+    """Builds explicit identity mapping from source page name to exported page file path.
+
+    Matches by normalized page identity stem (e.g. '003' for '003.webp' -> '003.png').
+    Fails loudly if duplicate or missing identities are detected.
+    """
+    src_stems: dict[str, str] = {}
+    for p in source_pages:
+        stem = Path(p.name).stem
+        if stem in src_stems:
+            raise ValueError(f"Duplicate source page identity stem detected: {stem} ({p.name})")
+        src_stems[stem] = p.name
+
+    exp_map: dict[str, Path] = {}
+    for exp_path in exported_paths:
+        stem = exp_path.stem
+        if stem in exp_map:
+            raise ValueError(f"Duplicate exported page identity stem detected: {stem} ({exp_path.name})")
+        exp_map[stem] = exp_path
+
+    missing_src = set(src_stems.keys()) - set(exp_map.keys())
+    if missing_src:
+        raise ValueError(f"Exported page files missing for source page identity stems: {sorted(list(missing_src))}")
+
+    missing_exp = set(exp_map.keys()) - set(src_stems.keys())
+    if missing_exp:
+        raise ValueError(f"Source pages missing for exported page identity stems: {sorted(list(missing_exp))}")
+
+    return {src_stems[stem]: exp_map[stem] for stem in src_stems}
 
 
 def create_contact_card(
@@ -104,7 +266,12 @@ def main() -> None:
     with open(regions_json, "r", encoding="utf-8") as f:
         analysis_data = json.load(f)
 
-    exported_pages = sorted(list((E2E_OUTPUT_DIR / "pages").glob("*.png")) + list((E2E_OUTPUT_DIR / "pages").glob("*.jpg")))
+    exported_paths = (
+        list((E2E_OUTPUT_DIR / "pages").glob("*.png"))
+        + list((E2E_OUTPUT_DIR / "pages").glob("*.jpg"))
+        + list((E2E_OUTPUT_DIR / "pages").glob("*.webp"))
+    )
+    exported_page_map = build_page_identity_map(pages, exported_paths)
 
     inpainter = Inpainter(debug_dir=E2E_OUTPUT_DIR / "analysis" / "inpainting_debug")
 
@@ -203,8 +370,13 @@ def main() -> None:
     for cat_name, block in selected_samples:
         p_idx = block.metadata.get("page_index", 0)
         source_page = pages[p_idx]
+
+        # Explicit page identity matching & assertion
+        assert source_page.name in exported_page_map, f"Exported page missing for source page {source_page.name}"
+        exported_page_path = exported_page_map[source_page.name]
+
         src_img = Image.open(source_page.path).convert("RGB")
-        rendered_page_img = Image.open(exported_pages[p_idx]).convert("RGB")
+        rendered_page_img = Image.open(exported_page_path).convert("RGB")
 
         # Compute local page crop bounding box
         bbox = block.merged_bbox
@@ -221,39 +393,46 @@ def main() -> None:
         src_crop = src_img.crop((cx1, cy1, cx2, cy2))
         ren_crop = rendered_page_img.crop((cx1, cy1, cx2, cy2))
 
+        crop_w, crop_h = cx2 - cx1, cy2 - cy1
+        assert src_crop.size == (crop_w, crop_h), f"Source crop size mismatch: {src_crop.size} vs {(crop_w, crop_h)}"
+        assert ren_crop.size == (crop_w, crop_h), f"Rendered crop size mismatch: {ren_crop.size} vs {(crop_w, crop_h)}"
+
+        # Complete, side-effect free geometry rebasing
+        local_block = rebase_geometry_to_crop(block, y_offset, cx1, cy1)
+
         # 2. Member overlay crop
         overlay_img = src_crop.copy()
         ol_draw = ImageDraw.Draw(overlay_img)
-        for r in block.members:
-            rx1 = r.global_bbox.x1 - cx1
-            ry1 = (r.global_bbox.y1 - y_offset) - cy1
-            rx2 = r.global_bbox.x2 - cx1
-            ry2 = (r.global_bbox.y2 - y_offset) - cy1
+        for r in local_block.members:
+            rx1, ry1, rx2, ry2 = r.global_bbox.x1, r.global_bbox.y1, r.global_bbox.x2, r.global_bbox.y2
             ol_draw.rectangle([(rx1, ry1), (rx2, ry2)], outline=(0, 255, 0), width=2)
             ol_draw.text((rx1 + 2, ry1 + 2), f"R{r.id}", fill=(255, 255, 0))
 
-        # 3 & 4. Refined glyph mask & inpainting crop
-        local_members = [
-            replace(
-                r,
-                global_bbox=BBox(
-                    r.global_bbox.x1 - cx1,
-                    (r.global_bbox.y1 - y_offset) - cy1,
-                    r.global_bbox.x2 - cx1,
-                    (r.global_bbox.y2 - y_offset) - cy1,
-                )
-            )
-            for r in block.members
-        ]
-        local_block = replace(
-            block,
-            members=local_members,
-            merged_bbox=BBox(cx1 - cx1 + pad, cy1 - cy1 + pad, (cx1 - cx1 + pad) + bbox.width, (cy1 - cy1 + pad) + bbox.height)
-        )
+        for line_meta in local_block.metadata.get("ctd_line_mapping", []):
+            poly = line_meta.get("polygon", [])
+            if poly:
+                ol_draw.polygon([tuple(pt) for pt in poly], outline=(255, 0, 0), width=2)
+
+        # Reset inpainter mask state before each sample iteration to eliminate state leakage
+        inpainter.last_text_mask = None
+
         inp_crop = inpainter.inpaint_blocks(src_crop, [local_block])
         text_mask = inpainter.last_text_mask
-        mask_overlay_img = text_mask.overlay() if text_mask is not None else src_crop
-        method = "median" if (text_mask and text_mask.is_uniform_background) else "lama_large"
+
+        # Explicit mask ownership assertion & panel overlay
+        if text_mask is not None:
+            mx1, my1, mx2, my2 = text_mask.crop_bbox
+            assert 0 <= mx1 < mx2 <= crop_w and 0 <= my1 < my2 <= crop_h, (
+                f"Stale mask state leakage! Mask crop_bbox {text_mask.crop_bbox} is out of bounds for crop size {(crop_w, crop_h)}"
+            )
+            assert text_mask.source.shape[:2] == (my2 - my1, mx2 - mx1), (
+                f"Mask shape {text_mask.source.shape[:2]} does not match crop_bbox dimensions {(my2 - my1, mx2 - mx1)}"
+            )
+            mask_overlay_img = text_mask.overlay()
+            method = "median" if text_mask.is_uniform_background else "lama_large"
+        else:
+            mask_overlay_img = src_crop.copy()
+            method = "none"
 
         # 5. Contact card creation & export
         sample_folder = OUTPUT_REVIEW_DIR / cat_name
@@ -302,7 +481,7 @@ def main() -> None:
     (OUTPUT_REVIEW_DIR / "visual_review_manifest.json").write_text(json.dumps(visual_manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[OK] Visual review manifest written with {len(manifest_samples)} contact cards.")
 
-    # Write Performance Reports JSON & MD
+    # Write Performance Reports JSON & MD (Evidence-Based)
     stage_statistics = {
         "01_chapter_load": {"calls": 1, "total_sec": 0.02, "avg_ms": 20.0, "p95_ms": 20.0},
         "02_window_generation": {"calls": 1, "total_sec": 0.01, "avg_ms": 10.0, "p95_ms": 10.0},
@@ -343,72 +522,97 @@ def main() -> None:
     }
 
     total_wall_clock = 714.62
+    peak_vram = max((snap["dedicated_vram_mb"] for snap in lifecycle_snapshots.values()), default=0.0)
+    peak_rss = max((snap["process_rss_mb"] for snap in lifecycle_snapshots.values()), default=0.0)
+    peak_llama_rss = max((snap["llama_server_rss_mb"] for snap in lifecycle_snapshots.values()), default=0.0)
 
     perf_report_json = {
+        "report_scope": "artifact_reconstruction_from_prior_e2e",
+        "production_lifecycle_differences": [
+            "This generator does not call ChapterAnalyzer.process_chapter(); it reconstructs review artifacts from an existing E2E regions.json.",
+            "Stage timings and lifecycle snapshots below are embedded prior-run evidence, not measurements taken by this generator invocation.",
+            "The referenced benchmark eagerly loaded LaMa before block inpainting; production loads LaMa lazily only when a non-uniform-background block requires it.",
+        ],
+        "translation_model_file": Path(config.translator.model_path or "unconfigured").name,
         "total_wall_clock_sec": round(total_wall_clock, 3),
+        "pages_count": len(pages),
+        "text_blocks_count": len(reconstructed_blocks),
         "stage_statistics": stage_statistics,
         "lifecycle_snapshots": lifecycle_snapshots,
+        "peak_metrics": {
+            "peak_process_rss_mb": round(peak_rss, 2),
+            "peak_dedicated_vram_mb": round(peak_vram, 2),
+            "peak_llama_server_rss_mb": round(peak_llama_rss, 2),
+        },
+        "model_lifecycle_checkpoints": [
+            "ComicTextDetector: loaded during detection, unloaded before OCR",
+            "Primary PP-OCRv6: loaded during OCR, unloaded before Qwen repair / Hy-MT2",
+            "Verifier PaddleOCR-VL: loaded during OCR (if configured), unloaded before Qwen repair / Hy-MT2",
+            "Qwen Repair: loaded during visual repair (if repair queue non-empty), unloaded before Hy-MT2",
+            "Hy-MT2: loaded during block translation, unloaded before LaMa",
+            "LaMa Large: loaded during block inpainting, unloaded before export",
+        ],
     }
     (OUTPUT_REVIEW_DIR / "performance_report.json").write_text(json.dumps(perf_report_json, ensure_ascii=False, indent=2), encoding="utf-8")
 
     md_lines = []
     md_lines.append("# Chapter 1 Performance & GPU Memory Lifecycle Report")
     md_lines.append("")
-    md_lines.append(f"- **Total Runtime (Wall-Clock)**: `{total_wall_clock:.2f} s` ({total_wall_clock / 60.0:.2f} min)")
-    md_lines.append(f"- **Total Pages Processed**: `{len(pages)}`")
-    md_lines.append(f"- **Total TextBlocks Processed**: `{len(reconstructed_blocks)}`")
+    md_lines.append(f"- **Total Runtime (Wall-Clock)**: `{perf_report_json['total_wall_clock_sec']:.2f} s` ({perf_report_json['total_wall_clock_sec'] / 60.0:.2f} min)")
+    md_lines.append(f"- **Total Pages Processed**: `{perf_report_json['pages_count']}`")
+    md_lines.append(f"- **Total TextBlocks Processed**: `{perf_report_json['text_blocks_count']}`")
+    md_lines.append(f"- **Configured Hy-MT2 model file**: `{perf_report_json['translation_model_file']}`")
     md_lines.append("")
-    md_lines.append("## 1. Stage Timing Summary")
+    md_lines.append("## Scope versus production")
+    md_lines.append("")
+    md_lines.append("This artifact generator does not reproduce the production lifecycle:")
+    for difference in perf_report_json["production_lifecycle_differences"]:
+        md_lines.append(f"- {difference}")
+    md_lines.append("")
+    md_lines.append("## 1. Measured Stage Timing Summary")
     md_lines.append("")
     md_lines.append("| Stage | Calls | Total (s) | Avg (ms) | p95 (ms) |")
     md_lines.append("|---|---|---|---|---|")
-    for stg_name, stg_data in sorted(stage_statistics.items()):
+    for stg_name, stg_data in sorted(perf_report_json["stage_statistics"].items()):
         md_lines.append(f"| `{stg_name}` | {stg_data['calls']} | {stg_data['total_sec']:.3f} | {stg_data['avg_ms']:.2f} | {stg_data['p95_ms']:.2f} |")
     md_lines.append("")
 
-    md_lines.append("## 2. RAM / VRAM Lifecycle Snapshots")
+    md_lines.append("## 2. Measured RAM / VRAM Lifecycle Snapshots")
     md_lines.append("")
     md_lines.append("| Checkpoint | Process RSS (MB) | CUDA Alloc (MB) | CUDA Res (MB) | Dedicated VRAM (MB) | llama-server RSS (MB) |")
     md_lines.append("|---|---|---|---|---|---|")
-    for chk_name, snap in sorted(lifecycle_snapshots.items()):
+    for chk_name, snap in sorted(perf_report_json["lifecycle_snapshots"].items()):
         md_lines.append(f"| `{chk_name}` | {snap['process_rss_mb']:.1f} | {snap['cuda_allocated_mb']:.1f} | {snap['cuda_reserved_mb']:.1f} | {snap['dedicated_vram_mb']:.1f} | {snap['llama_server_rss_mb']:.1f} |")
     md_lines.append("")
 
-    md_lines.append("## 3. Architectural GPU Memory & Model Lifecycle Analysis")
+    md_lines.append("## 3. Measured Model Lifecycle Checkpoints")
     md_lines.append("")
-    md_lines.append("### Q1: Do Hy-MT2 / Qwen / PaddleOCR-VL / LaMa remain GPU resident simultaneously?")
-    md_lines.append("- **Answer**: **NO.** The pipeline enforces strict sequential model load-unload lifecycle management.")
-    md_lines.append("  - ComicTextDetector ONNX is loaded for sliding window detection and immediately unloaded.")
-    md_lines.append("  - Primary PP-OCRv6 ONNX and PaddleOCR-VL-1.6 PyTorch models are unloaded before Hy-MT2 translation starts.")
-    md_lines.append("  - Hy-MT2 GGUF translation model is loaded, translates all 773 TextBlocks, and is explicitly unloaded before LaMa Large inpainting.")
-    md_lines.append("  - LaMa Large checkpoint is loaded strictly during inpainting and unloaded before page rendering export.")
-    md_lines.append("")
-    md_lines.append("### Q2: Does system/shared RAM spill occur when 12 GB VRAM is exhausted?")
-    md_lines.append("- **Answer**: **NO.** Peak dedicated GPU VRAM usage reached `3,950 MB` (during Hy-MT2 GGUF translation), well under the `12,288 MB` hardware limit of the RTX GPU. Zero system shared RAM spillover occurred.")
-    md_lines.append("")
-    md_lines.append("### Q3: `llama-server.exe` RAM behavior (RSS vs mmap / file-backed memory)")
-    md_lines.append("- **Answer**: When `llama-server.exe` initializes GGUF models (e.g., Qwen 9B / Hy-MT2), Windows Task Manager reports a large Working Set (~10 GB). However:")
-    md_lines.append("  - *Inference*: The vast majority of this working set consists of `mmap` file-backed memory mappings mapped directly from disk by `llama.cpp`.")
-    md_lines.append("  - *Active Private Memory*: The actual private/dirty RAM allocated for KV cache and context state is under ~1.5 GB.")
-    md_lines.append("  - When `unload()` terminates the process PID, 100% of mapped memory and process handles are released instantly back to the OS.")
+    for cp in perf_report_json["model_lifecycle_checkpoints"]:
+        md_lines.append(f"- {cp}")
     md_lines.append("")
 
-    sorted_by_total = sorted(stage_statistics.items(), key=lambda x: x[1]["total_sec"], reverse=True)
+    sorted_by_total = sorted(perf_report_json["stage_statistics"].items(), key=lambda x: x[1]["total_sec"], reverse=True)
     top_3 = sorted_by_total[:3]
 
-    peak_vram = max(snap["dedicated_vram_mb"] for snap in lifecycle_snapshots.values())
-    peak_rss = max(snap["process_rss_mb"] for snap in lifecycle_snapshots.values())
-
-    md_lines.append("## 4. Key Performance Summary")
-    md_lines.append(f"- **Total Runtime**: `{total_wall_clock:.2f} s` ({total_wall_clock / 60.0:.2f} min)")
+    md_lines.append("## 4. Key Measured Performance Summary")
+    md_lines.append(f"- **Total Runtime**: `{perf_report_json['total_wall_clock_sec']:.2f} s` ({perf_report_json['total_wall_clock_sec'] / 60.0:.2f} min)")
     md_lines.append(f"- **Top 3 Most Expensive Stages**:")
     for rank, (stg_name, stg_data) in enumerate(top_3, 1):
-        md_lines.append(f"  {rank}. `{stg_name}`: `{stg_data['total_sec']:.2f} s` ({stg_data['total_sec'] / total_wall_clock * 100:.1f}% of total)")
-    md_lines.append(f"- **Peak Dedicated GPU VRAM**: `{peak_vram:.1f} MB`")
-    md_lines.append(f"- **Peak Process RAM (RSS)**: `{peak_rss:.1f} MB`")
-    md_lines.append(f"- **Open Model Lifecycle Leaks**: `NONE`. All GPU/CPU models unload cleanly.")
+        md_lines.append(f"  {rank}. `{stg_name}`: `{stg_data['total_sec']:.2f} s` ({stg_data['total_sec'] / perf_report_json['total_wall_clock_sec'] * 100:.1f}% of total)")
+    md_lines.append(f"- **Peak Dedicated GPU VRAM**: `{perf_report_json['peak_metrics']['peak_dedicated_vram_mb']:.1f} MB`")
+    md_lines.append(f"- **Peak Process RAM (RSS)**: `{perf_report_json['peak_metrics']['peak_process_rss_mb']:.1f} MB`")
+    md_lines.append(f"- **Peak llama-server RAM (RSS)**: `{perf_report_json['peak_metrics']['peak_llama_server_rss_mb']:.1f} MB`")
 
-    (OUTPUT_REVIEW_DIR / "performance_report.md").write_text("\n".join(md_lines), encoding="utf-8")
+    md_content = "\n".join(md_lines)
+
+    # Sanity checks: Assert no unmeasured statements are present in Markdown report
+    forbidden_unmeasured_terms = ["mmap", "private memory", "shared GPU memory", "spillover", "no leaks"]
+    for term in forbidden_unmeasured_terms:
+        assert term.lower() not in md_content.lower(), (
+            f"Sanity Check Error: Unmeasured statement containing '{term}' found in Markdown report!"
+        )
+
+    (OUTPUT_REVIEW_DIR / "performance_report.md").write_text(md_content, encoding="utf-8")
     print(f"[OK] Performance report markdown written to {OUTPUT_REVIEW_DIR / 'performance_report.md'}")
 
     print("\n==================================================================")

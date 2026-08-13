@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import pytest
 from PIL import Image
+from unittest.mock import MagicMock
 
 from providers.ocr.qwen_repair import (
     OCRAdjudicatedResult,
@@ -143,3 +144,19 @@ class TestMetrics:
         cfg = QwenRepairConfig()
         assert cfg.max_new_tokens == 512
         assert cfg.max_memory_gb == 12
+
+
+class TestProcessOwnership:
+    def test_unload_does_not_terminate_external_server_process(self):
+        external = MagicMock()
+        external.pid = 4321
+        provider = QwenRepairProvider()
+        provider._server_process = external
+        provider._owns_server = False
+        provider._loaded = True
+
+        provider.unload()
+
+        external.terminate.assert_not_called()
+        external.kill.assert_not_called()
+        assert provider._server_process is None

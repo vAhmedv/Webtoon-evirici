@@ -168,7 +168,7 @@ def main() -> None:
             inpainted_np = inpainter._apply_mask(page_np, text_mask, f"sample_{ordinal:02d}_block_{block_id}")
             text_mask = inpainter.last_text_mask or text_mask
             if np.any(text_mask.refined):
-                rendered, _ = renderer.render_blocks(Image.fromarray(inpainted_np, "RGB"), [(block, raw_block["translation"])])
+                rendered, *_, _ = renderer.render_blocks(Image.fromarray(inpainted_np, "RGB"), [(block, raw_block["translation"])])
             else:
                 rendered = Image.fromarray(inpainted_np, "RGB")
             x1, y1, x2, y2 = text_mask.crop_bbox

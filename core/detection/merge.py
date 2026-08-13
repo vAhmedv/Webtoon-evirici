@@ -171,16 +171,11 @@ def merge_duplicates(
             if dist > center_distance_threshold:
                 continue
 
-            # Birleştir: containment durumunda daha büyük bbox'ı koru
-            if iou < iou_threshold:
-                # Containment merge: larger bbox'ı seç
-                if bbox_j.area > region_bbox.area:
-                    region_bbox = bbox_j
-                region_confidence = max(region_confidence, det_j.confidence)
-            else:
-                # Normal IoU merge
-                region_bbox = _compute_merged_bbox(region_bbox, bbox_j)
-                region_confidence = max(region_confidence, det_j.confidence)
+            # Kabul edilen her kaynak üyenin geometrisini koru. Containment
+            # eşleşmesinde yalnızca büyük kutuyu seçmek, küçük üyenin birkaç
+            # piksel dışarı taşan gerçek metin geometrisini kaybedebiliyordu.
+            region_bbox = _compute_merged_bbox(region_bbox, bbox_j)
+            region_confidence = max(region_confidence, det_j.confidence)
             source_windows.add(det_j.source_window_id)
             group_members.append(det_j)
             used.add(j)

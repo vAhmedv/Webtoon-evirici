@@ -177,7 +177,7 @@ def main() -> None:
                 text_mask = inpainter.mask_builder.build_for_block(source_np, block)
                 inpainted_np = inpainter._apply_mask(source_np, text_mask, f"fresh_{legacy_id}")
                 text_mask = inpainter.last_text_mask or text_mask
-                rendered, _ = renderer.render_blocks(Image.fromarray(inpainted_np), [(block, translation)])
+                rendered, *_, _ = renderer.render_blocks(Image.fromarray(inpainted_np), [(block, translation)])
                 record = inpainter.debug_records[-1]
                 if record["review"]:
                     review_reasons.append("residual_boundary_after_second_pass")

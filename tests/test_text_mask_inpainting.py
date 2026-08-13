@@ -133,13 +133,79 @@ def test_ctd_segmentation_mapping_removes_right_and_bottom_letterbox_padding() -
     assert np.all(mapped == 255)
 
 
-def test_ctd_canonical_block_bbox_contains_every_assigned_dbnet_line() -> None:
+def test_ctd_dbnet_line_can_modestly_complete_yolo_bbox() -> None:
     detector = ComicTextDetector()
     line = {"polygon": np.array([[10, 20], [90, 20], [90, 35], [10, 35]]), "score": .9}
     grouped = detector._group_blocks_and_lines(
         [{"bbox": [45, 18, 95, 38], "confidence": .9}], [line], np.full((100, 120), 255, np.uint8), 120, 100,
     )
     assert grouped[0]["bbox"] == [10.0, 18, 95, 38]
+    assert grouped[0]["lines"] == [line]
+
+
+def test_ctd_oversized_dbnet_line_uses_contained_yolo_without_duplicate() -> None:
+    detector = ComicTextDetector()
+    yolo_bbox = [270, 315, 540, 443]
+    oversized = {
+        "polygon": np.array([[190, 0], [610, 0], [610, 520], [190, 520]]),
+        "score": .74,
+    }
+
+    grouped = detector._group_blocks_and_lines(
+        [{"bbox": yolo_bbox.copy(), "confidence": .67}],
+        [oversized],
+        np.full((1024, 800), 255, np.uint8),
+        800,
+        1024,
+    )
+
+    assert len(grouped) == 1
+    assert grouped[0]["bbox"] == yolo_bbox
+    assert grouped[0]["lines"] == [oversized]
+
+
+def test_ctd_preserves_dbnet_only_line_when_no_yolo_matches() -> None:
+    detector = ComicTextDetector()
+    unmatched = {
+        "polygon": np.array([[5, 60], [35, 60], [35, 80], [5, 80]]),
+        "score": .8,
+    }
+
+    grouped = detector._group_blocks_and_lines(
+        [{"bbox": [60, 5, 90, 25], "confidence": .9}],
+        [unmatched],
+        np.full((100, 100), 255, np.uint8),
+        100,
+        100,
+    )
+
+    assert len(grouped) == 2
+    assert grouped[1]["bbox"] == [5.0, 60.0, 35.0, 80.0]
+    assert grouped[1]["lines"] == [unmatched]
+
+
+def test_ctd_groups_residual_dbnet_lines_without_stealing_yolo_lines() -> None:
+    detector = ComicTextDetector()
+    residual_a = {
+        "polygon": np.array([[5, 60], [35, 60], [35, 75], [5, 75]]),
+        "score": .8,
+    }
+    residual_b = {
+        "polygon": np.array([[10, 68], [40, 68], [40, 82], [10, 82]]),
+        "score": .75,
+    }
+
+    grouped = detector._group_blocks_and_lines(
+        [{"bbox": [60, 5, 90, 25], "confidence": .9}],
+        [residual_a, residual_b],
+        np.full((100, 100), 255, np.uint8),
+        100,
+        100,
+    )
+
+    assert len(grouped) == 2
+    assert grouped[1]["bbox"] == [5.0, 60.0, 40.0, 82.0]
+    assert grouped[1]["lines"] == [residual_a, residual_b]
 
 
 def test_residual_second_pass_expands_once_and_tracks_final_identity() -> None:
@@ -212,4 +278,3 @@ def test_hyphenated_continuation_with_quote_and_offset_grouping() -> None:
     assert len(blocks) == 1
     assert blocks[0].member_ids == (30, 31)
     assert blocks[0].source_text == 'UNDERSTAND ITS STRUC- TURE"...'
-

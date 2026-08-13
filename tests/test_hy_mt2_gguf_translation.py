@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import http.client
+import logging
 from pathlib import Path
 import tempfile
 import unittest
@@ -47,6 +49,8 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertEqual(provider.model_path, DEFAULT_HY_MT2_MODEL_PATH)
         self.assertEqual(provider.server_url, DEFAULT_HY_MT2_SERVER_URL)
         self.assertTrue(provider.server_url.endswith(":8085"))
+        self.assertEqual(provider.metrics.translation_model, "HY-MT2-7B-Q8_0.gguf")
+        self.assertNotIn("Q4_K_M", provider.name)
 
     def test_native_prompt_is_exact_and_preserves_sentinel(self):
         prepared = "Activate __WTTERM0001__."
@@ -82,9 +86,13 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertEqual((raw, prompt_n, predicted_n, seconds), ("Merhaba.<|eos|>", 21, 4, 0.1))
         self.assertEqual(clean_hy_mt2_output(raw, payload["prompt"]), "Merhaba.")
 
-    def test_server_error_retries_once_and_propagates_review(self):
+    def test_transient_server_error_retries_once_and_propagates_review(self):
         provider = self._ready_provider()
-        with patch.object(provider, "_query_chat_completion", side_effect=OSError("down")):
+        with patch.object(
+            provider,
+            "_query_chat_completion",
+            side_effect=ConnectionResetError("down"),
+        ):
             output = provider.translate(
                 TranslationInput(items=[TranslationItem(1, "Hello there.", 1)])
             )
@@ -93,6 +101,27 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertEqual(result.validation_warnings, ["translation_server_error"])
         self.assertTrue(result.requires_review)
         self.assertEqual(provider.metrics.generation_call_count, 2)
+
+    def test_remote_disconnect_retry_logs_external_process_state(self):
+        provider = self._ready_provider()
+        with patch.object(
+            provider,
+            "_query_chat_completion",
+            side_effect=[
+                http.client.RemoteDisconnected("connection closed"),
+                ("Merhaba.", 1, 1, 0.01),
+            ],
+        ), self.assertLogs(
+            "providers.translation.hy_mt2_gguf_translation", logging.WARNING
+        ) as captured:
+            output = provider.translate(
+                TranslationInput(items=[TranslationItem(1, "Hello there.", 1)])
+            )
+
+        self.assertEqual(output.results[0].translation, "Merhaba.")
+        self.assertIn("reason=transient_connection_failure:RemoteDisconnected", captured.output[0])
+        self.assertIn("server_pid=external", captured.output[0])
+        self.assertIn("process_alive=unknown", captured.output[0])
 
     def test_bracketed_named_ability_is_generically_protected_and_restored(self):
         item = TranslationItem(1, "I came to test [FORGE MASTER].", 1)
@@ -167,6 +196,18 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "incompatible"):
                 provider.load()
         self.assertFalse(provider._owned_process)
+
+    def test_unload_does_not_terminate_external_server(self):
+        provider = HyMT2GGUFTranslationProvider(managed=False)
+        external = MagicMock()
+        provider._process = external
+        provider._owned_process = False
+        provider._loaded = True
+
+        provider.unload()
+
+        external.terminate.assert_not_called()
+        external.kill.assert_not_called()
 
     def test_identity_check_tolerates_transient_metadata_readiness(self):
         provider = HyMT2GGUFTranslationProvider(managed=False)

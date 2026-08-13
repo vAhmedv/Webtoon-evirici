@@ -107,7 +107,7 @@ def main() -> None:
     cleaned_canvas = inpainter.inpaint_blocks(global_canvas, [tb for tb, _ in blocks])
 
     renderer = TextRenderer()
-    rendered_canvas, _ = renderer.render_blocks(cleaned_canvas, blocks)
+    rendered_canvas, *_, _ = renderer.render_blocks(cleaned_canvas, blocks)
 
     # Sample representative blocks across categories
     # 1. Multi-line "I WAS ON THE VERGE OF..." block

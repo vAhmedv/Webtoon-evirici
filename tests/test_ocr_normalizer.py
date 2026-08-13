@@ -91,8 +91,7 @@ class TestOCRAgreement:
         assert verdict.accepted_text is None
         assert verdict.requires_review is True
         assert verdict.needs_repair is True
-        assert "critical_name_mismatch" in verdict.reason
-        assert "LUO TIAN" in verdict.reason
+        assert verdict.reason == "word_difference"
         # Raw'lar korunur
         assert verdict.primary_raw == "MY NAME IS LHO\nTIAN. I'M NOT AN\nABILITY USER."
         assert verdict.verifier_raw == "MY NAME IS LUO\nTIAN. I'M NOT AN\nABILITY USER."
@@ -104,7 +103,7 @@ class TestOCRAgreement:
         assert verdict.accepted_text is None
         assert verdict.requires_review is True
         assert verdict.needs_repair is True
-        assert "HU SAN" in verdict.reason
+        assert verdict.reason == "word_difference"
 
     def test_word_difference_needs_repair_no_auto_select(self) -> None:
         # PUSHOVERS vs PLSHOVERS — Paddle otomatik kabul EDİLMEMELİ

@@ -40,7 +40,7 @@ class TextRenderer:
         self,
         canvas: Image.Image,
         block_translations: Sequence[tuple[Any, str]],
-    ) -> tuple[Image.Image, int]:
+    ) -> tuple[Image.Image, int, int]:
         """Renders TextBlock translations onto the canvas.
 
         Args:
@@ -48,10 +48,11 @@ class TextRenderer:
             block_translations: Pairs of (TextBlock, translated_turkish_text).
 
         Returns:
-            Tuple of (new PIL Image canvas with Turkish text rendered, overflow_count).
+            Tuple of (new PIL Image canvas with Turkish text rendered, rendered_count, overflow_count).
         """
         result = canvas.copy().convert("RGB")
         draw = ImageDraw.Draw(result)
+        rendered_count = 0
         overflow_count = 0
 
         for block, turkish_text in block_translations:
@@ -103,7 +104,9 @@ class TextRenderer:
                     stroke_fill=(255, 255, 255),
                 )
 
-        return result, overflow_count
+            rendered_count += 1
+
+        return result, rendered_count, overflow_count
 
     def render_regions(
         self,

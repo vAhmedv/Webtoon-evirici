@@ -46,11 +46,13 @@ class Inpainter:
         self.lama.unload()
 
     def inpaint_blocks(self, canvas: Image.Image, text_blocks: Sequence[Any]) -> Image.Image:
+        self.last_text_mask = None
         result = np.ascontiguousarray(np.asarray(canvas.convert("RGB"), dtype=np.uint8))
         for block in text_blocks:
-            eligible = tuple(region for region in getattr(block, "members", ()) if _is_story_text(region))
-            if not eligible:
+            members = tuple(getattr(block, "members", ()))
+            if not members or any(not _is_story_text(r) for r in members):
                 continue
+            eligible = members
             mask = self.mask_builder._build(result, block.merged_bbox, eligible)
             if np.any(mask.refined):
                 self.processed_block_ids.add(int(getattr(block, "id", -1)))

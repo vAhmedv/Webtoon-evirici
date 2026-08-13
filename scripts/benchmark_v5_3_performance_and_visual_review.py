@@ -252,10 +252,20 @@ def main() -> None:
     timer.record("07_primary_ocr_load", time.perf_counter() - t0)
     lifecycle_snapshots["04_post_primary_ocr_load"] = get_memory_snapshot()
 
+    verifier_loaded = False
+    if verifier_ocr is not None:
+        try:
+            t0 = time.perf_counter()
+            verifier_ocr.load()
+            timer.record("09_verifier_ocr_load", time.perf_counter() - t0)
+            verifier_loaded = True
+            lifecycle_snapshots["05_post_verifier_ocr_load"] = get_memory_snapshot()
+        except Exception as e:
+            verifier_ocr = None
+
     cropper = RegionCropper(pages, coords)
     ocr_regions = []
     repair_queue = []
-    verifier_loaded = False
 
     for reg in merged_regions:
         bbox = reg.global_bbox
@@ -271,12 +281,6 @@ def main() -> None:
         single_verdict = decide_ocr_agreement(p_res, verifier=None)
         v_res = None
         if single_verdict.requires_review and verifier_ocr is not None:
-            if not verifier_loaded:
-                t_vl_load = time.perf_counter()
-                verifier_ocr.load()
-                timer.record("09_verifier_ocr_load", time.perf_counter() - t_vl_load)
-                verifier_loaded = True
-                lifecycle_snapshots["05_post_verifier_ocr_load"] = get_memory_snapshot()
             t_vl_inf = time.perf_counter()
             v_res = verifier_ocr.recognize(crop.image, region_bbox=reg.global_bbox)
             timer.record("10_verifier_ocr_inference", time.perf_counter() - t_vl_inf)
@@ -287,7 +291,8 @@ def main() -> None:
         status = RegionStatus.SKIP if reg.status == RegionStatus.SKIP else (RegionStatus.REVIEW if verdict.requires_review else RegionStatus.AUTO)
         accepted = verdict.accepted_text or verdict.provisional_text or p_res.text or ""
 
-        if reg.type == RegionType.UNKNOWN and (not accepted or verdict.requires_review):
+        has_text_content = bool(accepted and accepted.strip() and any(c.isalnum() for c in accepted))
+        if reg.type == RegionType.UNKNOWN and not has_text_content:
             status = RegionStatus.SKIP
             verdict_reason = "unknown_non_text_skip"
         else:
@@ -313,7 +318,12 @@ def main() -> None:
         )
         ocr_regions.append(updated_reg)
 
-        if updated_reg.status == RegionStatus.REVIEW and updated_reg.type != RegionType.UNKNOWN and accepted:
+        if (
+            updated_reg.status == RegionStatus.REVIEW
+            and updated_reg.type in (RegionType.DIALOGUE, RegionType.NARRATION, RegionType.UNKNOWN)
+            and verdict.needs_repair
+            and accepted
+        ):
             repair_queue.append((updated_reg.id, verdict, crop.image))
 
     t0 = time.perf_counter()
@@ -321,7 +331,7 @@ def main() -> None:
     timer.record("11_primary_ocr_unload", time.perf_counter() - t0)
     lifecycle_snapshots["06_post_primary_ocr_unload"] = get_memory_snapshot()
 
-    if verifier_loaded:
+    if verifier_loaded and verifier_ocr is not None:
         t0 = time.perf_counter()
         verifier_ocr.unload()
         timer.record("12_verifier_ocr_unload", time.perf_counter() - t0)
@@ -416,9 +426,13 @@ def main() -> None:
     timer.record("23_lama_unload", time.perf_counter() - t0)
     lifecycle_snapshots["13_post_lama_unload"] = get_memory_snapshot()
 
-    renderable_pairs = [pair for pair in translated_block_pairs if pair[0].id in inpainter.processed_block_ids]
+    renderable_pairs = [
+        pair for pair in translated_block_pairs
+        if pair[0].id in inpainter.processed_block_ids
+        and pair[0].id not in inpainter.review_block_ids
+    ]
     t_ren = time.perf_counter()
-    rendered_canvas, overflow_count = renderer.render_blocks(cleaned_canvas, renderable_pairs)
+    rendered_canvas, actual_rendered_count, overflow_count = renderer.render_blocks(cleaned_canvas, renderable_pairs)
     timer.record("24_rendering", time.perf_counter() - t_ren)
 
     # Stage 10: Export
@@ -568,74 +582,99 @@ def main() -> None:
     print("\n[PART 2] Generating performance_report.json and performance_report.md...")
 
     stage_statistics = timer.all_stats()
-    
+
+    peak_vram = max((snap["dedicated_vram_mb"] for snap in lifecycle_snapshots.values()), default=0.0)
+    peak_rss = max((snap["process_rss_mb"] for snap in lifecycle_snapshots.values()), default=0.0)
+    peak_llama_rss = max((snap["llama_server_rss_mb"] for snap in lifecycle_snapshots.values()), default=0.0)
+
     perf_report_json = {
+        "report_scope": "instrumented_benchmark_reimplementation",
+        "production_lifecycle_differences": [
+            "The benchmark invokes pipeline stages directly instead of calling ChapterAnalyzer.process_chapter().",
+            "The benchmark eagerly loads LaMa immediately before block inpainting; production loads LaMa lazily only when a non-uniform-background block requires it.",
+            "The benchmark records explicit post-load/post-unload memory checkpoints that production does not record.",
+        ],
+        "translation_model_file": Path(translator.model_path).name,
         "total_wall_clock_sec": round(total_wall_clock, 3),
+        "pages_count": len(pages),
+        "text_blocks_count": len(text_blocks),
         "stage_statistics": stage_statistics,
         "lifecycle_snapshots": lifecycle_snapshots,
+        "peak_metrics": {
+            "peak_process_rss_mb": round(peak_rss, 2),
+            "peak_dedicated_vram_mb": round(peak_vram, 2),
+            "peak_llama_server_rss_mb": round(peak_llama_rss, 2),
+        },
+        "model_lifecycle_checkpoints": [
+            "ComicTextDetector: loaded during detection, unloaded before OCR",
+            "Primary PP-OCRv6: loaded during OCR, unloaded before Qwen repair / Hy-MT2",
+            "Verifier PaddleOCR-VL: loaded during OCR (if configured), unloaded before Qwen repair / Hy-MT2",
+            "Qwen Repair: loaded during visual repair (if repair queue non-empty), unloaded before Hy-MT2",
+            "Hy-MT2: loaded during block translation, unloaded before LaMa",
+            "LaMa Large: loaded during block inpainting, unloaded before export",
+        ],
     }
     (OUTPUT_REVIEW_DIR / "performance_report.json").write_text(json.dumps(perf_report_json, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # Generate Markdown Performance Report
+    # Generate Markdown Performance Report strictly from JSON fields
     md_lines = []
     md_lines.append("# Chapter 1 Performance & GPU Memory Lifecycle Report")
     md_lines.append("")
-    md_lines.append(f"- **Total Runtime (Wall-Clock)**: `{total_wall_clock:.2f} s` ({total_wall_clock / 60.0:.2f} min)")
-    md_lines.append(f"- **Total Pages Processed**: `{len(pages)}`")
-    md_lines.append(f"- **Total TextBlocks Processed**: `{len(text_blocks)}`")
+    md_lines.append(f"- **Total Runtime (Wall-Clock)**: `{perf_report_json['total_wall_clock_sec']:.2f} s` ({perf_report_json['total_wall_clock_sec'] / 60.0:.2f} min)")
+    md_lines.append(f"- **Total Pages Processed**: `{perf_report_json['pages_count']}`")
+    md_lines.append(f"- **Total TextBlocks Processed**: `{perf_report_json['text_blocks_count']}`")
+    md_lines.append(f"- **Configured Hy-MT2 model file**: `{perf_report_json['translation_model_file']}`")
     md_lines.append("")
-    md_lines.append("## 1. Stage Timing Summary")
+    md_lines.append("## Scope versus production")
+    md_lines.append("")
+    md_lines.append("This benchmark follows the production stage order, but its lifecycle is not identical:")
+    for difference in perf_report_json["production_lifecycle_differences"]:
+        md_lines.append(f"- {difference}")
+    md_lines.append("")
+    md_lines.append("## 1. Measured Stage Timing Summary")
     md_lines.append("")
     md_lines.append("| Stage | Calls | Total (s) | Avg (ms) | p95 (ms) |")
     md_lines.append("|---|---|---|---|---|")
-    for stg_name, stg_data in sorted(stage_statistics.items()):
+    for stg_name, stg_data in sorted(perf_report_json["stage_statistics"].items()):
         md_lines.append(f"| `{stg_name}` | {stg_data['calls']} | {stg_data['total_sec']:.3f} | {stg_data['avg_ms']:.2f} | {stg_data['p95_ms']:.2f} |")
     md_lines.append("")
 
-    md_lines.append("## 2. RAM / VRAM Lifecycle Snapshots")
+    md_lines.append("## 2. Measured RAM / VRAM Lifecycle Snapshots")
     md_lines.append("")
     md_lines.append("| Checkpoint | Process RSS (MB) | CUDA Alloc (MB) | CUDA Res (MB) | Dedicated VRAM (MB) | llama-server RSS (MB) |")
     md_lines.append("|---|---|---|---|---|---|")
-    for chk_name, snap in sorted(lifecycle_snapshots.items()):
+    for chk_name, snap in sorted(perf_report_json["lifecycle_snapshots"].items()):
         md_lines.append(f"| `{chk_name}` | {snap['process_rss_mb']:.1f} | {snap['cuda_allocated_mb']:.1f} | {snap['cuda_reserved_mb']:.1f} | {snap['dedicated_vram_mb']:.1f} | {snap['llama_server_rss_mb']:.1f} |")
     md_lines.append("")
 
-    md_lines.append("## 3. Architectural GPU Memory & Model Lifecycle Analysis")
+    md_lines.append("## 3. Measured Model Lifecycle Checkpoints")
     md_lines.append("")
-    md_lines.append("### Q1: Do Hy-MT2 / Qwen / PaddleOCR-VL / LaMa remain GPU resident simultaneously?")
-    md_lines.append("- **Answer**: **NO.** The pipeline uses sequential model loading and unloading semantics.")
-    md_lines.append("  - CTD ONNX is loaded for detection and unloaded before OCR.")
-    md_lines.append("  - Primary PP-OCRv6 ONNX and PaddleOCR-VL PyTorch models are unloaded before Qwen repair or Translation.")
-    md_lines.append("  - Hy-MT2 GGUF model is loaded, translates all TextBlocks, and is explicitly unloaded before LaMa Large loading.")
-    md_lines.append("  - LaMa Large checkpoint is loaded strictly during inpainting and unloaded upon page rendering completion.")
-    md_lines.append("")
-    md_lines.append("### Q2: Does system/shared RAM spill occur when 12 GB VRAM is exhausted?")
-    md_lines.append("- **Answer**: **NO.** Peak dedicated GPU VRAM usage remained well below the 12,288 MB hardware limit throughout execution. No shared GPU memory spillover was detected.")
-    md_lines.append("")
-    md_lines.append("### Q3: `llama-server.exe` RAM behavior (RSS vs mmap / file-backed memory)")
-    md_lines.append("- **Answer**: When `llama-server.exe` initializes a GGUF model (e.g. Qwen 9B), Windows Task Manager reports a high Working Set (~10 GB). However:")
-    md_lines.append("  - *Inference*: Most of this memory consists of `mmap`'d file-backed weight maps mapped directly from disk by `llama.cpp`.")
-    md_lines.append("  - *Active Private Memory*: The actual private/dirty RAM allocated for KV cache and context buffers is under ~1.5 GB.")
-    md_lines.append("  - When `qwen_repair.unload()` terminates the process, 100% of mapped memory and process handles are released instantly.")
+    for cp in perf_report_json["model_lifecycle_checkpoints"]:
+        md_lines.append(f"- {cp}")
     md_lines.append("")
 
-    # Top 3 most expensive stages
-    sorted_by_total = sorted(stage_statistics.items(), key=lambda x: x[1]["total_sec"], reverse=True)
+    sorted_by_total = sorted(perf_report_json["stage_statistics"].items(), key=lambda x: x[1]["total_sec"], reverse=True)
     top_3 = sorted_by_total[:3]
 
-    peak_vram = max(snap["dedicated_vram_mb"] for snap in lifecycle_snapshots.values())
-    peak_rss = max(snap["process_rss_mb"] for snap in lifecycle_snapshots.values())
-
-    md_lines.append("## 4. Key Performance Summary")
-    md_lines.append(f"- **Total Runtime**: `{total_wall_clock:.2f} s` ({total_wall_clock / 60.0:.2f} min)")
+    md_lines.append("## 4. Key Measured Performance Summary")
+    md_lines.append(f"- **Total Runtime**: `{perf_report_json['total_wall_clock_sec']:.2f} s` ({perf_report_json['total_wall_clock_sec'] / 60.0:.2f} min)")
     md_lines.append(f"- **Top 3 Most Expensive Stages**:")
     for rank, (stg_name, stg_data) in enumerate(top_3, 1):
-        md_lines.append(f"  {rank}. `{stg_name}`: `{stg_data['total_sec']:.2f} s` ({stg_data['total_sec'] / total_wall_clock * 100:.1f}% of total)")
-    md_lines.append(f"- **Peak Dedicated GPU VRAM**: `{peak_vram:.1f} MB`")
-    md_lines.append(f"- **Peak Process RAM (RSS)**: `{peak_rss:.1f} MB`")
-    md_lines.append(f"- **Open Model Lifecycle Leaks**: `NONE`. All models unload cleanly.")
+        md_lines.append(f"  {rank}. `{stg_name}`: `{stg_data['total_sec']:.2f} s` ({stg_data['total_sec'] / perf_report_json['total_wall_clock_sec'] * 100:.1f}% of total)")
+    md_lines.append(f"- **Peak Dedicated GPU VRAM**: `{perf_report_json['peak_metrics']['peak_dedicated_vram_mb']:.1f} MB`")
+    md_lines.append(f"- **Peak Process RAM (RSS)**: `{perf_report_json['peak_metrics']['peak_process_rss_mb']:.1f} MB`")
+    md_lines.append(f"- **Peak llama-server RAM (RSS)**: `{perf_report_json['peak_metrics']['peak_llama_server_rss_mb']:.1f} MB`")
 
-    (OUTPUT_REVIEW_DIR / "performance_report.md").write_text("\n".join(md_lines), encoding="utf-8")
+    md_content = "\n".join(md_lines)
+
+    # Sanity checks: Assert no unmeasured statements are present in Markdown report
+    forbidden_unmeasured_terms = ["mmap", "private memory", "shared GPU memory", "spillover", "no leaks"]
+    for term in forbidden_unmeasured_terms:
+        assert term.lower() not in md_content.lower(), (
+            f"Sanity Check Error: Unmeasured statement containing '{term}' found in Markdown report!"
+        )
+
+    (OUTPUT_REVIEW_DIR / "performance_report.md").write_text(md_content, encoding="utf-8")
     print(f"[OK] Performance report markdown written to {OUTPUT_REVIEW_DIR / 'performance_report.md'}")
 
     print("\n==================================================================")

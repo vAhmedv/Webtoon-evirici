@@ -264,40 +264,59 @@ class ComicTextDetector(DetectorProvider):
         if blk_output.size == 0:
             return []
 
-        # Filter by confidence
-        confs = blk_output[:, 4]
-        mask = confs > self._conf_thresh
+        # Upstream YOLOv5 head format:
+        # [center_x, center_y, width, height, objectness, class_0, class_1].
+        class_scores = blk_output[:, 5:] * blk_output[:, 4:5]
+        class_ids = class_scores.argmax(axis=1)
+        scores = class_scores.max(axis=1)
+        mask = scores > self._conf_thresh
         blk_output = blk_output[mask]
+        class_ids = class_ids[mask]
+        scores = scores[mask]
 
         if blk_output.shape[0] == 0:
             return []
 
-        boxes = blk_output[:, :4].copy()
-        scores = blk_output[:, 4].copy()
+        boxes_xywh = blk_output[:, :4].copy()
+        boxes_xywh[:, 0] -= boxes_xywh[:, 2] / 2
+        boxes_xywh[:, 1] -= boxes_xywh[:, 3] / 2
 
-        # Convert from [x1, y1, x2, y2] to [x1, y1, w, h] for NMSBoxes
-        boxes[:, 2] = boxes[:, 2] - boxes[:, 0]
-        boxes[:, 3] = boxes[:, 3] - boxes[:, 1]
+        # OpenCV NMSBoxes is class-agnostic, so run it independently per class
+        # to match upstream YOLOv5 non_max_suppression semantics.
+        kept_indices: list[int] = []
+        for class_id in np.unique(class_ids):
+            class_indices = np.flatnonzero(class_ids == class_id)
+            indices = cv2.dnn.NMSBoxes(
+                boxes_xywh[class_indices].tolist(),
+                scores[class_indices].tolist(),
+                self._conf_thresh,
+                self._nms_thresh,
+            )
+            if len(indices) > 0:
+                kept_indices.extend(class_indices[np.asarray(indices).reshape(-1)].tolist())
 
-        indices = cv2.dnn.NMSBoxes(boxes.tolist(), scores.tolist(), self._conf_thresh, self._nms_thresh)
-        if len(indices) == 0:
+        if not kept_indices:
             return []
 
-        indices = indices.flatten()
-        boxes = boxes[indices]
-        scores = scores[indices]
+        kept_indices.sort(key=lambda index: float(scores[index]), reverse=True)
+        boxes = boxes_xywh[kept_indices]
+        scores = scores[kept_indices]
 
-        # Convert back to [x1, y1, x2, y2] and scale to original image
+        # Convert [x1, y1, width, height] to xyxy and scale to original image.
         boxes[:, 2] += boxes[:, 0]
         boxes[:, 3] += boxes[:, 1]
         boxes[:, 0] *= scale_x
         boxes[:, 1] *= scale_y
         boxes[:, 2] *= scale_x
         boxes[:, 3] *= scale_y
+        boxes[:, [0, 2]] = np.clip(boxes[:, [0, 2]], 0, im_w)
+        boxes[:, [1, 3]] = np.clip(boxes[:, [1, 3]], 0, im_h)
 
         result = []
         for box, score in zip(boxes, scores):
             x1, y1, x2, y2 = box
+            if x2 <= x1 or y2 <= y1:
+                continue
             result.append({
                 "bbox": [float(x1), float(y1), float(x2), float(y2)],
                 "confidence": float(score),
@@ -413,31 +432,78 @@ class ComicTextDetector(DetectorProvider):
                 })
             return blocks
 
-        # Assign lines to blocks
+        # Assign lines only to the original YOLO blocks.  DBNet-only blocks are
+        # created after this pass so an early, oversized DBNet polygon cannot
+        # steal later lines from a valid YOLO container.
+        yolo_block_count = len(blocks)
         for block in blocks:
             block["lines"] = []
 
         bbox_score_thresh = 0.4
         mask_score_thresh = 0.1
 
+        unmatched_lines = []
         for line in lines:
             bx1, by1, bx2, by2 = line["polygon"].min(axis=0)[0], line["polygon"].min(axis=0)[1], \
                                   line["polygon"].max(axis=0)[0], line["polygon"].max(axis=0)[1]
             line_area = (by2 - by1) * (bx2 - bx1)
             bbox_score = -1
+            containment_score = -1
             bbox_idx = -1
 
-            for jj, blk in enumerate(blocks):
+            for jj, blk in enumerate(blocks[:yolo_block_count]):
                 blk_bbox = blk["bbox"]
-                score = self._union_area(blk_bbox, [bx1, by1, bx2, by2]) / (line_area + 1e-6)
-                if score > bbox_score:
+                intersection = self._union_area(blk_bbox, [bx1, by1, bx2, by2])
+                line_coverage = intersection / (line_area + 1e-6)
+                block_area = max(0.0, (blk_bbox[2] - blk_bbox[0]) * (blk_bbox[3] - blk_bbox[1]))
+                block_coverage = intersection / (block_area + 1e-6)
+
+                # Normal case: most of the DBNet line lies in the YOLO block.
+                # Oversized-DBNet case: the line bbox strongly contains the
+                # YOLO block, making the tighter YOLO geometry primary.
+                score = line_coverage if line_coverage > bbox_score_thresh else -1
+                contained = block_coverage if block_coverage >= 0.9 else -1
+                if score > bbox_score or (
+                    score == bbox_score and contained > containment_score
+                ):
                     bbox_score = score
+                    containment_score = contained
+                    bbox_idx = jj
+                elif bbox_idx < 0 and contained > containment_score:
+                    containment_score = contained
                     bbox_idx = jj
 
-            if bbox_score > bbox_score_thresh:
+            if bbox_idx >= 0 and (
+                bbox_score > bbox_score_thresh or containment_score >= 0.9
+            ):
                 blocks[bbox_idx]["lines"].append(line)
-            elif seg_mask is not None:
-                # Check mask score
+            else:
+                unmatched_lines.append((line, bx1, by1, bx2, by2))
+
+        for line, bx1, by1, bx2, by2 in unmatched_lines:
+            line_area = (by2 - by1) * (bx2 - bx1)
+            dbnet_score = -1
+            dbnet_idx = -1
+            for jj in range(yolo_block_count, len(blocks)):
+                score = self._union_area(
+                    blocks[jj]["bbox"], [bx1, by1, bx2, by2]
+                ) / (line_area + 1e-6)
+                if score > dbnet_score:
+                    dbnet_score = score
+                    dbnet_idx = jj
+
+            if dbnet_idx >= 0 and dbnet_score > bbox_score_thresh:
+                blocks[dbnet_idx]["lines"].append(line)
+                dx1, dy1, dx2, dy2 = blocks[dbnet_idx]["bbox"]
+                blocks[dbnet_idx]["bbox"] = [
+                    min(dx1, float(bx1)),
+                    min(dy1, float(by1)),
+                    max(dx2, float(bx2)),
+                    max(dy2, float(by2)),
+                ]
+                continue
+
+            if seg_mask is not None:
                 mask_score = self._mask_mean(seg_mask, bx1, by1, bx2, by2)
                 if mask_score >= mask_score_thresh:
                     blocks.append({
@@ -449,7 +515,7 @@ class ComicTextDetector(DetectorProvider):
 
         # Filter blocks with no lines (use mask if available)
         filtered_blocks = []
-        for blk in blocks:
+        for block_idx, blk in enumerate(blocks):
             if len(blk.get("lines", [])) == 0:
                 bx1, by1, bx2, by2 = blk["bbox"]
                 if seg_mask is not None:
@@ -462,17 +528,25 @@ class ComicTextDetector(DetectorProvider):
                     "score": blk["confidence"],
                     "synthetic": True,
                 }]
-            else:
-                # A canonical detector block must contain every DBNet line assigned
-                # to it; otherwise compact segmentation silently clips line glyphs.
-                real_lines = [line for line in blk["lines"] if not line.get("synthetic", False)]
+            elif block_idx < yolo_block_count:
+                real_lines = [
+                    line for line in blk["lines"]
+                    if not line.get("synthetic", False)
+                ]
                 if real_lines:
                     lx1 = min(float(line["polygon"][:, 0].min()) for line in real_lines)
                     ly1 = min(float(line["polygon"][:, 1].min()) for line in real_lines)
                     lx2 = max(float(line["polygon"][:, 0].max()) for line in real_lines)
                     ly2 = max(float(line["polygon"][:, 1].max()) for line in real_lines)
                     bx1, by1, bx2, by2 = blk["bbox"]
-                    blk["bbox"] = [min(bx1, lx1), min(by1, ly1), max(bx2, lx2), max(by2, ly2)]
+                    ux1, uy1 = min(bx1, lx1), min(by1, ly1)
+                    ux2, uy2 = max(bx2, lx2), max(by2, ly2)
+                    block_area = max(1.0, (bx2 - bx1) * (by2 - by1))
+                    union_bbox_area = max(0.0, (ux2 - ux1) * (uy2 - uy1))
+                    # Permit modest DBNet completion of a clipped YOLO box, but
+                    # keep YOLO primary when a coarse polygon would balloon it.
+                    if union_bbox_area / block_area <= 2.0:
+                        blk["bbox"] = [ux1, uy1, ux2, uy2]
             filtered_blocks.append(blk)
 
         return filtered_blocks

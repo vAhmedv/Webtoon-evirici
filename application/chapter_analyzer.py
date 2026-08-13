@@ -10,7 +10,7 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Callable, Sequence
+from typing import Any, Callable, Sequence
 
 from loguru import logger
 
@@ -28,6 +28,7 @@ from core.detection.coordinate import (
     global_polygon_to_window,
 )
 from core.detection.merge import merge_duplicates
+from core.detection.region_validity import evaluate_region_validity
 from core.imaging.inpainter import Inpainter
 from core.imaging.region_cropper import RegionCropper
 from core.imaging.renderer import TextRenderer
@@ -291,6 +292,51 @@ class ChapterAnalyzer:
                     # Primary OCR Recognition
                     p_res = primary_ocr.recognize(crop.image, region_bbox=region.global_bbox)
 
+                    # Reject strong CTD non-text geometry before either expensive
+                    # repair stage.  If retained CTD geometry extends past the
+                    # canonical bbox, recrop once and validate the recovered crop.
+                    validity = evaluate_region_validity(region, p_res.text)
+                    recovery_metadata: dict[str, object] = {}
+                    if validity.recovered_bbox is not None:
+                        original_bbox = region.global_bbox
+                        region = _replace_region(region, global_bbox=validity.recovered_bbox)
+                        crop = cropper.crop_region(region, adaptive_padding=True)
+                        p_res = primary_ocr.recognize(crop.image, region_bbox=region.global_bbox)
+                        validity = evaluate_region_validity(region, p_res.text)
+                        recovery_metadata = {
+                            "geometry_recovered": True,
+                            "original_bbox": list(original_bbox.to_tuple()),
+                            "recovered_bbox": list(region.global_bbox.to_tuple()),
+                        }
+
+                    validity_metadata = {
+                        "valid": validity.is_valid,
+                        "reason": validity.reason,
+                        **validity.evidence,
+                        **recovery_metadata,
+                    }
+                    if not validity.is_valid:
+                        skipped_region = _replace_region(
+                            region,
+                            text=p_res.text or "",
+                            ocr_confidence=p_res.confidence,
+                            status=RegionStatus.SKIP,
+                            review_reason=validity.reason,
+                            metadata={
+                                **region.metadata,
+                                "region_validity": validity_metadata,
+                                "ocr_verdict": {
+                                    "source": "primary",
+                                    "requires_review": False,
+                                    "needs_repair": False,
+                                    "reason": validity.reason,
+                                    "second_pass_invoked": False,
+                                },
+                            },
+                        )
+                        ocr_regions.append(skipped_region)
+                        continue
+
                     # Single-pass structural evaluation
                     single_verdict = decide_ocr_agreement(p_res, verifier=None)
 
@@ -309,8 +355,9 @@ class ChapterAnalyzer:
 
                     accepted = verdict.accepted_text or verdict.provisional_text or p_res.text or ""
 
-                    # UNKNOWN regions: if text is empty or non-word CJK, skip as non-text
-                    if region.type == RegionType.UNKNOWN and (not accepted or verdict.requires_review):
+                    # UNKNOWN regions: skip ONLY if there is strong generic non-text evidence (empty text or no alphanumeric content)
+                    has_text_content = bool(accepted and accepted.strip() and any(c.isalnum() for c in accepted))
+                    if region.type == RegionType.UNKNOWN and not has_text_content:
                         status = RegionStatus.SKIP
                         verdict_reason = "unknown_non_text_skip"
                     else:
@@ -324,6 +371,7 @@ class ChapterAnalyzer:
                         review_reason=verdict_reason,
                         metadata={
                             **region.metadata,
+                            "region_validity": validity_metadata,
                             "ocr_verdict": {
                                 "source": verdict.source,
                                 "requires_review": verdict.requires_review,
@@ -497,13 +545,30 @@ class ChapterAnalyzer:
             # Translation models are already unloaded above; release LaMa before rendering/export.
             inpainter.unload()
 
-        # Render Turkish text into merged block bounding boxes
+        # Flag regions belonging to inpainting review blocks
+        if inpainter.review_block_ids:
+            updated_regions = []
+            for r in regions:
+                b_id = region_to_block.get(r.id)
+                if b_id in inpainter.review_block_ids:
+                    r_updated = _replace_region(
+                        r,
+                        status=RegionStatus.REVIEW,
+                        review_reason="inpaint_boundary_residual_review",
+                    )
+                    updated_regions.append(r_updated)
+                else:
+                    updated_regions.append(r)
+            regions = updated_regions
+
+        # Render Turkish text into merged block bounding boxes (excluding review blocks)
         renderer = TextRenderer()
         renderable_pairs = [
             pair for pair in translated_block_pairs
             if pair[0].id in inpainter.processed_block_ids
+            and pair[0].id not in inpainter.review_block_ids
         ]
-        rendered_canvas, overflow_count = renderer.render_blocks(cleaned_canvas, renderable_pairs)
+        rendered_canvas, actual_rendered_count, overflow_count = renderer.render_blocks(cleaned_canvas, renderable_pairs)
 
         inp_render_elapsed = time.time() - inp_render_start
 
@@ -514,6 +579,9 @@ class ChapterAnalyzer:
         analysis_dir = output_path / "analysis"
         analysis_dir.mkdir(parents=True, exist_ok=True)
 
+        successful_inpainting_count = len(inpainter.processed_block_ids - inpainter.review_block_ids)
+        review_inpainting_count = len(inpainter.review_block_ids)
+
         regions_json = analysis_dir / "regions.json"
         with open(regions_json, "w", encoding="utf-8") as f:
             json.dump(
@@ -521,8 +589,12 @@ class ChapterAnalyzer:
                     "pages": len(pages),
                     "windows": len(windows),
                     "text_blocks_count": len(text_blocks),
-                    "rendered_blocks_count": len(translated_block_pairs),
+                    "translated_blocks_count": len(translated_block_pairs),
+                    "inpainted_blocks_count": successful_inpainting_count,
+                    "review_inpaint_blocks_count": review_inpainting_count,
+                    "rendered_blocks_count": actual_rendered_count,
                     "overflow_blocks_count": overflow_count,
+                    "review_block_ids": sorted(list(inpainter.review_block_ids)),
                     "text_blocks": [
                         {
                             "id": b.id,
@@ -550,6 +622,11 @@ class ChapterAnalyzer:
             "translated": sum(1 for r in regions if r.translation),
             "skipped": sum(1 for r in regions if r.status == RegionStatus.SKIP),
             "review": sum(1 for r in regions if r.status == RegionStatus.REVIEW),
+            "translated_blocks_count": len(translated_block_pairs),
+            "inpainted_blocks_count": successful_inpainting_count,
+            "review_inpaint_blocks_count": review_inpainting_count,
+            "rendered_blocks_count": actual_rendered_count,
+            "overflow_blocks_count": overflow_count,
             "elapsed_time": round(elapsed, 2),
             "warnings": warnings,
         }

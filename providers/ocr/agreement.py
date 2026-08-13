@@ -24,17 +24,6 @@ from providers.ocr.base import OCRResult
 # CJK karakter aralıkları
 _CJK_RE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uac00-\ud7af]")
 
-# Kritik özel isimler (manhwa bağlamı) — disagreement'da öncelikli
-CRITICAL_NAMES = [
-    "LUO TIAN",
-    "HU SAN",
-    "GAO YUAN",
-    "CAPTAIN GAO",
-    "YOUNG MASTER YU",
-    "BLACKWIND RAVINE",
-    "BLACKSTONE",
-]
-
 
 @dataclass(frozen=True)
 class OCRVerdict:
@@ -176,21 +165,6 @@ def _is_gibberish(text: str) -> bool:
         return True
     return False
 
-
-def _critical_name_mismatch(primary: str, verifier: str) -> str | None:
-    """Kritik özel isim farkını tespit eder.
-
-    Returns:
-        Fark olan isim veya None.
-    """
-    p_norm = normalize_ocr_text(primary).upper()
-    v_norm = normalize_ocr_text(verifier).upper()
-    for name in CRITICAL_NAMES:
-        p_has = name in p_norm
-        v_has = name in v_norm
-        if p_has != v_has:
-            return name
-    return None
 
 
 def _word_level_similarity(a: str, b: str) -> float:
@@ -404,23 +378,6 @@ def decide_ocr_agreement(
             needs_repair=False,
             reason=None,
             provisional_text=None,
-            p_raw=p_raw,
-            v_raw=v_raw,
-            p_conf=primary.confidence,
-            v_conf=verifier.confidence,
-        )
-
-    # 4c. Kritik özel isim farkı → otomatik seçim YOK, repair gerekli
-    name_mismatch = _critical_name_mismatch(p_text, v_text)
-    if name_mismatch is not None:
-        return _make_verdict(
-            accepted_text=None,
-            accepted_raw=None,
-            source="primary",
-            requires_review=True,
-            needs_repair=True,
-            reason=f"critical_name_mismatch:{name_mismatch}",
-            provisional_text=p_text,
             p_raw=p_raw,
             v_raw=v_raw,
             p_conf=primary.confidence,

@@ -10,6 +10,7 @@ different heavyweight GPU model (notably visual OCR).
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import http.client
 import json
 import logging
 import os
@@ -18,6 +19,7 @@ import re
 import subprocess
 import time
 from typing import Any
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -124,14 +126,14 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
         self.request_timeout_sec = request_timeout_sec
         self.server_alias = server_alias
         self.server_log_path = server_log_path
-        self.metrics = HyMT2GGUFMetrics()
+        self.metrics = HyMT2GGUFMetrics(translation_model=Path(self.model_path).name)
         self.last_traces: list[HyMT2ProductionTrace] = []
         self.last_server_command: list[str] = []
         self._server_log_handle: Any | None = None
 
     @property
     def name(self) -> str:
-        return "Tencent-Hy-MT2-7B-Q8_0-GGUF-Translator"
+        return "Tencent-Hy-MT2-7B-GGUF-Translator"
 
     @property
     def version(self) -> str:
@@ -289,7 +291,10 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
 
     def unload(self) -> None:
         if self._owned_process and self._process is not None:
-            logger.info("Terminating managed Hy-MT2 llama-server process")
+            logger.info(
+                "Terminating owned Hy-MT2 llama-server process PID=%s",
+                self._process.pid,
+            )
             try:
                 self._process.terminate()
                 self._process.wait(timeout=15)
@@ -330,6 +335,7 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
         request_started = time.perf_counter()
         with urllib.request.urlopen(request, timeout=self.request_timeout_sec) as response:
             response_json = json.loads(response.read().decode("utf-8"))
+
         request_latency = time.perf_counter() - request_started
         if "content" not in response_json:
             raise RuntimeError("Hy-MT2 llama-server completion response has no content field")
@@ -361,15 +367,51 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
                 raw_text, input_tokens, generated_tokens, generation_seconds = (
                     self._query_chat_completion(prepared_text)
                 )
-            except Exception as exc:
-                if attempt == 0:
-                    logger.warning("Hy-MT2 request failed for %s: %s; retrying once", label, exc)
-                    try:
-                        self.load()
-                    except Exception as load_exc:
-                        logger.error("Hy-MT2 reload failed during retry: %s", load_exc)
+            except (
+                http.client.RemoteDisconnected,
+                urllib.error.URLError,
+                ConnectionAbortedError,
+                ConnectionRefusedError,
+                ConnectionResetError,
+                TimeoutError,
+            ) as exc:
+                owned_process = self._process if self._owned_process else None
+                pid = owned_process.pid if owned_process is not None else "external"
+                alive = owned_process.poll() is None if owned_process is not None else "unknown"
+                retry_reason = f"transient_connection_failure:{type(exc).__name__}"
+                if attempt == 0 and alive is not False:
+                    # /completion is stateless and deterministic here. Repeating it
+                    # can duplicate compute, but cannot mutate application state.
+                    logger.warning(
+                        "Hy-MT2 retrying once for %s; reason=%s server_pid=%s "
+                        "process_alive=%s owned_by_provider=%s error=%s",
+                        label,
+                        retry_reason,
+                        pid,
+                        alive,
+                        owned_process is not None,
+                        exc,
+                    )
+                    time.sleep(0.25)
                     continue
-                logger.error("Hy-MT2 request failed for %s after retry: %s", label, exc)
+                logger.error(
+                    "Hy-MT2 request failed for %s; reason=%s server_pid=%s "
+                    "process_alive=%s owned_by_provider=%s error=%s",
+                    label,
+                    retry_reason,
+                    pid,
+                    alive,
+                    owned_process is not None,
+                    exc,
+                )
+                return "", "", True
+            except Exception as exc:
+                logger.error(
+                    "Hy-MT2 request failed for %s without retry; reason=non_transient:%s error=%s",
+                    label,
+                    type(exc).__name__,
+                    exc,
+                )
                 return "", "", True
 
             cleaned = clean_hy_mt2_output(raw_text, rendered_prompt)

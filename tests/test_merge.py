@@ -93,9 +93,9 @@ def test_low_confidence_review() -> None:
     assert regions[0].status == RegionStatus.REVIEW
 
 
-def test_containment_merge_keeps_larger_bbox() -> None:
+def test_containment_merge_unions_all_source_member_boxes() -> None:
     """Window sınırı partial/full detection: küçük bbox büyüğün içindeyse
-    daha büyük bbox korunmalı."""
+    her iki source member'ın bbox union'ı korunmalı."""
     # ID 9 bbox = [169,8935,584,8998] (küçük)
     # ID 13 bbox = [155,8937,591,9119] (büyük)
     # Küçük bbox ~%96.8 içinde, IoU ~0.316
@@ -106,8 +106,8 @@ def test_containment_merge_keeps_larger_bbox() -> None:
     regions = merge_duplicates(dets, iou_threshold=0.5, center_distance_threshold=200)
     assert len(regions) == 1
     reg = regions[0]
-    # Büyük bbox korunmalı
-    assert reg.global_bbox == BBox(x1=155, y1=8937, x2=591, y2=9119)
+    # Her iki source member'ın geometrisi korunmalı.
+    assert reg.global_bbox == BBox(x1=155, y1=8935, x2=591, y2=9119)
     assert reg.detection_confidence == 0.95
     assert set(reg.source_window_ids) == {0, 1}
 

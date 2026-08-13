@@ -111,6 +111,7 @@ class QwenRepairProvider(OCRRepairProvider):
         self._config = config or QwenRepairConfig()
         self._loaded = False
         self._server_process: subprocess.Popen | None = None
+        self._owns_server = False
         self.metrics = QwenRepairMetrics()
 
     @property
@@ -168,6 +169,8 @@ class QwenRepairProvider(OCRRepairProvider):
 
         # Server sunucu durumunu kontrol et
         if self._check_health():
+            self._server_process = None
+            self._owns_server = False
             self._loaded = True
             self.metrics.repair_model = f"Qwen-GGUF-llama-server:{self._config.server_port}"
             logger.info(f"Existing Qwen llama-server reusable on port {self._config.server_port}")
@@ -194,6 +197,7 @@ class QwenRepairProvider(OCRRepairProvider):
             stderr=subprocess.STDOUT,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
+        self._owns_server = True
 
         # Sağlık kontörlü bekle
         started = False
@@ -227,7 +231,11 @@ class QwenRepairProvider(OCRRepairProvider):
         return False
 
     def unload(self) -> None:
-        if self._server_process is not None:
+        if self._owns_server and self._server_process is not None:
+            logger.info(
+                "Terminating owned Qwen llama-server process PID=%s",
+                self._server_process.pid,
+            )
             try:
                 self._server_process.terminate()
                 self._server_process.wait(timeout=5.0)
@@ -236,10 +244,11 @@ class QwenRepairProvider(OCRRepairProvider):
                     self._server_process.kill()
                 except Exception:
                     pass
-            self._server_process = None
+        self._server_process = None
+        self._owns_server = False
 
         self._loaded = False
-        logger.info("Qwen llama-server process terminated and unloaded")
+        logger.info("Qwen repair provider unloaded")
 
     def _build_prompt(self, inp: QwenRepairInput) -> str:
         primary = inp.primary_normalized or inp.primary_raw
