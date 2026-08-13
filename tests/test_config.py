@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from core.config import Config, DetectorConfig, load_config
+from core.config import Config, DetectorConfig, OCRConfig, load_config
 
 
 def test_load_config_returns_config() -> None:
     """config.yaml dosyası doğru yüklenmeli."""
     cfg = load_config()
     assert isinstance(cfg, Config)
-    assert cfg.window_height == 5000
-    assert cfg.window_overlap == 1000
+    assert cfg.window_height == 1024
+    assert cfg.window_overlap == 256
     assert ".webp" in cfg.input_extensions
     assert cfg.output_format == "webp"
     assert cfg.translator.enabled is True
@@ -22,14 +22,10 @@ def test_load_config_returns_config() -> None:
 
 
 def test_load_config_defaults_when_file_missing(tmp_path) -> None:
-    """Var olmayan dosya için varsayılan Config dönmeli.
-
-    Not: load_config eksik dosyada FileNotFoundError fırlatır.
-    Bu test varsayılan parametrelerin Config üzerinde doğru olduğunu doğrular.
-    """
+    """Var olmayan dosya için varsayılan Config dönmeli."""
     cfg = Config()
-    assert cfg.window_height == 5000
-    assert cfg.window_overlap == 1000
+    assert cfg.window_height == 1024
+    assert cfg.window_overlap == 256
     assert cfg.output_format == "webp"
     assert cfg.min_confidence == 0.5
 
@@ -52,5 +48,12 @@ def test_nested_configs_have_defaults() -> None:
     assert cfg.detector.enabled is False
     assert cfg.detector.model is None
     assert cfg.ocr.enabled is False
+    assert cfg.ocr.provider is None
     assert cfg.translator.enabled is False
     assert cfg.inpainter.enabled is False
+
+
+def test_ocr_default_never_uses_translation_provider() -> None:
+    """OCR varsayılanı bir translation backend'ine bağlanmamalı."""
+    assert OCRConfig().provider is None
+    assert OCRConfig().provider != "hy_mt2_gguf"

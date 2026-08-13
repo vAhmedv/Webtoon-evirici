@@ -10,7 +10,6 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
 from PIL import Image, ImageDraw
-from PySide6.QtWidgets import QApplication
 
 from core.config import Config, load_config
 from core.detection import BBox, Region, RegionStatus, RegionType
@@ -22,6 +21,8 @@ from providers.ocr.rapid_onnx import RapidONNXOCR
 
 @pytest.fixture(scope="session")
 def qapp():
+    from PySide6.QtWidgets import QApplication
+
     app = QApplication.instance()
     if app is None:
         app = QApplication([])

@@ -78,6 +78,25 @@ def _select_group_polygon(members: list[Detection]) -> list[list[float]] | None:
     return best_polygon
 
 
+def _collect_compact_polygons(members: list[Detection], key: str) -> list[list[list[float]]]:
+    """Union compact global polygons from overlapping windows with coordinate deduplication."""
+    result: list[list[list[float]]] = []
+    seen: set[tuple[tuple[int, int], ...]] = set()
+    for det in sorted(members, key=lambda item: item.confidence, reverse=True):
+        polygons = det.metadata.get(key) if isinstance(det.metadata, dict) else None
+        if not isinstance(polygons, list):
+            continue
+        for polygon in polygons:
+            if not isinstance(polygon, list) or len(polygon) < 3:
+                continue
+            normalized = [[float(p[0]), float(p[1])] for p in polygon]
+            signature = tuple((round(p[0]), round(p[1])) for p in normalized)
+            if signature not in seen:
+                seen.add(signature)
+                result.append(normalized)
+    return result
+
+
 def merge_duplicates(
     detections: list[Detection],
     iou_threshold: float = 0.5,
@@ -182,6 +201,46 @@ def merge_duplicates(
             merged_metadata["polygon"] = best_polygon
         else:
             merged_metadata.pop("polygon", None)
+
+        for geometry_key in ("line_polygons", "segmentation_polygons"):
+            polygons = _collect_compact_polygons(group_members, geometry_key)
+            if polygons:
+                merged_metadata[geometry_key] = polygons
+            else:
+                merged_metadata.pop(geometry_key, None)
+        line_memberships: list[dict] = []
+        seen_lines: set[tuple[tuple[int, int], ...]] = set()
+        for det in group_members:
+            det_lines = _collect_compact_polygons([det], "line_polygons")
+            for line_index, polygon in enumerate(det_lines):
+                signature = tuple((round(point[0]), round(point[1])) for point in polygon)
+                if signature in seen_lines:
+                    continue
+                seen_lines.add(signature)
+                line_memberships.append({
+                    "line_id": f"w{det.source_window_id}:l{line_index}:{signature[0][0]}:{signature[0][1]}",
+                    "polygon": polygon,
+                    "detector_block_id": det.metadata.get("ctd_block_id"),
+                })
+        if line_memberships:
+            merged_metadata["ctd_line_memberships"] = line_memberships
+        block_ids = sorted({
+            str(det.metadata["ctd_block_id"])
+            for det in group_members
+            if isinstance(det.metadata, dict) and det.metadata.get("ctd_block_id")
+        })
+        if block_ids:
+            merged_metadata["ctd_block_ids"] = block_ids
+        block_boxes = [
+            list(det.metadata["ctd_block_bbox"])
+            for det in sorted(group_members, key=lambda item: item.confidence, reverse=True)
+            if isinstance(det.metadata, dict)
+            and isinstance(det.metadata.get("ctd_block_bbox"), list)
+            and len(det.metadata["ctd_block_bbox"]) == 4
+        ]
+        if block_boxes:
+            merged_metadata["ctd_block_bbox"] = block_boxes[0]
+            merged_metadata["ctd_block_bboxes"] = block_boxes
 
         region = Region(
             id=len(merged),

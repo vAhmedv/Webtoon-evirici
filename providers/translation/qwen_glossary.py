@@ -11,7 +11,6 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-import torch
 from loguru import logger
 
 from core.translation.profile_discovery import CandidateStore, ProfileCandidate
@@ -62,6 +61,8 @@ def resolve_candidate_targets_with_qwen(
     candidates: list[ProfileCandidate],
     existing_profile: SeriesProfile | None = None,
 ) -> list[TermResolutionResult]:
+    import torch
+
     """Resolve candidate targets strictly grounded in translation evidence."""
     if not provider.is_loaded or provider._model is None or provider._processor is None:
         raise RuntimeError("QwenTranslationProvider not loaded; call load() first")

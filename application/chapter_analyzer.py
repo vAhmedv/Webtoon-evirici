@@ -1,4 +1,4 @@
-"""Bölüm analiz hizmeti.
+"""Bölüm analiz ve uçtan uca üretim (production) pipeline hizmeti.
 
 Core pipeline'ı UI'dan bağımsız olarak orchestrate eder.
 """
@@ -28,14 +28,20 @@ from core.detection.coordinate import (
     global_polygon_to_window,
 )
 from core.detection.merge import merge_duplicates
-from core.imaging.window_extractor import extract_window_image, WindowImage
+from core.imaging.inpainter import Inpainter
 from core.imaging.region_cropper import RegionCropper
+from core.imaging.renderer import TextRenderer
+from core.imaging.window_extractor import extract_window_image, WindowImage
 from core.io.input_loader import load_chapter
+from core.io.output_exporter import export_chapter_pages
 from core.models import Page, Window
 from core.serialization.serializer import region_to_dict
 from core.visualization.draw import draw_detections, draw_regions
 from providers.detector.base import DetectorProvider
+from providers.ocr.agreement import decide_ocr_agreement
 from providers.ocr.base import OCRProvider
+from providers.ocr.repair import OCRRepairInput, OCRRepairProvider
+from providers.translation.base import TranslationInput, TranslationItem, TranslationProvider
 
 
 ProgressCallback = Callable[[ProgressEvent], None]
@@ -79,8 +85,43 @@ class AnalysisResult:
         self.ocr_elapsed_time = ocr_elapsed_time
 
 
+class ProductionPipelineResult:
+    """Uçtan uca üretim (production) pipeline sonucu."""
+
+    def __init__(
+        self,
+        source_chapter: Path,
+        output_directory: Path,
+        pages: list[Page],
+        windows: list[Window],
+        regions: list[Region],
+        exported_page_paths: list[Path],
+        elapsed_time: float,
+        ocr_elapsed_time: float = 0.0,
+        translation_elapsed_time: float = 0.0,
+        inpainting_rendering_elapsed_time: float = 0.0,
+        warnings: list[str] | None = None,
+    ) -> None:
+        self.source_chapter = source_chapter
+        self.output_directory = output_directory
+        self.pages = pages
+        self.windows = windows
+        self.regions = regions
+        self.exported_page_paths = exported_page_paths
+        self.page_count = len(pages)
+        self.detected_region_count = len(regions)
+        self.translated_region_count = sum(1 for r in regions if r.translation is not None)
+        self.skipped_region_count = sum(1 for r in regions if r.status == RegionStatus.SKIP)
+        self.review_required_count = sum(1 for r in regions if r.status == RegionStatus.REVIEW)
+        self.elapsed_time = elapsed_time
+        self.ocr_elapsed_time = ocr_elapsed_time
+        self.translation_elapsed_time = translation_elapsed_time
+        self.inpainting_rendering_elapsed_time = inpainting_rendering_elapsed_time
+        self.warnings = warnings or []
+
+
 class ChapterAnalyzer:
-    """Bölüm analiz hizmeti.
+    """Bölüm analiz ve üretim pipeline hizmeti.
 
     Pipeline'ı UI'dan bağımsız olarak çalıştırır.
     """
@@ -91,6 +132,444 @@ class ChapterAnalyzer:
             cache_path=CACHE_PATH,
             max_entries=self.config.detection.max_cache_entries,
             enabled=self.config.detection.enabled,
+        )
+
+    def process_chapter(
+        self,
+        chapter_path: str | Path,
+        output_path: str | Path,
+        detector: DetectorProvider,
+        primary_ocr: OCRProvider | None = None,
+        verifier_ocr: OCRProvider | None = None,
+        qwen_repair: OCRRepairProvider | None = None,
+        translator: TranslationProvider | None = None,
+        window_height: int | None = None,
+        window_overlap: int | None = None,
+        min_confidence: float | None = None,
+        progress_callback: ProgressCallback | None = None,
+        cancellation_token: CancellationToken | None = None,
+    ) -> ProductionPipelineResult:
+        """Uçtan uca production pipeline'ı çalıştırır.
+
+        Kaynak görselleri korur, tespit, OCR, visual repair, çeviri,
+        inpainting ve Türkçe metin rendering uygulayarak çıktıyı ayrı
+        bir dizine aktarır.
+        """
+        start_time = time.time()
+        chapter_path = Path(chapter_path).resolve()
+        output_path = Path(output_path).resolve()
+        warnings: list[str] = []
+
+        # Phase 3 Guard: Source safety check
+        if chapter_path == output_path or output_path in chapter_path.parents or chapter_path in output_path.parents:
+            if chapter_path == output_path:
+                raise ValueError(
+                    f"SOURCE OVERWRITE GUARD: Output path '{output_path}' cannot be identical to source '{chapter_path}'"
+                )
+
+        cfg = self.config
+        if window_height is not None:
+            cfg = _replace(cfg, window_height=window_height)
+        if window_overlap is not None:
+            cfg = _replace(cfg, window_overlap=window_overlap)
+        conf = min_confidence if min_confidence is not None else cfg.min_confidence
+
+        def _progress(stage: str, current: int = 0, total: int = 0, message: str = "") -> None:
+            if progress_callback is None:
+                return
+            pct = 0.0
+            if total > 0:
+                pct = max(pct, current / total)
+            progress_callback(ProgressEvent(stage=stage, current=current, total=total, message=message, percent=pct))
+
+        # 1. Load Chapter
+        _progress("Loading chapter", message=str(chapter_path))
+        pages = load_chapter(chapter_path, cfg, allow_non_uniform_widths=True)
+        _progress("Loading chapter", current=1, total=1, message=f"{len(pages)} pages loaded")
+
+        if cancellation_token and cancellation_token.is_cancelled:
+            raise CancelledError()
+
+        # 2. Global Coordinate System
+        coords = GlobalCoordinateSystem(tuple(pages))
+
+        # 3. Generate Windows
+        windows = generate_windows_for_pages(
+            pages,
+            window_height=cfg.window_height,
+            overlap=cfg.window_overlap,
+        )
+
+        # 4. Detection Stage
+        _progress("Loading detector")
+        if hasattr(detector, "confidence_threshold"):
+            detector.confidence_threshold = conf
+
+        all_detections: list[Detection] = []
+        try:
+            detector.load()
+            model_id, model_mtime = _get_model_identity(detector)
+            self._cache.load()
+
+            for idx, window in enumerate(windows, start=1):
+                if cancellation_token and cancellation_token.is_cancelled:
+                    raise CancelledError()
+                _progress("Detecting", current=idx, total=len(windows), message=f"Window {idx}/{len(windows)}")
+                window_image = extract_window_image(tuple(pages), window, coords)
+
+                image_bytes = _image_to_bytes(window_image.image)
+                page_hash = DetectionCache.compute_hash(image_bytes)
+                cached = self._cache.get(page_hash, model_id, model_mtime)
+
+                if cached is not None:
+                    global_detections = cached
+                else:
+                    detections = detector.detect(window_image.image, window.id)
+                    global_detections = []
+                    for det in detections:
+                        global_bbox = window_bbox_to_global(det.bbox, window.y_start)
+                        metadata = _offset_geometry_metadata(det.metadata, window.y_start)
+                        global_det = Detection(
+                            bbox=global_bbox,
+                            confidence=det.confidence,
+                            type=det.type,
+                            source_window_id=det.source_window_id,
+                            mask=det.mask,
+                            metadata=metadata,
+                        )
+                        global_detections.append(global_det)
+                    self._cache.put(page_hash, model_id, model_mtime, global_detections)
+
+                all_detections.extend(global_detections)
+
+            self._cache.save()
+        finally:
+            detector.unload()
+
+        # Merge duplicates
+        regions = merge_duplicates(all_detections, min_confidence=conf)
+
+        if cancellation_token and cancellation_token.is_cancelled:
+            raise CancelledError()
+
+        # 5. Dual OCR Stage with Selective Second-Pass & Region Classification
+        ocr_start = time.time()
+        repair_candidates: list[tuple[Region, OCRRepairInput, Any]] = []
+
+        if primary_ocr is not None:
+            _progress("Loading Primary OCR")
+            cropper = RegionCropper(pages, coords, padding=20)
+            ocr_regions: list[Region] = []
+            try:
+                primary_ocr.load()
+                if verifier_ocr is not None:
+                    try:
+                        verifier_ocr.load()
+                    except Exception as e:
+                        warnings.append(f"Verifier OCR load failed: {e}")
+                        verifier_ocr = None
+
+                for idx, region in enumerate(regions, start=1):
+                    if cancellation_token and cancellation_token.is_cancelled:
+                        raise CancelledError()
+                    _progress("OCR Recognition", current=idx, total=len(regions), message=f"OCR {idx}/{len(regions)}")
+
+                    bbox = region.global_bbox
+                    # 5a. Early Classification & Filtering
+                    # SFX / Watermark / Extremely small noise boxes -> SKIP early
+                    if region.type in (RegionType.SFX, RegionType.WATERMARK) or bbox.height < 10 or bbox.width < 10:
+                        skipped_region = _replace_region(
+                            region,
+                            status=RegionStatus.SKIP,
+                            review_reason="sfx_or_non_text_skip",
+                        )
+                        ocr_regions.append(skipped_region)
+                        continue
+
+                    crop = cropper.crop_region(region, adaptive_padding=True)
+
+                    # Primary OCR Recognition
+                    p_res = primary_ocr.recognize(crop.image, region_bbox=region.global_bbox)
+
+                    # Single-pass structural evaluation
+                    single_verdict = decide_ocr_agreement(p_res, verifier=None)
+
+                    # Selective second-pass trigger: invoke verifier ONLY if primary is suspicious/unaccepted
+                    v_res = None
+                    if single_verdict.requires_review and verifier_ocr is not None:
+                        v_res = verifier_ocr.recognize(crop.image, region_bbox=region.global_bbox)
+                        verdict = decide_ocr_agreement(p_res, v_res)
+                    else:
+                        verdict = single_verdict
+
+                    if region.status == RegionStatus.SKIP:
+                        status = RegionStatus.SKIP
+                    else:
+                        status = RegionStatus.REVIEW if verdict.requires_review else RegionStatus.AUTO
+
+                    accepted = verdict.accepted_text or verdict.provisional_text or p_res.text or ""
+
+                    # UNKNOWN regions: if text is empty or non-word CJK, skip as non-text
+                    if region.type == RegionType.UNKNOWN and (not accepted or verdict.requires_review):
+                        status = RegionStatus.SKIP
+                        verdict_reason = "unknown_non_text_skip"
+                    else:
+                        verdict_reason = verdict.reason
+
+                    updated_region = _replace_region(
+                        region,
+                        text=accepted,
+                        ocr_confidence=p_res.confidence,
+                        status=status,
+                        review_reason=verdict_reason,
+                        metadata={
+                            **region.metadata,
+                            "ocr_verdict": {
+                                "source": verdict.source,
+                                "requires_review": verdict.requires_review,
+                                "needs_repair": verdict.needs_repair,
+                                "reason": verdict_reason,
+                                "second_pass_invoked": v_res is not None,
+                            },
+                        },
+                    )
+                    ocr_regions.append(updated_region)
+
+                    # Queue for Qwen repair ONLY if region is STORY_TEXT (dialogue/narration) and remains in REVIEW
+                    if (
+                        updated_region.status == RegionStatus.REVIEW
+                        and updated_region.type in (RegionType.DIALOGUE, RegionType.NARRATION, RegionType.UNKNOWN)
+                        and verdict.needs_repair
+                        and accepted
+                    ):
+                        repair_inp = OCRRepairInput(
+                            primary_raw=verdict.primary_raw,
+                            primary_normalized=verdict.primary_normalized,
+                            verifier_raw=verdict.verifier_raw,
+                            verifier_normalized=verdict.verifier_normalized,
+                            reason=verdict_reason or "disagreement",
+                        )
+                        repair_candidates.append((updated_region, repair_inp, crop.image))
+
+                regions = ocr_regions
+            finally:
+                primary_ocr.unload()
+                if verifier_ocr is not None:
+                    verifier_ocr.unload()
+
+        ocr_elapsed = time.time() - ocr_start
+
+        # 6. Visual OCR Repair Stage (Sequential VRAM lifecycle)
+        if repair_candidates and qwen_repair is not None:
+            _progress("Loading Visual OCR Repair Model")
+            try:
+                qwen_repair.load()
+            except Exception as e:
+                logger.warning(f"Visual OCR repair model load failed: {e}")
+                warnings.append(f"Visual OCR repair model load skipped: {e}")
+                qwen_repair = None
+
+            if qwen_repair is not None:
+                try:
+                    repaired_regions: list[Region] = []
+                    for region, repair_inp, crop_img in repair_candidates:
+                        if cancellation_token and cancellation_token.is_cancelled:
+                            raise CancelledError()
+                        try:
+                            rep_res = qwen_repair.repair(repair_inp, crop_img)
+                            if rep_res.repaired_text and not rep_res.unresolved:
+                                region = _replace_region(
+                                    region,
+                                    text=rep_res.repaired_text,
+                                    status=RegionStatus.AUTO,
+                                    metadata={**region.metadata, "repaired": True},
+                                )
+                        except Exception as e:
+                            warnings.append(f"Visual repair failed for region {region.id}: {e}")
+                        repaired_regions.append(region)
+
+                    # Update main region list
+                    repaired_map = {r.id: r for r in repaired_regions}
+                    regions = [repaired_map.get(r.id, r) for r in regions]
+                finally:
+                    qwen_repair.unload()
+                    # Clear VRAM cache
+                    try:
+                        import torch
+                        if torch.cuda.is_available():
+                            torch.cuda.empty_cache()
+                    except ImportError:
+                        pass
+
+        # 7. Multi-Feature Classification & Generic Watermark Filtering
+        from core.detection.classification import classify_regions
+        from core.detection.text_block import group_text_blocks, TextBlock
+
+        regions = classify_regions(regions, coords)
+
+        # 8. Text-Block Grouping (Translation Units)
+        text_blocks = group_text_blocks(regions, coords)
+        block_map: dict[int, TextBlock] = {}
+        region_to_block: dict[int, int] = {}
+        for b in text_blocks:
+            block_map[b.id] = b
+            for m_id in b.member_ids:
+                region_to_block[m_id] = b.id
+
+        # Update region metadata with text block references
+        regions_with_block: list[Region] = []
+        for r in regions:
+            if r.id in region_to_block:
+                b_id = region_to_block[r.id]
+                b_obj = block_map[b_id]
+                meta = dict(r.metadata)
+                meta["text_block"] = {
+                    "block_id": b_id,
+                    "member_ids": list(b_obj.member_ids),
+                    "source_text": b_obj.source_text,
+                }
+                r = _replace_region(r, metadata=meta)
+            regions_with_block.append(r)
+        regions = regions_with_block
+
+        # 9. Block-Level Translation Stage (Hy-MT2 GGUF)
+        trans_start = time.time()
+        translated_block_pairs: list[tuple[TextBlock, str]] = []
+
+        if text_blocks and translator is not None:
+            _progress("Loading Translation Model (Hy-MT2)")
+            try:
+                translator.load()
+                items = [
+                    TranslationItem(region_id=b.id, source=b.source_text)
+                    for b in text_blocks
+                ]
+                trans_inp = TranslationInput(items=items)
+                trans_out = translator.translate(trans_inp)
+
+                out_map = {item.region_id: item.translation for item in trans_out.results if item.translation}
+
+                for b in text_blocks:
+                    if b.id in out_map:
+                        translated_block_pairs.append((b, out_map[b.id]))
+
+                updated_regions: list[Region] = []
+                for r in regions:
+                    b_id = region_to_block.get(r.id)
+                    if b_id and b_id in out_map:
+                        tr_text = out_map[b_id]
+                        meta = dict(r.metadata)
+                        if "text_block" in meta:
+                            meta["text_block"]["translation"] = tr_text
+                        r_updated = _replace_region(r, translation=tr_text, metadata=meta)
+                        updated_regions.append(r_updated)
+                    else:
+                        updated_regions.append(r)
+                regions = updated_regions
+            finally:
+                translator.unload()
+
+        trans_elapsed = time.time() - trans_start
+
+        # 10. Block-Level Inpainting & Rendering Stage
+        inp_render_start = time.time()
+        _progress("Inpainting and Rendering Turkish Text Blocks")
+
+        from PIL import Image as PILImage
+        canvas_w = pages[0].width
+        canvas_h = sum(p.height for p in pages)
+
+        global_canvas = PILImage.new("RGB", (canvas_w, canvas_h), (255, 255, 255))
+        y_cursor = 0
+        for page in pages:
+            with PILImage.open(page.path) as p_img:
+                p_img_rgb = p_img.convert("RGB")
+                if p_img_rgb.width != page.width or p_img_rgb.height != page.height:
+                    p_img_rgb = p_img_rgb.resize((page.width, page.height), PILImage.Resampling.LANCZOS)
+                global_canvas.paste(p_img_rgb, (0, y_cursor))
+                y_cursor += page.height
+
+        # Clean speech bubble text for translated blocks
+        inpainter = Inpainter(debug_dir=output_path / "analysis" / "inpainting_debug")
+        try:
+            cleaned_canvas = inpainter.inpaint_blocks(global_canvas, [b for b, _ in translated_block_pairs])
+        finally:
+            # Translation models are already unloaded above; release LaMa before rendering/export.
+            inpainter.unload()
+
+        # Render Turkish text into merged block bounding boxes
+        renderer = TextRenderer()
+        renderable_pairs = [
+            pair for pair in translated_block_pairs
+            if pair[0].id in inpainter.processed_block_ids
+        ]
+        rendered_canvas, overflow_count = renderer.render_blocks(cleaned_canvas, renderable_pairs)
+
+        inp_render_elapsed = time.time() - inp_render_start
+
+        # 11. Output Export & Analysis Metadata
+        _progress("Exporting final output pages")
+        exported_page_paths = export_chapter_pages(pages, rendered_canvas, output_path)
+
+        analysis_dir = output_path / "analysis"
+        analysis_dir.mkdir(parents=True, exist_ok=True)
+
+        regions_json = analysis_dir / "regions.json"
+        with open(regions_json, "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "pages": len(pages),
+                    "windows": len(windows),
+                    "text_blocks_count": len(text_blocks),
+                    "rendered_blocks_count": len(translated_block_pairs),
+                    "overflow_blocks_count": overflow_count,
+                    "text_blocks": [
+                        {
+                            "id": b.id,
+                            "member_ids": list(b.member_ids),
+                            "source_text": b.source_text,
+                            "translation": r.translation if (r := next((r for r in regions if r.id in b.member_ids), None)) else None,
+                            "merged_bbox": [b.merged_bbox.x1, b.merged_bbox.y1, b.merged_bbox.x2, b.merged_bbox.y2],
+                        }
+                        for b in text_blocks
+                    ],
+                    "regions": [region_to_dict(r) for r in regions],
+                },
+                f,
+                ensure_ascii=False,
+                indent=2,
+            )
+
+        elapsed = time.time() - start_time
+        summary = {
+            "chapter": str(chapter_path),
+            "output": str(output_path),
+            "pages": len(pages),
+            "windows": len(windows),
+            "regions": len(regions),
+            "translated": sum(1 for r in regions if r.translation),
+            "skipped": sum(1 for r in regions if r.status == RegionStatus.SKIP),
+            "review": sum(1 for r in regions if r.status == RegionStatus.REVIEW),
+            "elapsed_time": round(elapsed, 2),
+            "warnings": warnings,
+        }
+        with open(analysis_dir / "summary.json", "w", encoding="utf-8") as f:
+            json.dump(summary, f, ensure_ascii=False, indent=2)
+
+        _progress("Completed", current=1, total=1, message="Production pipeline complete")
+
+        return ProductionPipelineResult(
+            source_chapter=chapter_path,
+            output_directory=output_path,
+            pages=pages,
+            windows=windows,
+            regions=regions,
+            exported_page_paths=exported_page_paths,
+            elapsed_time=elapsed,
+            ocr_elapsed_time=ocr_elapsed,
+            translation_elapsed_time=trans_elapsed,
+            inpainting_rendering_elapsed_time=inp_render_elapsed,
+            warnings=warnings,
         )
 
     def analyze(
@@ -105,22 +584,7 @@ class ChapterAnalyzer:
         cancellation_token: CancellationToken | None = None,
         ocr_provider: OCRProvider | None = None,
     ) -> AnalysisResult:
-        """Bölüm analizini çalıştırır.
-
-        Args:
-            chapter_path: Bölüm klasörü yolu.
-            output_path: Çıktı klasörü yolu.
-            detector: Kullanılacak detector sağlayıcı.
-            window_height: Pencere yüksekliği (config.yaml override).
-            window_overlap: Pencere örtüşmesi (config.yaml override).
-            min_confidence: Minimum güven eşiği (config.yaml override).
-            progress_callback: İlerleme bildirimi callback'i.
-            cancellation_token: İptal belirteci.
-            ocr_provider: Opsiyonel OCR sağlayıcı.
-
-        Returns:
-            AnalysisResult.
-        """
+        """Bölüm analizini çalıştırır (analiz modu)."""
         start_time = time.time()
         chapter_path = Path(chapter_path)
         output_path = Path(output_path)
@@ -171,7 +635,6 @@ class ChapterAnalyzer:
             detector.confidence_threshold = conf
         detector.load()
 
-        # Cache: get model identity for cache key
         model_id, model_mtime = _get_model_identity(detector)
         self._cache.load()
 
@@ -189,30 +652,20 @@ class ChapterAnalyzer:
 
             window_image = extract_window_image(tuple(pages), window, coords)
 
-            # Cache lookup / store
             image_bytes = _image_to_bytes(window_image.image)
             page_hash = DetectionCache.compute_hash(image_bytes)
             cached = self._cache.get(page_hash, model_id, model_mtime)
 
             if cached is not None:
-                # Cache HIT: use cached global detections directly
                 global_detections = cached
-                # Convert back to window-local for visualization
                 detections = [_global_detection_to_window(d, window.y_start) for d in cached]
-                logger.debug(f"Window {window.id}: cache HIT")
             else:
-                # Cache MISS: run YOLO, convert to global, cache
                 detections = detector.detect(window_image.image, window.id)
 
-                # Provider local WindowImage koordinatları üretir.
-                # Merge duplicate öncesinde global chapter koordinatına çevir.
                 global_detections: list[Detection] = []
                 for det in detections:
                     global_bbox = window_bbox_to_global(det.bbox, window.y_start)
-                    metadata = dict(det.metadata)
-                    polygon = metadata.get("polygon")
-                    if isinstance(polygon, list) and len(polygon) > 0:
-                        metadata["polygon"] = window_polygon_to_global(polygon, window.y_start)
+                    metadata = _offset_geometry_metadata(det.metadata, window.y_start)
                     global_det = Detection(
                         bbox=global_bbox,
                         confidence=det.confidence,
@@ -223,7 +676,6 @@ class ChapterAnalyzer:
                     )
                     global_detections.append(global_det)
 
-                # Store in cache (store global detections)
                 self._cache.put(page_hash, model_id, model_mtime, global_detections)
 
             all_detections.extend(global_detections)
@@ -233,10 +685,7 @@ class ChapterAnalyzer:
             vis.save(vis_path)
             window_visualization_paths.append(vis_path)
 
-        # Save cache after all detection
         self._cache.save()
-        logger.info(f"Detection cache saved: {len(self._cache._entries)} entries")
-
         detector.unload()
 
         if cancellation_token and cancellation_token.is_cancelled:
@@ -246,7 +695,6 @@ class ChapterAnalyzer:
         _progress("Merging regions")
         regions = merge_duplicates(all_detections, min_confidence=conf)
 
-        # 7. Apply safety status (already done in merge, but ensure)
         regions = [
             _replace_status(reg, RegionStatus.REVIEW) if reg.status == RegionStatus.AUTO and reg.detection_confidence < conf else reg
             for reg in regions
@@ -255,7 +703,7 @@ class ChapterAnalyzer:
         if cancellation_token and cancellation_token.is_cancelled:
             raise CancelledError()
 
-        # 7.5 OCR (opsiyonel)
+        # 7. OCR (opsiyonel)
         ocr_start = 0.0
         ocr_elapsed = 0.0
         if ocr_provider is not None:
@@ -341,17 +789,11 @@ class ChapterAnalyzer:
         with open(summary_path, "w", encoding="utf-8") as f:
             json.dump(summary, f, ensure_ascii=False, indent=2)
 
-        # 9. Global visualization
+        # 9. Global preview
         _progress("Rendering preview")
         preview_path = self._render_global_preview(pages, regions, output_path)
 
         _progress("Completed", current=1, total=1, message="Analysis complete")
-        logger.info(
-            f"Analysis complete: {len(pages)} pages, {len(windows)} windows, "
-            f"{len(regions)} regions, AUTO={summary['auto']}, "
-            f"REVIEW={summary['review']}, SKIP={summary['skip']}, "
-            f"time={elapsed:.2f}s"
-        )
 
         return AnalysisResult(
             pages=pages,
@@ -447,16 +889,7 @@ def _replace_region(region: Region, **kwargs) -> Region:
 
 
 def _get_model_identity(detector: DetectorProvider) -> tuple[str, str | float]:
-    """Detector'dan model_id ve model_mtime çıkarır.
-
-    Args:
-        detector: DetectorProvider instance.
-
-    Returns:
-        (model_id, model_mtime) tuple.
-        model_id: model dosya yolu stringi veya provider name.
-        model_mtime: model dosyasının mtime (float) veya "unknown" string.
-    """
+    """Detector'dan model_id ve model_mtime çıkarır."""
     model_path = getattr(detector, "_model_path", None)
     if model_path is not None and Path(model_path).exists():
         model_id = str(Path(model_path).resolve())
@@ -467,6 +900,9 @@ def _get_model_identity(detector: DetectorProvider) -> tuple[str, str | float]:
     else:
         model_id = getattr(detector, "name", "unknown")
         model_mtime = "unknown"
+    cache_schema = getattr(detector, "cache_schema_version", None)
+    if cache_schema:
+        model_id = f"{model_id}|{cache_schema}"
     return model_id, model_mtime
 
 
@@ -487,10 +923,7 @@ def _image_to_bytes(image) -> bytes:
 def _global_detection_to_window(det: Detection, window_y_start: int) -> Detection:
     """Global Detection'ı window-local koordinata çevirir (visualization için)."""
     local_bbox = global_bbox_to_window(det.bbox, window_y_start)
-    metadata = dict(det.metadata)
-    polygon = metadata.get("polygon")
-    if isinstance(polygon, list) and len(polygon) > 0:
-        metadata["polygon"] = global_polygon_to_window(polygon, window_y_start)
+    metadata = _offset_geometry_metadata(det.metadata, -window_y_start)
     return Detection(
         bbox=local_bbox,
         confidence=det.confidence,
@@ -499,3 +932,27 @@ def _global_detection_to_window(det: Detection, window_y_start: int) -> Detectio
         mask=det.mask,
         metadata=metadata,
     )
+
+
+def _offset_geometry_metadata(metadata: object, y_offset: int) -> dict:
+    """Translate every compact CTD geometry field without expanding it to a pixel mask."""
+    result = dict(metadata) if isinstance(metadata, dict) else {}
+    for key in ("polygon",):
+        polygon = result.get(key)
+        if isinstance(polygon, list) and polygon:
+            result[key] = [[float(p[0]), float(p[1]) + y_offset] for p in polygon]
+    for key in ("line_polygons", "segmentation_polygons"):
+        polygons = result.get(key)
+        if isinstance(polygons, list):
+            result[key] = [
+                [[float(p[0]), float(p[1]) + y_offset] for p in polygon]
+                for polygon in polygons
+                if isinstance(polygon, list) and len(polygon) >= 3
+            ]
+    block_bbox = result.get("ctd_block_bbox")
+    if isinstance(block_bbox, list) and len(block_bbox) == 4:
+        result["ctd_block_bbox"] = [
+            float(block_bbox[0]), float(block_bbox[1]) + y_offset,
+            float(block_bbox[2]), float(block_bbox[3]) + y_offset,
+        ]
+    return result

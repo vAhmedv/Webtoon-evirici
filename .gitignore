@@ -29,6 +29,8 @@ cache/
 temp/
 tmp/
 scratch/
+e2e_output/
+review_output/
 
 # Logs
 *.log

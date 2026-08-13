@@ -51,20 +51,27 @@ class RegionCropper:
         self._coords = coords
         self._padding = padding
 
-    def crop_region(self, region: Region) -> RegionCrop:
+    def crop_region(self, region: Region, adaptive_padding: bool = False) -> RegionCrop:
         """Region'dan OCR crop'u üretir.
 
         Args:
             region: Canonical global Region.
+            adaptive_padding: Bbox boyutuna göre dinamik, harf kesmeyen padding uygular.
 
         Returns:
             RegionCrop.
         """
         bbox = region.global_bbox
-        x1 = max(0, bbox.x1 - self._padding)
-        y1 = max(0, bbox.y1 - self._padding)
-        x2 = bbox.x2 + self._padding
-        y2 = bbox.y2 + self._padding
+        if adaptive_padding:
+            pad_x = max(4, min(16, int(bbox.width * 0.06)))
+            pad_y = max(4, min(16, int(bbox.height * 0.06)))
+        else:
+            pad_x = pad_y = self._padding
+
+        x1 = max(0, bbox.x1 - pad_x)
+        y1 = max(0, bbox.y1 - pad_y)
+        x2 = bbox.x2 + pad_x
+        y2 = bbox.y2 + pad_y
 
         relevant_pages = self._coords.pages_in_range(y1, y2)
         if not relevant_pages:
@@ -73,7 +80,6 @@ class RegionCropper:
             )
 
         crops: list[Image.Image] = []
-        y_cursor = 0
         page_indices: list[int] = []
 
         for page in relevant_pages:
@@ -106,6 +112,12 @@ class RegionCropper:
         for crop in crops:
             combined.paste(crop, (0, y_offset))
             y_offset += crop.height
+
+        # Küçük metin için yüksek çözünürlük ölçeklemesi (height < 36px ise)
+        if combined.height < 36 and combined.height > 0:
+            scale = 36.0 / combined.height
+            new_w = max(1, int(combined.width * scale))
+            combined = combined.resize((new_w, 36), Image.Resampling.LANCZOS)
 
         # Global polygon → crop-local polygon dönüşümü
         local_polygon = None

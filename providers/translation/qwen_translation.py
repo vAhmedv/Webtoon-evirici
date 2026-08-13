@@ -12,7 +12,6 @@ import json
 import re
 from dataclasses import dataclass
 
-import torch
 from loguru import logger
 from typing import Any
 
@@ -26,7 +25,13 @@ from providers.translation.base import (
 
 DEFAULT_MODEL_PATH = r"C:\AI\Models\Qwen3.5-9B"
 MAX_NEW_TOKENS = 1024
-_TORCH_DTYPE = torch.bfloat16
+
+
+def _get_torch():
+    """Import torch only when the Transformers backend performs runtime work."""
+    import torch
+
+    return torch
 
 
 @dataclass
@@ -54,18 +59,21 @@ _THINK_MARKER = re.compile(r"<thinking\b", re.IGNORECASE)
 
 
 def _vram_gb() -> float:
+    torch = _get_torch()
     if not torch.cuda.is_available():
         return 0.0
     return torch.cuda.memory_allocated() / (1024 ** 3)
 
 
 def _peak_vram_gb() -> float:
+    torch = _get_torch()
     if not torch.cuda.is_available():
         return 0.0
     return torch.cuda.max_memory_allocated() / (1024 ** 3)
 
 
 def _reset_peak_vram() -> None:
+    torch = _get_torch()
     if torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
 
@@ -113,6 +121,7 @@ class QwenTranslationProvider(TranslationProvider):
         if self._loaded:
             return
 
+        torch = _get_torch()
         torch.cuda.empty_cache()
         from transformers import AutoProcessor, AutoModelForImageTextToText, BitsAndBytesConfig
 
@@ -123,7 +132,7 @@ class QwenTranslationProvider(TranslationProvider):
         self._model = AutoModelForImageTextToText.from_pretrained(
             self._model_path,
             local_files_only=True,
-            torch_dtype=_TORCH_DTYPE,
+            torch_dtype=torch.bfloat16,
             device_map="auto",
             max_memory={0: "12GiB"},
             quantization_config=bnb,
@@ -144,6 +153,7 @@ class QwenTranslationProvider(TranslationProvider):
         self._processor = None
         self._loaded = False
         self._device = "cpu"
+        torch = _get_torch()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         logger.info("Qwen translation model unloaded")
@@ -174,6 +184,7 @@ class QwenTranslationProvider(TranslationProvider):
         self, inp: TranslationInput, retry_count: int = 0
     ) -> TranslationOutput:
         import time
+        torch = _get_torch()
 
         prompt = self._build_prompt(inp)
         messages = [{"role": "user", "content": [{"type": "text", "text": prompt}]}]

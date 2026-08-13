@@ -148,3 +148,31 @@ class TestOCRAgreement:
         assert verdict.verifier_raw == "LUO TIAN"
         assert verdict.primary_normalized == "LHO TIAN"
         assert verdict.verifier_normalized == "LUO TIAN"
+
+    def test_single_pass_clean_ocr_auto_accepted(self) -> None:
+        primary = self._result("WHAT THE...?")
+        verdict = decide_ocr_agreement(primary, verifier=None)
+        assert verdict.requires_review is False
+        assert verdict.needs_repair is False
+        assert verdict.accepted_text == "WHAT THE...?"
+
+    def test_single_pass_structurally_suspicious_ocr_concatenated(self) -> None:
+        primary = self._result("CRAPTEDWEAPONS CAN BE GRANTED TO OTHERS.")
+        verdict = decide_ocr_agreement(primary, verifier=None)
+        assert verdict.requires_review is True
+        assert verdict.needs_repair is True
+        assert "concatenated_token" in (verdict.reason or "")
+
+    def test_single_pass_structurally_suspicious_ocr_invalid_consonants(self) -> None:
+        primary = self._result("CRAFTED WEAPONS CAN PE CDANTED TO OTUEDS")
+        verdict = decide_ocr_agreement(primary, verifier=None)
+        assert verdict.requires_review is True
+        assert verdict.needs_repair is True
+        assert "invalid_start_consonants" in (verdict.reason or "")
+
+    def test_single_pass_structurally_suspicious_ocr_invalid_cluster(self) -> None:
+        primary = self._result("APOKTTON OPTHE EXPIS SHARED WITH THE CREATOR.")
+        verdict = decide_ocr_agreement(primary, verifier=None)
+        assert verdict.requires_review is True
+        assert verdict.needs_repair is True
+        assert "invalid_consonant_cluster" in (verdict.reason or "")

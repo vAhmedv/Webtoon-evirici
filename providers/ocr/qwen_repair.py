@@ -1,34 +1,41 @@
-"""Qwen visual OCR repair / adjudication provider.
+"""Qwen visual OCR repair / adjudication provider using llama-server multimodal REST API.
 
-Qwen3.5-9B (8-bit) modeli bubble crop görüntüsünü okur ve
-OCR disagreement'ı çözer.
+Qwen3.5-9B GGUF + mmproj vision model bubble crop görüntüsünü okur ve
+OCR disagreement'ı çözmek için llama-server REST API (port 8086) üzerinden çalışır.
 
-Gorevi: crop'daki gerçek İngilizce metni belirlemek.
-Translator değildir. OCR adayları sadece ipucdur.
+Görevi: Crop'taki gerçek İngilizce metni belirlemek.
+Translator değildir. OCR adayları sadece ipucudur.
 
 Model yalnızca ``verdict.needs_repair == True`` olduğunda çalışır.
 """
 from __future__ import annotations
 
+import base64
+import io
 import json
+import os
 import re
+import subprocess
+import time
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
+import urllib.parse
+import urllib.request
 
-import torch
 from loguru import logger
 from PIL import Image
 
 from providers.ocr.repair import OCRRepairInput, OCRRepairProvider, OCRRepairResult
 
-DEFAULT_MODEL_PATH = r"C:\AI\Models\Qwen3.5-9B"
-FALLBACK_MODEL_PATH = r"C:\AI\Models\Qwen3.5-4B"
+DEFAULT_QWEN_GGUF_MODEL_PATH = r"C:\AI\Models\Qwen3.5-9B-GGUF\Qwen3.5-9B-Q5_K_M.gguf"
+DEFAULT_QWEN_MMPROJ_PATH = r"C:\AI\Models\Qwen3.5-9B-GGUF\mmproj-F16.gguf"
+DEFAULT_LLAMA_SERVER_PATH = r"C:\AI\llama-cpp-cuda\llama-server.exe"
+DEFAULT_QWEN_SERVER_URL = "http://127.0.0.1:8086"
+DEFAULT_QWEN_SERVER_PORT = 8086
 MAX_NEW_TOKENS = 512
-_TORCH_DTYPE = torch.bfloat16
 
-# Kısa, odaklı prompt. JSON talep eder ama model doğal dil de çıkarabilir;
-# parser buna göre esnek çalışır.
+# Kısa, odaklı prompt. JSON talep eder ama model doğal dil de çıkarabilir; parser buna göre esnek çalışır.
 _USER_PROMPT = (
     "Read the English text in the provided bubble crop image.\n"
     "Two OCR candidates disagree:\n"
@@ -42,10 +49,13 @@ _USER_PROMPT = (
 
 @dataclass(frozen=True)
 class QwenRepairConfig:
-    model_path: str = DEFAULT_MODEL_PATH
-    fallback_model_path: str = FALLBACK_MODEL_PATH
+    model_path: str = DEFAULT_QWEN_GGUF_MODEL_PATH
+    mmproj_path: str = DEFAULT_QWEN_MMPROJ_PATH
+    server_path: str = DEFAULT_LLAMA_SERVER_PATH
+    server_url: str = DEFAULT_QWEN_SERVER_URL
+    server_port: int = DEFAULT_QWEN_SERVER_PORT
+    n_gpu_layers: int = 99
     max_new_tokens: int = MAX_NEW_TOKENS
-    torch_dtype: Any = _TORCH_DTYPE
     max_memory_gb: int = 12
 
 
@@ -91,27 +101,25 @@ class OCRAdjudicatedResult:
 
 
 class QwenRepairProvider(OCRRepairProvider):
-    """Qwen3.5-9B visual OCR repair.
+    """Qwen3.5-9B GGUF visual OCR repair using llama-server multimodal API.
 
-    Load stratejisi: 8-bit (bitsandbytes) -> 4-bit -> Qwen3.5-4B BF16 fallback.
-    Model yalnızca bir kez load edilir; 3 case çalıştırıldıktan sonra unload edilir.
+    llama-server.exe süreci load() sırasında başlatılır (--mmproj ile),
+    unload() çağrıldığında sonlandırılır.
     """
 
     def __init__(self, config: QwenRepairConfig | None = None) -> None:
         self._config = config or QwenRepairConfig()
         self._loaded = False
-        self._model = None
-        self._processor = None
-        self._device = "cpu"
+        self._server_process: subprocess.Popen | None = None
         self.metrics = QwenRepairMetrics()
 
     @property
     def name(self) -> str:
-        return "Qwen3.5-9B-OCR-Repair"
+        return "Qwen3.5-9B-OCR-Repair-GGUF"
 
     @property
     def version(self) -> str:
-        return "3.5-9B"
+        return "3.5-9B-GGUF"
 
     @property
     def is_loaded(self) -> bool:
@@ -119,128 +127,119 @@ class QwenRepairProvider(OCRRepairProvider):
 
     @property
     def device(self) -> str:
-        return self._device
+        return "cuda"
 
-    def _vram_gb(self) -> float:
-        if not torch.cuda.is_available():
-            return 0.0
-        return torch.cuda.memory_allocated() / (1024**3)
+    def _find_mmproj_file(self, model_path: Path) -> Path | None:
+        """Sırasıyla mmproj yolunu ve model dizinindeki mmproj*.gguf dosyalarını arar."""
+        configured = Path(self._config.mmproj_path)
+        if configured.exists():
+            return configured
 
-    def _peak_vram_gb(self) -> float:
-        if not torch.cuda.is_available():
-            return 0.0
-        return torch.cuda.max_memory_allocated() / (1024**3)
+        # Model klasöründe mmproj ara
+        search_dir = model_path.parent if model_path.is_file() else model_path
+        if search_dir.exists():
+            matches = list(search_dir.glob("*mmproj*.gguf"))
+            if matches:
+                return matches[0]
+            # Genel mmproj araması
+            matches = list(search_dir.glob("mmproj*"))
+            if matches:
+                return matches[0]
 
-    def _reset_peak_vram(self) -> None:
-        if torch.cuda.is_available():
-            torch.cuda.reset_peak_memory_stats()
+        return None
 
     def load(self) -> None:
         if self._loaded:
             return
 
-        from transformers import AutoModelForImageTextToText, AutoProcessor
+        model_path = Path(self._config.model_path)
+        if not model_path.exists():
+            raise FileNotFoundError(f"Qwen GGUF model path not found: {model_path}")
 
-        if not torch.cuda.is_available():
-            logger.info("No CUDA — loading Qwen3.5-9B on CPU")
-            self._processor = AutoProcessor.from_pretrained(self._config.model_path, local_files_only=True)
-            self._model = AutoModelForImageTextToText.from_pretrained(
-                self._config.model_path, local_files_only=True, torch_dtype=self._config.torch_dtype
+        mmproj_path = self._find_mmproj_file(model_path)
+        if mmproj_path is None or not mmproj_path.exists():
+            raise FileNotFoundError(
+                f"Qwen multimodal vision projector (mmproj) GGUF file not found in {model_path.parent} or {self._config.mmproj_path}"
             )
-            self._model.eval()
-            self._device = "cpu"
-            self.metrics.repair_model = "Qwen3.5-9B-bf16-cpu"
+
+        server_bin = Path(self._config.server_path)
+        if not server_bin.exists():
+            raise FileNotFoundError(f"llama-server binary not found: {server_bin}")
+
+        # Server sunucu durumunu kontrol et
+        if self._check_health():
             self._loaded = True
+            self.metrics.repair_model = f"Qwen-GGUF-llama-server:{self._config.server_port}"
+            logger.info(f"Existing Qwen llama-server reusable on port {self._config.server_port}")
             return
 
-        errors: list[str] = []
-        for quant in ("8bit", "4bit"):
-            try:
-                torch.cuda.empty_cache()
-                label = self._load_quant(quant)
-                self._loaded = True
-                self.metrics.model_load_vram_gb = self._vram_gb()
-                self.metrics.repair_model = f"Qwen3.5-9B-{label}"
-                logger.info(f"Model-load VRAM: {self.metrics.model_load_vram_gb:.2f} GB ({label})")
-                return
-            except (RuntimeError, ValueError, OSError) as e:
-                errors.append(f"{quant}: {e}")
-                logger.warning(f"Qwen {quant} load failed: {e}")
-                self._model = None
-                self._processor = None
-                torch.cuda.empty_cache()
+        # Server sürecini başlat
+        cmd = [
+            str(server_bin),
+            "-m", str(model_path),
+            "--mmproj", str(mmproj_path),
+            "--port", str(self._config.server_port),
+            "-ngl", str(self._config.n_gpu_layers),
+            "--alias", "qwen-ocr-repair",
+        ]
 
-        # Fallback: 4B BF16
-        fb = self._load_fallback()
-        if fb:
-            self._loaded = True
-            self.metrics.model_load_vram_gb = self._vram_gb()
-            self.metrics.repair_model = fb
-            logger.info(f"Fallback loaded: {fb}")
-            return
+        logger.info(f"Starting Qwen llama-server: {' '.join(cmd)}")
+        log_dir = Path("logs")
+        log_dir.mkdir(parents=True, exist_ok=True)
+        out_f = open(log_dir / "qwen_llama_server.log", "w", encoding="utf-8")
 
-        raise RuntimeError(f"Qwen load failed: {errors}")
-
-    def _load_quant(self, quant: str) -> str:
-        from transformers import AutoModelForImageTextToText, AutoProcessor, BitsAndBytesConfig
-
-        cfg = self._config
-        bnb = None
-        label = "bf16"
-        if quant == "8bit":
-            bnb = BitsAndBytesConfig(load_in_8bit=True)
-            label = "8bit"
-        elif quant == "4bit":
-            bnb = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=_TORCH_DTYPE,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_use_double_quant=True,
-            )
-            label = "4bit-nf4"
-
-        self._processor = AutoProcessor.from_pretrained(self._config.model_path, local_files_only=True)
-        kw: dict[str, Any] = {
-            "local_files_only": True,
-            "torch_dtype": cfg.torch_dtype,
-            "device_map": "auto",
-            "max_memory": {0: f"{cfg.max_memory_gb}GiB"},
-        }
-        if bnb:
-            kw["quantization_config"] = bnb
-        self._model = AutoModelForImageTextToText.from_pretrained(self._config.model_path, **kw)
-        self._model.eval()
-        self._device = "cuda"
-        if torch.cuda.is_available():
-            self._model = self._model.to("cuda:0")
-        return label
-
-    def _load_fallback(self) -> str | None:
-        from transformers import AutoModelForImageTextToText, AutoProcessor
-
-        p = Path(self._config.fallback_model_path)
-        if not p.exists():
-            logger.warning(f"Fallback path not found: {p}")
-            return None
-        self._processor = AutoProcessor.from_pretrained(str(p), local_files_only=True)
-        self._model = AutoModelForImageTextToText.from_pretrained(
-            str(p), local_files_only=True, torch_dtype=self._config.torch_dtype,
-            device_map="auto", max_memory={0: f"{self._config.max_memory_gb}GiB"},
+        self._server_process = subprocess.Popen(
+            cmd,
+            stdout=out_f,
+            stderr=subprocess.STDOUT,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
-        self._model.eval()
-        self._device = "cuda"
-        if torch.cuda.is_available():
-            self._model = self._model.to("cuda:0")
-        return "Qwen3.5-4B-bf16"
+
+        # Sağlık kontörlü bekle
+        started = False
+        deadline = time.time() + 30.0
+        while time.time() < deadline:
+            if self._server_process.poll() is not None:
+                out_f.close()
+                raise RuntimeError(f"Qwen llama-server process exited unexpectedly with code {self._server_process.poll()}")
+            if self._check_health():
+                started = True
+                break
+            time.sleep(0.5)
+
+        if not started:
+            self.unload()
+            raise TimeoutError(f"Qwen llama-server health check timed out on port {self._config.server_port}")
+
+        self._loaded = True
+        self.metrics.repair_model = f"Qwen-GGUF-llama-server:{self._config.server_port}"
+        logger.info(f"Qwen llama-server started successfully on port {self._config.server_port}")
+
+    def _check_health(self) -> bool:
+        url = f"{self._config.server_url}/health"
+        try:
+            req = urllib.request.Request(url, method="GET")
+            with urllib.request.urlopen(req, timeout=1.5) as resp:
+                if resp.status == 200:
+                    return True
+        except Exception:
+            pass
+        return False
 
     def unload(self) -> None:
-        self._model = None
-        self._processor = None
+        if self._server_process is not None:
+            try:
+                self._server_process.terminate()
+                self._server_process.wait(timeout=5.0)
+            except Exception:
+                try:
+                    self._server_process.kill()
+                except Exception:
+                    pass
+            self._server_process = None
+
         self._loaded = False
-        self._device = "cpu"
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        logger.info("Qwen repair model unloaded")
+        logger.info("Qwen llama-server process terminated and unloaded")
 
     def _build_prompt(self, inp: QwenRepairInput) -> str:
         primary = inp.primary_normalized or inp.primary_raw
@@ -253,41 +252,54 @@ class QwenRepairProvider(OCRRepairProvider):
             context=(f"Context: {inp.nearby_context}\n" if inp.nearby_context else ""),
         )
 
+    @staticmethod
+    def _image_to_base64_url(image: Image.Image) -> str:
+        pil_img = image.convert("RGB") if isinstance(image, Image.Image) else Image.fromarray(image).convert("RGB")
+        buf = io.BytesIO()
+        pil_img.save(buf, format="JPEG", quality=95)
+        b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+        return f"data:image/jpeg;base64,{b64}"
+
     def repair(self, repair_input: OCRRepairInput, image: Image.Image) -> OCRRepairResult:
-        if not self._loaded or self._model is None or self._processor is None:
+        if not self._loaded:
             raise RuntimeError("QwenRepairProvider not loaded; call load() first")
 
         inp = QwenRepairInput.from_repair_input(repair_input, image)
         prompt = self._build_prompt(inp)
+        image_url = self._image_to_base64_url(image)
 
-        pil_image = image.convert("RGB") if isinstance(image, Image.Image) else Image.fromarray(image).convert("RGB")
+        payload = {
+            "messages": [
+                {"role": "system", "content": "You are a JSON-only OCR adjudicator. Output ONLY a JSON object."},
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "image_url", "image_url": {"url": image_url}},
+                        {"type": "text", "text": prompt},
+                    ],
+                },
+            ],
+            "temperature": 0.1,
+            "max_tokens": self._config.max_new_tokens,
+        }
 
-        messages = [
-            {"role": "system", "content": "You are a JSON-only OCR adjudicator. Output ONLY a JSON object."},
-            {"role": "user", "content": [
-                {"type": "image", "image": pil_image},
-                {"type": "text", "text": prompt},
-            ]},
-        ]
-
-        inputs = self._processor.apply_chat_template(
-            messages, add_generation_prompt=True, return_dict=True, return_tensors="pt", tokenize=True
+        body = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            f"{self._config.server_url}/v1/chat/completions",
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
         )
-        if torch.cuda.is_available():
-            inputs = {k: v.to("cuda:0") for k, v in inputs.items() if isinstance(v, torch.Tensor)}
 
-        self._reset_peak_vram()
-        with torch.no_grad():
-            gen = self._model.generate(
-                **inputs, do_sample=False, max_new_tokens=self._config.max_new_tokens,
-            )
-
-        ilen = inputs["input_ids"].shape[-1]
-        raw = self._processor.decode(gen[0, ilen:], skip_special_tokens=True).strip()
-        self.metrics.peak_vram_gb = max(self.metrics.peak_vram_gb, self._peak_vram_gb())
-
-        result = self._parse_output(raw)
-        return result
+        try:
+            with urllib.request.urlopen(req, timeout=30.0) as resp:
+                res_data = json.loads(resp.read().decode("utf-8"))
+                raw_text = res_data["choices"][0]["message"]["content"].strip()
+                logger.info(f"Qwen raw response ({len(raw_text)} chars): {raw_text[:200]}")
+                return self._parse_output(raw_text)
+        except Exception as e:
+            logger.error(f"Qwen llama-server repair API call failed: {e}")
+            return self._unresolved(f"api_error: {e}")
 
     # --- Parser: handles both JSON and natural language output ---
     def _parse_output(self, raw: str) -> OCRRepairResult:
@@ -327,7 +339,6 @@ class QwenRepairProvider(OCRRepairProvider):
             return self._unresolved("insufficient_visual_evidence")
 
         # 3. Fallback: extract text from model analysis output.
-        # Model outputs analysis in natural language with quoted text lines.
         extracted = self._extract_text_from_natural_language(raw)
         if extracted:
             return OCRRepairResult(
@@ -361,42 +372,29 @@ class QwenRepairProvider(OCRRepairProvider):
 
     @staticmethod
     def _extract_text_from_natural_language(text: str) -> str | None:
-        """Modelin doğal dil çıktısından metni çıkarır.
-
-        Model genellikle analizinde metni tek tırnak içinde veya
-        "Line N: \"...\" " formatında çıkarır.
-        """
-        # Strateji 1: "Line N: \"TEXT\"" desenleri topla
         line_matches = re.findall(r'[Ll]ine\s*\d*:\s*"([^"]+)"', text)
         if line_matches:
-            # Tüm satırları birleştir
             full = " ".join(m.strip() for m in line_matches)
             if len(full) >= 2:
                 return full
 
-        # Strateji 2: "Candidate B: \"TEXT\"" veya "Candidate A: \"TEXT\""
         cand_matches = re.findall(r'Candidate\s+[AB]:\s*"([^"]+)"', text)
         if cand_matches:
-            # Son candidate match (modelin nihai kararı)
             return cand_matches[-1].strip()
 
-        # Strateji 3: "The text reads:" veya "reads:" sonrasındaki tüm satır
         reads_match = re.search(r'(?:text\s+)?reads:\s*["\']?(.+?)(?:["\']|$)', text, re.IGNORECASE | re.DOTALL)
         if reads_match:
             val = reads_match.group(1).strip().strip('"').strip("'")
             if val and len(val) >= 2:
                 return val
 
-        # Strateji 4: "The correct.*: \"TEXT\"" 
         correct_match = re.search(r'(?:correct|right|should be):\s*["\']?([^"\']+)["\']?', text, re.IGNORECASE)
         if correct_match:
             val = correct_match.group(1).strip()
             if val and len(val) >= 2:
                 return val
 
-        # Strateji 5: Uzun quoted text blokları
         quoted = re.findall(r'"([^"]{3,})"', text)
-        # En uzun quote'ı al (genellikle tam metin)
         if quoted:
             longest = max(quoted, key=len).strip()
             if len(longest) >= 2:
@@ -421,17 +419,15 @@ def adjudicate_ocr(
     crop_image: Image.Image | None,
     repair_provider: QwenRepairProvider,
 ) -> OCRAdjudicatedResult:
-    """OCR verdict'ı Qwen repair ile cozer.
+    """OCR verdict'ı Qwen repair ile çözer.
 
-    - needs_repair=False -> Qwen cagrilmaz, accepted_text = clean_source_text.
-    - needs_repair=True -> Qwen repair calistirilir.
+    - needs_repair=False -> Qwen çağrılmaz, accepted_text = clean_source_text.
+    - needs_repair=True -> Qwen repair çalıştırılır.
     """
     from providers.ocr.agreement import OCRVerdict
 
     if not verdict.needs_repair:
-        logger.debug(
-            f"Qwen skip: safe agreement (source={verdict.source})"
-        )
+        logger.debug("Qwen skip: safe agreement")
         return OCRAdjudicatedResult(
             verdict=verdict,
             clean_source_text=verdict.accepted_text,

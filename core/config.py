@@ -27,7 +27,7 @@ class DetectionConfig:
 
 @dataclass(frozen=True)
 class DetectorConfig:
-    """Detector ayarları (Phase 3'te kullanılacak)."""
+    """Detector ayarları."""
 
     enabled: bool = False
     model: str | None = None
@@ -35,17 +35,11 @@ class DetectorConfig:
 
 @dataclass(frozen=True)
 class OCRConfig:
-    """OCR ayarları (Phase 4).
-
-    Not: ``min_confidence`` OCR confidence gate'i içindir ve detection
-    confidence'dan ayrıdır (``Config.min_confidence``). Bu, spec'e göre
-    "detector inference confidence ile OCR confidence aynı variable
-    olmamalı" gerekliliğini karşılar.
-    """
+    """OCR ayarları."""
 
     enabled: bool = False
     engine: str | None = None
-    provider: str | None = "hy_mt2_gguf"
+    provider: str | None = None
     min_confidence: float = 0.5
     crop_padding: int = 20
     upscale_small_regions: bool = False
@@ -67,7 +61,7 @@ class TranslatorConfig:
 
 @dataclass(frozen=True)
 class InpainterConfig:
-    """Inpainting ayarları (Phase 6'da kullanılacak)."""
+    """Inpainting ayarları."""
 
     enabled: bool = False
     model: str | None = None
@@ -77,8 +71,8 @@ class InpainterConfig:
 class Config:
     """Uygulama geneli yapılandırma nesnesi."""
 
-    window_height: int = 5000
-    window_overlap: int = 1000
+    window_height: int = 1024
+    window_overlap: int = 256
     input_extensions: list[str] = field(
         default_factory=lambda: [".webp", ".png", ".jpg", ".jpeg"]
     )
@@ -99,18 +93,7 @@ class Config:
 
 
 def load_config(path: str | Path | None = None) -> Config:
-    """config.yaml dosyasını okur ve Config nesnesi döndürür.
-
-    Args:
-        path: config.yaml yolu. Varsayılan olarak proje kökündeki config.yaml.
-
-    Returns:
-        Config: Yapılandırma nesnesi.
-
-    Raises:
-        FileNotFoundError: config.yaml bulunamazsa.
-        yaml.YAMLError: YAML ayrıştırılamazsa.
-    """
+    """config.yaml dosyasını okur ve Config nesnesi döndürür."""
     config_path = Path(path) if path else PROJECT_ROOT / "config.yaml"
 
     if not config_path.exists():
@@ -119,17 +102,23 @@ def load_config(path: str | Path | None = None) -> Config:
     with open(config_path, "r", encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
 
+    det_raw = raw.get("detector", {})
+    detection_raw = raw.get("detection", {})
+    ocr_raw = raw.get("ocr", {})
+    trans_raw = raw.get("translator", {})
+    inp_raw = raw.get("inpainter", {})
+
     return Config(
-        window_height=int(raw.get("window_height", 5000)),
-        window_overlap=int(raw.get("window_overlap", 1000)),
-        input_extensions=[str(x) for x in raw.get("input_extensions", [".webp", ".png", ".jpg", ".jpeg"])],
-        output_format=str(raw.get("output_format", "webp")),
-        log_level=str(raw.get("log_level", "INFO")),
-        log_file=str(raw.get("log_file", "logs/latest.log")),
-        min_confidence=float(raw.get("min_confidence", 0.5)),
-        detector=DetectorConfig(**raw.get("detector", {})),
-        detection=DetectionConfig(**raw.get("detection", {})),
-        ocr=OCRConfig(**raw.get("ocr", {})),
-        translator=TranslatorConfig(**raw.get("translator", {})),
-        inpainter=InpainterConfig(**raw.get("inpainter", {})),
+        window_height=raw.get("window_height", 1024),
+        window_overlap=raw.get("window_overlap", 256),
+        input_extensions=raw.get("input_extensions", [".webp", ".png", ".jpg", ".jpeg"]),
+        output_format=raw.get("output_format", "webp"),
+        log_level=raw.get("log_level", "INFO"),
+        log_file=raw.get("log_file", "logs/latest.log"),
+        min_confidence=raw.get("min_confidence", 0.5),
+        detector=DetectorConfig(**det_raw),
+        detection=DetectionConfig(**detection_raw),
+        ocr=OCRConfig(**ocr_raw),
+        translator=TranslatorConfig(**trans_raw),
+        inpainter=InpainterConfig(**inp_raw),
     )

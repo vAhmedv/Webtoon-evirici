@@ -364,6 +364,10 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
             except Exception as exc:
                 if attempt == 0:
                     logger.warning("Hy-MT2 request failed for %s: %s; retrying once", label, exc)
+                    try:
+                        self.load()
+                    except Exception as load_exc:
+                        logger.error("Hy-MT2 reload failed during retry: %s", load_exc)
                     continue
                 logger.error("Hy-MT2 request failed for %s after retry: %s", label, exc)
                 return "", "", True

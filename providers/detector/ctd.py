@@ -22,14 +22,23 @@ import json
 import os
 import threading
 from pathlib import Path
-from typing import Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
-import cv2
-import numpy as np
 from loguru import logger
 
 from core.detection import BBox, Detection, RegionType
 from providers.detector.base import DetectorProvider
+
+if TYPE_CHECKING:
+    import numpy as np
+
+
+def _native_modules() -> tuple[Any, Any]:
+    """Load OpenCV/NumPy only when CTD runtime work is requested."""
+    import cv2
+    import numpy as np
+
+    return cv2, np
 
 MODEL_FILENAME = "comictextdetector.pt.onnx"
 MODEL_URL = "https://github.com/zyddnys/manga-image-translator/releases/download/beta-0.3/comictextdetector.pt.onnx"
@@ -50,9 +59,10 @@ class ComicTextDetector(DetectorProvider):
         self._conf_thresh = 0.4
         self._nms_thresh = 0.35
         self._seg_thresh = 0.3
-        self._box_thresh = 0.6
+        self._box_thresh = 0.4
         self._debug = False
         self._debug_dir = None
+        self.last_output_metadata: dict[str, Any] = {}
 
     @property
     def name(self) -> str:
@@ -61,6 +71,11 @@ class ComicTextDetector(DetectorProvider):
     @property
     def version(self) -> str:
         return "beta-0.3"
+
+    @property
+    def cache_schema_version(self) -> str:
+        """Invalidate pre-geometry cache entries after compact CTD metadata was added."""
+        return "ctd-geometry-v2-upstream"
 
     @property
     def device(self) -> str:
@@ -84,6 +99,7 @@ class ComicTextDetector(DetectorProvider):
                 f"Or run: python scripts/download_detector_models.py --detector ctd"
             )
 
+        cv2, _ = _native_modules()
         logger.info(f"Loading CTD ONNX model: {self._model_path}")
         self._net = cv2.dnn.readNetFromONNX(str(self._model_path))
         self._uoln = self._net.getUnconnectedOutLayersNames()
@@ -101,6 +117,7 @@ class ComicTextDetector(DetectorProvider):
         if not self._loaded or self._net is None:
             raise RuntimeError("CTD model not loaded; call load() first")
 
+        cv2, np = _native_modules()
         img = np.array(image)
         if img is None or img.size == 0:
             return []
@@ -121,13 +138,24 @@ class ComicTextDetector(DetectorProvider):
         self._net.setInput(img_in)
         outputs = self._net.forward(self._uoln)
 
-        # Map outputs by name
+        # Record the actual OpenCV outputs, then classify spatial heads by shape.
+        # Some OpenCV builds reverse the two dense outputs (upstream CTD guard).
         output_names = self._net.getUnconnectedOutLayersNames()
         output_dict = dict(zip(output_names, outputs))
-
-        blk_output = output_dict.get("blk")
-        det_output = output_dict.get("det")
-        seg_output = output_dict.get("seg")
+        blk_output = next((value for value in outputs if value.ndim == 3 and value.shape[-1] == 7), None)
+        dense = [value for value in outputs if value.ndim == 4]
+        det_output = next((value for value in dense if value.shape[1] == 2), None)
+        seg_output = next((value for value in dense if value.shape[1] == 1), None)
+        self.last_output_metadata = {
+            "outputs": [{"name": name, "shape": list(value.shape)} for name, value in zip(output_names, outputs)],
+            "blk_name": next((name for name, value in output_dict.items() if value is blk_output), None),
+            "lines_map_name": next((name for name, value in output_dict.items() if value is det_output), None),
+            "segmentation_name": next((name for name, value in output_dict.items() if value is seg_output), None),
+            "opencv_output_swap_applied": bool(
+                output_dict.get("det") is not None and output_dict["det"].shape[1] != 2
+            ),
+        }
+        logger.info("CTD ONNX outputs: {}", self.last_output_metadata)
 
         if self._debug:
             self._log_output_info("blk", blk_output)
@@ -142,12 +170,12 @@ class ComicTextDetector(DetectorProvider):
         # DBNet text-line extraction
         lines = []
         if det_output is not None:
-            lines = self._postprocess_dbnet_lines(det_output, scale_x, scale_y, im_w, im_h)
+            lines = self._postprocess_dbnet_lines(det_output, im_w, im_h, dw, dh)
 
         # Segmentation mask
         seg_mask = None
         if seg_output is not None:
-            seg_mask = self._postprocess_segmentation_mask(seg_output, im_w, im_h, dh)
+            seg_mask = self._postprocess_segmentation_mask(seg_output, im_w, im_h, dw, dh)
             if self._debug:
                 mask_vis = (seg_mask * 255).astype(np.uint8) if seg_mask.max() <= 1.0 else seg_mask.astype(np.uint8)
                 cv2.imwrite(str(self._debug_dir / "05_segmentation_mask.png"), mask_vis)
@@ -160,16 +188,39 @@ class ComicTextDetector(DetectorProvider):
 
         # Convert to Detection
         detections: list[Detection] = []
-        for block in grouped_blocks:
+        for block_index, block in enumerate(grouped_blocks):
             x1, y1, x2, y2 = block["bbox"]
-            if x2 <= x1 or y2 <= y1:
+            ix1, iy1, ix2, iy2 = int(x1), int(y1), int(x2), int(y2)
+            if ix2 <= ix1 or iy2 <= iy1:
                 continue
+            line_polygons = [
+                line["polygon"].astype(int).tolist()
+                for line in block.get("lines", [])
+                if not line.get("synthetic", False)
+                and line.get("polygon") is not None and len(line["polygon"]) >= 3
+            ]
+            metadata: dict[str, Any] = {
+                "geometry_source": "ctd",
+                "ctd_block_id": f"w{window_id}:b{block_index}",
+                "ctd_block_bbox": [ix1, iy1, ix2, iy2],
+                "line_polygons": line_polygons,
+                "line_scores": [
+                    float(line.get("score", 0.0))
+                    for line in block.get("lines", [])
+                    if not line.get("synthetic", False)
+                ],
+            }
+            segmentation_polygons = self._compact_segmentation_polygons(seg_mask, (ix1, iy1, ix2, iy2))
+            if segmentation_polygons:
+                metadata["segmentation_polygons"] = segmentation_polygons
+
             detections.append(
                 Detection(
-                    bbox=BBox(x1=int(x1), y1=int(y1), x2=int(x2), y2=int(y2)),
+                    bbox=BBox(x1=ix1, y1=iy1, x2=ix2, y2=iy2),
                     confidence=float(block.get("confidence", 0.5)),
                     type=RegionType.UNKNOWN,
                     source_window_id=window_id,
+                    metadata=metadata,
                 )
             )
 
@@ -177,6 +228,7 @@ class ComicTextDetector(DetectorProvider):
 
     def _preprocess(self, img: np.ndarray) -> tuple[np.ndarray, tuple[float, float], int, int]:
         """CTD-style letterbox preprocessing."""
+        cv2, np = _native_modules()
         img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         img_in, ratio, (dw, dh) = self._letterbox(img_bgr, new_shape=(self._input_size, self._input_size), auto=False, stride=64)
         img_in = img_in.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
@@ -187,6 +239,7 @@ class ComicTextDetector(DetectorProvider):
 
     def _letterbox(self, im, new_shape=(640, 640), color=(0, 0, 0), auto=False, scaleFill=False, scaleup=True, stride=128):
         """Letterbox resize with aspect ratio preservation."""
+        cv2, np = _native_modules()
         shape = im.shape[:2]
         if not isinstance(new_shape, tuple):
             new_shape = (new_shape, new_shape)
@@ -206,6 +259,7 @@ class ComicTextDetector(DetectorProvider):
 
     def _postprocess_yolo_blocks(self, blk_output, scale_x, scale_y, im_w, im_h):
         """YOLO block output'tan NMS ile filtrelenmiş bbox'lar çıkarır."""
+        cv2, np = _native_modules()
         blk_output = np.array(blk_output).reshape(-1, 7)
         if blk_output.size == 0:
             return []
@@ -251,91 +305,89 @@ class ComicTextDetector(DetectorProvider):
             })
         return result
 
-    def _postprocess_dbnet_lines(self, det_output, scale_x, scale_y, im_w, im_h):
-        """DBNet text-line probability map'ten line polygon'ları çıkarır."""
-        # det_output shape: (1, 2, H, W) or similar
+    def _postprocess_dbnet_lines(self, det_output, im_w, im_h, dw=0, dh=0):
+        """Upstream SegDetectorRepresenter-compatible DBNet box extraction."""
+        cv2, np = _native_modules()
         det_output = np.array(det_output)
         if det_output.ndim != 4:
             return []
-
-        # Assume first channel is shrink map, second is threshold map
-        # Or if single channel, use directly
-        if det_output.shape[1] >= 2:
-            shrink_map = det_output[0, 0, :, :]
-            thresh_map = det_output[0, 1, :, :]
-        else:
-            shrink_map = det_output[0, 0, :, :]
-            thresh_map = shrink_map
-
-        # Binarize
+        shrink_map = det_output[0, 0].astype(np.float32)
+        map_h, map_w = shrink_map.shape
+        valid_w = max(1, map_w - int(dw))
+        valid_h = max(1, map_h - int(dh))
         binary_map = (shrink_map > self._seg_thresh).astype(np.uint8) * 255
-
-        # Find contours
         contours, _ = cv2.findContours(binary_map, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-
         lines = []
-        for contour in contours:
-            if len(contour) < 3:
+        for contour in contours[:1000]:
+            points, short_side = self._mini_box(contour)
+            if short_side < 2:
                 continue
-
-            # Approximate polygon
-            epsilon = 0.005 * cv2.arcLength(contour, True)
-            approx = cv2.approxPolyDP(contour, epsilon, True)
-
-            if len(approx) < 4:
-                continue
-
-            # Score based on shrink/threshold map
-            score = self._compute_polygon_score(approx, shrink_map)
+            points = np.asarray(points, np.float32)
+            score = self._compute_polygon_score(contour.squeeze(1), shrink_map)
             if score < self._box_thresh:
                 continue
-
-            # Unclip/expand polygon
-            expanded = self._unclip_polygon(approx, unclip_ratio=1.5)
-            if expanded is None or len(expanded) < 4:
+            expanded = self._unclip_polygon(points, unclip_ratio=1.5)
+            if expanded is None:
                 continue
-
-            # Scale to original image coordinates
-            expanded = expanded.astype(np.float32)
-            expanded[:, 0] *= scale_x
-            expanded[:, 1] *= scale_y
-
-            # Clip to image bounds
+            expanded, short_side = self._mini_box(expanded.reshape(-1, 1, 2).astype(np.float32))
+            if short_side < 2:
+                continue
+            expanded = np.asarray(expanded, np.float32)
+            expanded[:, 0] = expanded[:, 0] / valid_w * im_w
+            expanded[:, 1] = expanded[:, 1] / valid_h * im_h
             expanded[:, 0] = np.clip(expanded[:, 0], 0, im_w - 1)
             expanded[:, 1] = np.clip(expanded[:, 1], 0, im_h - 1)
-
-            lines.append({
-                "polygon": expanded.astype(int),
-                "score": float(score),
-            })
-
+            lines.append({"polygon": expanded.astype(int), "score": float(score)})
         return lines
+
+    @staticmethod
+    def _mini_box(contour):
+        cv2, _ = _native_modules()
+        box = cv2.minAreaRect(contour)
+        points = sorted(list(cv2.boxPoints(box)), key=lambda point: point[0])
+        i1, i4 = (0, 1) if points[1][1] > points[0][1] else (1, 0)
+        i2, i3 = (2, 3) if points[3][1] > points[2][1] else (3, 2)
+        return [points[i1], points[i2], points[i3], points[i4]], min(box[1])
 
     def _compute_polygon_score(self, polygon, score_map):
         """Polygon içindeki ortalama skoru hesaplar."""
-        mask = np.zeros(score_map.shape, dtype=np.uint8)
-        cv2.fillPoly(mask, [polygon], 1)
-        if mask.sum() == 0:
-            return 0.0
-        return float(score_map[mask > 0].mean())
+        cv2, np = _native_modules()
+        polygon = np.asarray(polygon).reshape(-1, 2).copy()
+        xmin, xmax = np.clip([np.floor(polygon[:, 0].min()), np.ceil(polygon[:, 0].max())], 0, score_map.shape[1] - 1).astype(int)
+        ymin, ymax = np.clip([np.floor(polygon[:, 1].min()), np.ceil(polygon[:, 1].max())], 0, score_map.shape[0] - 1).astype(int)
+        mask = np.zeros((ymax - ymin + 1, xmax - xmin + 1), np.uint8)
+        polygon[:, 0] -= xmin
+        polygon[:, 1] -= ymin
+        cv2.fillPoly(mask, polygon.reshape(1, -1, 2).astype(np.int32), 1)
+        return float(cv2.mean(score_map[ymin:ymax + 1, xmin:xmax + 1], mask)[0])
 
     def _unclip_polygon(self, polygon, unclip_ratio=1.5):
         """Polygon'u genişletir (unclip)."""
+        _, np = _native_modules()
+        import pyclipper
+        from shapely.geometry import Polygon
         polygon = polygon.reshape(-1, 2)
         if len(polygon) < 3:
             return None
+        poly = Polygon(polygon)
+        if poly.length <= 0 or poly.area <= 0:
+            return None
+        offset = pyclipper.PyclipperOffset()
+        offset.AddPath(polygon.astype(np.int64).tolist(), pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
+        expanded = offset.Execute(poly.area * unclip_ratio / poly.length)
+        if len(expanded) != 1:
+            return None
+        return np.asarray(expanded[0], np.float32)
 
-        # Simple scaling approach instead of pyclipper
-        center = polygon.mean(axis=0)
-        expanded = center + (polygon - center) * unclip_ratio
-        return expanded.astype(np.int32)
-
-    def _postprocess_segmentation_mask(self, seg_output, im_w, im_h, dh):
+    def _postprocess_segmentation_mask(self, seg_output, im_w, im_h, dw=0, dh=0):
         """Segmentation mask'ı original image boyutuna getirir."""
+        cv2, np = _native_modules()
         mask = seg_output[0, 0, :, :]
         # Remove padding
         if dh > 0:
             mask = mask[:-dh, :]
+        if dw > 0:
+            mask = mask[:, :-dw]
         # Threshold
         mask = (mask > self._seg_thresh).astype(np.uint8) * 255
         # Resize to original image size
@@ -344,6 +396,7 @@ class ComicTextDetector(DetectorProvider):
 
     def _group_blocks_and_lines(self, blocks, lines, seg_mask, im_w, im_h):
         """YOLO block'ları ve DBNet line'ları gruplayarak canonical block'lar üretir."""
+        _, np = _native_modules()
         if not blocks and not lines:
             return []
 
@@ -385,7 +438,7 @@ class ComicTextDetector(DetectorProvider):
                 blocks[bbox_idx]["lines"].append(line)
             elif seg_mask is not None:
                 # Check mask score
-                mask_score = seg_mask[int(by1):int(by2), int(bx1):int(bx2)].mean() / 255.0
+                mask_score = self._mask_mean(seg_mask, bx1, by1, bx2, by2)
                 if mask_score >= mask_score_thresh:
                     blocks.append({
                         "bbox": [float(bx1), float(by1), float(bx2), float(by2)],
@@ -400,17 +453,61 @@ class ComicTextDetector(DetectorProvider):
             if len(blk.get("lines", [])) == 0:
                 bx1, by1, bx2, by2 = blk["bbox"]
                 if seg_mask is not None:
-                    mask_score = seg_mask[int(by1):int(by2), int(bx1):int(bx2)].mean() / 255.0
+                    mask_score = self._mask_mean(seg_mask, bx1, by1, bx2, by2)
                     if mask_score < mask_score_thresh:
                         continue
                 # Create synthetic line from bbox
                 blk["lines"] = [{
                     "polygon": np.array([[bx1, by1], [bx2, by1], [bx2, by2], [bx1, by2]]),
                     "score": blk["confidence"],
+                    "synthetic": True,
                 }]
+            else:
+                # A canonical detector block must contain every DBNet line assigned
+                # to it; otherwise compact segmentation silently clips line glyphs.
+                real_lines = [line for line in blk["lines"] if not line.get("synthetic", False)]
+                if real_lines:
+                    lx1 = min(float(line["polygon"][:, 0].min()) for line in real_lines)
+                    ly1 = min(float(line["polygon"][:, 1].min()) for line in real_lines)
+                    lx2 = max(float(line["polygon"][:, 0].max()) for line in real_lines)
+                    ly2 = max(float(line["polygon"][:, 1].max()) for line in real_lines)
+                    bx1, by1, bx2, by2 = blk["bbox"]
+                    blk["bbox"] = [min(bx1, lx1), min(by1, ly1), max(bx2, lx2), max(by2, ly2)]
             filtered_blocks.append(blk)
 
         return filtered_blocks
+
+    @staticmethod
+    def _mask_mean(seg_mask, x1, y1, x2, y2) -> float:
+        height, width = seg_mask.shape[:2]
+        ix1, iy1 = max(0, min(width, int(x1))), max(0, min(height, int(y1)))
+        ix2, iy2 = max(0, min(width, int(x2))), max(0, min(height, int(y2)))
+        if ix2 <= ix1 or iy2 <= iy1:
+            return 0.0
+        return float(seg_mask[iy1:iy2, ix1:ix2].mean() / 255.0)
+
+    def _compact_segmentation_polygons(self, seg_mask, bbox: tuple[int, int, int, int]) -> list[list[list[int]]]:
+        """Store the relevant segmentation hint as simplified contours, never a page-sized array."""
+        if seg_mask is None:
+            return []
+        cv2, np = _native_modules()
+        x1, y1, x2, y2 = bbox
+        x1, y1 = max(0, x1), max(0, y1)
+        x2, y2 = min(seg_mask.shape[1], x2), min(seg_mask.shape[0], y2)
+        if x2 <= x1 or y2 <= y1:
+            return []
+        crop = (seg_mask[y1:y2, x1:x2] > 0).astype(np.uint8) * 255
+        contours, _ = cv2.findContours(crop, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        compact: list[list[list[int]]] = []
+        min_area = max(4.0, crop.size * 0.0005)
+        for contour in sorted(contours, key=cv2.contourArea, reverse=True)[:32]:
+            if cv2.contourArea(contour) < min_area:
+                continue
+            epsilon = max(1.0, 0.01 * cv2.arcLength(contour, True))
+            approx = cv2.approxPolyDP(contour, epsilon, True).reshape(-1, 2)
+            if len(approx) >= 3:
+                compact.append([[int(px + x1), int(py + y1)] for px, py in approx])
+        return compact
 
     def _union_area(self, bbox_a, bbox_b):
         """İki bbox'ın kesişim alanını hesaplar."""
@@ -428,6 +525,7 @@ class ComicTextDetector(DetectorProvider):
             return
         path = self._debug_dir / filename
         path.parent.mkdir(parents=True, exist_ok=True)
+        cv2, _ = _native_modules()
         cv2.imwrite(str(path), image)
 
     def _log_output_info(self, name: str, tensor) -> None:
@@ -442,6 +540,7 @@ class ComicTextDetector(DetectorProvider):
 
     def _save_grouped_visualization(self, img: np.ndarray, blocks: list[dict], im_w: int, im_h: int) -> None:
         """Gruplanmış block'ları görselleştirir."""
+        cv2, _ = _native_modules()
         vis = img.copy()
         for block in blocks:
             x1, y1, x2, y2 = map(int, block["bbox"])

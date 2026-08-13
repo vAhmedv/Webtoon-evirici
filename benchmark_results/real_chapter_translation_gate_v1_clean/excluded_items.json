@@ -36,7 +36,7 @@
     "source": "nb",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_nb"
+      "short_non_word_nb"
     ]
   },
   {
@@ -86,7 +86,7 @@
     "source": "吃fm",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "encoding_issue"
+      "corrupted_encoding_or_cjk"
     ]
   },
   {
@@ -186,7 +186,7 @@
     "source": "Y-FH",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_YFH"
+      "short_non_word_YFH"
     ]
   },
   {
@@ -256,7 +256,7 @@
     "source": "won",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_won"
+      "short_non_word_won"
     ]
   },
   {
@@ -306,7 +306,7 @@
     "source": "N-NO...",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_NNO"
+      "short_non_word_NNO"
     ]
   },
   {
@@ -316,7 +316,7 @@
     "source": "BUT...",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_BUT"
+      "short_non_word_BUT"
     ]
   },
   {
@@ -326,7 +326,7 @@
     "source": "中Ra",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "encoding_issue"
+      "corrupted_encoding_or_cjk"
     ]
   },
   {
@@ -356,7 +356,7 @@
     "source": "udqa",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_udqa"
+      "short_non_word_udqa"
     ]
   },
   {
@@ -476,7 +476,7 @@
     "source": "fh,",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_fh"
+      "short_non_word_fh"
     ]
   },
   {
@@ -556,7 +556,7 @@
     "source": "WHAT...?",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_WHAT"
+      "short_non_word_WHAT"
     ]
   },
   {
@@ -646,7 +646,7 @@
     "source": "WHA...?!",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_WHA"
+      "short_non_word_WHA"
     ]
   },
   {
@@ -706,7 +706,7 @@
     "source": "PHEW...",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_PHEW"
+      "short_non_word_PHEW"
     ]
   },
   {
@@ -716,7 +716,7 @@
     "source": "GOOD.",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_GOOD"
+      "short_non_word_GOOD"
     ]
   },
   {
@@ -736,7 +736,7 @@
     "source": "ll,",
     "reason": "EXCLUDE_OCR_GARBAGE",
     "evidence": [
-      "garbage_token_ll"
+      "short_non_word_ll"
     ]
   }
 ]

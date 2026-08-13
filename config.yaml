@@ -2,8 +2,8 @@
 # Tüm önemli parametreler burada tutulur. Hard-code edilmez.
 
 # --- Sliding Window (Phase 1) ---
-window_height: 5000        # Pencere yüksekliği (piksel)
-window_overlap: 1000       # Pencereler arası örtüşme (piksel)
+window_height: 1024        # Pencere yüksekliği (piksel)
+window_overlap: 256        # Pencereler arası örtüşme (piksel)
 
 # --- Girdi ---
 input_extensions:

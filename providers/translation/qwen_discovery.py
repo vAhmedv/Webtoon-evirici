@@ -10,7 +10,6 @@ import re
 import time
 from typing import Any
 
-import torch
 from loguru import logger
 
 from core.translation.profile_discovery import (
@@ -77,6 +76,8 @@ def discover_candidates_with_qwen(
     existing_profile: SeriesProfile | None = None,
     candidate_store: CandidateStore | None = None,
 ) -> DiscoveryResult:
+    import torch
+
     """Extract candidates using Qwen and process them through core validation and CandidateStore."""
     if not provider.is_loaded or provider._model is None or provider._processor is None:
         raise RuntimeError("QwenTranslationProvider not loaded; call load() first")

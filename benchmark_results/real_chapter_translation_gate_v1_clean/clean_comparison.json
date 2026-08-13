@@ -5,12 +5,10 @@
     "chapter": "Chapter 1",
     "source_image": "027.webp",
     "region_id": 3,
-    "previous_context": [
-      "ARYASCANS.com"
-    ],
+    "previous_context": [],
     "original_accepted_english": "THANKS FOR EARLIER.",
     "next_context": [
-      "ARYASCANS.com"
+      "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -42,13 +40,11 @@
     "source_image": "028.webp",
     "region_id": 5,
     "previous_context": [
-      "ARYASCANS.com",
-      "THANKS FOR EARLIER.",
-      "ARYASCANS.com"
+      "THANKS FOR EARLIER."
     ],
     "original_accepted_english": "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!",
     "next_context": [
-      "WORTH EVERY PENNY, KID!"
+      "YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -78,9 +74,8 @@
     "source_image": "030.webp",
     "region_id": 7,
     "previous_context": [
-      "ARYASCANS.com",
-      "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!",
-      "WORTH EVERY PENNY, KID!"
+      "THANKS FOR EARLIER.",
+      "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!"
     ],
     "original_accepted_english": "YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT.",
     "next_context": [
@@ -114,8 +109,8 @@
     "source_image": "031.webp",
     "region_id": 8,
     "previous_context": [
+      "THANKS FOR EARLIER.",
       "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!",
-      "WORTH EVERY PENNY, KID!",
       "YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT."
     ],
     "original_accepted_english": "JUDGING BY LLO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
@@ -150,13 +145,13 @@
     "source_image": "032.webp",
     "region_id": 9,
     "previous_context": [
-      "WORTH EVERY PENNY, KID!",
+      "LOOKS LIKE MY MONEY WASN'T WASTED. YOU'RE WORTH EVERY PENNY, KID!",
       "YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT.",
       "JUDGING BY LLO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY."
     ],
     "original_accepted_english": "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
     "next_context": [
-      "nb"
+      "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -186,9 +181,9 @@
     "source_image": "033.webp",
     "region_id": 11,
     "previous_context": [
+      "YOUNG MASTER YLI, IT'S MORE THAN JUST NOT WASTED-WE'VE HIT THE JACKPOT.",
       "JUDGING BY LLO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
-      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
-      "nb"
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON."
     ],
     "original_accepted_english": "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
     "next_context": [
@@ -222,8 +217,8 @@
     "source_image": "033.webp",
     "region_id": 12,
     "previous_context": [
+      "JUDGING BY LLO TIAN'S PERFORMANCE JUST NOW, HE'S ALMOST ON PAR WITH A LEVEL 1 ABILITY USER WHO SPECIALIZES IN ARCHERY.",
       "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
-      "nb",
       "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US."
     ],
     "original_accepted_english": "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN.",
@@ -258,7 +253,7 @@
     "source_image": "034.webp",
     "region_id": 13,
     "previous_context": [
-      "nb",
+      "YOUNG MASTER YU, CAPTAIN GAO, WE NEED TO BE CAREFUL FROM HERE ON.",
       "THESE GRAY WOLF BEASTS ARE SUPPOSED TO BE ACTIVE IN BLACKWIND RAVINE AHEAD OF US.",
       "THE FACT THAT THEY'VE APPEARED HERE IS PROBABLY NOT A GOOD SIGN."
     ],
@@ -560,7 +555,7 @@
     ],
     "original_accepted_english": "IN THIS ERA OF MONSTERS INVASIONS,",
     "next_context": [
-      "ARYASCANS.com"
+      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -590,9 +585,9 @@
     "source_image": "048.webp",
     "region_id": 25,
     "previous_context": [
-      "IN THIS ERA OF MONSTERS INVASIONS,",
-      "ARYASCANS.com",
-      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL"
+      "ORDINARY DANGERS WON'T TROUBLE THEM.",
+      "I'M USED TO IT.",
+      "IN THIS ERA OF MONSTERS INVASIONS,"
     ],
     "original_accepted_english": "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
     "next_context": [
@@ -628,8 +623,8 @@
     "source_image": "051.webp",
     "region_id": 26,
     "previous_context": [
-      "ARYASCANS.com",
-      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL",
+      "I'M USED TO IT.",
+      "IN THIS ERA OF MONSTERS INVASIONS,",
       "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD."
     ],
     "original_accepted_english": "WITHIN THESE SECRET REALMS, DANGER LURKS EVERYWHERE.",
@@ -666,7 +661,7 @@
     "source_image": "054.webp",
     "region_id": 27,
     "previous_context": [
-      "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL",
+      "IN THIS ERA OF MONSTERS INVASIONS,",
       "COUNTLESS SPATIAL SECRET REALMS HAVE FORMED ALL AROUND THE WORLD.",
       "WITHIN THESE SECRET REALMS, DANGER LURKS EVERYWHERE."
     ],
@@ -885,11 +880,7 @@
     "chapter": "Chapter 2",
     "source_image": "034.webp",
     "region_id": 9,
-    "previous_context": [
-      "吃fm",
-      "ARYASCANS.com",
-      "THUMP~"
-    ],
+    "previous_context": [],
     "original_accepted_english": "A BEAST IS STILL JUST A BEAST!",
     "next_context": [
       "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?"
@@ -922,13 +913,11 @@
     "source_image": "037.webp",
     "region_id": 10,
     "previous_context": [
-      "ARYASCANS.com",
-      "THUMP~",
       "A BEAST IS STILL JUST A BEAST!"
     ],
     "original_accepted_english": "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?",
     "next_context": [
-      "ARYASCANS.com"
+      "DIE, YOU BEAST!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -959,12 +948,11 @@
     "region_id": 12,
     "previous_context": [
       "A BEAST IS STILL JUST A BEAST!",
-      "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?",
-      "ARYASCANS.com"
+      "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?"
     ],
     "original_accepted_english": "DIE, YOU BEAST!",
     "next_context": [
-      "ARYASCANS.com"
+      "TRYING TO RUN?"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -996,13 +984,13 @@
     "source_image": "050.webp",
     "region_id": 14,
     "previous_context": [
-      "ARYASCANS.com",
-      "DIE, YOU BEAST!",
-      "ARYASCANS.com"
+      "A BEAST IS STILL JUST A BEAST!",
+      "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?",
+      "DIE, YOU BEAST!"
     ],
     "original_accepted_english": "TRYING TO RUN?",
     "next_context": [
-      "ARYASCANS.com"
+      "THIS FEELING OF WIELDING SUCH POWER IS TRULY INTOXICATING!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -1032,9 +1020,9 @@
     "source_image": "075.webp",
     "region_id": 17,
     "previous_context": [
-      "ARYASCANS.com",
-      "TRYING TO RUN?",
-      "ARYASCANS.com"
+      "YOU THINK THE SAME TRICK WILL WORK ON ME A SECOND TIME?",
+      "DIE, YOU BEAST!",
+      "TRYING TO RUN?"
     ],
     "original_accepted_english": "THIS FEELING OF WIELDING SUCH POWER IS TRULY INTOXICATING!",
     "next_context": [
@@ -1068,8 +1056,8 @@
     "source_image": "076.webp",
     "region_id": 18,
     "previous_context": [
+      "DIE, YOU BEAST!",
       "TRYING TO RUN?",
-      "ARYASCANS.com",
       "THIS FEELING OF WIELDING SUCH POWER IS TRULY INTOXICATING!"
     ],
     "original_accepted_english": "UNFORTUNATELY, THE BATTLE AXE CONTAINS A VIOLENT AURA THAT PREVENTS ME FROM STAYING TRANSFORMED FOR LONG. OTHERWISE, I'D BECOME A MONSTER THAT KNOWS ONLY SLAUGHTER.",
@@ -1104,7 +1092,7 @@
     "source_image": "077.webp",
     "region_id": 19,
     "previous_context": [
-      "ARYASCANS.com",
+      "TRYING TO RUN?",
       "THIS FEELING OF WIELDING SUCH POWER IS TRULY INTOXICATING!",
       "UNFORTUNATELY, THE BATTLE AXE CONTAINS A VIOLENT AURA THAT PREVENTS ME FROM STAYING TRANSFORMED FOR LONG. OTHERWISE, I'D BECOME A MONSTER THAT KNOWS ONLY SLAUGHTER."
     ],
@@ -1182,7 +1170,7 @@
     ],
     "original_accepted_english": "WITH MEDICINE THIS GOOD, IT'D BE HARD TO DIE EVEN IF THEY WANTED TO.",
     "next_context": [
-      "ARYASCANS.com"
+      "BLACKROCK CITY INSPECTOR - JIANG BIAO"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -1212,9 +1200,9 @@
     "source_image": "088.webp",
     "region_id": 23,
     "previous_context": [
+      "THESE PEOPLE ARE PRETTY BADLY INJURED. THAT'S GOING TO BE TROUBLESOME.",
       "IT'S ACTIALLY A MID-GRADE HEALING POTION. WHAT A BUNCH OF RICH FOLKS.",
-      "WITH MEDICINE THIS GOOD, IT'D BE HARD TO DIE EVEN IF THEY WANTED TO.",
-      "ARYASCANS.com"
+      "WITH MEDICINE THIS GOOD, IT'D BE HARD TO DIE EVEN IF THEY WANTED TO."
     ],
     "original_accepted_english": "BLACKROCK CITY INSPECTOR - JIANG BIAO",
     "next_context": [
@@ -1248,13 +1236,13 @@
     "source_image": "089.webp",
     "region_id": 24,
     "previous_context": [
+      "IT'S ACTIALLY A MID-GRADE HEALING POTION. WHAT A BUNCH OF RICH FOLKS.",
       "WITH MEDICINE THIS GOOD, IT'D BE HARD TO DIE EVEN IF THEY WANTED TO.",
-      "ARYASCANS.com",
       "BLACKROCK CITY INSPECTOR - JIANG BIAO"
     ],
     "original_accepted_english": "LHO TIAN... IT REALLY IS YOU?!",
     "next_context": [
-      "ARYASCANS.com"
+      "INSPECTOR, IS THERE A PROBLEM?"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -1284,9 +1272,9 @@
     "source_image": "091.webp",
     "region_id": 28,
     "previous_context": [
-      "ARYASCANS.com",
-      "ARYAS CANS.com",
-      "THAT'S RIGHT."
+      "WITH MEDICINE THIS GOOD, IT'D BE HARD TO DIE EVEN IF THEY WANTED TO.",
+      "BLACKROCK CITY INSPECTOR - JIANG BIAO",
+      "LHO TIAN... IT REALLY IS YOU?!"
     ],
     "original_accepted_english": "INSPECTOR, IS THERE A PROBLEM?",
     "next_context": [
@@ -1320,13 +1308,13 @@
     "source_image": "092.webp",
     "region_id": 29,
     "previous_context": [
-      "ARYAS CANS.com",
-      "THAT'S RIGHT.",
+      "BLACKROCK CITY INSPECTOR - JIANG BIAO",
+      "LHO TIAN... IT REALLY IS YOU?!",
       "INSPECTOR, IS THERE A PROBLEM?"
     ],
     "original_accepted_english": "NOTHING MUCH! I WAS PATROLLING NEARBY JUST NOW AND SENSED A BURST OF VIOLENT ENERGY.",
     "next_context": [
-      "Y-FH"
+      "DID THAT MYSTERIOUS AXE-WIELDING GIANT APPEAR?"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -1356,9 +1344,9 @@
     "source_image": "093.webp",
     "region_id": 31,
     "previous_context": [
+      "LHO TIAN... IT REALLY IS YOU?!",
       "INSPECTOR, IS THERE A PROBLEM?",
-      "NOTHING MUCH! I WAS PATROLLING NEARBY JUST NOW AND SENSED A BURST OF VIOLENT ENERGY.",
-      "Y-FH"
+      "NOTHING MUCH! I WAS PATROLLING NEARBY JUST NOW AND SENSED A BURST OF VIOLENT ENERGY."
     ],
     "original_accepted_english": "DID THAT MYSTERIOUS AXE-WIELDING GIANT APPEAR?",
     "next_context": [
@@ -1392,8 +1380,8 @@
     "source_image": "094.webp",
     "region_id": 32,
     "previous_context": [
+      "INSPECTOR, IS THERE A PROBLEM?",
       "NOTHING MUCH! I WAS PATROLLING NEARBY JUST NOW AND SENSED A BURST OF VIOLENT ENERGY.",
-      "Y-FH",
       "DID THAT MYSTERIOUS AXE-WIELDING GIANT APPEAR?"
     ],
     "original_accepted_english": "THAT'S RIGHT. OUR TEAM ENCOUNTERED A MUTATED MONSTER AND WAS NEARLY WIPED OUT.",
@@ -1428,7 +1416,7 @@
     "source_image": "095.webp",
     "region_id": 34,
     "previous_context": [
-      "Y-FH",
+      "NOTHING MUCH! I WAS PATROLLING NEARBY JUST NOW AND SENSED A BURST OF VIOLENT ENERGY.",
       "DID THAT MYSTERIOUS AXE-WIELDING GIANT APPEAR?",
       "THAT'S RIGHT. OUR TEAM ENCOUNTERED A MUTATED MONSTER AND WAS NEARLY WIPED OUT."
     ],
@@ -1499,10 +1487,7 @@
     "chapter": "Chapter 3",
     "source_image": "022.webp",
     "region_id": 4,
-    "previous_context": [
-      "ARYASCANS.com",
-      "ARYASCANS.com"
-    ],
+    "previous_context": [],
     "original_accepted_english": "HAHAHA! IT REALLY IS THE BLOOD AXE!",
     "next_context": [
       "deputy are:"
@@ -1535,8 +1520,6 @@
     "source_image": "022.webp",
     "region_id": 5,
     "previous_context": [
-      "ARYASCANS.com",
-      "ARYASCANS.com",
       "HAHAHA! IT REALLY IS THE BLOOD AXE!"
     ],
     "original_accepted_english": "deputy are:",
@@ -1573,7 +1556,6 @@
     "source_image": "024.webp",
     "region_id": 6,
     "previous_context": [
-      "ARYASCANS.com",
       "HAHAHA! IT REALLY IS THE BLOOD AXE!",
       "deputy are:"
     ],
@@ -1763,7 +1745,7 @@
     ],
     "original_accepted_english": "HAHAHA! NICE ATTACK! AGAIN! COME ON, AGAIN!",
     "next_context": [
-      "ARYASCANS.com"
+      "DAMN IT... THE MURDEROLIS AURA WITHIN THE BLOOD AXE IS ALMOST BEYOND WHAT I CAN ENDLRE..."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -1793,9 +1775,9 @@
     "source_image": "049.webp",
     "region_id": 18,
     "previous_context": [
-      "ARYASCANS.com",
-      "AHHH!!!",
-      "ARYASCANS.com"
+      "ABILITY: SECOND AWAKENING — BONY OF STEEL",
+      "HE CAUGHT IT?!",
+      "HAHAHA! NICE ATTACK! AGAIN! COME ON, AGAIN!"
     ],
     "original_accepted_english": "DAMN IT... THE MURDEROLIS AURA WITHIN THE BLOOD AXE IS ALMOST BEYOND WHAT I CAN ENDLRE...",
     "next_context": [
@@ -1829,8 +1811,8 @@
     "source_image": "051.webp",
     "region_id": 19,
     "previous_context": [
-      "AHHH!!!",
-      "ARYASCANS.com",
+      "HE CAUGHT IT?!",
+      "HAHAHA! NICE ATTACK! AGAIN! COME ON, AGAIN!",
       "DAMN IT... THE MURDEROLIS AURA WITHIN THE BLOOD AXE IS ALMOST BEYOND WHAT I CAN ENDLRE..."
     ],
     "original_accepted_english": "KID, MY BODY OF STEEL IS FAMED FOR ITS TOLGHNESS AND ENDURANCE.",
@@ -1865,7 +1847,7 @@
     "source_image": "053.webp",
     "region_id": 20,
     "previous_context": [
-      "ARYASCANS.com",
+      "HAHAHA! NICE ATTACK! AGAIN! COME ON, AGAIN!",
       "DAMN IT... THE MURDEROLIS AURA WITHIN THE BLOOD AXE IS ALMOST BEYOND WHAT I CAN ENDLRE...",
       "KID, MY BODY OF STEEL IS FAMED FOR ITS TOLGHNESS AND ENDURANCE."
     ],
@@ -1943,7 +1925,7 @@
     ],
     "original_accepted_english": "I CAN ONLY RESORT TO MY LAST OPTION.",
     "next_context": [
-      "ARYASCANS.com"
+      "YOU'RE INSANE! YOU'VE COMPLETELY LOST IT!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -1973,9 +1955,9 @@
     "source_image": "059.webp",
     "region_id": 26,
     "previous_context": [
-      "I CAN ONLY RESORT TO MY LAST OPTION.",
-      "ARYASCANS.com",
-      "won"
+      "AND YOU? HAVE YOU FINALLY REACHED THE LIMIT OF THE POWER THE BLOOD AXE GRANTS YOU?!",
+      "I HAVE TO END THE TRANSFORMATION IMMEDIATELY. OTHERWISE, I'LL LOSE MY MIND AND BECOME A DEMON THAT KNOWS ONLY SLAUGHTER.",
+      "I CAN ONLY RESORT TO MY LAST OPTION."
     ],
     "original_accepted_english": "YOU'RE INSANE! YOU'VE COMPLETELY LOST IT!",
     "next_context": [
@@ -2011,13 +1993,13 @@
     "source_image": "060.webp",
     "region_id": 27,
     "previous_context": [
-      "ARYASCANS.com",
-      "won",
+      "I HAVE TO END THE TRANSFORMATION IMMEDIATELY. OTHERWISE, I'LL LOSE MY MIND AND BECOME A DEMON THAT KNOWS ONLY SLAUGHTER.",
+      "I CAN ONLY RESORT TO MY LAST OPTION.",
       "YOU'RE INSANE! YOU'VE COMPLETELY LOST IT!"
     ],
     "original_accepted_english": "THE WINTER POTION?! YOUR SOUL WILL BE FROZEN FOREVER! YOU'LL BE DOOMED FOR ALL ETERNITY!",
     "next_context": [
-      "ARYASCANS.com"
+      "I... ACTUALLY LOST?"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -2049,9 +2031,9 @@
     "source_image": "087.webp",
     "region_id": 31,
     "previous_context": [
-      "ARYASCANS.com",
-      "ARYASCANS.com",
-      "ARYASCANS.com"
+      "I CAN ONLY RESORT TO MY LAST OPTION.",
+      "YOU'RE INSANE! YOU'VE COMPLETELY LOST IT!",
+      "THE WINTER POTION?! YOUR SOUL WILL BE FROZEN FOREVER! YOU'LL BE DOOMED FOR ALL ETERNITY!"
     ],
     "original_accepted_english": "I... ACTUALLY LOST?",
     "next_context": [
@@ -2085,13 +2067,13 @@
     "source_image": "088.webp",
     "region_id": 32,
     "previous_context": [
-      "ARYASCANS.com",
-      "ARYASCANS.com",
+      "YOU'RE INSANE! YOU'VE COMPLETELY LOST IT!",
+      "THE WINTER POTION?! YOUR SOUL WILL BE FROZEN FOREVER! YOU'LL BE DOOMED FOR ALL ETERNITY!",
       "I... ACTUALLY LOST?"
     ],
     "original_accepted_english": "LOST TO AN ORDINARY PERSON? I'M A LEVEL 2, EARLY-STAGE ABILITY LISER!",
     "next_context": [
-      "ARYASCANS.com"
+      "YOU CAN DIE NOW."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -2121,14 +2103,12 @@
     "source_image": "089.webp",
     "region_id": 34,
     "previous_context": [
+      "THE WINTER POTION?! YOUR SOUL WILL BE FROZEN FOREVER! YOU'LL BE DOOMED FOR ALL ETERNITY!",
       "I... ACTUALLY LOST?",
-      "LOST TO AN ORDINARY PERSON? I'M A LEVEL 2, EARLY-STAGE ABILITY LISER!",
-      "ARYASCANS.com"
+      "LOST TO AN ORDINARY PERSON? I'M A LEVEL 2, EARLY-STAGE ABILITY LISER!"
     ],
     "original_accepted_english": "YOU CAN DIE NOW.",
-    "next_context": [
-      "N-NO..."
-    ],
+    "next_context": [],
     "semantic_v3": {
       "rewrite_used": false,
       "selected_english": "YOU CAN DIE NOW."
@@ -2159,7 +2139,7 @@
     "previous_context": [],
     "original_accepted_english": "RULE OF WILDERNESS SURVIVAL: NEVER LIGHT A FIRE AT NIGHT, OR YOU'LL ATTRACT THE EYES LURKING IN THE DARKNESS.",
     "next_context": [
-      "BUT..."
+      "I REALLY DON'T HAVE A CHOICE."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -2189,8 +2169,7 @@
     "source_image": "010.webp",
     "region_id": 4,
     "previous_context": [
-      "RULE OF WILDERNESS SURVIVAL: NEVER LIGHT A FIRE AT NIGHT, OR YOU'LL ATTRACT THE EYES LURKING IN THE DARKNESS.",
-      "BUT..."
+      "RULE OF WILDERNESS SURVIVAL: NEVER LIGHT A FIRE AT NIGHT, OR YOU'LL ATTRACT THE EYES LURKING IN THE DARKNESS."
     ],
     "original_accepted_english": "I REALLY DON'T HAVE A CHOICE.",
     "next_context": [
@@ -2225,7 +2204,6 @@
     "region_id": 5,
     "previous_context": [
       "RULE OF WILDERNESS SURVIVAL: NEVER LIGHT A FIRE AT NIGHT, OR YOU'LL ATTRACT THE EYES LURKING IN THE DARKNESS.",
-      "BUT...",
       "I REALLY DON'T HAVE A CHOICE."
     ],
     "original_accepted_english": "LISING THE ICY POWER OF THE WINTER POTION TO SUPPRESS THE IMPACT OF THE BLOOD AXE'S BALEFUL AURA WAS INDEED A CLEVER SHORTCUT.",
@@ -2260,13 +2238,13 @@
     "source_image": "013.webp",
     "region_id": 7,
     "previous_context": [
-      "BUT...",
+      "RULE OF WILDERNESS SURVIVAL: NEVER LIGHT A FIRE AT NIGHT, OR YOU'LL ATTRACT THE EYES LURKING IN THE DARKNESS.",
       "I REALLY DON'T HAVE A CHOICE.",
       "LISING THE ICY POWER OF THE WINTER POTION TO SUPPRESS THE IMPACT OF THE BLOOD AXE'S BALEFUL AURA WAS INDEED A CLEVER SHORTCUT."
     ],
     "original_accepted_english": "BUT JUST THE LINGERING MEDICINAL EFFECTS ALONE HAVE NEARLY FROZEN MY BODY SOLID AND SHATTERED IT.",
     "next_context": [
-      "中Ra"
+      "ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -2296,9 +2274,9 @@
     "source_image": "029.webp",
     "region_id": 13,
     "previous_context": [
-      "WHOOSH~",
-      "udqa",
-      "ARYASCANS.com"
+      "I REALLY DON'T HAVE A CHOICE.",
+      "LISING THE ICY POWER OF THE WINTER POTION TO SUPPRESS THE IMPACT OF THE BLOOD AXE'S BALEFUL AURA WAS INDEED A CLEVER SHORTCUT.",
+      "BUT JUST THE LINGERING MEDICINAL EFFECTS ALONE HAVE NEARLY FROZEN MY BODY SOLID AND SHATTERED IT."
     ],
     "original_accepted_english": "ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO.",
     "next_context": [
@@ -2332,13 +2310,13 @@
     "source_image": "031.webp",
     "region_id": 14,
     "previous_context": [
-      "udqa",
-      "ARYASCANS.com",
+      "LISING THE ICY POWER OF THE WINTER POTION TO SUPPRESS THE IMPACT OF THE BLOOD AXE'S BALEFUL AURA WAS INDEED A CLEVER SHORTCUT.",
+      "BUT JUST THE LINGERING MEDICINAL EFFECTS ALONE HAVE NEARLY FROZEN MY BODY SOLID AND SHATTERED IT.",
       "ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO."
     ],
     "original_accepted_english": "I'VE ALREADY WASTED A LOT OF TIME. I NEED TO GET THERE AS SOON AS POSSIBLE. THE WIND SPIRIT PEARL COULD BE TAKEN BY SOMEONE ELSE AT ANY MOMENT.",
     "next_context": [
-      "DARK NETHER FOREST"
+      "MONSTER: SHADOW MANTIS - PEAK TIER 1"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -2368,9 +2346,9 @@
     "source_image": "040.webp",
     "region_id": 17,
     "previous_context": [
-      "I'VE ALREADY WASTED A LOT OF TIME. I NEED TO GET THERE AS SOON AS POSSIBLE. THE WIND SPIRIT PEARL COULD BE TAKEN BY SOMEONE ELSE AT ANY MOMENT.",
-      "DARK NETHER FOREST",
-      "ARYASCANS.com"
+      "BUT JUST THE LINGERING MEDICINAL EFFECTS ALONE HAVE NEARLY FROZEN MY BODY SOLID AND SHATTERED IT.",
+      "ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO.",
+      "I'VE ALREADY WASTED A LOT OF TIME. I NEED TO GET THERE AS SOON AS POSSIBLE. THE WIND SPIRIT PEARL COULD BE TAKEN BY SOMEONE ELSE AT ANY MOMENT."
     ],
     "original_accepted_english": "MONSTER: SHADOW MANTIS - PEAK TIER 1",
     "next_context": [
@@ -2406,8 +2384,8 @@
     "source_image": "043.webp",
     "region_id": 18,
     "previous_context": [
-      "DARK NETHER FOREST",
-      "ARYASCANS.com",
+      "ACCORDING TO THE INFORMATION, SOMEONE SPOTTED THE WIND SPIRIT PEARL NEAR WIND-THUNDER CLIFF THREE DAYS AGO.",
+      "I'VE ALREADY WASTED A LOT OF TIME. I NEED TO GET THERE AS SOON AS POSSIBLE. THE WIND SPIRIT PEARL COULD BE TAKEN BY SOMEONE ELSE AT ANY MOMENT.",
       "MONSTER: SHADOW MANTIS - PEAK TIER 1"
     ],
     "original_accepted_english": "THIS DARK NETHER FOREST REALLY IS STRANGE. EVEN THE OUTER AREA HAS MONSTERS LIKE THIS.",
@@ -2442,7 +2420,7 @@
     "source_image": "045.webp",
     "region_id": 19,
     "previous_context": [
-      "ARYASCANS.com",
+      "I'VE ALREADY WASTED A LOT OF TIME. I NEED TO GET THERE AS SOON AS POSSIBLE. THE WIND SPIRIT PEARL COULD BE TAKEN BY SOMEONE ELSE AT ANY MOMENT.",
       "MONSTER: SHADOW MANTIS - PEAK TIER 1",
       "THIS DARK NETHER FOREST REALLY IS STRANGE. EVEN THE OUTER AREA HAS MONSTERS LIKE THIS."
     ],
@@ -2484,7 +2462,7 @@
     ],
     "original_accepted_english": "FORTHNATELY, I CAME PREPARED.",
     "next_context": [
-      "ARYASCANS.com"
+      "MY TURN!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -2514,13 +2492,13 @@
     "source_image": "058.webp",
     "region_id": 27,
     "previous_context": [
-      "FORTHNATELY, I CAME PREPARED.",
-      "ARYASCANS.com",
-      "ARYASCANS.com"
+      "THIS DARK NETHER FOREST REALLY IS STRANGE. EVEN THE OUTER AREA HAS MONSTERS LIKE THIS.",
+      "TOO BAD I'M IN A HURRY. OTHERWISE, I'D DEFINITELY AVOID THIS PLACE.",
+      "FORTHNATELY, I CAME PREPARED."
     ],
     "original_accepted_english": "MY TURN!",
     "next_context": [
-      "ARYASCANS.com"
+      "DEMONIC PLANT: HELLFLOWER - EARLY TIER 2"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -2550,9 +2528,9 @@
     "source_image": "068.webp",
     "region_id": 29,
     "previous_context": [
-      "ARYASCANS.com",
-      "MY TURN!",
-      "ARYASCANS.com"
+      "TOO BAD I'M IN A HURRY. OTHERWISE, I'D DEFINITELY AVOID THIS PLACE.",
+      "FORTHNATELY, I CAME PREPARED.",
+      "MY TURN!"
     ],
     "original_accepted_english": "DEMONIC PLANT: HELLFLOWER - EARLY TIER 2",
     "next_context": [
@@ -2586,8 +2564,8 @@
     "source_image": "073.webp",
     "region_id": 30,
     "previous_context": [
+      "FORTHNATELY, I CAME PREPARED.",
       "MY TURN!",
-      "ARYASCANS.com",
       "DEMONIC PLANT: HELLFLOWER - EARLY TIER 2"
     ],
     "original_accepted_english": "I'M HERE.",
@@ -2622,13 +2600,13 @@
     "source_image": "074.webp",
     "region_id": 31,
     "previous_context": [
-      "ARYASCANS.com",
+      "MY TURN!",
       "DEMONIC PLANT: HELLFLOWER - EARLY TIER 2",
       "I'M HERE."
     ],
     "original_accepted_english": "IT REALLY IS A HELLFLOWER, THIS MUST BE THE CENTER OF THE DARK NETHER FOREST.",
     "next_context": [
-      "ARYASCANS.com"
+      "SO THERE REALLY IS A CAVE, THIS SHOULD BE THE SHORTCHT TO WIND-THUNDER CLIFF."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -2658,9 +2636,9 @@
     "source_image": "077.webp",
     "region_id": 33,
     "previous_context": [
+      "DEMONIC PLANT: HELLFLOWER - EARLY TIER 2",
       "I'M HERE.",
-      "IT REALLY IS A HELLFLOWER, THIS MUST BE THE CENTER OF THE DARK NETHER FOREST.",
-      "ARYASCANS.com"
+      "IT REALLY IS A HELLFLOWER, THIS MUST BE THE CENTER OF THE DARK NETHER FOREST."
     ],
     "original_accepted_english": "SO THERE REALLY IS A CAVE, THIS SHOULD BE THE SHORTCHT TO WIND-THUNDER CLIFF.",
     "next_context": [
@@ -2694,8 +2672,8 @@
     "source_image": "078.webp",
     "region_id": 34,
     "previous_context": [
+      "I'M HERE.",
       "IT REALLY IS A HELLFLOWER, THIS MUST BE THE CENTER OF THE DARK NETHER FOREST.",
-      "ARYASCANS.com",
       "SO THERE REALLY IS A CAVE, THIS SHOULD BE THE SHORTCHT TO WIND-THUNDER CLIFF."
     ],
     "original_accepted_english": "ONLY OLD-TIMERS WHO'VE SPENT YEARS IN THE BLACKROCK SECRET REALM KNOW ABOUT THIS SHORTCUT.",
@@ -2734,7 +2712,7 @@
     "source_image": "080.webp",
     "region_id": 35,
     "previous_context": [
-      "ARYASCANS.com",
+      "IT REALLY IS A HELLFLOWER, THIS MUST BE THE CENTER OF THE DARK NETHER FOREST.",
       "SO THERE REALLY IS A CAVE, THIS SHOULD BE THE SHORTCHT TO WIND-THUNDER CLIFF.",
       "ONLY OLD-TIMERS WHO'VE SPENT YEARS IN THE BLACKROCK SECRET REALM KNOW ABOUT THIS SHORTCUT."
     ],
@@ -2803,9 +2781,7 @@
     "chapter": "Chapter 5",
     "source_image": "013.webp",
     "region_id": 3,
-    "previous_context": [
-      "ARYASCANS.com"
-    ],
+    "previous_context": [],
     "original_accepted_english": "Yuan",
     "next_context": [
       "WHAT A PAIN. EVERY ONE OF THESE BEASTS IS COMPLETELY FEARLESS OF DEATH!"
@@ -2842,7 +2818,6 @@
     "source_image": "017.webp",
     "region_id": 4,
     "previous_context": [
-      "ARYASCANS.com",
       "Yuan"
     ],
     "original_accepted_english": "WHAT A PAIN. EVERY ONE OF THESE BEASTS IS COMPLETELY FEARLESS OF DEATH!",
@@ -2877,7 +2852,6 @@
     "source_image": "017.webp",
     "region_id": 5,
     "previous_context": [
-      "ARYASCANS.com",
       "Yuan",
       "WHAT A PAIN. EVERY ONE OF THESE BEASTS IS COMPLETELY FEARLESS OF DEATH!"
     ],
@@ -2919,7 +2893,7 @@
     ],
     "original_accepted_english": "I HAVE TO KILL THEM ALL AT ONCE AND CREATE AN OPENING IN THEIR DEFENSE. THAT'S MY ONLY CHANCE!",
     "next_context": [
-      "ARYASCANS.com"
+      "I'M GETTING CLOSE TO THE CAVE ENTRANCE!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -2949,13 +2923,13 @@
     "source_image": "022.webp",
     "region_id": 8,
     "previous_context": [
+      "WHAT A PAIN. EVERY ONE OF THESE BEASTS IS COMPLETELY FEARLESS OF DEATH!",
       "OF DEATH!",
-      "I HAVE TO KILL THEM ALL AT ONCE AND CREATE AN OPENING IN THEIR DEFENSE. THAT'S MY ONLY CHANCE!",
-      "ARYASCANS.com"
+      "I HAVE TO KILL THEM ALL AT ONCE AND CREATE AN OPENING IN THEIR DEFENSE. THAT'S MY ONLY CHANCE!"
     ],
     "original_accepted_english": "I'M GETTING CLOSE TO THE CAVE ENTRANCE!",
     "next_context": [
-      "ARYASCANS.com"
+      "I HAVE TO GET OUT OF HERE QUICKLY..."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -2985,13 +2959,13 @@
     "source_image": "033.webp",
     "region_id": 11,
     "previous_context": [
-      "I'M GETTING CLOSE TO THE CAVE ENTRANCE!",
-      "ARYASCANS.com",
-      "I HAVE TO GET"
+      "OF DEATH!",
+      "I HAVE TO KILL THEM ALL AT ONCE AND CREATE AN OPENING IN THEIR DEFENSE. THAT'S MY ONLY CHANCE!",
+      "I'M GETTING CLOSE TO THE CAVE ENTRANCE!"
     ],
     "original_accepted_english": "I HAVE TO GET OUT OF HERE QUICKLY...",
     "next_context": [
-      "fh,"
+      "ALTHOLGH THE HELLFLOWER'S VINES CAN'T REACH INSIDE, THOSE SHADOW MANTISES ARE STILL A HUGE THREAT."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -3021,13 +2995,13 @@
     "source_image": "035.webp",
     "region_id": 13,
     "previous_context": [
-      "I HAVE TO GET",
-      "I HAVE TO GET OUT OF HERE QUICKLY...",
-      "fh,"
+      "I HAVE TO KILL THEM ALL AT ONCE AND CREATE AN OPENING IN THEIR DEFENSE. THAT'S MY ONLY CHANCE!",
+      "I'M GETTING CLOSE TO THE CAVE ENTRANCE!",
+      "I HAVE TO GET OUT OF HERE QUICKLY..."
     ],
     "original_accepted_english": "ALTHOLGH THE HELLFLOWER'S VINES CAN'T REACH INSIDE, THOSE SHADOW MANTISES ARE STILL A HUGE THREAT.",
     "next_context": [
-      "ARYASCANS.com"
+      "THE EXIT! I'VE FINALLY MADE IT!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -3057,9 +3031,9 @@
     "source_image": "041.webp",
     "region_id": 15,
     "previous_context": [
-      "fh,",
-      "ALTHOLGH THE HELLFLOWER'S VINES CAN'T REACH INSIDE, THOSE SHADOW MANTISES ARE STILL A HUGE THREAT.",
-      "ARYASCANS.com"
+      "I'M GETTING CLOSE TO THE CAVE ENTRANCE!",
+      "I HAVE TO GET OUT OF HERE QUICKLY...",
+      "ALTHOLGH THE HELLFLOWER'S VINES CAN'T REACH INSIDE, THOSE SHADOW MANTISES ARE STILL A HUGE THREAT."
     ],
     "original_accepted_english": "THE EXIT! I'VE FINALLY MADE IT!",
     "next_context": [
@@ -3093,8 +3067,8 @@
     "source_image": "044.webp",
     "region_id": 16,
     "previous_context": [
+      "I HAVE TO GET OUT OF HERE QUICKLY...",
       "ALTHOLGH THE HELLFLOWER'S VINES CAN'T REACH INSIDE, THOSE SHADOW MANTISES ARE STILL A HUGE THREAT.",
-      "ARYASCANS.com",
       "THE EXIT! I'VE FINALLY MADE IT!"
     ],
     "original_accepted_english": "SO THAT'S WIND-THUNDER CLIFF?",
@@ -3129,13 +3103,13 @@
     "source_image": "046.webp",
     "region_id": 17,
     "previous_context": [
-      "ARYASCANS.com",
+      "ALTHOLGH THE HELLFLOWER'S VINES CAN'T REACH INSIDE, THOSE SHADOW MANTISES ARE STILL A HUGE THREAT.",
       "THE EXIT! I'VE FINALLY MADE IT!",
       "SO THAT'S WIND-THUNDER CLIFF?"
     ],
     "original_accepted_english": "HOW TERRIFYING!",
     "next_context": [
-      "ARYASCANS.com"
+      "DANGER!!!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -3165,9 +3139,9 @@
     "source_image": "048.webp",
     "region_id": 19,
     "previous_context": [
+      "THE EXIT! I'VE FINALLY MADE IT!",
       "SO THAT'S WIND-THUNDER CLIFF?",
-      "HOW TERRIFYING!",
-      "ARYASCANS.com"
+      "HOW TERRIFYING!"
     ],
     "original_accepted_english": "DANGER!!!",
     "next_context": [
@@ -3201,8 +3175,8 @@
     "source_image": "056.webp",
     "region_id": 21,
     "previous_context": [
+      "SO THAT'S WIND-THUNDER CLIFF?",
       "HOW TERRIFYING!",
-      "ARYASCANS.com",
       "DANGER!!!"
     ],
     "original_accepted_english": "WHO'S THERE?",
@@ -3237,13 +3211,13 @@
     "source_image": "058.webp",
     "region_id": 22,
     "previous_context": [
-      "ARYASCANS.com",
+      "HOW TERRIFYING!",
       "DANGER!!!",
       "WHO'S THERE?"
     ],
     "original_accepted_english": "SO THE BLOOD AXE REALLY IS IN YOUR HANDS.",
     "next_context": [
-      "ARYASCANS.com"
+      "I DIDN'T WAIT HERE FOR MOST OF THE DAY FOR NOTHING. JIANG BIAO DIED BY YOUR HAND, DIDN'T HE?"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -3273,9 +3247,9 @@
     "source_image": "060.webp",
     "region_id": 24,
     "previous_context": [
+      "DANGER!!!",
       "WHO'S THERE?",
-      "SO THE BLOOD AXE REALLY IS IN YOUR HANDS.",
-      "ARYASCANS.com"
+      "SO THE BLOOD AXE REALLY IS IN YOUR HANDS."
     ],
     "original_accepted_english": "I DIDN'T WAIT HERE FOR MOST OF THE DAY FOR NOTHING. JIANG BIAO DIED BY YOUR HAND, DIDN'T HE?",
     "next_context": [
@@ -3309,8 +3283,8 @@
     "source_image": "062.webp",
     "region_id": 25,
     "previous_context": [
+      "WHO'S THERE?",
       "SO THE BLOOD AXE REALLY IS IN YOUR HANDS.",
-      "ARYASCANS.com",
       "I DIDN'T WAIT HERE FOR MOST OF THE DAY FOR NOTHING. JIANG BIAO DIED BY YOUR HAND, DIDN'T HE?"
     ],
     "original_accepted_english": "CAPTAIN ROSS?!",
@@ -3345,7 +3319,7 @@
     "source_image": "064.webp",
     "region_id": 26,
     "previous_context": [
-      "ARYASCANS.com",
+      "SO THE BLOOD AXE REALLY IS IN YOUR HANDS.",
       "I DIDN'T WAIT HERE FOR MOST OF THE DAY FOR NOTHING. JIANG BIAO DIED BY YOUR HAND, DIDN'T HE?",
       "CAPTAIN ROSS?!"
     ],
@@ -3812,7 +3786,7 @@
     ],
     "original_accepted_english": "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.",
     "next_context": [
-      "ASMOTOON.COM"
+      "MAYBE I OVERDID IT... 200 HOURS STRAIGHT IS A BIT MUCH."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -3842,9 +3816,9 @@
     "source_image": "002.png",
     "region_id": 14,
     "previous_context": [
+      "IN THIS GAME, I...",
       "Lv.998",
-      "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.",
-      "ASMOTOON.COM"
+      "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP."
     ],
     "original_accepted_english": "MAYBE I OVERDID IT... 200 HOURS STRAIGHT IS A BIT MUCH.",
     "next_context": [
@@ -3878,8 +3852,8 @@
     "source_image": "003.png",
     "region_id": 15,
     "previous_context": [
+      "Lv.998",
       "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.",
-      "ASMOTOON.COM",
       "MAYBE I OVERDID IT... 200 HOURS STRAIGHT IS A BIT MUCH."
     ],
     "original_accepted_english": "ONCE I FINISH THIS, I'M GETTING A REAL MEAL AND CRASHING.",
@@ -3914,7 +3888,7 @@
     "source_image": "003.png",
     "region_id": 16,
     "previous_context": [
-      "ASMOTOON.COM",
+      "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.",
       "MAYBE I OVERDID IT... 200 HOURS STRAIGHT IS A BIT MUCH.",
       "ONCE I FINISH THIS, I'M GETTING A REAL MEAL AND CRASHING."
     ],
@@ -4138,7 +4112,7 @@
     ],
     "original_accepted_english": "OR SPORTS...",
     "next_context": [
-      "ASMOTOON.COM"
+      "I COULD NEVER GET THAT NUMBER-ONE SPOT."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -4168,9 +4142,9 @@
     "source_image": "003.png",
     "region_id": 24,
     "previous_context": [
+      "BUT THE TRUTH WAS...",
       "BE IT SCHOOL...",
-      "OR SPORTS...",
-      "ASMOTOON.COM"
+      "OR SPORTS..."
     ],
     "original_accepted_english": "I COULD NEVER GET THAT NUMBER-ONE SPOT.",
     "next_context": [
@@ -4204,8 +4178,8 @@
     "source_image": "003.png",
     "region_id": 25,
     "previous_context": [
+      "BE IT SCHOOL...",
       "OR SPORTS...",
-      "ASMOTOON.COM",
       "I COULD NEVER GET THAT NUMBER-ONE SPOT."
     ],
     "original_accepted_english": "BUT HERE...",
@@ -4240,7 +4214,7 @@
     "source_image": "004.png",
     "region_id": 26,
     "previous_context": [
-      "ASMOTOON.COM",
+      "OR SPORTS...",
       "I COULD NEVER GET THAT NUMBER-ONE SPOT.",
       "BUT HERE..."
     ],
@@ -4320,7 +4294,7 @@
     ],
     "original_accepted_english": "I CAN FINALLY BE THE BEST IN THE WORLD.",
     "next_context": [
-      "ASMOTOON.COM"
+      "OR... SO I THOUGHT."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -4350,13 +4324,13 @@
     "source_image": "004.png",
     "region_id": 30,
     "previous_context": [
+      "HERE, IT'S DIFFERENT.",
       "IN ZFO...",
-      "I CAN FINALLY BE THE BEST IN THE WORLD.",
-      "ASMOTOON.COM"
+      "I CAN FINALLY BE THE BEST IN THE WORLD."
     ],
     "original_accepted_english": "OR... SO I THOUGHT.",
     "next_context": [
-      "GAH...!!!"
+      "\\begin{array}{l} \\displaystyle \\Delta \\left( \\frac{d}{t} \\right) =\\frac{v \\times \\Delta h}{t} \\times \\frac{v}{d} \\div \\frac{c}{d} = \\frac{(c + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{v \\times \\Delta g}{d} \\times \\frac{x}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x + \\Delta z}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\end{array}"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -4386,13 +4360,13 @@
     "source_image": "004.png",
     "region_id": 32,
     "previous_context": [
-      "ASMOTOON.COM",
-      "OR... SO I THOUGHT.",
-      "GAH...!!!"
+      "IN ZFO...",
+      "I CAN FINALLY BE THE BEST IN THE WORLD.",
+      "OR... SO I THOUGHT."
     ],
     "original_accepted_english": "\\begin{array}{l} \\displaystyle \\Delta \\left( \\frac{d}{t} \\right) =\\frac{v \\times \\Delta h}{t} \\times \\frac{v}{d} \\div \\frac{c}{d} = \\frac{(c + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{v \\times \\Delta g}{d} \\times \\frac{x}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x + \\Delta z}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\end{array}",
     "next_context": [
-      "WHAT...?"
+      "YOU'VE GOTTA BE KIDDING ME..."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -4424,9 +4398,9 @@
     "source_image": "005.png",
     "region_id": 34,
     "previous_context": [
-      "GAH...!!!",
-      "\\begin{array}{l} \\displaystyle \\Delta \\left( \\frac{d}{t} \\right) =\\frac{v \\times \\Delta h}{t} \\times \\frac{v}{d} \\div \\frac{c}{d} = \\frac{(c + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{v \\times \\Delta g}{d} \\times \\frac{x}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x + \\Delta z}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\end{array}",
-      "WHAT...?"
+      "I CAN FINALLY BE THE BEST IN THE WORLD.",
+      "OR... SO I THOUGHT.",
+      "\\begin{array}{l} \\displaystyle \\Delta \\left( \\frac{d}{t} \\right) =\\frac{v \\times \\Delta h}{t} \\times \\frac{v}{d} \\div \\frac{c}{d} = \\frac{(c + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{v \\times \\Delta g}{d} \\times \\frac{x}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x + \\Delta z}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\end{array}"
     ],
     "original_accepted_english": "YOU'VE GOTTA BE KIDDING ME...",
     "next_context": [
@@ -4462,8 +4436,8 @@
     "source_image": "005.png",
     "region_id": 35,
     "previous_context": [
+      "OR... SO I THOUGHT.",
       "\\begin{array}{l} \\displaystyle \\Delta \\left( \\frac{d}{t} \\right) =\\frac{v \\times \\Delta h}{t} \\times \\frac{v}{d} \\div \\frac{c}{d} = \\frac{(c + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{v \\times \\Delta g}{d} \\times \\frac{x}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x + \\Delta z}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\qquad \\displaystyle=\\frac{x \\times \\Delta g}{d} = \\frac{(z + \\Delta z) \\times \\Delta g}{d} \\\\\\end{array}",
-      "WHAT...?",
       "YOU'VE GOTTA BE KIDDING ME..."
     ],
     "original_accepted_english": "NO... NOT NOW...!",
@@ -4607,7 +4581,7 @@
     ],
     "original_accepted_english": "ROCK GOLEM LV.20",
     "next_context": [
-      "ASMOTOON.COM"
+      "(INTEREST-ING..."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -4639,9 +4613,9 @@
     "source_image": "003.png",
     "region_id": 9,
     "previous_context": [
-      "ROCK GOLEM LV.20",
-      "ASMOTOON.COM",
-      "GRO OOM!"
+      "I ONLY CAME TO THE FOREST TO TEST OUT [CRAFT]...",
+      "...BUT I CERTAINLY DIDN'T EXPECT TO RUN INTO A BEAST THIS MASSIVE.",
+      "ROCK GOLEM LV.20"
     ],
     "original_accepted_english": "(INTEREST-ING...",
     "next_context": [
@@ -4675,8 +4649,8 @@
     "source_image": "003.png",
     "region_id": 10,
     "previous_context": [
-      "ASMOTOON.COM",
-      "GRO OOM!",
+      "...BUT I CERTAINLY DIDN'T EXPECT TO RUN INTO A BEAST THIS MASSIVE.",
+      "ROCK GOLEM LV.20",
       "(INTEREST-ING..."
     ],
     "original_accepted_english": "NOT ONLY DOES IT BOAST OVERWHELMING DEFENSE...",
@@ -4711,7 +4685,7 @@
     "source_image": "003.png",
     "region_id": 11,
     "previous_context": [
-      "GRO OOM!",
+      "ROCK GOLEM LV.20",
       "(INTEREST-ING...",
       "NOT ONLY DOES IT BOAST OVERWHELMING DEFENSE..."
     ],
@@ -4971,7 +4945,7 @@
     ],
     "original_accepted_english": "TIME TO TEST OUT THAT NEW MODIFICATION!",
     "next_context": [
-      "ASMOTOON.COM"
+      "《SLOTTED》ASSAULT RIFLE"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -5001,9 +4975,9 @@
     "source_image": "004.png",
     "region_id": 20,
     "previous_context": [
+      "...BUT THIS IS STILL GOING TO BE A TOUGH FIGHT.",
       "ACTUALLY, THIS IS PERFECT.",
-      "TIME TO TEST OUT THAT NEW MODIFICATION!",
-      "ASMOTOON.COM"
+      "TIME TO TEST OUT THAT NEW MODIFICATION!"
     ],
     "original_accepted_english": "《SLOTTED》ASSAULT RIFLE",
     "next_context": [
@@ -5039,8 +5013,8 @@
     "source_image": "004.png",
     "region_id": 21,
     "previous_context": [
+      "ACTUALLY, THIS IS PERFECT.",
       "TIME TO TEST OUT THAT NEW MODIFICATION!",
-      "ASMOTOON.COM",
       "《SLOTTED》ASSAULT RIFLE"
     ],
     "original_accepted_english": "ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES WEAPON RELOADS AUTOMATIC HOWEVER, IF THE MAGAZINE IS EMPTIED, ATTACKING IS DISAB SEVERAL SECONDS.",
@@ -5075,7 +5049,7 @@
     "source_image": "004.png",
     "region_id": 22,
     "previous_context": [
-      "ASMOTOON.COM",
+      "TIME TO TEST OUT THAT NEW MODIFICATION!",
       "《SLOTTED》ASSAULT RIFLE",
       "ATTACK POWER > 175 AMMO CAPACITY > 30 NOTES WEAPON RELOADS AUTOMATIC HOWEVER, IF THE MAGAZINE IS EMPTIED, ATTACKING IS DISAB SEVERAL SECONDS."
     ],
@@ -5189,7 +5163,7 @@
     ],
     "original_accepted_english": "INVENTORY.",
     "next_context": [
-      "GOLEM'S MAGIC STONE"
+      "A GOLEM'S MAGIC STONE I PICKED UP ON THE WAY HERE."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -5219,9 +5193,9 @@
     "source_image": "004.png",
     "region_id": 28,
     "previous_context": [
+      "I USED [CRAFT] TO ADD A MAGIC STONE SLOT TO THIS RIFLE...",
       "...SO LOADING A STONE INTO IT SHOULD GIVE ITS OVERALL FIREPOWER A MASSIVE BOOST.",
-      "INVENTORY.",
-      "GOLEM'S MAGIC STONE"
+      "INVENTORY."
     ],
     "original_accepted_english": "A GOLEM'S MAGIC STONE I PICKED UP ON THE WAY HERE.",
     "next_context": [
@@ -5255,8 +5229,8 @@
     "source_image": "004.png",
     "region_id": 29,
     "previous_context": [
+      "...SO LOADING A STONE INTO IT SHOULD GIVE ITS OVERALL FIREPOWER A MASSIVE BOOST.",
       "INVENTORY.",
-      "GOLEM'S MAGIC STONE",
       "A GOLEM'S MAGIC STONE I PICKED UP ON THE WAY HERE."
     ],
     "original_accepted_english": "LET'S TEST IT OUT WITH THIS.",
@@ -5291,7 +5265,7 @@
     "source_image": "005.png",
     "region_id": 30,
     "previous_context": [
-      "GOLEM'S MAGIC STONE",
+      "INVENTORY.",
       "A GOLEM'S MAGIC STONE I PICKED UP ON THE WAY HERE.",
       "LET'S TEST IT OUT WITH THIS."
     ],
@@ -5542,7 +5516,7 @@
     ],
     "original_accepted_english": "SORRY TO STARTLE YOU.",
     "next_context": [
-      "ASMOTOON.COM"
+      "YOUR RAPID LEVEL GROWTH CAUGHT OUR ATTENTION, YOU SEE."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -5572,9 +5546,9 @@
     "source_image": "002.png",
     "region_id": 6,
     "previous_context": [
+      "YOU CAN RELEASE HIM NOW.",
       "ALLEN-KUN, WAS IT...?",
-      "SORRY TO STARTLE YOU.",
-      "ASMOTOON.COM"
+      "SORRY TO STARTLE YOU."
     ],
     "original_accepted_english": "YOUR RAPID LEVEL GROWTH CAUGHT OUR ATTENTION, YOU SEE.",
     "next_context": [
@@ -5608,8 +5582,8 @@
     "source_image": "002.png",
     "region_id": 7,
     "previous_context": [
+      "ALLEN-KUN, WAS IT...?",
       "SORRY TO STARTLE YOU.",
-      "ASMOTOON.COM",
       "YOUR RAPID LEVEL GROWTH CAUGHT OUR ATTENTION, YOU SEE."
     ],
     "original_accepted_english": "WE REALLY WANTED TO SPEAK WITH YOU DIRECTLY.",
@@ -5644,7 +5618,7 @@
     "source_image": "002.png",
     "region_id": 8,
     "previous_context": [
-      "ASMOTOON.COM",
+      "SORRY TO STARTLE YOU.",
       "YOUR RAPID LEVEL GROWTH CAUGHT OUR ATTENTION, YOU SEE.",
       "WE REALLY WANTED TO SPEAK WITH YOU DIRECTLY."
     ],
@@ -5868,7 +5842,7 @@
     ],
     "original_accepted_english": "IT'S A BLUNDLE OF TECHNOLOGY THAT DOESN'T EXIST IN THIS WORLD.",
     "next_context": [
-      "HMPH."
+      "BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\""
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -5898,9 +5872,9 @@
     "source_image": "003.png",
     "region_id": 18,
     "previous_context": [
-      "IT'S A BLUNDLE OF TECHNOLOGY THAT DOESN'T EXIST IN THIS WORLD.",
-      "HMPH.",
-      "ASMOTOON.COM"
+      "THE DETAILS OF THE GUN, HUH...",
+      "EVEN IF I TOLD YOU, YOU PROBABLY WOULD NOT UNDERSTAND.",
+      "IT'S A BLUNDLE OF TECHNOLOGY THAT DOESN'T EXIST IN THIS WORLD."
     ],
     "original_accepted_english": "BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\"",
     "next_context": [
@@ -5938,13 +5912,13 @@
     "source_image": "003.png",
     "region_id": 19,
     "previous_context": [
-      "HMPH.",
-      "ASMOTOON.COM",
+      "EVEN IF I TOLD YOU, YOU PROBABLY WOULD NOT UNDERSTAND.",
+      "IT'S A BLUNDLE OF TECHNOLOGY THAT DOESN'T EXIST IN THIS WORLD.",
       "BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\""
     ],
     "original_accepted_english": "THAT SO-CALLED GLN OF YOURS PROBABLY ISN'T ALL THAT IMPRESSIVE, IS IT?",
     "next_context": [
-      "AH."
+      "SO YOU'RE TRYING TO PROVOKE ME INTO GIVING YOU INFO, HUH..."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -5974,9 +5948,9 @@
     "source_image": "003.png",
     "region_id": 21,
     "previous_context": [
+      "IT'S A BLUNDLE OF TECHNOLOGY THAT DOESN'T EXIST IN THIS WORLD.",
       "BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\"",
-      "THAT SO-CALLED GLN OF YOURS PROBABLY ISN'T ALL THAT IMPRESSIVE, IS IT?",
-      "AH."
+      "THAT SO-CALLED GLN OF YOURS PROBABLY ISN'T ALL THAT IMPRESSIVE, IS IT?"
     ],
     "original_accepted_english": "SO YOU'RE TRYING TO PROVOKE ME INTO GIVING YOU INFO, HUH...",
     "next_context": [
@@ -6010,8 +5984,8 @@
     "source_image": "004.png",
     "region_id": 22,
     "previous_context": [
+      "BIG WORDS FOR SOMEONE WHO'S JUST A \"CRAFTER.\"",
       "THAT SO-CALLED GLN OF YOURS PROBABLY ISN'T ALL THAT IMPRESSIVE, IS IT?",
-      "AH.",
       "SO YOU'RE TRYING TO PROVOKE ME INTO GIVING YOU INFO, HUH..."
     ],
     "original_accepted_english": "CRAFT.",
@@ -6048,7 +6022,7 @@
     "source_image": "004.png",
     "region_id": 23,
     "previous_context": [
-      "AH.",
+      "THAT SO-CALLED GLN OF YOURS PROBABLY ISN'T ALL THAT IMPRESSIVE, IS IT?",
       "SO YOU'RE TRYING TO PROVOKE ME INTO GIVING YOU INFO, HUH...",
       "CRAFT."
     ],
@@ -6200,7 +6174,7 @@
     ],
     "original_accepted_english": "MAGAZINE CAPACITY » 30 NOTES » AUTOMATICALLY RELOADS, BUT CANNOT ATTACK FOR A FEW SECONDS ONCE THE MAGAZINE IS EMPTY.",
     "next_context": [
-      "WHA...?!"
+      "ATTACK POWER 50?!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -6230,9 +6204,9 @@
     "source_image": "004.png",
     "region_id": 30,
     "previous_context": [
+      "《MASS-PRODUCED》ASSAULT RIFLE",
       "ATTACK POWER > 50 * ALLEN'S LEVEL MAGAZINE CAPACITY > 30 NOTES",
-      "MAGAZINE CAPACITY » 30 NOTES » AUTOMATICALLY RELOADS, BUT CANNOT ATTACK FOR A FEW SECONDS ONCE THE MAGAZINE IS EMPTY.",
-      "WHA...?!"
+      "MAGAZINE CAPACITY » 30 NOTES » AUTOMATICALLY RELOADS, BUT CANNOT ATTACK FOR A FEW SECONDS ONCE THE MAGAZINE IS EMPTY."
     ],
     "original_accepted_english": "ATTACK POWER 50?!",
     "next_context": [
@@ -6266,8 +6240,8 @@
     "source_image": "004.png",
     "region_id": 31,
     "previous_context": [
+      "ATTACK POWER > 50 * ALLEN'S LEVEL MAGAZINE CAPACITY > 30 NOTES",
       "MAGAZINE CAPACITY » 30 NOTES » AUTOMATICALLY RELOADS, BUT CANNOT ATTACK FOR A FEW SECONDS ONCE THE MAGAZINE IS EMPTY.",
-      "WHA...?!",
       "ATTACK POWER 50?!"
     ],
     "original_accepted_english": "THAT'S ON PAR WITH A KNIGHT OF THE SAME LEVEL!",
@@ -6302,7 +6276,7 @@
     "source_image": "004.png",
     "region_id": 32,
     "previous_context": [
-      "WHA...?!",
+      "MAGAZINE CAPACITY » 30 NOTES » AUTOMATICALLY RELOADS, BUT CANNOT ATTACK FOR A FEW SECONDS ONCE THE MAGAZINE IS EMPTY.",
       "ATTACK POWER 50?!",
       "THAT'S ON PAR WITH A KNIGHT OF THE SAME LEVEL!"
     ],
@@ -6517,7 +6491,7 @@
     ],
     "original_accepted_english": "I PLANNED ON HUNTING HERE FROM THE BEGINNING ANYWAY.",
     "next_context": [
-      "ASMOTOON.COM"
+      "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -6547,13 +6521,13 @@
     "source_image": "002.png",
     "region_id": 8,
     "previous_context": [
+      "...BUT THE RECOMMENDED LEVEL FOR THIS DUNGEON IS TWENTY-FIVE.",
       "IT'S FINE.",
-      "I PLANNED ON HUNTING HERE FROM THE BEGINNING ANYWAY.",
-      "ASMOTOON.COM"
+      "I PLANNED ON HUNTING HERE FROM THE BEGINNING ANYWAY."
     ],
     "original_accepted_english": "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?",
     "next_context": [
-      "TACKLING THIS SOLO?"
+      "WHY DON'T YOU SCROUNGE UP A PARTY?"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -6583,9 +6557,9 @@
     "source_image": "002.png",
     "region_id": 10,
     "previous_context": [
-      "ASMOTOON.COM",
-      "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?",
-      "TACKLING THIS SOLO?"
+      "IT'S FINE.",
+      "I PLANNED ON HUNTING HERE FROM THE BEGINNING ANYWAY.",
+      "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?"
     ],
     "original_accepted_english": "WHY DON'T YOU SCROUNGE UP A PARTY?",
     "next_context": [
@@ -6621,8 +6595,8 @@
     "source_image": "002.png",
     "region_id": 12,
     "previous_context": [
+      "I PLANNED ON HUNTING HERE FROM THE BEGINNING ANYWAY.",
       "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?",
-      "TACKLING THIS SOLO?",
       "WHY DON'T YOU SCROUNGE UP A PARTY?"
     ],
     "original_accepted_english": "THERE ARE PLENTY OF SCRUBS AROUND HERE WHO'D BE RIGHT UP YOUR ALLEY.",
@@ -6657,13 +6631,13 @@
     "source_image": "003.png",
     "region_id": 13,
     "previous_context": [
-      "TACKLING THIS SOLO?",
+      "WHOA THERE, ARE YOU SERIOUSLY TACKLING THIS SOLO?",
       "WHY DON'T YOU SCROUNGE UP A PARTY?",
       "THERE ARE PLENTY OF SCRUBS AROUND HERE WHO'D BE RIGHT UP YOUR ALLEY."
     ],
     "original_accepted_english": "AH... SO YOU'RE GOING IN WITH A PARTY.",
     "next_context": [
-      "WITH A PARTY."
+      "FOR A LEVEL 65, YOU'RE PRETTY USELESS IF YOU ARE MOVING IN A HERD."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -6693,9 +6667,9 @@
     "source_image": "003.png",
     "region_id": 15,
     "previous_context": [
+      "WHY DON'T YOU SCROUNGE UP A PARTY?",
       "THERE ARE PLENTY OF SCRUBS AROUND HERE WHO'D BE RIGHT UP YOUR ALLEY.",
-      "AH... SO YOU'RE GOING IN WITH A PARTY.",
-      "WITH A PARTY."
+      "AH... SO YOU'RE GOING IN WITH A PARTY."
     ],
     "original_accepted_english": "FOR A LEVEL 65, YOU'RE PRETTY USELESS IF YOU ARE MOVING IN A HERD.",
     "next_context": [
@@ -6729,8 +6703,8 @@
     "source_image": "003.png",
     "region_id": 16,
     "previous_context": [
+      "THERE ARE PLENTY OF SCRUBS AROUND HERE WHO'D BE RIGHT UP YOUR ALLEY.",
       "AH... SO YOU'RE GOING IN WITH A PARTY.",
-      "WITH A PARTY.",
       "FOR A LEVEL 65, YOU'RE PRETTY USELESS IF YOU ARE MOVING IN A HERD."
     ],
     "original_accepted_english": "YOU LITTLE-!!",
@@ -6767,7 +6741,7 @@
     "source_image": "003.png",
     "region_id": 18,
     "previous_context": [
-      "WITH A PARTY.",
+      "AH... SO YOU'RE GOING IN WITH A PARTY.",
       "FOR A LEVEL 65, YOU'RE PRETTY USELESS IF YOU ARE MOVING IN A HERD.",
       "YOU LITTLE-!!"
     ],
@@ -6847,7 +6821,7 @@
     ],
     "original_accepted_english": "WAIT A MINUTE!",
     "next_context": [
-      "ASMOTOON.COM"
+      "I'm coming with you!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -6877,9 +6851,9 @@
     "source_image": "003.png",
     "region_id": 22,
     "previous_context": [
+      "WELL, DO WHATEVER YOU WANT.",
       "I COULDN'T CARE LESS IF YOU WANT TO PLAY PACK ANIMAL WITH YOUR FRIENDS.",
-      "WAIT A MINUTE!",
-      "ASMOTOON.COM"
+      "WAIT A MINUTE!"
     ],
     "original_accepted_english": "I'm coming with you!",
     "next_context": [
@@ -6913,8 +6887,8 @@
     "source_image": "003.png",
     "region_id": 23,
     "previous_context": [
+      "I COULDN'T CARE LESS IF YOU WANT TO PLAY PACK ANIMAL WITH YOUR FRIENDS.",
       "WAIT A MINUTE!",
-      "ASMOTOON.COM",
       "I'm coming with you!"
     ],
     "original_accepted_english": "PARTY INVITATION",
@@ -6949,7 +6923,7 @@
     "source_image": "003.png",
     "region_id": 26,
     "previous_context": [
-      "ASMOTOON.COM",
+      "WAIT A MINUTE!",
       "I'm coming with you!",
       "PARTY INVITATION"
     ],
@@ -7682,7 +7656,7 @@
     ],
     "original_accepted_english": "(IS NOTHING BUT A WEAKLING.)",
     "next_context": [
-      "ASMOTOON.COM"
+      "(FAREWELL.)"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -7712,13 +7686,13 @@
     "source_image": "004.png",
     "region_id": 14,
     "previous_context": [
+      "NOW THEN...",
       "A WERE-WOLF THAT CAN'T DODGE BECAUSE ITS LEGS ARE BOUND...",
-      "(IS NOTHING BUT A WEAKLING.)",
-      "ASMOTOON.COM"
+      "(IS NOTHING BUT A WEAKLING.)"
     ],
     "original_accepted_english": "(FAREWELL.)",
     "next_context": [
-      "PHEW..."
+      "ALLEN-SAN! I FINISHED OFF THE QUEEN, TOO!"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -7748,13 +7722,13 @@
     "source_image": "004.png",
     "region_id": 17,
     "previous_context": [
-      "ASMOTOON.COM",
-      "(FAREWELL.)",
-      "PHEW..."
+      "A WERE-WOLF THAT CAN'T DODGE BECAUSE ITS LEGS ARE BOUND...",
+      "(IS NOTHING BUT A WEAKLING.)",
+      "(FAREWELL.)"
     ],
     "original_accepted_english": "ALLEN-SAN! I FINISHED OFF THE QUEEN, TOO!",
     "next_context": [
-      "GOOD."
+      "CONGRATULATIONS! YOU HAVE CLEARED THE <WOLF MINE> CLEAR TIME > 9M 48S (NEW ALL-TIME RECORD!)"
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -7784,9 +7758,9 @@
     "source_image": "004.png",
     "region_id": 19,
     "previous_context": [
-      "PHEW...",
-      "ALLEN-SAN! I FINISHED OFF THE QUEEN, TOO!",
-      "GOOD."
+      "(IS NOTHING BUT A WEAKLING.)",
+      "(FAREWELL.)",
+      "ALLEN-SAN! I FINISHED OFF THE QUEEN, TOO!"
     ],
     "original_accepted_english": "CONGRATULATIONS! YOU HAVE CLEARED THE <WOLF MINE> CLEAR TIME > 9M 48S (NEW ALL-TIME RECORD!)",
     "next_context": [
@@ -7820,8 +7794,8 @@
     "source_image": "004.png",
     "region_id": 20,
     "previous_context": [
+      "(FAREWELL.)",
       "ALLEN-SAN! I FINISHED OFF THE QUEEN, TOO!",
-      "GOOD.",
       "CONGRATULATIONS! YOU HAVE CLEARED THE <WOLF MINE> CLEAR TIME > 9M 48S (NEW ALL-TIME RECORD!)"
     ],
     "original_accepted_english": "ALLEN-SAN, YOU SET AN INCREDIBLE RECORD!",
@@ -7856,7 +7830,7 @@
     "source_image": "004.png",
     "region_id": 21,
     "previous_context": [
-      "GOOD.",
+      "ALLEN-SAN! I FINISHED OFF THE QUEEN, TOO!",
       "CONGRATULATIONS! YOU HAVE CLEARED THE <WOLF MINE> CLEAR TIME > 9M 48S (NEW ALL-TIME RECORD!)",
       "ALLEN-SAN, YOU SET AN INCREDIBLE RECORD!"
     ],
@@ -7898,7 +7872,7 @@
     ],
     "original_accepted_english": "HOW MEAN!",
     "next_context": [
-      "WELL THEN... NOW THAT WE'VE"
+      "WELL THEN... NOW THAT WE'VE CLEARED IT, LET'S HEAD BACK."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -7930,9 +7904,9 @@
     "source_image": "004.png",
     "region_id": 24,
     "previous_context": [
+      "ALLEN-SAN, YOU SET AN INCREDIBLE RECORD!",
       "...I'll COME BACK SOLO TOMORROW TO BREAK IT AND TAKE THE TOP SPOT FOR MYSELF.",
-      "HOW MEAN!",
-      "WELL THEN... NOW THAT WE'VE"
+      "HOW MEAN!"
     ],
     "original_accepted_english": "WELL THEN... NOW THAT WE'VE CLEARED IT, LET'S HEAD BACK.",
     "next_context": [
@@ -7966,8 +7940,8 @@
     "source_image": "005.png",
     "region_id": 25,
     "previous_context": [
+      "...I'll COME BACK SOLO TOMORROW TO BREAK IT AND TAKE THE TOP SPOT FOR MYSELF.",
       "HOW MEAN!",
-      "WELL THEN... NOW THAT WE'VE",
       "WELL THEN... NOW THAT WE'VE CLEARED IT, LET'S HEAD BACK."
     ],
     "original_accepted_english": "YES!",
@@ -8002,7 +7976,7 @@
     "source_image": "005.png",
     "region_id": 26,
     "previous_context": [
-      "WELL THEN... NOW THAT WE'VE",
+      "HOW MEAN!",
       "WELL THEN... NOW THAT WE'VE CLEARED IT, LET'S HEAD BACK.",
       "YES!"
     ],
@@ -8080,7 +8054,7 @@
     ],
     "original_accepted_english": "ALLEN-SAN, THIS GUN IS...",
     "next_context": [
-      "ll,"
+      "OH, FEEL FREE TO USE IT AS YOU LIKE."
     ],
     "semantic_v3": {
       "rewrite_used": false,
@@ -8110,9 +8084,9 @@
     "source_image": "005.png",
     "region_id": 30,
     "previous_context": [
+      "THAT'S THE END OF THAT.",
       "TH-THANK YOU SO MUCH!",
-      "ALLEN-SAN, THIS GUN IS...",
-      "ll,"
+      "ALLEN-SAN, THIS GUN IS..."
     ],
     "original_accepted_english": "OH, FEEL FREE TO USE IT AS YOU LIKE.",
     "next_context": [
@@ -8146,8 +8120,8 @@
     "source_image": "005.png",
     "region_id": 31,
     "previous_context": [
+      "TH-THANK YOU SO MUCH!",
       "ALLEN-SAN, THIS GUN IS...",
-      "ll,",
       "OH, FEEL FREE TO USE IT AS YOU LIKE."
     ],
     "original_accepted_english": "ISN'T THAT GUY... THE ADVENTURER WHO WAS ARGUING WITH LUCAS?",

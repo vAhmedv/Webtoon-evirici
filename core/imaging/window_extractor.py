@@ -59,7 +59,8 @@ def _crop_page_region(
         Crop edilmiş PIL görüntüsü.
     """
     with Image.open(page.path) as img:
-        # local_y_end local piksel koordinatı olduğu için exclusive
+        if img.width != page.width or img.height != page.height:
+            img = img.resize((page.width, page.height), Image.Resampling.LANCZOS)
         crop = img.crop((0, local_y_start, page.width, local_y_end))
         return crop.copy()
 

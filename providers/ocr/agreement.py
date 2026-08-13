@@ -92,6 +92,78 @@ def _obvious_repetition(text: str, max_reps: int = 3) -> bool:
     return False
 
 
+# Structural suspicion helper constants for Latin English text
+_INVALID_START_CONSONANTS = {
+    "BZ", "CD", "FJ", "FGM", "GZ", "HG", "JK", "JV", "JX", "JZ",
+    "KG", "KJ", "KP", "KQ", "KV", "KX", "KZ",
+    "LB", "LC", "LD", "LF", "LG", "LK", "LM", "LN", "LP", "LQ", "LR", "LS", "LT", "LV", "LX", "LZ",
+    "MD", "MG", "MJ", "MK", "ML", "MQ", "MR", "MS", "MT", "MV", "MX", "MZ",
+    "PB", "PD", "PF", "PJ", "PK", "PM", "PN", "PQ", "PV", "PX", "PZ",
+    "QA", "QC", "QD", "QE", "QF", "QG", "QH", "QI", "QJ", "QK", "QL", "QM", "QN", "QO", "QP", "QR", "QS", "QT", "QV", "QW", "QX", "QY", "QZ",
+    "TD", "TG", "TJ", "TK", "TL", "TM", "TN", "TP", "TQ", "TV", "TX", "TZ",
+    "VB", "VC", "VD", "VF", "VG", "VH", "VJ", "VK", "VL", "VM", "VN", "VP", "VQ", "VR", "VS", "VT", "VV", "VW", "VX", "VY", "VZ",
+    "WB", "WC", "WD", "WF", "WG", "WJ", "WK", "WL", "WM", "WN", "WP", "WQ", "WV", "WX", "WZ",
+    "XB", "XC", "XD", "XF", "XG", "XH", "XI", "XJ", "XK", "XL", "XM", "XN", "XO", "XP", "XQ", "XR", "XS", "XT", "XU", "XV", "XW", "XX", "XY", "XZ",
+    "ZB", "ZC", "ZD", "ZF", "ZG", "ZH", "ZJ", "ZK", "ZL", "ZM", "ZN", "ZP", "ZQ", "ZR", "ZS", "ZT", "ZV", "ZW", "ZX", "ZY", "ZZ",
+}
+_INVALID_CLUSTER_RE = re.compile(r"(KTTON|FPT|FKT|GKT|BKT|DKT|PKT|TKT|VKD|ZKD|XKD|QKP|QXK|ZXP)", re.IGNORECASE)
+_VOWELS = set("AEIOUYaeiouy")
+
+
+def _is_structurally_suspicious_latin(text: str) -> tuple[bool, str | None]:
+    """Yapısal olarak bozuk Latin İngilizce metin tespiti (genel kurallar)."""
+    if not text or not text.strip():
+        return False, None
+
+    norm = text.strip()
+
+    if _contains_cjk(norm):
+        return True, "cjk"
+
+    if _obvious_repetition(norm):
+        return True, "repetition"
+
+    if _is_gibberish(norm):
+        return True, "gibberish"
+
+    raw_tokens = norm.split()
+    if not raw_tokens:
+        return False, None
+
+    for raw in raw_tokens:
+        clean_word = re.sub(r"^[^\w]+|[^\w]+$", "", raw)
+        if not clean_word:
+            continue
+
+        # Fused digit inside alpha word (e.g., "TLUOE4", "WOEOOTAD4", "EXP1S")
+        if re.search(r"[A-Za-z]+[0-9]+[A-Za-z]*", clean_word) or re.search(r"[0-9]+[A-Za-z]{3,}", clean_word):
+            if not re.match(r"^(1st|2nd|3rd|[0-9]+th)$", clean_word, re.IGNORECASE):
+                return True, f"digit_fused_word:{raw}"
+
+        alpha_part = re.sub(r"[^A-Za-z]", "", clean_word)
+        if len(alpha_part) >= 3:
+            alpha_upper = alpha_part.upper()
+
+            # Invalid start consonants (e.g., "CDANTED")
+            if len(alpha_upper) >= 4 and alpha_upper[:2] in _INVALID_START_CONSONANTS:
+                return True, f"invalid_start_consonants:{raw}"
+
+            # Invalid internal consonant cluster (e.g., "KTTON" in "APOKTTON")
+            if _INVALID_CLUSTER_RE.search(alpha_upper):
+                return True, f"invalid_consonant_cluster:{raw}"
+
+            # 4+ letter token with NO vowels
+            if len(alpha_upper) >= 4 and not any(c in _VOWELS for c in alpha_upper):
+                if not re.match(r"^(MC|TV|PR|DR|MR|MRS|MS|VS|OK|HTML|HTTP)$", alpha_upper):
+                    return True, f"no_vowels:{raw}"
+
+            # Unusually long single token without hyphen (spacing corruption, e.g., "CRAPTEDWEAPONS")
+            if len(alpha_upper) >= 14 and "-" not in raw and "'" not in raw:
+                return True, f"concatenated_token:{raw}"
+
+    return False, None
+
+
 def _is_gibberish(text: str) -> bool:
     """Anlamsız/gibberish metin tespiti (basit heuristik)."""
     if not text:
@@ -181,13 +253,81 @@ def _make_verdict(
 
 def decide_ocr_agreement(
     primary: OCRResult,
-    verifier: OCRResult,
+    verifier: OCRResult | None = None,
 ) -> OCRVerdict:
-    """VL-1.6 (primary) ve Paddle v5 (verifier) sonuçlarını karşılaştırır."""
+    """Primary ve opsiyonel Verifier OCR sonuçlarını karşılaştırır.
+
+    Verifier `None` ise yalnızca Primary OCR sonucunu yapısal olarak doğrular.
+    Confidence skoru tek başına AUTO yapmaz; CJK, gibberish, repetition ve structural suspicion kontrolleri uygulanır.
+    """
     p_raw = primary.raw_text or ""
-    v_raw = verifier.raw_text or ""
+    v_raw = verifier.raw_text or "" if verifier is not None else ""
     p_text = normalize_ocr_text(p_raw)
-    v_text = normalize_ocr_text(v_raw)
+    v_text = normalize_ocr_text(v_raw) if verifier is not None else ""
+
+    p_suspicious, p_susp_reason = _is_structurally_suspicious_latin(p_text)
+    v_suspicious, v_susp_reason = _is_structurally_suspicious_latin(v_text) if verifier is not None else (False, None)
+
+    # Single-pass evaluation when verifier is None
+    if verifier is None:
+        if not p_text:
+            return _make_verdict(
+                accepted_text=None,
+                accepted_raw=None,
+                source="primary",
+                requires_review=True,
+                needs_repair=True,
+                reason="primary_empty",
+                provisional_text=None,
+                p_raw=p_raw,
+                v_raw="",
+                p_conf=primary.confidence,
+                v_conf=None,
+            )
+
+        if p_suspicious:
+            return _make_verdict(
+                accepted_text=None,
+                accepted_raw=None,
+                source="primary",
+                requires_review=True,
+                needs_repair=True,
+                reason="primary_" + (p_susp_reason or "suspicious"),
+                provisional_text=p_text,
+                p_raw=p_raw,
+                v_raw="",
+                p_conf=primary.confidence,
+                v_conf=None,
+            )
+
+        if "low_ocr_confidence" in primary.warnings:
+            return _make_verdict(
+                accepted_text=None,
+                accepted_raw=None,
+                source="primary",
+                requires_review=True,
+                needs_repair=True,
+                reason="low_ocr_confidence",
+                provisional_text=p_text,
+                p_raw=p_raw,
+                v_raw="",
+                p_conf=primary.confidence,
+                v_conf=None,
+            )
+
+        return _make_verdict(
+            accepted_text=p_text,
+            accepted_raw=p_raw,
+            source="primary",
+            requires_review=False,
+            needs_repair=False,
+            reason=None,
+            provisional_text=None,
+            p_raw=p_raw,
+            v_raw="",
+            p_conf=primary.confidence,
+            v_conf=None,
+        )
 
     # 1. İkisi de boş → repair gerekli
     if not p_text and not v_text:
@@ -287,56 +427,34 @@ def decide_ocr_agreement(
             v_conf=verifier.confidence,
         )
 
-    # 4d. Primary'de CJK / repetition / gibberish → otomatik seçim YOK, repair
-    p_problematic = (
-        _contains_cjk(p_text)
-        or _obvious_repetition(p_text)
-        or _is_gibberish(p_text)
-    )
-    if p_problematic:
-        reason_parts = []
-        if _contains_cjk(p_text):
-            reason_parts.append("cjk")
-        if _obvious_repetition(p_text):
-            reason_parts.append("repetition")
-        if _is_gibberish(p_text):
-            reason_parts.append("gibberish")
+    # 4d. Primary'de structural suspicion / CJK / repetition / gibberish → otomatik seçim YOK, repair
+    if p_suspicious:
+        prov_text = v_text if (v_text and not v_suspicious) else p_text
         return _make_verdict(
             accepted_text=None,
             accepted_raw=None,
             source="primary",
             requires_review=True,
             needs_repair=True,
-            reason="primary_" + "_".join(reason_parts),
-            provisional_text=v_text,
+            reason="primary_" + (p_susp_reason or "suspicious"),
+            provisional_text=prov_text,
             p_raw=p_raw,
             v_raw=v_raw,
             p_conf=primary.confidence,
             v_conf=verifier.confidence,
         )
 
-    # 4e. Verifier'da CJK / repetition / gibberish → otomatik seçim YOK, repair
-    v_problematic = (
-        _contains_cjk(v_text)
-        or _obvious_repetition(v_text)
-        or _is_gibberish(v_text)
-    )
-    if v_problematic:
-        reason_parts = []
-        if _contains_cjk(v_text):
-            reason_parts.append("cjk")
-        if _obvious_repetition(v_text):
-            reason_parts.append("repetition")
-        if _is_gibberish(v_text):
-            reason_parts.append("gibberish")
+    # 4e. Verifier'da structural suspicion / CJK / repetition / gibberish → otomatik seçim YOK, repair
+    if v_suspicious:
+        prov_text = p_text if (p_text and not p_suspicious) else v_text
         return _make_verdict(
             accepted_text=None,
             accepted_raw=None,
             source="primary",
             requires_review=True,
             needs_repair=True,
-            reason="verifier_" + "_".join(reason_parts),
-            provisional_text=p_text,
+            reason="verifier_" + (v_susp_reason or "suspicious"),
+            provisional_text=prov_text,
             p_raw=p_raw,
             v_raw=v_raw,
             p_conf=primary.confidence,
