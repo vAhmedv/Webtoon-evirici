@@ -3,7 +3,7 @@
 Tests:
 - Parser: JSON resolved output
 - Parser: JSON unresolved output
-- Parser: natural-language fallback extraction
+- Parser: verbose/malformed output rejected
 - Parser: invalid/empty/CJK/repetition -> unresolved
 - Agreement skip: Qwen not called when needs_repair=False
 - VRAM metrics initialization
@@ -13,6 +13,7 @@ from __future__ import annotations
 import pytest
 from PIL import Image
 from unittest.mock import MagicMock
+import json
 
 from providers.ocr.qwen_repair import (
     OCRAdjudicatedResult,
@@ -32,13 +33,13 @@ def _make_provider():
 
 def _unresolved_json():
     return _make_provider()._parse_output(
-        '{"status": "unresolved", "text": null, "reason": "insufficient_visual_evidence"}'
+        '{"status": "unresolved", "text": null}'
     )
 
 
 def _resolved_json(text="LUO TIAN"):
     return _make_provider()._parse_output(
-        f'{{"status": "resolved", "text": "{text}", "reason": "visual_evidence"}}'
+        f'{{"status": "resolved", "text": "{text}"}}'
     )
 
 
@@ -62,7 +63,7 @@ class TestParseOutput:
 
     def test_placeholder_output(self):
         r = _make_provider()._parse_output(
-            '{"status": "resolved", "text": "<exact text>", "reason": "visual_evidence"}'
+            '{"status": "resolved", "text": "<exact text>"}'
         )
         assert r.unresolved
 
@@ -77,14 +78,13 @@ class TestParseOutput:
     def test_natural_language_fallback(self):
         raw = 'The model reads: "HU SAN" based on the visual evidence.'
         r = _make_provider()._parse_output(raw)
-        assert not r.unresolved
-        assert r.repaired_text == "HU SAN"
+        assert r.unresolved
+        assert r.metadata["rejection_reason"] == "malformed_or_verbose_output"
 
     def test_natural_language_line_pattern(self):
         raw = 'Line 1: "HELLO WORLD"\nLine 2: "FOO BAR"'
         r = _make_provider()._parse_output(raw)
-        assert not r.unresolved
-        assert r.repaired_text == "HELLO WORLD FOO BAR"
+        assert r.unresolved
 
     def test_non_json_falls_back_to_natural(self):
         raw = "I see the text says PUSHOVERS clearly."
@@ -96,6 +96,17 @@ class TestParseOutput:
         r = _make_provider()._parse_output(big)
         assert r.unresolved
         assert len(r.metadata.get("raw_output", "")) <= 500
+
+    def test_verbose_json_with_reason_is_rejected(self):
+        r = _make_provider()._parse_output(
+            '{"status":"resolved","text":"HELLO","reason":"because"}'
+        )
+        assert r.unresolved
+        assert r.metadata["rejection_reason"] == "invalid_output_contract"
+
+    def test_resolved_word_is_not_accepted_as_ocr_text(self):
+        r = _make_provider()._parse_output('{"status":"resolved","text":"resolved"}')
+        assert r.unresolved
 
 
 class TestAdjudicate:
@@ -139,10 +150,13 @@ class TestMetrics:
         assert m.model_load_vram_gb == 0.0
         assert m.peak_vram_gb == 0.0
         assert m.repair_model == ""
+        assert m.repair_calls == 0
+        assert m.accepted_repairs == 0
+        assert m.rejected_repairs == 0
 
     def test_config_defaults(self):
         cfg = QwenRepairConfig()
-        assert cfg.max_new_tokens == 512
+        assert cfg.max_new_tokens == 96
         assert cfg.max_memory_gb == 12
 
 
@@ -160,3 +174,56 @@ class TestProcessOwnership:
         external.terminate.assert_not_called()
         external.kill.assert_not_called()
         assert provider._server_process is None
+
+    def test_external_server_identity_must_match_configured_model(self, monkeypatch):
+        provider = QwenRepairProvider()
+        monkeypatch.setattr(
+            provider,
+            "_fetch_json",
+            lambda path: {"model_path": "C:/models/other-model.gguf"},
+        )
+        compatible, identity = provider._check_server_identity(
+            __import__("pathlib").Path(provider._config.model_path)
+        )
+        assert not compatible
+        assert identity["props"]["model_path"].endswith("other-model.gguf")
+
+    def test_external_server_identity_accepts_configured_model(self, monkeypatch):
+        provider = QwenRepairProvider()
+        monkeypatch.setattr(
+            provider,
+            "_fetch_json",
+            lambda path: {"model_path": provider._config.model_path},
+        )
+        compatible, _ = provider._check_server_identity(
+            __import__("pathlib").Path(provider._config.model_path)
+        )
+        assert compatible
+
+
+def test_repair_request_disables_thinking(monkeypatch):
+    provider = QwenRepairProvider()
+    provider._loaded = True
+    captured = {}
+
+    class _Response:
+        status = 200
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            return False
+        def read(self):
+            return b'{"choices":[{"message":{"content":"{\\"status\\":\\"unresolved\\",\\"text\\":null}"}}]}'
+
+    def _urlopen(request, timeout):
+        captured.update(json.loads(request.data.decode("utf-8")))
+        return _Response()
+
+    monkeypatch.setattr("urllib.request.urlopen", _urlopen)
+    provider.repair(
+        OCRRepairInput("", "", "X", "X", "primary_empty_verifier_filled"),
+        Image.new("RGB", (20, 20), "white"),
+    )
+    assert captured["reasoning_effort"] == "none"
+    assert captured["chat_template_kwargs"] == {"enable_thinking": False}
+    assert captured["max_tokens"] == 96

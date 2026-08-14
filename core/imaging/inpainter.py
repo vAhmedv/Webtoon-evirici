@@ -56,6 +56,11 @@ class Inpainter:
             mask = self.mask_builder._build(result, block.merged_bbox, eligible)
             if np.any(mask.refined):
                 self.processed_block_ids.add(int(getattr(block, "id", -1)))
+            else:
+                # No approved text mask means the translated block cannot be
+                # safely rendered. Count it as inpaint REVIEW so lifecycle
+                # totals remain explicit and the original pixels stay intact.
+                self.review_block_ids.add(int(getattr(block, "id", -1)))
             result = self._apply_mask(result, mask, f"block_{getattr(block, 'id', len(self.debug_records) + 1):04d}")
         return Image.fromarray(result, "RGB")
 
@@ -84,11 +89,19 @@ class Inpainter:
             inpainted_crop = self.lama.inpaint(text_mask.source, text_mask.refined)
             method = "lama_large"
 
-        second_pass = False
+        residual_expansion_passes = 0
         review = False
-        expanded = self._residual_expansion(text_mask, inpainted_crop)
-        if np.any(expanded > text_mask.refined):
-            second_pass = True
+        # Outlined/anti-aliased glyphs can extend several pixels beyond the
+        # first color-selected component.  Continue only while the existing
+        # boundary detector proves text-like source pixels immediately adjacent
+        # to the approved mask.  The raw CTD envelope, bubble interior and
+        # protected structures still bound every pass.
+        max_expansion_passes = max(2, min(4, text_mask.dilation_radius + 1))
+        for _ in range(max_expansion_passes):
+            expanded = self._residual_expansion(text_mask, inpainted_crop)
+            if not np.any(expanded > text_mask.refined):
+                break
+            residual_expansion_passes += 1
             text_mask = replace(text_mask, refined=expanded)
             refined = expanded > 0
             if text_mask.is_uniform_background:
@@ -109,7 +122,14 @@ class Inpainter:
         result = np.array(full_source, copy=True)
         destination = result[y1:y2, x1:x2]
         destination[refined] = inpainted_crop[refined]
-        self._save_debug(debug_name, text_mask, inpainted_crop, method, second_pass, review)
+        self._save_debug(
+            debug_name,
+            text_mask,
+            inpainted_crop,
+            method,
+            residual_expansion_passes=residual_expansion_passes,
+            review=review,
+        )
         return result
 
     @staticmethod
@@ -146,10 +166,62 @@ class Inpainter:
 
     @classmethod
     def _has_boundary_residual(cls, text_mask: TextMask, result: np.ndarray) -> bool:
-        return int(np.count_nonzero(cls._residual_candidates(text_mask, result))) >= 2
+        import cv2
 
-    def _save_debug(self, name: str, text_mask: TextMask, inpainted: np.ndarray, method: str,
-                    second_pass: bool = False, review: bool = False) -> None:
+        candidates = cls._residual_candidates(text_mask, result)
+        total_residual = int(np.count_nonzero(candidates))
+        if total_residual < 2:
+            return False
+        outside_raw = candidates & (text_mask.raw == 0)
+        outside_count = int(np.count_nonzero(outside_raw))
+        if outside_count < 2:
+            return False
+        count, labels, stats, _ = cv2.connectedComponentsWithStats(outside_raw, 8)
+        if count <= 1:
+            return False
+        areas = stats[1:, cv2.CC_STAT_AREA]
+        large_components = int(np.sum(areas >= 10))
+        total_components = count - 1
+        return large_components >= 1 and total_components <= 10
+
+    def _save_debug(
+        self,
+        name: str,
+        text_mask: TextMask,
+        inpainted: np.ndarray,
+        method: str,
+        second_pass: bool = False,
+        review: bool = False,
+        residual_expansion_passes: int | None = None,
+    ) -> None:
+        import cv2
+
+        expansion_passes = (
+            int(residual_expansion_passes)
+            if residual_expansion_passes is not None
+            else int(bool(second_pass))
+        )
+        candidates = self._residual_candidates(text_mask, inpainted)
+        total_residual = int(np.count_nonzero(candidates))
+        if total_residual < 2:
+            remaining_residual_pixels = 0
+        else:
+            outside_raw = candidates & (text_mask.raw == 0)
+            outside_count = int(np.count_nonzero(outside_raw))
+            if outside_count < 2:
+                remaining_residual_pixels = 0
+            else:
+                count, _, stats, _ = cv2.connectedComponentsWithStats(outside_raw, 8)
+                if count <= 1:
+                    remaining_residual_pixels = 0
+                else:
+                    areas = stats[1:, cv2.CC_STAT_AREA]
+                    large_components = int(np.sum(areas >= 10))
+                    total_components = count - 1
+                    if large_components >= 1 and total_components <= 10:
+                        remaining_residual_pixels = outside_count
+                    else:
+                        remaining_residual_pixels = 0
         record = {
             "name": name,
             "crop_bbox": list(text_mask.crop_bbox),
@@ -159,7 +231,9 @@ class Inpainter:
             "bubble_found": text_mask.bubble_found,
             "adaptive_dilation": text_mask.dilation_radius,
             "protected_pixels": text_mask.protected_pixels,
-            "second_pass": second_pass,
+            "second_pass": expansion_passes > 0,
+            "residual_expansion_passes": expansion_passes,
+            "remaining_boundary_residual_pixels": remaining_residual_pixels,
             "review": review,
         }
         self.debug_records.append(record)

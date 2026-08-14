@@ -193,3 +193,39 @@ def test_mixed_status_block_safety() -> None:
     # Renderer must NOT render mixed-status block
     assert rendered_cnt == 0
     assert np.array_equal(arr, np.asarray(out_canvas))
+
+
+def test_renderer_breaks_long_turkish_token_within_narrow_bubble() -> None:
+    canvas = Image.new("RGB", (180, 120), "white")
+    region = Region(
+        id=1, global_bbox=BBox(10, 10, 80, 100), type=RegionType.DIALOGUE,
+        detection_confidence=0.9, source_window_ids=(1,), status=RegionStatus.AUTO,
+        text="TEXT",
+    )
+    block = TextBlock(
+        id=1, member_ids=(1,), members=(region,), source_text="TEXT",
+        merged_bbox=region.global_bbox,
+    )
+    renderer = TextRenderer()
+    font, lines, _, overflow = renderer._fit_block_text(
+        "ÇĞİÖŞÜılaştırılamayanlardanmışsınız", 56, 80
+    )
+    assert not overflow
+    assert len(lines) > 1
+    assert all(renderer._line_width(line, font) <= 56 for line in lines)
+
+
+def test_renderer_counts_unfit_horizontal_or_vertical_text_as_overflow_not_rendered() -> None:
+    canvas = Image.new("RGB", (40, 40), "white")
+    region = Region(
+        id=2, global_bbox=BBox(5, 5, 18, 18), type=RegionType.DIALOGUE,
+        detection_confidence=0.9, source_window_ids=(1,), status=RegionStatus.AUTO,
+        text="TEXT",
+    )
+    block = TextBlock(2, (2,), (region,), region.global_bbox, "TEXT")
+    output, rendered, overflow = TextRenderer().render_blocks(
+        canvas, [(block, "Çok, uzun; çok satırlı Türkçe metin!")]
+    )
+    assert rendered == 0
+    assert overflow == 1
+    assert np.array_equal(np.asarray(output), np.asarray(canvas))

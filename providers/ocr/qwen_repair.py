@@ -15,6 +15,7 @@ import io
 import json
 import os
 import re
+import socket
 import subprocess
 import time
 from dataclasses import dataclass, field, replace
@@ -33,17 +34,20 @@ DEFAULT_QWEN_MMPROJ_PATH = r"C:\AI\Models\Qwen3.5-9B-GGUF\mmproj-F16.gguf"
 DEFAULT_LLAMA_SERVER_PATH = r"C:\AI\llama-cpp-cuda\llama-server.exe"
 DEFAULT_QWEN_SERVER_URL = "http://127.0.0.1:8086"
 DEFAULT_QWEN_SERVER_PORT = 8086
-MAX_NEW_TOKENS = 512
+MAX_NEW_TOKENS = 96
 
-# Kısa, odaklı prompt. JSON talep eder ama model doğal dil de çıkarabilir; parser buna göre esnek çalışır.
+# Short, strict contract: Qwen is an exceptional visual adjudicator, not a
+# general OCR engine or reasoning endpoint.
 _USER_PROMPT = (
-    "Read the English text in the provided bubble crop image.\n"
+    "Return only the English text visibly present in this crop.\n"
     "Two OCR candidates disagree:\n"
     "A: {primary}\n"
     "B: {verifier}\n"
     "Disagreement: {reason}\n"
     "{glossary}{context}\n"
-    "Output JSON: {{\"status\": \"resolved\", \"text\": \"<text or null>\", \"reason\": \"<why>\"}}"
+    "Output exactly one JSON object and no explanation:\n"
+    "{{\"status\":\"resolved\",\"text\":\"visible text\"}}\n"
+    "or {{\"status\":\"unresolved\",\"text\":null}}"
 )
 
 
@@ -89,6 +93,9 @@ class QwenRepairMetrics:
     model_load_vram_gb: float = 0.0
     peak_vram_gb: float = 0.0
     repair_model: str = ""
+    repair_calls: int = 0
+    accepted_repairs: int = 0
+    rejected_repairs: int = 0
 
 
 @dataclass
@@ -112,6 +119,7 @@ class QwenRepairProvider(OCRRepairProvider):
         self._loaded = False
         self._server_process: subprocess.Popen | None = None
         self._owns_server = False
+        self._server_identity: dict[str, Any] = {}
         self.metrics = QwenRepairMetrics()
 
     @property
@@ -167,14 +175,28 @@ class QwenRepairProvider(OCRRepairProvider):
         if not server_bin.exists():
             raise FileNotFoundError(f"llama-server binary not found: {server_bin}")
 
-        # Server sunucu durumunu kontrol et
+        # Reuse only when the already-running server proves model identity.
         if self._check_health():
+            compatible, identity = self._check_server_identity(model_path)
+            if not compatible:
+                raise RuntimeError(
+                    "Port 8086 is occupied by an incompatible external llama-server; "
+                    f"configured_model={model_path.name!r}, observed_identity={identity!r}. "
+                    "The external process was not terminated."
+                )
             self._server_process = None
             self._owns_server = False
+            self._server_identity = identity
             self._loaded = True
             self.metrics.repair_model = f"Qwen-GGUF-llama-server:{self._config.server_port}"
             logger.info(f"Existing Qwen llama-server reusable on port {self._config.server_port}")
             return
+
+        if self._port_is_open():
+            raise RuntimeError(
+                f"Port {self._config.server_port} is already occupied but did not expose a compatible "
+                "Qwen llama-server health/identity API; the external process was not terminated."
+            )
 
         # Server sürecini başlat
         cmd = [
@@ -216,6 +238,7 @@ class QwenRepairProvider(OCRRepairProvider):
             raise TimeoutError(f"Qwen llama-server health check timed out on port {self._config.server_port}")
 
         self._loaded = True
+        _, self._server_identity = self._check_server_identity(model_path)
         self.metrics.repair_model = f"Qwen-GGUF-llama-server:{self._config.server_port}"
         logger.info(f"Qwen llama-server started successfully on port {self._config.server_port}")
 
@@ -229,6 +252,41 @@ class QwenRepairProvider(OCRRepairProvider):
         except Exception:
             pass
         return False
+
+    def _fetch_json(self, path: str) -> dict[str, Any] | list[Any] | None:
+        try:
+            req = urllib.request.Request(f"{self._config.server_url}{path}", method="GET")
+            with urllib.request.urlopen(req, timeout=1.5) as resp:
+                if resp.status == 200:
+                    return json.loads(resp.read().decode("utf-8"))
+        except Exception:
+            return None
+        return None
+
+    @staticmethod
+    def _identity_strings(value: Any) -> list[str]:
+        if isinstance(value, dict):
+            return [item for child in value.values() for item in QwenRepairProvider._identity_strings(child)]
+        if isinstance(value, list):
+            return [item for child in value for item in QwenRepairProvider._identity_strings(child)]
+        return [str(value)] if isinstance(value, (str, Path)) else []
+
+    def _check_server_identity(self, model_path: Path) -> tuple[bool, dict[str, Any]]:
+        props = self._fetch_json("/props")
+        models = self._fetch_json("/v1/models")
+        identity = {"props": props, "models": models}
+        observed = "\n".join(self._identity_strings(identity)).casefold()
+        expected_name = model_path.name.casefold()
+        expected_stem = model_path.stem.casefold()
+        compatible = expected_name in observed or expected_stem in observed
+        return compatible, identity
+
+    def _port_is_open(self) -> bool:
+        try:
+            with socket.create_connection(("127.0.0.1", self._config.server_port), timeout=0.5):
+                return True
+        except OSError:
+            return False
 
     def unload(self) -> None:
         if self._owns_server and self._server_process is not None:
@@ -246,6 +304,7 @@ class QwenRepairProvider(OCRRepairProvider):
                     pass
         self._server_process = None
         self._owns_server = False
+        self._server_identity = {}
 
         self._loaded = False
         logger.info("Qwen repair provider unloaded")
@@ -290,6 +349,8 @@ class QwenRepairProvider(OCRRepairProvider):
             ],
             "temperature": 0.1,
             "max_tokens": self._config.max_new_tokens,
+            "reasoning_effort": "none",
+            "chat_template_kwargs": {"enable_thinking": False},
         }
 
         body = json.dumps(payload).encode("utf-8")
@@ -300,79 +361,71 @@ class QwenRepairProvider(OCRRepairProvider):
             method="POST",
         )
 
+        self.metrics.repair_calls += 1
         try:
             with urllib.request.urlopen(req, timeout=30.0) as resp:
                 res_data = json.loads(resp.read().decode("utf-8"))
                 raw_text = res_data["choices"][0]["message"]["content"].strip()
                 logger.info(f"Qwen raw response ({len(raw_text)} chars): {raw_text[:200]}")
-                return self._parse_output(raw_text)
+                result = self._parse_output(raw_text)
         except Exception as e:
             logger.error(f"Qwen llama-server repair API call failed: {e}")
-            return self._unresolved(f"api_error: {e}")
+            result = self._unresolved(f"api_error: {e}")
+
+        if result.repaired_text and not result.unresolved:
+            self.metrics.accepted_repairs += 1
+        else:
+            self.metrics.rejected_repairs += 1
+        return result
 
     # --- Parser: handles both JSON and natural language output ---
     def _parse_output(self, raw: str) -> OCRRepairResult:
         if not raw or len(raw) < 2:
             return self._unresolved("empty_output")
 
-        # 1. Try JSON: find first { ... last }
         data = self._try_json(raw)
-        if data is not None:
-            status = str(data.get("status", "")).strip().lower()
-            text = data.get("text")
-            reason = str(data.get("reason", "")).strip()
+        if data is None:
+            return self._unresolved("malformed_or_verbose_output", raw=raw)
+        if set(data) != {"status", "text"}:
+            return self._unresolved("invalid_output_contract", raw=raw, parsed=data)
 
-            if status == "unresolved":
-                return OCRRepairResult(
-                    repaired_text=None, changed=False, unresolved=True,
-                    metadata={"repair_model": self.metrics.repair_model,
-                              "repair_reason": reason or "insufficient_visual_evidence",
-                              "raw_output": raw[:500]},
-                )
+        status = data.get("status")
+        text = data.get("text")
+        if status == "unresolved" and text is None:
+            return self._unresolved("model_unresolved", raw=raw, parsed=data)
+        if status != "resolved" or not isinstance(text, str):
+            return self._unresolved("invalid_output_contract", raw=raw, parsed=data)
 
-            if status == "resolved" and text is not None:
-                repaired = str(text).strip()
-                if not repaired or repaired == "null":
-                    return self._unresolved("empty_text")
-                if self._looks_like_placeholder(repaired):
-                    return self._unresolved("placeholder_in_text")
-                return OCRRepairResult(
-                    repaired_text=repaired, changed=True, unresolved=False,
-                    metadata={"repair_model": self.metrics.repair_model,
-                              "repair_reason": reason or "visual_evidence",
-                              "raw_output": raw[:500]},
-                )
-
-        # 2. Fallback: no valid JSON. Check for explicit "unresolved" verdict.
-        if re.search(r'\bunresolved\b', raw, re.IGNORECASE):
-            return self._unresolved("insufficient_visual_evidence")
-
-        # 3. Fallback: extract text from model analysis output.
-        extracted = self._extract_text_from_natural_language(raw)
-        if extracted:
-            return OCRRepairResult(
-                repaired_text=extracted, changed=True, unresolved=False,
-                metadata={"repair_model": self.metrics.repair_model,
-                          "repair_reason": "visual_evidence",
-                          "raw_output": raw[:500]},
-            )
-
-        return self._unresolved("no_structured_output")
+        repaired = text.strip()
+        if not repaired:
+            return self._unresolved("empty_text", raw=raw, parsed=data)
+        if self._looks_like_placeholder(repaired) or repaired.casefold() in {"resolved", "unresolved"}:
+            return self._unresolved("invalid_repaired_text", raw=raw, parsed=data)
+        return OCRRepairResult(
+            repaired_text=repaired,
+            changed=True,
+            unresolved=False,
+            metadata={
+                "repair_model": self.metrics.repair_model,
+                "raw_response": raw[:2000],
+                "raw_output": raw[:500],
+                "parsed_result": data,
+                "accepted": True,
+                "rejection_reason": None,
+            },
+        )
 
     @staticmethod
     def _try_json(text: str) -> dict[str, Any] | None:
-        first = text.find("{")
-        last = text.rfind("}")
-        if first < 0 or last <= first:
+        candidate = text.strip()
+        fenced = re.fullmatch(r"```(?:json)?\s*(\{.*\})\s*```", candidate, re.DOTALL | re.IGNORECASE)
+        if fenced:
+            candidate = fenced.group(1)
+        try:
+            obj = json.loads(candidate)
+        except json.JSONDecodeError:
             return None
-        for candidate in [text[first : last + 1], text.strip()]:
-            try:
-                obj = json.loads(candidate)
-                if isinstance(obj, dict) and "status" in obj:
-                    return obj
-            except json.JSONDecodeError:
-                pass
-        return None
+        return obj if isinstance(obj, dict) else None
 
     @staticmethod
     def _looks_like_placeholder(text: str) -> bool:
@@ -411,11 +464,18 @@ class QwenRepairProvider(OCRRepairProvider):
 
         return None
 
-    def _unresolved(self, reason: str) -> OCRRepairResult:
+    def _unresolved(self, reason: str, *, raw: str = "", parsed: Any = None) -> OCRRepairResult:
         return OCRRepairResult(
             repaired_text=None, changed=False, unresolved=True,
-            metadata={"repair_model": self.metrics.repair_model,
-                      "repair_reason": reason, "raw_output": ""},
+            metadata={
+                "repair_model": self.metrics.repair_model,
+                "repair_reason": reason,
+                "raw_response": raw[:2000],
+                "raw_output": raw[:500],
+                "parsed_result": parsed,
+                "accepted": False,
+                "rejection_reason": reason,
+            },
         )
 
     def _parse_repair_output(self, raw_output: str) -> OCRRepairResult:

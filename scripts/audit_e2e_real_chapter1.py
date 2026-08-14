@@ -152,10 +152,9 @@ def main() -> None:
         if isinstance(r.get("metadata"), dict) and r["metadata"].get("ocr_verdict", {}).get("needs_repair")
     )
 
-    actual_qwen_calls = sum(
-        1 for r in raw_regions
-        if isinstance(r.get("metadata"), dict) and r["metadata"].get("repaired")
-    )
+    actual_qwen_calls = qwen_repair.metrics.repair_calls
+    accepted_qwen_repairs = qwen_repair.metrics.accepted_repairs
+    rejected_qwen_repairs = qwen_repair.metrics.rejected_repairs
 
     metrics = {
         "source_page_count": len(pipeline_result.pages),
@@ -164,15 +163,23 @@ def main() -> None:
         "verifier_attempted_calls": verifier_calls,
         "qwen_repair_candidates": qwen_repair_candidates,
         "actual_qwen_model_calls": actual_qwen_calls,
+        "accepted_qwen_repairs": accepted_qwen_repairs,
+        "rejected_qwen_repairs": rejected_qwen_repairs,
         "final_auto_regions": final_auto,
         "final_review_regions": final_review,
         "final_skip_regions": final_skip,
         "text_block_count": regions_data["text_blocks_count"],
+        "translation_eligible_blocks_count": regions_data["translation_eligible_blocks_count"],
         "translated_blocks_count": summary_data["translated_blocks_count"],
         "successfully_inpainted_blocks_count": summary_data["inpainted_blocks_count"],
         "review_inpaint_blocks_count": summary_data["review_inpaint_blocks_count"],
         "actually_rendered_blocks_count": summary_data["rendered_blocks_count"],
         "overflow_blocks_count": summary_data["overflow_blocks_count"],
+        "ocr_elapsed_seconds": round(pipeline_result.ocr_elapsed_time, 2),
+        "translation_elapsed_seconds": round(pipeline_result.translation_elapsed_time, 2),
+        "inpainting_rendering_elapsed_seconds": round(
+            pipeline_result.inpainting_rendering_elapsed_time, 2
+        ),
         "elapsed_seconds": round(elapsed, 2),
     }
 

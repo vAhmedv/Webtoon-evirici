@@ -7,6 +7,9 @@ from PIL import Image
 from application.chapter_analyzer import ChapterAnalyzer
 from core.detection import BBox, Detection, Region, RegionStatus, RegionType
 from core.detection.region_validity import evaluate_region_validity
+from core.detection.classification import classify_regions
+from core.coordinate.global_coords import GlobalCoordinateSystem
+from core.models import Page
 from providers.detector.base import DetectorProvider
 from providers.ocr.base import OCRProvider, OCRResult
 from providers.ocr.repair import OCRRepairProvider
@@ -168,3 +171,57 @@ def test_invalid_region_never_reaches_verifier_or_qwen(tmp_path) -> None:
         region["metadata"]["region_validity"]["reason"] == "artwork_like_text_geometry"
         for region in report["regions"]
     )
+
+
+def test_validity_rejection_has_precedence_over_later_classification(tmp_path) -> None:
+    page_path = tmp_path / "001.png"
+    Image.new("RGB", (200, 200), "white").save(page_path)
+    coords = GlobalCoordinateSystem((Page(0, page_path, 200, 200, 0),))
+    rejected = Region(
+        id=7,
+        global_bbox=BBox(20, 20, 80, 80),
+        type=RegionType.UNKNOWN,
+        detection_confidence=0.9,
+        source_window_ids=(1,),
+        status=RegionStatus.SKIP,
+        text="漢",
+        review_reason="artwork_like_text_geometry",
+        metadata={
+            "region_validity": {
+                "valid": False,
+                "reason": "artwork_like_text_geometry",
+            }
+        },
+    )
+
+    [classified] = classify_regions([rejected], coords)
+
+    assert classified.status is RegionStatus.SKIP
+    assert classified.type is RegionType.UNKNOWN
+    assert classified.review_reason == "artwork_like_text_geometry"
+    assert classified.metadata["classification_diagnostic"] == {
+        "proposed_type": RegionType.UNKNOWN.value,
+        "proposed_status": RegionStatus.REVIEW.value,
+        "proposed_reason": "ambiguous_cjk_review",
+    }
+
+
+def test_short_cjk_without_stylized_geometry_stays_review(tmp_path) -> None:
+    page_path = tmp_path / "001.png"
+    Image.new("RGB", (200, 200), "white").save(page_path)
+    coords = GlobalCoordinateSystem((Page(0, page_path, 200, 200, 0),))
+    region = Region(
+        id=8,
+        global_bbox=BBox(20, 20, 80, 80),
+        type=RegionType.UNKNOWN,
+        detection_confidence=0.9,
+        source_window_ids=(1,),
+        status=RegionStatus.REVIEW,
+        text="漢",
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.REVIEW
+    assert classified.type is RegionType.UNKNOWN
+    assert classified.review_reason == "ambiguous_cjk_review"

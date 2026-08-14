@@ -43,6 +43,12 @@ Desktop.ini
 /benchmark_results/
 /benchmark_output/
 /benchmark_data/
+benchmark_output.txt
+
+# Audit / review artifacts
+audit_output/
+review_blocks_analysis.json
+review_output/
 
 # Graphify output
 graphify-out/

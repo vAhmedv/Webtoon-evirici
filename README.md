@@ -1,117 +1,57 @@
 # Webtoon Çevirici
 
-İngilizce manga/manhwa/webtoon bölümlerini tamamen local olarak Türkçeye çeviren Windows masaüstü uygulaması.
+Windows üzerinde İngilizce webtoon bölümlerini tamamen yerel olarak Türkçeye çeviren production pipeline ve PySide6 masaüstü uygulaması.
 
-- **Tamamen local:** API key yok, cloud yok, veri dışarı gitmez
-- **NVIDIA RTX 5070 desteği:** CUDA 12.8+ (Blackwell mimarisi)
-- **Kalite öncelikli:** Hız değil, kalite
+## Production akışı
 
-## Kurulum (Windows)
+`ChapterAnalyzer.process_chapter()` tek orchestration kaynağıdır:
 
-### 1. Python 3.11 kur
+1. ComicTextDetector, YOLOv5 text block ve DBNet line/segmentation çıktılarını global koordinatlarda birleştirir.
+2. CTD validity gate açıkça non-text olan crop'ları pahalı OCR repair aşamalarından önce eler.
+3. PP-OCRv6 primary OCR'dır; şüpheli sonuçlarda PaddleOCR-VL verifier çalışır.
+4. Qwen3.5-9B yalnız uygun, çözülmemiş OCR uyuşmazlıklarında görsel fallback'tir.
+5. AUTO üyelerden oluşan TextBlock'lar Hy-MT2-7B-Q8_0 ile EN→TR çevrilir.
+6. LaMa yalnız onaylı text maskesi içindeki İngilizce glyph'leri temizler.
+7. Renderer yalnız başarılı inpaint bloklarını çizer ve yatay/dikey overflow'u raporlar.
+8. Global canvas kaynak sayfa sayısı korunarak output klasörüne yeniden bölünür.
 
-Terminalde:
-```
-winget install Python.Python.3.11
-```
+REVIEW veya SKIP üyeli bloklar çevrilmez, inpaint edilmez ve render edilmez. Inpaint REVIEW bloklarında da orijinal İngilizce pikseller korunur. Kaynak görseller hiçbir aşamada yazılmaz; output klasörü source klasöründen farklı olmak zorundadır.
 
-Kurulumdan sonra terminali kapatıp yeniden aç. Doğrulama:
-```
-python --version
-```
-Beklenen: `Python 3.11.x`
+## Yapılandırma
 
-### 2. Git deposu başlat
+Provider/model yollarının uygulama kaynağı `config.yaml` dosyasıdır. Varsayılan yerel roller:
 
-```
-git init
-```
+- Detector: ComicTextDetector
+- Primary OCR: `PP-OCRv6_medium_rec`
+- Verifier: PaddleOCR-VL 1.6
+- OCR repair: Qwen3.5-9B Q5_K_M GGUF + mmproj
+- Translator: Hy-MT2-7B Q8_0 GGUF
+- Inpainter: LaMa Large
 
-### 3. Sanal ortam oluştur ve aktifleştir
+Model yollarını kendi makinenize göre `config.yaml` içinde değiştirin. Externally owned llama-server süreçleri öldürülmez; provider yalnız başlattığı PID'yi yönetir.
 
-```
+## Kullanım
+
+```powershell
 python -m venv .venv
 .venv\Scripts\activate
-```
-Komut satırının başında `(.venv)` görünmeli.
-
-### 4. PyTorch kur (RTX 5070 için CUDA 12.8)
-
-```
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
-```
-Bu indirme ~2.5 GB'dir. 5-20 dakika sürebilir.
-
-### 5. Diğer paketleri kur
-
-```
 pip install -r requirements.txt
+.venv\Scripts\python.exe -m pytest -q
 ```
 
-### 6. GPU doğrulama
+GUI'yi proje entrypoint'iyle başlatın, source chapter ve ayrı output klasörü seçip Translate/Analyze düğmesini kullanın. Ağır modeller worker thread içinde çalışır; progress, cancellation, REVIEW sayısı ve output klasörü UI'da gösterilir.
 
-```
-python scripts/check_gpu.py
-```
+Gerçek production doğrulaması:
 
-Beklenen çıktı:
-```
-PyTorch sürümü: 2.x.x
-CUDA available: True
-GPU 0: NVIDIA GeForce RTX 5070
-  CUDA capability: 12.0
-  Toplam VRAM: 12.0 GB
-GPU hesaplama testi: BAŞARILI
-Sonuç: GPU doğru çalışıyor. Phase 0 kabul testi geçti.
+```powershell
+.venv\Scripts\python.exe scripts\audit_e2e_real_chapter1.py
 ```
 
-### 7. Testleri çalıştır
+## Output yapısı
 
-```
-pytest tests/ -v
-```
+- Çevrilmiş sayfalar: output kökü
+- `analysis/regions.json`: region, TextBlock ve lifecycle metrikleri
+- `analysis/summary.json`: final AUTO/REVIEW/SKIP ve render özeti
+- `analysis/inpainting_debug/`: mask/inpaint diagnostic artefaktları
 
-Beklenen: Tüm testler `PASSED`.
-
-## Phase 1 Kabul Testi
-
-### 1. Sentetik test bölümü üret
-
-```
-python scripts/generate_test_chapter.py
-```
-
-### 2. Pipeline'ı çalıştır
-
-```
-python scripts/process_chapter.py --input test_data/chapter_test --output test_data/output
-```
-
-### 3. Önizlemeleri kontrol et
-
-`test_data/output/windows/` klasöründe window önizleme görselleri oluşur. Kırmızı çerçeve window sınırını, mavi yatay çizgiler sayfa sınırlarını gösterir.
-
-## Proje Yapısı
-
-```
-core/          # Çekirdek motor (UI'dan bağımsız)
-providers/     # Model sağlayıcıları (ileride)
-ui/            # Windows GUI (Phase 9)
-scripts/       # Komut satırı araçları
-tests/         # Testler
-config.yaml    # Tüm ayarlar
-```
-
-## Faz Durumu
-
-- [x] Phase 0: Ortam + GPU doğrulama (kod hazır)
-- [x] Phase 1: Input loader + global koordinat + sliding window (kod hazır)
-- [ ] Phase 2: Detector interface + görselleştirme
-- [ ] Phase 3: Gerçek detector
-- [ ] Phase 4: OCR
-- [ ] Phase 5: Qwen + çeviri
-- [ ] Phase 6: Inpainting
-- [ ] Phase 7: Renderer
-- [ ] Phase 8: Re-split + output
-- [ ] Phase 9: Windows GUI
-- [ ] Phase 10: Suwayomi otomasyonu
+Pipeline REVIEW durumunu başarı gibi gizlemez. Kullanıcı REVIEW bölgelerini veya inpaint bloklarını incelemelidir.

@@ -31,6 +31,7 @@ class DetectorConfig:
 
     enabled: bool = False
     model: str | None = None
+    provider: str = "ComicTextDetector"
 
 
 @dataclass(frozen=True)
@@ -44,6 +45,13 @@ class OCRConfig:
     crop_padding: int = 20
     upscale_small_regions: bool = False
     upscale_factor: float = 2.0
+    primary_model: str = "PP-OCRv6_medium_rec"
+    verifier_provider: str = "PaddleOCR-VL-1.6"
+    qwen_model_path: str | None = None
+    qwen_mmproj_path: str | None = None
+    qwen_server_path: str | None = None
+    qwen_server_url: str = "http://127.0.0.1:8086"
+    qwen_server_port: int = 8086
 
 
 @dataclass(frozen=True)

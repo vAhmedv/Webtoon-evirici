@@ -97,7 +97,7 @@ def classify_regions(
         if _contains_cjk(txt):
             # CJK + stilize geometri (örneğin dev dikey/yatay sfx harfi veya aşırı oran) -> SFX
             aspect_ratio = max(bbox.width, bbox.height) / max(1, min(bbox.width, bbox.height))
-            if aspect_ratio > 3.5 or len(norm_txt) <= 2:
+            if aspect_ratio > 3.5:
                 classified_regions.append(
                     _replace_region_status(
                         r,
@@ -156,6 +156,31 @@ def _replace_region_status(
     status: RegionStatus,
     reason: str,
 ) -> Region:
+    metadata = dict(region.metadata)
+    validity = metadata.get("region_validity")
+    if isinstance(validity, dict) and validity.get("valid") is False:
+        metadata["classification_diagnostic"] = {
+            "proposed_type": reg_type.value,
+            "proposed_status": status.value,
+            "proposed_reason": reason,
+        }
+        # A strong pre-repair validity rejection outranks the later heuristic
+        # classifier.  Only an explicit recovery stage may replace this state.
+        validity_reason = str(validity.get("reason") or region.review_reason or "region_validity_rejected")
+        return Region(
+            id=region.id,
+            global_bbox=region.global_bbox,
+            type=region.type,
+            detection_confidence=region.detection_confidence,
+            source_window_ids=region.source_window_ids,
+            status=RegionStatus.SKIP,
+            text=region.text,
+            ocr_confidence=region.ocr_confidence,
+            translation=region.translation,
+            review_reason=validity_reason,
+            metadata=metadata,
+        )
+
     return Region(
         id=region.id,
         global_bbox=region.global_bbox,
@@ -167,5 +192,5 @@ def _replace_region_status(
         ocr_confidence=region.ocr_confidence,
         translation=region.translation,
         review_reason=reason,
-        metadata=dict(region.metadata),
+        metadata=metadata,
     )

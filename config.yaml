@@ -21,13 +21,21 @@ log_file: logs/latest.log
 
 # --- Modeller ---
 detector:
-  enabled: false
-  model: null
+  enabled: true
+  provider: ComicTextDetector
+  model: null  # null => project models/detectors/ctd/comictextdetector.pt.onnx
 
 ocr:
-  enabled: false
-  engine: null
-  provider: RapidOCR-ONNX   # Kullanılacak OCR provider adı (registry'den).
+  enabled: true
+  engine: paddleocr
+  provider: PaddleOCR-PP-OCRv6_medium_rec
+  primary_model: PP-OCRv6_medium_rec
+  verifier_provider: PaddleOCR-VL-1.6
+  qwen_model_path: C:\AI\Models\Qwen3.5-9B-GGUF\Qwen3.5-9B-Q5_K_M.gguf
+  qwen_mmproj_path: C:\AI\Models\Qwen3.5-9B-GGUF\mmproj-F16.gguf
+  qwen_server_path: C:\AI\llama-cpp-cuda\llama-server.exe
+  qwen_server_url: http://127.0.0.1:8086
+  qwen_server_port: 8086
   min_confidence: 0.5       # OCR confidence gate (detection confidence'dan AYRILDIR).
   crop_padding: 20           # Region crop civarı padding (px).
   upscale_small_regions: false
@@ -42,8 +50,8 @@ translator:
   fallback_provider: null
 
 inpainter:
-  enabled: false
-  model: null
+  enabled: true
+  model: C:\AI\Models\LaMa\lama_large_512px.ckpt
 
 # --- Kalite eşikleri ---
 min_confidence: 0.5

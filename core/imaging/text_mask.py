@@ -146,7 +146,7 @@ class TextMaskBuilder:
 
         bubble = self._extract_bubble(source, raw)
         protected = self._protected_structures(source, raw, bubble)
-        glyph, radius = self._upstream_refine(source, raw, segmentation)
+        glyph, radius = self._upstream_refine(source, raw, segmentation, bubble)
         refined = glyph.copy()
         refined[protected > 0] = 0
         if bubble is not None:
@@ -199,7 +199,6 @@ class TextMaskBuilder:
             cv2.drawContours(candidate, [contour], -1, 255, -1)
             if np.count_nonzero((raw > 0) & (candidate == 0)):
                 continue
-            # A contour touching the crop boundary is a context frame, not a reliable bubble.
             if x <= 1 or y <= 1 or x + cw >= w - 1 or y + ch >= h - 1:
                 continue
             best, best_area = candidate, area
@@ -215,8 +214,6 @@ class TextMaskBuilder:
         edges = cv2.Canny(gray, 60, 150)
         h, w = raw.shape
         protected = np.zeros_like(raw)
-        # Hough segments protect genuinely straight frames. A long morphology kernel
-        # can accidentally join aligned letter strokes across a whole text line.
         lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=35,
                                 minLineLength=max(24, int(max(h, w) * .32)), maxLineGap=3)
         if lines is not None:
@@ -240,7 +237,8 @@ class TextMaskBuilder:
 
     @staticmethod
     def _upstream_refine(source: np.ndarray, raw: np.ndarray,
-                         segmentation: np.ndarray) -> tuple[np.ndarray, int]:
+                         segmentation: np.ndarray,
+                         bubble: np.ndarray | None = None) -> tuple[np.ndarray, int]:
         """Adapt CTD textmask.py: line-local color/Otsu candidates + XOR CC merge."""
         import cv2
 
@@ -299,6 +297,75 @@ class TextMaskBuilder:
             final[y1:y2, x1:x2] = cv2.bitwise_or(final[y1:y2, x1:x2], merged)
         text_size = float(np.median(heights)) if heights else 12.0
         radius = int(np.clip(round(text_size * .055), 1, 3))
+        # Bounded recovery: the XOR-merge target is seeded from the (often
+        # partial) segmentation, so valid glyph pixels that lie inside the raw
+        # CTD envelope but outside the partial segmentation can be rejected.
+        # Recover text-like pixels within the raw envelope that are connected to
+        # the detected glyphs (anti-aliased edges, detached strokes, punctuation,
+        # partially clipped letters). Recovery is bounded to:
+        #   - the raw CTD envelope (line_polygons ∪ segmentation_polygons)
+        #   - the bubble interior when present, so background outside the bubble
+        #     (speech bubble borders, faces, artwork, panel lines) can never be
+        #     recovered; this also keeps the per-contour background estimate
+        #     stable (interior pixels), preventing tiny labels from ballooning
+        #     when the raw envelope is large.
+        #   - pixels with strong contrast (>= 24 gray units) against the
+        #     per-contour interior background, matching the residual-review gate
+        #   - a line-height-adaptive dilation of the glyph mask, so isolated
+        #     unrelated strokes are never bridged
+        # _build() subsequently clips Hough-frame protected structures and the
+        # bubble boundary, so any recovered frame/border pixels are discarded.
+        recovered = final.copy()
+        recovery_radius = int(np.clip(round(text_size * .25), 3, 8))
+        recovery_kernel = np.ones((2 * recovery_radius + 1, 2 * recovery_radius + 1), np.uint8)
+        interior = bubble if bubble is not None else None
+        contour_evidence: list[tuple[tuple[int, int, int, int], np.ndarray, np.ndarray]] = []
+        for contour in contours:
+            x, y, w, h = cv2.boundingRect(contour)
+            if w <= 0 or h <= 0:
+                continue
+            pad = max(2, int(round(h * .15)))
+            x1, y1 = max(0, x - pad), max(0, y - pad)
+            x2, y2 = min(raw.shape[1], x + w + pad), min(raw.shape[0], y + h + pad)
+            image_crop = np.ascontiguousarray(source[y1:y2, x1:x2])
+            final_crop = final[y1:y2, x1:x2]
+            if not np.any(final_crop):
+                continue
+            glyph_pixels = final_crop > 0
+            if interior is not None:
+                interior_crop = interior[y1:y2, x1:x2] > 0
+                bg_pixels = image_crop[(~glyph_pixels) & interior_crop]
+            else:
+                bg_pixels = image_crop[~glyph_pixels]
+            if len(bg_pixels) < 8:
+                continue
+            bg = np.median(bg_pixels, axis=0)
+            bg_gray = float(np.dot(bg, [0.299, 0.587, 0.114]))
+            gray = cv2.cvtColor(image_crop, cv2.COLOR_RGB2GRAY).astype(np.float32)
+            contrast = np.abs(gray - bg_gray) >= 24
+            if interior is not None:
+                region_mask = (raw[y1:y2, x1:x2] > 0) & (interior[y1:y2, x1:x2] > 0)
+            else:
+                region_mask = raw[y1:y2, x1:x2] > 0
+            contour_evidence.append(((x1, y1, x2, y2), contrast, region_mask))
+        for _ in range(20):
+            expanded = recovered.copy()
+            changed = False
+            for (x1, y1, x2, y2), contrast, region_mask in contour_evidence:
+                recovered_crop = recovered[y1:y2, x1:x2]
+                if not np.any(recovered_crop):
+                    continue
+                dilated = cv2.dilate(recovered_crop, recovery_kernel) > 0
+                text_like = contrast & dilated & region_mask
+                new_pixels = text_like & (recovered_crop == 0)
+                if np.any(new_pixels):
+                    expanded[y1:y2, x1:x2] = cv2.bitwise_or(
+                        expanded[y1:y2, x1:x2], text_like.astype(np.uint8) * 255)
+                    changed = True
+            if not changed:
+                break
+            recovered = expanded
+        final = recovered
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * radius + 1, 2 * radius + 1))
         return cv2.dilate(final, kernel), radius
 

@@ -29,6 +29,7 @@ from core.detection.coordinate import (
 )
 from core.detection.merge import merge_duplicates
 from core.detection.region_validity import evaluate_region_validity
+from core.detection.repair_eligibility import evaluate_repair_eligibility
 from core.imaging.inpainter import Inpainter
 from core.imaging.region_cropper import RegionCropper
 from core.imaging.renderer import TextRenderer
@@ -383,12 +384,29 @@ class ChapterAnalyzer:
                     )
                     ocr_regions.append(updated_region)
 
-                    # Queue for Qwen repair ONLY if region is STORY_TEXT (dialogue/narration) and remains in REVIEW
+                    repair_eligibility = evaluate_repair_eligibility(updated_region, verdict)
+                    eligibility_metadata = {
+                        "eligible": repair_eligibility.eligible,
+                        "reason": repair_eligibility.reason,
+                        **repair_eligibility.evidence,
+                    }
+                    updated_region = _replace_region(
+                        updated_region,
+                        metadata={
+                            **updated_region.metadata,
+                            "repair_eligibility": eligibility_metadata,
+                        },
+                    )
+                    ocr_regions[-1] = updated_region
+
+                    # Queue for Qwen repair only after explicit validity and
+                    # unresolved-ambiguity eligibility has been established.
                     if (
                         updated_region.status == RegionStatus.REVIEW
                         and updated_region.type in (RegionType.DIALOGUE, RegionType.NARRATION, RegionType.UNKNOWN)
                         and verdict.needs_repair
                         and accepted
+                        and repair_eligibility.eligible
                     ):
                         repair_inp = OCRRepairInput(
                             primary_raw=verdict.primary_raw,
@@ -425,6 +443,13 @@ class ChapterAnalyzer:
                             raise CancelledError()
                         try:
                             rep_res = qwen_repair.repair(repair_inp, crop_img)
+                            region = _replace_region(
+                                region,
+                                metadata={
+                                    **region.metadata,
+                                    "qwen_repair": dict(rep_res.metadata),
+                                },
+                            )
                             if rep_res.repaired_text and not rep_res.unresolved:
                                 region = _replace_region(
                                     region,
@@ -452,11 +477,20 @@ class ChapterAnalyzer:
         # 7. Multi-Feature Classification & Generic Watermark Filtering
         from core.detection.classification import classify_regions
         from core.detection.text_block import group_text_blocks, TextBlock
+        from core.detection.translation_eligibility import evaluate_translation_eligibility
 
         regions = classify_regions(regions, coords)
 
         # 8. Text-Block Grouping (Translation Units)
         text_blocks = group_text_blocks(regions, coords)
+        translation_eligibility = {
+            block.id: evaluate_translation_eligibility(block)
+            for block in text_blocks
+        }
+        translation_eligible_blocks = [
+            block for block in text_blocks
+            if translation_eligibility[block.id].eligible
+        ]
         block_map: dict[int, TextBlock] = {}
         region_to_block: dict[int, int] = {}
         for b in text_blocks:
@@ -484,20 +518,20 @@ class ChapterAnalyzer:
         trans_start = time.time()
         translated_block_pairs: list[tuple[TextBlock, str]] = []
 
-        if text_blocks and translator is not None:
+        if translation_eligible_blocks and translator is not None:
             _progress("Loading Translation Model (Hy-MT2)")
             try:
                 translator.load()
                 items = [
                     TranslationItem(region_id=b.id, source=b.source_text)
-                    for b in text_blocks
+                    for b in translation_eligible_blocks
                 ]
                 trans_inp = TranslationInput(items=items)
                 trans_out = translator.translate(trans_inp)
 
                 out_map = {item.region_id: item.translation for item in trans_out.results if item.translation}
 
-                for b in text_blocks:
+                for b in translation_eligible_blocks:
                     if b.id in out_map:
                         translated_block_pairs.append((b, out_map[b.id]))
 
@@ -518,6 +552,8 @@ class ChapterAnalyzer:
                 translator.unload()
 
         trans_elapsed = time.time() - trans_start
+        translation_failed_count = len(translation_eligible_blocks) - len(translated_block_pairs)
+        pre_inpaint_skipped_count = len(text_blocks) - len(translated_block_pairs)
 
         # 10. Block-Level Inpainting & Rendering Stage
         inp_render_start = time.time()
@@ -538,7 +574,12 @@ class ChapterAnalyzer:
                 y_cursor += page.height
 
         # Clean speech bubble text for translated blocks
-        inpainter = Inpainter(debug_dir=output_path / "analysis" / "inpainting_debug")
+        inpainter_kwargs: dict[str, Any] = {
+            "debug_dir": output_path / "analysis" / "inpainting_debug"
+        }
+        if cfg.inpainter.model:
+            inpainter_kwargs["lama_checkpoint"] = cfg.inpainter.model
+        inpainter = Inpainter(**inpainter_kwargs)
         try:
             cleaned_canvas = inpainter.inpaint_blocks(global_canvas, [b for b, _ in translated_block_pairs])
         finally:
@@ -581,6 +622,12 @@ class ChapterAnalyzer:
 
         successful_inpainting_count = len(inpainter.processed_block_ids - inpainter.review_block_ids)
         review_inpainting_count = len(inpainter.review_block_ids)
+        render_eligible_count = len(renderable_pairs)
+
+        if len(text_blocks) != pre_inpaint_skipped_count + len(translated_block_pairs):
+            raise RuntimeError("TextBlock lifecycle metrics do not reconcile before inpainting")
+        if len(translated_block_pairs) != successful_inpainting_count + review_inpainting_count:
+            raise RuntimeError("Translated block lifecycle metrics do not reconcile after inpainting")
 
         regions_json = analysis_dir / "regions.json"
         with open(regions_json, "w", encoding="utf-8") as f:
@@ -589,9 +636,14 @@ class ChapterAnalyzer:
                     "pages": len(pages),
                     "windows": len(windows),
                     "text_blocks_count": len(text_blocks),
+                    "translation_eligible_blocks_count": len(translation_eligible_blocks),
                     "translated_blocks_count": len(translated_block_pairs),
+                    "translation_failed_blocks_count": translation_failed_count,
+                    "pre_inpaint_skipped_blocks_count": pre_inpaint_skipped_count,
                     "inpainted_blocks_count": successful_inpainting_count,
+                    "inpaint_review_blocks_count": review_inpainting_count,
                     "review_inpaint_blocks_count": review_inpainting_count,
+                    "render_eligible_blocks_count": render_eligible_count,
                     "rendered_blocks_count": actual_rendered_count,
                     "overflow_blocks_count": overflow_count,
                     "review_block_ids": sorted(list(inpainter.review_block_ids)),
@@ -623,8 +675,14 @@ class ChapterAnalyzer:
             "skipped": sum(1 for r in regions if r.status == RegionStatus.SKIP),
             "review": sum(1 for r in regions if r.status == RegionStatus.REVIEW),
             "translated_blocks_count": len(translated_block_pairs),
+            "text_blocks_count": len(text_blocks),
+            "translation_eligible_blocks_count": len(translation_eligible_blocks),
+            "translation_failed_blocks_count": translation_failed_count,
+            "pre_inpaint_skipped_blocks_count": pre_inpaint_skipped_count,
             "inpainted_blocks_count": successful_inpainting_count,
+            "inpaint_review_blocks_count": review_inpainting_count,
             "review_inpaint_blocks_count": review_inpainting_count,
+            "render_eligible_blocks_count": render_eligible_count,
             "rendered_blocks_count": actual_rendered_count,
             "overflow_blocks_count": overflow_count,
             "elapsed_time": round(elapsed, 2),

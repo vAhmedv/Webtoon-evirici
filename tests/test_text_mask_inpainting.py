@@ -228,6 +228,36 @@ def test_residual_second_pass_expands_once_and_tracks_final_identity() -> None:
     assert np.array_equal(output[~final_mask], source[~final_mask])
 
 
+def test_residual_expansion_can_follow_a_bounded_multi_pixel_glyph_edge() -> None:
+    source = np.full((24, 24, 3), 255, np.uint8)
+    source[10:14, 6:18] = 0
+    raw = np.zeros((14, 18), np.uint8)
+    raw[5:9, 1:17] = 255
+    refined = np.zeros_like(raw)
+    refined[5:9, 7:11] = 255
+    mask = TextMask(
+        (3, 5, 21, 19),
+        source[5:19, 3:21].copy(),
+        raw,
+        refined,
+        (255, 255, 255),
+        True,
+        dilation_radius=2,
+    )
+
+    inpainter = Inpainter()
+    output = inpainter._apply_mask(source, mask, "outlined_glyph")
+    record = inpainter.debug_records[-1]
+
+    assert record["residual_expansion_passes"] >= 2
+    assert record["remaining_boundary_residual_pixels"] == 0
+    assert record["review"] is False
+    final_mask = np.zeros(source.shape[:2], bool)
+    x1, y1, x2, y2 = inpainter.last_text_mask.crop_bbox
+    final_mask[y1:y2, x1:x2] = inpainter.last_text_mask.refined > 0
+    assert np.array_equal(output[~final_mask], source[~final_mask])
+
+
 def test_grouping_recovers_container_and_hyphen_continuations_without_cross_bubble_merge() -> None:
     coords = GlobalCoordinateSystem((Page(0, Path("page.png"), 500, 1000, 0),))
     shared = {"ctd_block_bbox": [80, 80, 310, 190], "ctd_block_ids": ["same"]}

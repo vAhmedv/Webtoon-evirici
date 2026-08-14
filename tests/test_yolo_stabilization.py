@@ -344,14 +344,16 @@ class TestWorkerThreadSafety:
             def unload(self):
                 captured["unload_tid"] = threading.get_ident()
 
-        def mock_analyze(self, *args, **kwargs):
+        def mock_process_chapter(self, *args, **kwargs):
             detector = kwargs.get("detector")
             if detector is not None:
+                detector.load()
                 detector.detect(None, 0)
+                detector.unload()
             return MagicMock()
 
         with patch.object(get_registry(), "create", side_effect=lambda name: FakeProvider()), \
-             patch.object(ChapterAnalyzer, "analyze", mock_analyze):
+             patch.object(ChapterAnalyzer, "process_chapter", mock_process_chapter):
             worker = AnalysisWorker(
                 chapter_path="/tmp",
                 output_path="/tmp/out",

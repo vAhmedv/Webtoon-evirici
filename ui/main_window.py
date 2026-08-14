@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from application.chapter_analyzer import AnalysisResult, ChapterAnalyzer
+from application.chapter_analyzer import AnalysisResult, ChapterAnalyzer, ProductionPipelineResult
 from application.progress import ProgressEvent
 from core.config import Config, load_config
 from loguru import logger
@@ -49,7 +49,7 @@ class MainWindow(QWidget):
         self.config = load_config()
         self.analyzer = ChapterAnalyzer(self.config)
         self._worker: Optional[AnalysisWorker] = None
-        self._result: Optional[AnalysisResult] = None
+        self._result: Optional[AnalysisResult | ProductionPipelineResult] = None
         self._current_window_index = 0
 
         self._build_ui()
@@ -68,8 +68,7 @@ class MainWindow(QWidget):
         for name in providers:
             self.detector_combo.addItem(name)
 
-        # YOLO'yu varsayılan olarak seç, eğer model mevcutsa.
-        preferred = "YOLOv8 Comic Text Segmenter"
+        preferred = self.config.detector.provider
         if preferred in providers:
             try:
                 provider = registry.create(preferred)
@@ -301,6 +300,17 @@ class MainWindow(QWidget):
             self.output_edit.setText(output_path)
 
         try:
+            if Path(chapter_path).resolve() == Path(output_path).resolve():
+                QMessageBox.critical(
+                    self,
+                    "Unsafe Output Folder",
+                    "Output folder must be different from the source chapter folder.",
+                )
+                return
+        except OSError:
+            pass
+
+        try:
             window_height = int(self.window_height_edit.text())
             window_overlap = int(self.overlap_edit.text())
         except ValueError:
@@ -357,15 +367,26 @@ class MainWindow(QWidget):
         else:
             self.progress_bar.setText(event.stage)
 
-    def _on_result(self, result: AnalysisResult) -> None:
+    def _on_result(self, result: AnalysisResult | ProductionPipelineResult) -> None:
         self._result = result
         self.region_table.set_regions(result.regions)
         self._update_summary(result)
         self._set_running_state(False)
 
-        if result.windows:
+        if isinstance(result, AnalysisResult) and result.windows:
             self._current_window_index = 0
             self._show_current_window(result)
+        elif isinstance(result, ProductionPipelineResult):
+            if result.exported_page_paths:
+                self.image_viewer.set_window_image(result.exported_page_paths[0])
+            QMessageBox.information(
+                self,
+                "Translation Complete",
+                f"Output: {result.output_directory}\n"
+                f"Pages: {len(result.exported_page_paths)}\n"
+                f"Regions requiring REVIEW: {result.review_required_count}\n"
+                f"Skipped regions: {result.skipped_region_count}",
+            )
 
     def _on_error(self, message: str) -> None:
         QMessageBox.critical(self, "Analysis Error", message)
@@ -377,14 +398,14 @@ class MainWindow(QWidget):
         self._set_running_state(False)
 
     def _prev_window(self) -> None:
-        if not self._result or not self._result.windows:
+        if not isinstance(self._result, AnalysisResult) or not self._result.windows:
             return
         if self._current_window_index > 0:
             self._current_window_index -= 1
             self._show_current_window(self._result)
 
     def _next_window(self) -> None:
-        if not self._result or not self._result.windows:
+        if not isinstance(self._result, AnalysisResult) or not self._result.windows:
             return
         if self._current_window_index < len(self._result.windows) - 1:
             self._current_window_index += 1
@@ -418,11 +439,14 @@ class MainWindow(QWidget):
         for lbl in self.summary_labels.values():
             lbl.setText("-")
 
-    def _update_summary(self, result: AnalysisResult) -> None:
+    def _update_summary(self, result: AnalysisResult | ProductionPipelineResult) -> None:
         self.summary_labels["Pages"].setText(f"Pages: {len(result.pages)}")
         self.summary_labels["Windows"].setText(f"Windows: {len(result.windows)}")
         self.summary_labels["Regions"].setText(f"Regions: {len(result.regions)}")
-        self.summary_labels["AUTO"].setText(f"AUTO: {result.auto_count}")
-        self.summary_labels["REVIEW"].setText(f"REVIEW: {result.review_count}")
-        self.summary_labels["SKIP"].setText(f"SKIP: {result.skip_count}")
+        auto_count = sum(1 for region in result.regions if region.status.value == "auto")
+        review_count = sum(1 for region in result.regions if region.status.value == "review")
+        skip_count = sum(1 for region in result.regions if region.status.value == "skip")
+        self.summary_labels["AUTO"].setText(f"AUTO: {auto_count}")
+        self.summary_labels["REVIEW"].setText(f"REVIEW: {review_count}")
+        self.summary_labels["SKIP"].setText(f"SKIP: {skip_count}")
         self.summary_labels["Time"].setText(f"Time: {result.elapsed_time:.2f}s")

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 from PIL import Image, ImageDraw, ImageFont
 
 from core.detection import Region, RegionStatus, RegionType
@@ -85,6 +85,7 @@ class TextRenderer:
 
             if is_overflow:
                 overflow_count += 1
+                continue
 
             total_text_h = len(lines) * line_height
             start_y = y1 + pad_y + max(0, (avail_h - total_text_h) // 2)
@@ -180,22 +181,25 @@ class TextRenderer:
 
         for size in range(start_size, 9, -1):
             font = _get_font(size)
-            lines = self._wrap_words(words, font, max_w)
+            lines = self._wrap_words(words, font, max_w, break_long_words=False)
 
             dummy_bbox = font.getbbox("Ayg") if hasattr(font, "getbbox") else (0, 0, 10, size)
             line_height = int((dummy_bbox[3] - dummy_bbox[1]) * 1.25)
             total_h = len(lines) * line_height
 
-            if total_h <= max_h:
+            horizontal_fit = all(self._line_width(line, font) <= max_w for line in lines)
+            if total_h <= max_h and horizontal_fit:
                 return font, lines, line_height, False
 
         # Fallback to 10pt minimum font size
         font = _get_font(10)
-        lines = self._wrap_words(words, font, max_w)
+        lines = self._wrap_words(words, font, max_w, break_long_words=True)
         dummy_bbox = font.getbbox("Ayg") if hasattr(font, "getbbox") else (0, 0, 10, 10)
         line_height = int((dummy_bbox[3] - dummy_bbox[1]) * 1.25)
         total_h = len(lines) * line_height
-        is_overflow = total_h > max_h
+        is_overflow = total_h > max_h or any(
+            self._line_width(line, font) > max_w for line in lines
+        )
 
         return font, lines, line_height, is_overflow
 
@@ -229,7 +233,12 @@ class TextRenderer:
         return font, lines, line_height
 
     def _wrap_words(
-        self, words: list[str], font: ImageFont.FreeTypeFont | ImageFont.ImageFont, max_w: int
+        self,
+        words: list[str],
+        font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+        max_w: int,
+        *,
+        break_long_words: bool = True,
     ) -> list[str]:
         """Wrap words into lines that do not exceed max_w."""
         if not words:
@@ -238,10 +247,25 @@ class TextRenderer:
         lines: list[str] = []
         current_line: list[str] = []
 
+        expanded_words: list[str] = []
         for word in words:
+            if break_long_words and self._line_width(word, font) > max_w:
+                chunk = ""
+                for char in word:
+                    candidate = chunk + char
+                    if chunk and self._line_width(candidate, font) > max_w:
+                        expanded_words.append(chunk)
+                        chunk = char
+                    else:
+                        chunk = candidate
+                if chunk:
+                    expanded_words.append(chunk)
+            else:
+                expanded_words.append(word)
+
+        for word in expanded_words:
             candidate = " ".join(current_line + [word])
-            bbox = font.getbbox(candidate) if hasattr(font, "getbbox") else (0, 0, font.getsize(candidate)[0], 10)
-            w = bbox[2] - bbox[0]
+            w = self._line_width(candidate, font)
             if w <= max_w or not current_line:
                 current_line.append(word)
             else:
@@ -252,3 +276,10 @@ class TextRenderer:
             lines.append(" ".join(current_line))
 
         return lines
+
+    @staticmethod
+    def _line_width(
+        text: str, font: ImageFont.FreeTypeFont | ImageFont.ImageFont
+    ) -> int:
+        bbox = font.getbbox(text) if hasattr(font, "getbbox") else (0, 0, font.getsize(text)[0], 10)
+        return int(bbox[2] - bbox[0])
