@@ -106,3 +106,36 @@ def test_telemetry_bar_batch_badge_update(qapp):
     assert "MANUEL (28)" in bar.btn_batch_settings.text()
 
     bar.timer.stop()
+
+
+def test_gemini_api_key_ui_interaction(qapp, tmp_path):
+    from unittest.mock import patch
+    from PySide6.QtWidgets import QLineEdit
+
+    dialog = BatchSettingsDialog()
+    assert dialog.edit_api_key is not None
+    assert dialog.combo_model is not None
+
+    # Test eye toggle
+    assert dialog.edit_api_key.echoMode() == QLineEdit.Password
+    dialog._on_toggle_eye()
+    assert dialog.edit_api_key.echoMode() == QLineEdit.Normal
+    dialog._on_toggle_eye()
+    assert dialog.edit_api_key.echoMode() == QLineEdit.Password
+
+    # Test entering API key
+    dialog.edit_api_key.setText("AIzaSy_fake_test_key_12345")
+    dialog.combo_model.setCurrentText("gemini-2.0-flash")
+
+    # Test mock test button
+    with patch("providers.translation.gemini_translation.GeminiTranslationProvider.translate_batch", return_value=["Merhaba, dunya!"]):
+        dialog._on_test_gemini_api()
+        assert "Bağlantı Başarılı" in dialog.lbl_gemini_status.text()
+
+    # Test save
+    dummy_yaml = tmp_path / "config.yaml"
+    with patch("core.config.PROJECT_ROOT", tmp_path):
+        dialog._on_save_clicked()
+        assert os.environ.get("GEMINI_API_KEY") == "AIzaSy_fake_test_key_12345"
+
+    dialog.close()

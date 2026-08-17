@@ -190,6 +190,7 @@ class TopBar(QFrame):
     open_chapter_clicked = Signal()
     run_pipeline_clicked = Signal()
     cancel_pipeline_clicked = Signal()
+    settings_clicked = Signal()
 
     STAGES = [
         (1, "DETECT"),
@@ -216,7 +217,7 @@ class TopBar(QFrame):
         content_row.setContentsMargins(12, 4, 12, 4)
         content_row.setSpacing(10)
 
-        # 1. Left: Title & Chapter badge
+        # 1. Left: Title & Chapter badge & Actions
         left_box = QHBoxLayout()
         left_box.setSpacing(8)
 
@@ -235,9 +236,19 @@ class TopBar(QFrame):
         self.open_btn.setCursor(Qt.PointingHandCursor)
         self.open_btn.clicked.connect(self.open_chapter_clicked.emit)
 
+        self.settings_btn = QPushButton("⚙️ Ayarlar & API")
+        self.settings_btn.setObjectName("ghostButton")
+        self.settings_btn.setCursor(Qt.PointingHandCursor)
+        self.settings_btn.setStyleSheet(
+            "QPushButton { background-color: #18181B; color: #E4E4E7; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 4px 10px; font-size: 11px; } "
+            "QPushButton:hover { background-color: #27272A; color: #38BDF8; border: 1px solid #38BDF8; }"
+        )
+        self.settings_btn.clicked.connect(self.settings_clicked.emit)
+
         left_box.addWidget(self.title_label)
         left_box.addWidget(self.chapter_badge)
         left_box.addWidget(self.open_btn)
+        left_box.addWidget(self.settings_btn)
         content_row.addLayout(left_box)
 
         content_row.addStretch(1)

@@ -89,6 +89,7 @@ class MainWindow(QMainWindow):
         self.top_bar.open_chapter_clicked.connect(self._on_open_chapter_clicked)
         self.top_bar.run_pipeline_clicked.connect(self._on_run_pipeline_clicked)
         self.top_bar.cancel_pipeline_clicked.connect(self._on_cancel_pipeline_clicked)
+        self.top_bar.settings_clicked.connect(self._on_batch_settings_clicked)
         root_layout.addWidget(self.top_bar)
 
         # 2. Main 3-Column Splitter (LeftSidebar | WebtoonCanvas | RightInspector)

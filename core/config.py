@@ -132,3 +132,32 @@ def load_config(path: str | Path | None = None) -> Config:
         translator=TranslatorConfig(**trans_raw),
         inpainter=InpainterConfig(**inp_raw),
     )
+
+
+def update_gemini_api_key(
+    api_key: str,
+    model_name: str = "gemini-2.5-flash",
+    path: str | Path | None = None,
+) -> None:
+    """Updates the Gemini API key and model in config.yaml and the environment."""
+    import os
+
+    config_path = Path(path) if path else PROJECT_ROOT / "config.yaml"
+    raw: dict = {}
+    if config_path.exists():
+        with open(config_path, "r", encoding="utf-8") as f:
+            raw = yaml.safe_load(f) or {}
+
+    if "translator" not in raw or not isinstance(raw["translator"], dict):
+        raw["translator"] = {}
+
+    raw["translator"]["gemini_api_key"] = api_key.strip() if api_key else None
+    raw["translator"]["gemini_model"] = model_name
+
+    with open(config_path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(raw, f, default_flow_style=False, allow_unicode=True)
+
+    if api_key and api_key.strip():
+        os.environ["GEMINI_API_KEY"] = api_key.strip()
+    elif "GEMINI_API_KEY" in os.environ:
+        del os.environ["GEMINI_API_KEY"]

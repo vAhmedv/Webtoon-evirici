@@ -1,63 +1,46 @@
-# Webtoon Çevirici — Ana Yapılandırma
-# Tüm önemli parametreler burada tutulur. Hard-code edilmez.
-
-# --- Sliding Window (Phase 1) ---
-window_height: 1024        # Pencere yüksekliği (piksel)
-window_overlap: 256        # Pencereler arası örtüşme (piksel)
-
-# --- Girdi ---
-input_extensions:
-  - .webp
-  - .png
-  - .jpg
-  - .jpeg
-
-# --- Çıktı ---
-output_format: webp        # webp | png | jpg
-
-# --- Loglama ---
-log_level: INFO            # DEBUG | INFO | WARNING | ERROR
-log_file: logs/latest.log
-
-# --- Modeller ---
+detection:
+  duplicate_iou_threshold: 0.5
+  max_cache_entries: 512
+  min_confidence: 0.5
 detector:
   enabled: true
+  model: null
   provider: ComicTextDetector
-  model: null  # null => project models/detectors/ctd/comictextdetector.pt.onnx
-
-ocr:
-  enabled: true
-  engine: paddleocr
-  provider: PaddleOCR-PP-OCRv6_medium_rec
-  primary_model: PP-OCRv6_medium_rec
-  verifier_provider: PaddleOCR-VL-1.6
-  qwen_model_path: C:\AI\Models\Qwen3.5-9B-GGUF\Qwen3.5-9B-Q5_K_M.gguf
-  qwen_mmproj_path: C:\AI\Models\Qwen3.5-9B-GGUF\mmproj-F16.gguf
-  qwen_server_path: C:\AI\llama-cpp-cuda\llama-server.exe
-  qwen_server_url: http://127.0.0.1:8086
-  qwen_server_port: 8086
-  min_confidence: 0.5       # OCR confidence gate (detection confidence'dan AYRILDIR).
-  crop_padding: 20           # Region crop civarı padding (px).
-  upscale_small_regions: false
-  upscale_factor: 2.0
-
-translator:
-  enabled: true
-  provider: hy_mt2_gguf
-  model_path: C:\AI\Models\HY-MT2-7B-Q8_0.gguf
-  llama_executable: C:\AI\llama-cpp-cuda\llama-server.exe
-  server_url: http://127.0.0.1:8085
-  fallback_provider: null
-
 inpainter:
   enabled: true
   model: C:\AI\Models\LaMa\lama_large_512px.ckpt
-
-# --- Kalite eşikleri ---
+input_extensions:
+- .webp
+- .png
+- .jpg
+- .jpeg
+log_file: logs/latest.log
+log_level: INFO
 min_confidence: 0.5
-
-# --- Detection ayarları (Phase 2) ---
-detection:
+ocr:
+  crop_padding: 20
+  enabled: true
+  engine: paddleocr
   min_confidence: 0.5
-  duplicate_iou_threshold: 0.5
-  max_cache_entries: 512       # Detection cache maksimum giriş sayısı (LRU eviction)
+  primary_model: PP-OCRv6_medium_rec
+  provider: PaddleOCR-PP-OCRv6_medium_rec
+  qwen_mmproj_path: C:\AI\Models\Qwen3.5-9B-GGUF\mmproj-F16.gguf
+  qwen_model_path: C:\AI\Models\Qwen3.5-9B-GGUF\Qwen3.5-9B-Q5_K_M.gguf
+  qwen_server_path: C:\AI\llama-cpp-cuda\llama-server.exe
+  qwen_server_port: 8086
+  qwen_server_url: http://127.0.0.1:8086
+  upscale_factor: 2.0
+  upscale_small_regions: false
+  verifier_provider: PaddleOCR-VL-1.6
+output_format: webp
+translator:
+  enabled: true
+  fallback_provider: null
+  gemini_api_key: null
+  gemini_model: gemini-2.5-flash
+  llama_executable: C:\AI\llama-cpp-cuda\llama-server.exe
+  model_path: C:\AI\Models\HY-MT2-7B-Q8_0.gguf
+  provider: hy_mt2_gguf
+  server_url: http://127.0.0.1:8085
+window_height: 1024
+window_overlap: 256
