@@ -93,11 +93,20 @@ def classify_regions(
             )
             continue
 
-        # 1d. CJK Script Değerlendirmesi (Tek başına SKIP sebebi değildir)
+        # 1d. CJK Script Değerlendirmesi (Çoklu Kanıtlı SFX ve Gürültü Filtreleme)
         if _contains_cjk(txt):
-            # CJK + stilize geometri (örneğin dev dikey/yatay sfx harfi veya aşırı oran) -> SFX
-            aspect_ratio = max(bbox.width, bbox.height) / max(1, min(bbox.width, bbox.height))
-            if aspect_ratio > 3.5:
+            if _is_credit_metadata_region(r, coords, norm_txt):
+                # Kapak veya son sayfa kredi şeridi üzerindeki CJK metni
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.WATERMARK,
+                        status=RegionStatus.SKIP,
+                        reason="credit_metadata_skip",
+                    )
+                )
+            elif _is_cjk_stylized_sfx(r, txt, norm_txt):
+                # Çizim üzerine gömülü geniş alanlı / stilize CJK ses efekti (SFX)
                 classified_regions.append(
                     _replace_region_status(
                         r,
@@ -106,8 +115,18 @@ def classify_regions(
                         reason="cjk_stylized_sfx_skip",
                     )
                 )
+            elif _is_multi_signal_non_text_noise(r, norm_txt):
+                # Birincil OCR boş + zayıf geometri/verifier tekil CJK halüsinasyonu
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.UNKNOWN,
+                        status=RegionStatus.SKIP,
+                        reason="non_text_noise_skip",
+                    )
+                )
             else:
-                # Belirsiz CJK metni -> REVIEW
+                # Belirsiz CJK metni (Hikaye diyalogu olabilecek çoklu kelimeler) -> REVIEW
                 classified_regions.append(
                     _replace_region_status(
                         r,
@@ -134,6 +153,36 @@ def classify_regions(
                         reason="non_text_noise_skip",
                     )
                 )
+            elif _is_multi_signal_non_text_noise(r, norm_txt):
+                # Çoklu kanıt: Birincil OCR boş + zayıf geometri/verifier halüsinasyonu -> SKIP
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.UNKNOWN,
+                        status=RegionStatus.SKIP,
+                        reason="non_text_noise_skip",
+                    )
+                )
+            elif _is_credit_metadata_region(r, coords, norm_txt):
+                # Çoklu kanıt: Kapak/kredi sayfası sınır geometrisi ve künye metni -> SKIP
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.WATERMARK,
+                        status=RegionStatus.SKIP,
+                        reason="credit_metadata_skip",
+                    )
+                )
+            elif _is_isolated_drawing_sfx(r, norm_txt):
+                # Çoklu kanıt: Çizim üzerine gömülü geniş alanlı vokalizasyon/SFX glifi -> SKIP
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.SFX,
+                        status=RegionStatus.SKIP,
+                        reason="sfx_skip",
+                    )
+                )
             else:
                 # Belirsiz UNKNOWN -> REVIEW
                 classified_regions.append(
@@ -148,6 +197,112 @@ def classify_regions(
             classified_regions.append(r)
 
     return classified_regions
+
+
+def _is_credit_metadata_region(region: Region, coords: GlobalCoordinateSystem, norm_txt: str) -> bool:
+    """Kapak veya son sayfa kredi kartı üzerindeki hikaye dışı öğeleri çoklu kanıtla saptar."""
+    if region.type != RegionType.UNKNOWN:
+        return False
+
+    if not coords or not coords.pages or len(coords.pages) < 2:
+        return False
+
+    center_y = (region.global_bbox.y1 + region.global_bbox.y2) // 2
+    page_idx, page_y = coords.global_to_page(center_y)
+    total_pages = len(coords.pages)
+
+    # Sinyal 1: Kapak sayfası (0) veya son sayfa (kredi/künye kartı)
+    is_boundary_page = (page_idx == 0 or page_idx == total_pages - 1)
+    if not is_boundary_page:
+        return False
+
+    # Sinyal 2: Tipik yatay banner / kredi satırı geometrisi (yüksek en-boy oranı veya geniş ve ince blok)
+    w = region.global_bbox.width
+    h = region.global_bbox.height
+    aspect = w / max(1, h)
+
+    return bool(aspect > 3.0 or (w > 200 and h < 120))
+
+
+_KANA_PATTERN = re.compile(r"[\u3040-\u309F\u30A0-\u30FF]")
+
+
+def _is_cjk_stylized_sfx(region: Region, txt: str, norm_txt: str) -> bool:
+    """Çizim katmanına doğrudan çizilmiş geniş alanlı veya stilize CJK ses efektlerini saptar."""
+    if region.type not in (RegionType.UNKNOWN, RegionType.SFX):
+        return False
+
+    w = region.global_bbox.width
+    h = region.global_bbox.height
+    area = w * h
+    aspect_ratio = max(w, h) / max(1, min(w, h))
+
+    cjk_chars = [c for c in txt if _contains_cjk(c)]
+    cjk_len = len(cjk_chars)
+    is_kana = bool(_KANA_PATTERN.search(txt))
+
+    # Sinyal 1: Aşırı en-boy oranı (dikey/yatay sfx şeridi)
+    if aspect_ratio > 3.0 and cjk_len <= 6:
+        return True
+
+    # Sinyal 2: Geniş çizim glifi alanı (alan >= 25,000px² veya her iki boyut >= 150px) ve kısa CJK
+    if (area >= 25000 or (w >= 150 and h >= 150)) and cjk_len <= 4:
+        return True
+
+    # Sinyal 3: Saf Katakana/Hiragana ses efekti onomatopoeia (alan >= 15,000px² ve kısa metin)
+    if is_kana and cjk_len <= 4 and area >= 15000:
+        return True
+
+    return False
+
+
+def _is_isolated_drawing_sfx(region: Region, norm_txt: str) -> bool:
+    """Çizim katmanına doğrudan çizilmiş geniş alanlı stilize ses efektlerini saptar."""
+    if region.type != RegionType.UNKNOWN:
+        return False
+
+    w = region.global_bbox.width
+    h = region.global_bbox.height
+    area = w * h
+
+    # Sinyal 1: Büyük çizim glifi alanı (alan >= 25,000px² veya her iki boyut >= 150px)
+    is_large_glyph = (area >= 25000 or (w >= 150 and h >= 150))
+
+    # Sinyal 2: Kısa ses efekti / vokalizasyon metni (<= 2 karakter)
+    is_short_vocalization = (len(norm_txt) <= 2)
+
+    return bool(is_large_glyph and is_short_vocalization)
+
+
+def _is_multi_signal_non_text_noise(region: Region, norm_txt: str) -> bool:
+    """Birincil OCR ve geometri kanıtları birlikte zayıf olan sahte çizim tespitlerini saptar.
+    
+    Yalnızca UNKNOWN tipli ve tek değişkene dayanmayan çoklu kanıt durumunda True döner:
+    1. Birincil OCR boştur / alfanümerik metin bulamamıştır (conf == 0.0 veya primary_empty).
+    2. İkincil verifier tekil karakter halüsinasyonu üretmiş ve CTD metin geometrisi zayıftır.
+    """
+    if region.type != RegionType.UNKNOWN:
+        return False
+
+    meta = region.metadata if isinstance(region.metadata, dict) else {}
+    val = meta.get("region_validity", {}) if isinstance(meta.get("region_validity"), dict) else {}
+    verdict = meta.get("ocr_verdict", {}) if isinstance(meta.get("ocr_verdict"), dict) else {}
+    repair = meta.get("repair_eligibility", {}) if isinstance(meta.get("repair_eligibility"), dict) else {}
+
+    # Sinyal 1: Birincil OCR boş veya alfanümerik tespit yok
+    is_primary_empty = (
+        region.ocr_confidence == 0.0
+        or val.get("primary_alnum_count", 1) == 0
+        or verdict.get("reason") == "primary_empty_verifier_filled"
+    )
+
+    # Sinyal 2: Verifier tekil karakter veya zayıf metin geometrisi
+    is_verifier_weak_or_hallucinated = (
+        repair.get("reason") == "verifier_only_weak_text_geometry"
+        or (len(norm_txt) <= 1 and verdict.get("reason") == "primary_empty_verifier_filled")
+    )
+
+    return bool(is_primary_empty and is_verifier_weak_or_hallucinated)
 
 
 def _replace_region_status(

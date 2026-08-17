@@ -11,6 +11,8 @@ from providers.translation.qwen_gguf_translation_v2 import (
     DEFAULT_QWEN_MODEL_PATH,
     DEFAULT_QWEN_SERVER_URL,
     QwenGGUFTranslationProviderV2,
+    _is_legitimate_entity_stat_echo,
+    _is_likely_sfx_output,
 )
 
 
@@ -145,6 +147,38 @@ def test_qwen_translator_v2_empty_translation_flagged(mock_urlopen) -> None:
     assert "empty_translation" in output.results[0].validation_warnings
 
 
+@patch("urllib.request.urlopen")
+def test_qwen_translator_v2_sfx_echo_is_accepted(mock_urlopen) -> None:
+    """SFX-like text that echoes through the model must not be flagged as wrapper error."""
+    mock_resp = MagicMock()
+    mock_resp.status = 200
+    mock_resp.read.return_value = json.dumps(
+        {
+            "choices": [
+                {
+                    "message": {
+                        "content": "GYAHA HAHA HAHA!",
+                    }
+                }
+            ],
+            "usage": {"prompt_tokens": 24, "completion_tokens": 3},
+        }
+    ).encode("utf-8")
+    mock_urlopen.return_value.__enter__.return_value = mock_resp
+
+    provider = QwenGGUFTranslationProviderV2()
+    provider._loaded = True
+
+    with patch.object(provider, "_check_health", return_value=True):
+        output = provider.translate(_input(["GYAHA HAHA HAHA!"]))
+
+    assert len(output.results) == 1
+    item = output.results[0]
+    assert item.translation == "GYAHA HAHA HAHA!"
+    assert item.requires_review is False
+    assert "source_translation_wrapper" not in item.validation_warnings
+
+
 def test_qwen_translator_v2_process_cleanup() -> None:
     provider = QwenGGUFTranslationProviderV2()
     mock_proc = MagicMock()
@@ -157,3 +191,74 @@ def test_qwen_translator_v2_process_cleanup() -> None:
     mock_proc.terminate.assert_called_once()
     assert provider._process is None
     assert provider._loaded is False
+
+
+def test_is_likely_sfx_output_detects_sfx_patterns() -> None:
+    assert _is_likely_sfx_output("HAHA") is True
+    assert _is_likely_sfx_output("HAHA HAHA") is True
+    assert _is_likely_sfx_output("GYAHA HAHA HAHA!") is True
+    assert _is_likely_sfx_output("haha") is True
+    assert _is_likely_sfx_output("hahaha") is True
+    assert _is_likely_sfx_output("HaHaHa") is True
+    assert _is_likely_sfx_output("HAHAHA!") is True
+    assert _is_likely_sfx_output("GRRRR!") is True
+    assert _is_likely_sfx_output("RAT- TAT- TAT- TAT!") is True
+    assert _is_likely_sfx_output("Rat- tat- tat- tat!") is True
+    assert _is_likely_sfx_output("RO 00 AR!!") is True
+
+
+def test_is_legitimate_entity_stat_echo() -> None:
+    assert _is_legitimate_entity_stat_echo("ROCK GOLEM Lv.20") is True
+    assert _is_legitimate_entity_stat_echo("LEVEL UP Lv.1 ▶ Lv.2") is True
+    assert _is_legitimate_entity_stat_echo("BOSS Level 50") is True
+    assert _is_legitimate_entity_stat_echo("HP 500") is True
+    assert _is_legitimate_entity_stat_echo("Hello world") is False
+    assert _is_legitimate_entity_stat_echo("The quick brown fox jumps") is False
+
+
+def test_is_likely_sfx_output_rejects_normal_prose() -> None:
+    assert _is_likely_sfx_output("Hello world") is False
+    assert _is_likely_sfx_output("The quick brown fox jumps") is False
+    assert _is_likely_sfx_output("I am a translator.") is False
+    assert _is_likely_sfx_output("Oh no!") is False
+    assert _is_likely_sfx_output("wow") is False
+    assert _is_likely_sfx_output("book") is False
+    assert _is_likely_sfx_output("OH NO") is False
+    assert _is_likely_sfx_output("STOP NOW") is False
+    assert _is_likely_sfx_output("RUN AWAY") is False
+    assert _is_likely_sfx_output("GET OUT") is False
+    assert _is_likely_sfx_output("I AM HERE") is False
+    assert _is_likely_sfx_output("THANK YOU") is False
+    assert _is_likely_sfx_output("HAHA THAT WAS FUNNY") is False
+    assert _is_likely_sfx_output("THE BOOM WAS LOUD") is False
+    assert _is_likely_sfx_output("GASP THIS") is False
+    assert _is_likely_sfx_output("I SIGH") is False
+    assert _is_likely_sfx_output("HELLO WORLD") is False
+    assert _is_likely_sfx_output("GOOD COFFEE") is False
+    assert _is_likely_sfx_output("KEEP COOL") is False
+    assert _is_likely_sfx_output("FEEL GOOD") is False
+    assert _is_likely_sfx_output("COOL ROOM") is False
+    assert _is_likely_sfx_output("SEE MOON") is False
+    assert _is_likely_sfx_output("NEED FOOD") is False
+    assert _is_likely_sfx_output("REALLY GOOD") is False
+    assert _is_likely_sfx_output("LITTLE ROOM") is False
+    assert _is_likely_sfx_output("BOOM") is False
+    assert _is_likely_sfx_output("THUD!") is False
+    assert _is_likely_sfx_output("STOP!") is False
+    assert _is_likely_sfx_output("RUN!") is False
+    assert _is_likely_sfx_output("HELP!") is False
+    assert _is_likely_sfx_output("WAIT!") is False
+    assert _is_likely_sfx_output("GO!") is False
+    assert _is_likely_sfx_output("LOOK!") is False
+    assert _is_likely_sfx_output("MOVE!") is False
+    assert _is_likely_sfx_output("NO!") is False
+    assert _is_likely_sfx_output("YES!") is False
+    assert _is_likely_sfx_output("WHY!") is False
+    assert _is_likely_sfx_output("WHAT!") is False
+    assert _is_likely_sfx_output("HELLO") is False
+    assert _is_likely_sfx_output("THANKS") is False
+
+
+def test_is_likely_sfx_output_rejects_long_text() -> None:
+    long_sfx = "HAHA " * 10
+    assert _is_likely_sfx_output(long_sfx.strip()) is False

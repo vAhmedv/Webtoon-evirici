@@ -34,6 +34,17 @@ class DetectorProvider(ABC):
             Detection listesi (window-local koordinatlı).
         """
 
+    def detect_batch(self, items: Sequence[tuple[Any, int]]) -> Sequence[Sequence[Detection]]:
+        """Toplu pencere tespiti (Varsayılan olarak tek tek detect çağırır).
+
+        Args:
+            items: (image, window_id) tuple listesi.
+
+        Returns:
+            Her pencere için Detection listesi.
+        """
+        return [self.detect(img, wid) for img, wid in items]
+
     @property
     @abstractmethod
     def name(self) -> str:

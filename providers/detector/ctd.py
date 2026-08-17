@@ -46,7 +46,7 @@ MODEL_SHA256 = "1a86ace74961413cbd650002e7bb4dcec4980ffa21b2f19b86933372071d718f
 
 
 class ComicTextDetector(DetectorProvider):
-    """ComicTextDetector provider (ONNX/OpenCV backend)."""
+    """ComicTextDetector provider (Optimized ONNXRuntime / OpenCV DNN backend)."""
 
     def __init__(self, model_dir: str | Path | None = None, input_size: int = 1024) -> None:
         logger.debug(f"[THREAD] ComicTextDetector.__init__ thread id: {threading.get_ident()}")
@@ -55,6 +55,9 @@ class ComicTextDetector(DetectorProvider):
         self._loaded = False
         self._device = "cpu"
         self._net = None
+        self._ort_sessions: list[Any] = []
+        self._ort_input_name: str = ""
+        self._ort_output_names: list[str] = []
         self._input_size = input_size
         self._conf_thresh = 0.4
         self._nms_thresh = 0.35
@@ -78,6 +81,10 @@ class ComicTextDetector(DetectorProvider):
         return "ctd-geometry-v2-upstream"
 
     @property
+    def is_loaded(self) -> bool:
+        return self._loaded
+
+    @property
     def device(self) -> str:
         return self._device
 
@@ -86,6 +93,20 @@ class ComicTextDetector(DetectorProvider):
         self._debug = enabled
         if enabled and output_dir is not None:
             self._debug_dir = Path(output_dir)
+
+    @staticmethod
+    def _is_blank_window(img: np.ndarray) -> bool:
+        """Hızlı piksel varyans/standart sapma kontrolü ile boş şerit/arka planları atlar."""
+        if img is None or img.size == 0:
+            return True
+        sample = img[::8, ::8]
+        if sample.size == 0:
+            return True
+        min_v = int(sample.min())
+        max_v = int(sample.max())
+        if max_v - min_v < 8:
+            return True
+        return float(sample.std()) < 3.0
 
     def load(self) -> None:
         logger.debug(f"[THREAD] ComicTextDetector.load thread id: {threading.get_ident()}")
@@ -99,29 +120,144 @@ class ComicTextDetector(DetectorProvider):
                 f"Or run: python scripts/download_detector_models.py --detector ctd"
             )
 
+        # 1. Try accelerated ONNXRuntime with multi-worker session pool
+        try:
+            import onnxruntime as ort
+            session_options = ort.SessionOptions()
+            session_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+            session_options.intra_op_num_threads = 4
+            session_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
+
+            available = ort.get_available_providers()
+            providers_to_use: list[str | tuple[str, dict[str, Any]]] = []
+
+            if "CUDAExecutionProvider" in available:
+                cuda_opts = {
+                    "device_id": 0,
+                    "arena_extend_strategy": "kNextPowerOfTwo",
+                    "cudnn_conv_algo_search": "DEFAULT",
+                    "do_copy_in_default_stream": True,
+                }
+                providers_to_use.append(("CUDAExecutionProvider", cuda_opts))
+                self._device = "cuda"
+            else:
+                self._device = "cpu"
+
+            providers_to_use.append("CPUExecutionProvider")
+
+            num_workers = 3 if self._device == "cpu" else 1
+            self._ort_sessions = [
+                ort.InferenceSession(str(self._model_path), session_options, providers=providers_to_use)
+                for _ in range(num_workers)
+            ]
+            self._ort_input_name = self._ort_sessions[0].get_inputs()[0].name
+            self._ort_input_type = self._ort_sessions[0].get_inputs()[0].type
+            self._ort_output_names = [o.name for o in self._ort_sessions[0].get_outputs()]
+            active_p = self._ort_sessions[0].get_providers()
+            self._loaded = True
+            logger.info("CTD ONNXRuntime model pool ({} workers, providers: {}) loaded successfully", num_workers, active_p)
+            return
+        except Exception as ort_err:
+            logger.warning("ONNXRuntime initialization failed, falling back to OpenCV DNN: {}", ort_err)
+            self._ort_sessions = []
+
+        # 2. Fallback to OpenCV DNN
         cv2, _ = _native_modules()
-        logger.info(f"Loading CTD ONNX model: {self._model_path}")
+        logger.info(f"Loading CTD ONNX model via OpenCV DNN: {self._model_path}")
         self._net = cv2.dnn.readNetFromONNX(str(self._model_path))
         self._uoln = self._net.getUnconnectedOutLayersNames()
         self._loaded = True
-        logger.info("CTD ONNX model loaded successfully")
+        logger.info("CTD ONNX model loaded successfully via OpenCV DNN")
 
     def unload(self) -> None:
         if not self._loaded:
             return
         self._net = None
+        self._ort_sessions = []
         self._loaded = False
+
+    def _forward_raw(self, img_in: np.ndarray, worker_idx: int = 0) -> tuple[list[np.ndarray], dict[str, np.ndarray]]:
+        """Executes raw inference via ONNXRuntime pool or OpenCV DNN."""
+        _, np = _native_modules()
+        if self._ort_sessions:
+            sess = self._ort_sessions[worker_idx % len(self._ort_sessions)]
+            if hasattr(self, "_ort_input_type") and "float16" in self._ort_input_type:
+                img_in_typed = img_in.astype(np.float16)
+            else:
+                img_in_typed = img_in.astype(np.float32) if img_in.dtype != np.float32 else img_in
+            outputs = sess.run(None, {self._ort_input_name: img_in_typed})
+            output_names = self._ort_output_names
+            output_dict = dict(zip(output_names, outputs))
+            return outputs, output_dict
+        else:
+            self._net.setInput(img_in)
+            outputs = self._net.forward(self._uoln)
+            output_names = self._uoln
+            output_dict = dict(zip(output_names, outputs))
+            return outputs, output_dict
 
     def detect(self, image, window_id: int) -> Sequence[Detection]:
         logger.debug(f"[THREAD] ComicTextDetector.detect thread id: {threading.get_ident()}")
-        if not self._loaded or self._net is None:
+        if not self._loaded:
             raise RuntimeError("CTD model not loaded; call load() first")
 
         cv2, np = _native_modules()
         img = np.array(image)
-        if img is None or img.size == 0:
+        if self._is_blank_window(img):
+            logger.debug(f"[CTD] Window {window_id} skipped as blank background gutter.")
             return []
 
+        return self._detect_single_array(img, window_id, worker_idx=0)
+
+    def detect_batch(self, items: Sequence[tuple[Any, int]]) -> Sequence[Sequence[Detection]]:
+        """Optimized parallel batch detection across worker pool."""
+        if not self._loaded:
+            raise RuntimeError("CTD model not loaded; call load() first")
+
+        if not items:
+            return []
+
+        import concurrent.futures
+        cv2, np = _native_modules()
+
+        results: list[Sequence[Detection]] = [[] for _ in range(len(items))]
+        active_jobs: list[tuple[int, np.ndarray, int]] = []  # (original_idx, img_arr, window_id)
+
+        for idx, (img, wid) in enumerate(items):
+            arr = np.array(img)
+            if self._is_blank_window(arr):
+                results[idx] = []
+            else:
+                active_jobs.append((idx, arr, wid))
+
+        if not active_jobs:
+            return results
+
+        num_workers = len(self._ort_sessions) if self._ort_sessions else 1
+
+        def _worker_task(job_info: tuple[int, np.ndarray, int, int]) -> tuple[int, Sequence[Detection]]:
+            orig_idx, img_arr, wid, worker_slot = job_info
+            dets = self._detect_single_array(img_arr, wid, worker_idx=worker_slot)
+            return orig_idx, dets
+
+        if num_workers > 1 and len(active_jobs) > 1:
+            worker_assignments = [
+                (orig_idx, img_arr, wid, i % num_workers)
+                for i, (orig_idx, img_arr, wid) in enumerate(active_jobs)
+            ]
+            with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as pool:
+                completed = pool.map(_worker_task, worker_assignments)
+                for orig_idx, dets in completed:
+                    results[orig_idx] = dets
+        else:
+            for i, (orig_idx, img_arr, wid) in enumerate(active_jobs):
+                dets = self._detect_single_array(img_arr, wid, worker_idx=0)
+                results[orig_idx] = dets
+
+        return results
+
+    def _detect_single_array(self, img: np.ndarray, window_id: int, worker_idx: int = 0) -> Sequence[Detection]:
+        cv2, np = _native_modules()
         im_h, im_w = img.shape[:2]
 
         # Preprocess
@@ -134,28 +270,13 @@ class ComicTextDetector(DetectorProvider):
             lb_vis = (img_in[0].transpose((1, 2, 0)) * 255).astype(np.uint8)
             self._save_debug("02_letterboxed.png", cv2.cvtColor(lb_vis, cv2.COLOR_RGB2BGR))
 
-        # Inference
-        self._net.setInput(img_in)
-        outputs = self._net.forward(self._uoln)
+        # Inference via backend
+        outputs, output_dict = self._forward_raw(img_in, worker_idx=worker_idx)
 
-        # Record the actual OpenCV outputs, then classify spatial heads by shape.
-        # Some OpenCV builds reverse the two dense outputs (upstream CTD guard).
-        output_names = self._net.getUnconnectedOutLayersNames()
-        output_dict = dict(zip(output_names, outputs))
         blk_output = next((value for value in outputs if value.ndim == 3 and value.shape[-1] == 7), None)
         dense = [value for value in outputs if value.ndim == 4]
         det_output = next((value for value in dense if value.shape[1] == 2), None)
         seg_output = next((value for value in dense if value.shape[1] == 1), None)
-        self.last_output_metadata = {
-            "outputs": [{"name": name, "shape": list(value.shape)} for name, value in zip(output_names, outputs)],
-            "blk_name": next((name for name, value in output_dict.items() if value is blk_output), None),
-            "lines_map_name": next((name for name, value in output_dict.items() if value is det_output), None),
-            "segmentation_name": next((name for name, value in output_dict.items() if value is seg_output), None),
-            "opencv_output_swap_applied": bool(
-                output_dict.get("det") is not None and output_dict["det"].shape[1] != 2
-            ),
-        }
-        logger.info("CTD ONNX outputs: {}", self.last_output_metadata)
 
         if self._debug:
             self._log_output_info("blk", blk_output)

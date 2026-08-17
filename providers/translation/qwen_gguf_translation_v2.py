@@ -57,6 +57,69 @@ QWEN_TRANSLATOR_SYSTEM_PROMPT = (
 )
 
 
+_STOP_WORDS = frozenset({
+    "the", "a", "an", "is", "am", "are", "was", "were", "be", "been",
+    "have", "has", "had", "do", "does", "did", "will", "would", "could",
+    "should", "may", "might", "shall", "can", "need", "dare", "ought",
+    "used", "to", "of", "in", "for", "on", "with", "at", "by", "from",
+    "as", "into", "through", "during", "before", "after", "above", "below",
+    "between", "out", "off", "over", "under", "again", "further", "then",
+    "once", "here", "there", "when", "where", "why", "how", "all", "each",
+    "every", "both", "few", "more", "most", "other", "some", "such", "no",
+    "nor", "not", "only", "own", "same", "so", "than", "too", "very",
+    "just", "because", "but", "and", "or", "if", "while", "although",
+    "i", "me", "my", "we", "our", "you", "your", "he", "him", "his",
+    "she", "her", "it", "its", "they", "them", "their", "what", "which",
+    "who", "whom", "this", "that", "these", "those",
+})
+
+
+_REPEATED_PATTERN_RE = re.compile(r"(.{2,})\1+", re.IGNORECASE)
+_REPEATED_LETTERS_RE = re.compile(r"([a-zA-Z])\1{2,}", re.IGNORECASE)
+_REPEATED_DIGITS_RE = re.compile(r"(\d)\1+", re.IGNORECASE)
+_GAME_STAT_ENTITY_RE = re.compile(r"\b(?:Lv\.|Level|HP|MP|EXP|STR|AGI|INT)\s*\d+", re.IGNORECASE)
+
+
+def _is_likely_sfx_output(text: str) -> bool:
+    """Heuristic: detect onomatopoeia / SFX-like text that may legitimately echo."""
+    words = text.split()
+    if len(words) > 6 or len(words) == 0:
+        return False
+
+    for word in words:
+        core = word.strip(".,!?~'-").lower()
+        if not core or core in _STOP_WORDS:
+            return False
+
+    cores = [word.strip(".,!?~'-") for word in words if word.strip(".,!?~'-")]
+    if not cores:
+        return False
+
+    if any(len(core) > 8 for core in cores):
+        return False
+
+    has_repeated_pattern = any(
+        _REPEATED_PATTERN_RE.search(core) or _REPEATED_LETTERS_RE.search(core) or _REPEATED_DIGITS_RE.search(core)
+        for core in cores
+    )
+    if has_repeated_pattern:
+        return True
+
+    all_short = all(len(core) <= 5 for core in cores)
+    if not all_short:
+        return False
+
+    unique_cores = set(c.lower() for c in cores)
+    has_repeated_tokens = len(unique_cores) < len(cores)
+
+    return has_repeated_tokens
+
+
+def _is_legitimate_entity_stat_echo(text: str) -> bool:
+    """Heuristic: detect game entity titles / monster names with level/stat tags."""
+    return bool(_GAME_STAT_ENTITY_RE.search(text))
+
+
 @dataclass
 class QwenGGUFMetricsV2:
     model_load_seconds: float = 0.0
@@ -385,15 +448,21 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
         item = prepared.item
 
         if cleaned == prepared.prepared_text and len(prepared.prepared_text.split()) > 2:
-            logger.warning(f"Item {item.region_id} output matches source text. Flagging wrapper/copy error.")
-            return TranslationOutputItem(
-                region_id=item.region_id,
-                source=item.source,
-                translation=None,
-                raw_model_response=raw_text[:500],
-                validation_warnings=["source_translation_wrapper"],
-                requires_review=True,
-            )
+            if _is_likely_sfx_output(prepared.prepared_text) or _is_legitimate_entity_stat_echo(prepared.prepared_text):
+                logger.info(
+                    "Item %s output matches prepared text but is likely SFX or game entity stat title; accepting echo.",
+                    item.region_id,
+                )
+            else:
+                logger.warning(f"Item {item.region_id} output matches source text. Flagging wrapper/copy error.")
+                return TranslationOutputItem(
+                    region_id=item.region_id,
+                    source=item.source,
+                    translation=None,
+                    raw_model_response=raw_text[:500],
+                    validation_warnings=["source_translation_wrapper"],
+                    requires_review=True,
+                )
 
         if is_explanation_like_output(cleaned, item.source.strip()):
             logger.warning(f"Item {item.region_id} output identified as chatbot/explanation. Flagging for review.")
@@ -418,12 +487,13 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
             )
 
         warnings = validate_protected_terms(restored, prepared.placeholder_map)
-        if has_untranslated_source_prose(
-            prepared.prepared_text,
-            restored,
-            prepared.placeholder_map,
-        ) and "untranslated_source_prose" not in warnings:
-            warnings.append("untranslated_source_prose")
+        if not _is_likely_sfx_output(prepared.prepared_text) and not _is_legitimate_entity_stat_echo(prepared.prepared_text):
+            if has_untranslated_source_prose(
+                prepared.prepared_text,
+                restored,
+                prepared.placeholder_map,
+            ) and "untranslated_source_prose" not in warnings:
+                warnings.append("untranslated_source_prose")
 
         return TranslationOutputItem(
             region_id=item.region_id,

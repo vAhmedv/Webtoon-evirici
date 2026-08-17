@@ -87,3 +87,17 @@ class TranslationProvider:
 
     def translate(self, inp: TranslationInput) -> TranslationOutput:
         raise NotImplementedError
+
+    def translate_batch(
+        self,
+        texts: list[str],
+        context: dict[str, Any] | None = None,
+    ) -> list[str]:
+        """Translates a list of strings with automatic item mapping."""
+        if not texts:
+            return []
+        items = [TranslationItem(region_id=idx + 1, source=t) for idx, t in enumerate(texts)]
+        inp = TranslationInput(items=items)
+        out = self.translate(inp)
+        out_map = {item.region_id: item.translation for item in out.results}
+        return [out_map.get(idx + 1, "") or "" for idx in range(len(texts))]

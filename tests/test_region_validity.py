@@ -225,3 +225,129 @@ def test_short_cjk_without_stylized_geometry_stays_review(tmp_path) -> None:
     assert classified.status is RegionStatus.REVIEW
     assert classified.type is RegionType.UNKNOWN
     assert classified.review_reason == "ambiguous_cjk_review"
+
+
+def test_single_digit_unknown_stays_review(tmp_path) -> None:
+    page_path = tmp_path / "001.png"
+    Image.new("RGB", (200, 200), "white").save(page_path)
+    coords = GlobalCoordinateSystem((Page(0, page_path, 200, 200, 0),))
+    region = Region(
+        id=10,
+        global_bbox=BBox(50, 50, 100, 100),
+        type=RegionType.UNKNOWN,
+        detection_confidence=0.5,
+        source_window_ids=(1,),
+        status=RegionStatus.REVIEW,
+        text="7",
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.REVIEW
+    assert classified.type is RegionType.UNKNOWN
+    assert classified.review_reason == "ambiguous_unknown_review"
+
+
+def test_single_letter_unknown_stays_review(tmp_path) -> None:
+    page_path = tmp_path / "001.png"
+    Image.new("RGB", (200, 200), "white").save(page_path)
+    coords = GlobalCoordinateSystem((Page(0, page_path, 200, 200, 0),))
+    region = Region(
+        id=11,
+        global_bbox=BBox(50, 50, 100, 100),
+        type=RegionType.UNKNOWN,
+        detection_confidence=0.5,
+        source_window_ids=(1,),
+        status=RegionStatus.REVIEW,
+        text="A",
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.REVIEW
+    assert classified.type is RegionType.UNKNOWN
+    assert classified.review_reason == "ambiguous_unknown_review"
+
+
+def test_short_numeric_unknown_stays_review(tmp_path) -> None:
+    page_path = tmp_path / "001.png"
+    Image.new("RGB", (200, 200), "white").save(page_path)
+    coords = GlobalCoordinateSystem((Page(0, page_path, 200, 200, 0),))
+    region = Region(
+        id=12,
+        global_bbox=BBox(50, 50, 100, 100),
+        type=RegionType.UNKNOWN,
+        detection_confidence=0.5,
+        source_window_ids=(1,),
+        status=RegionStatus.REVIEW,
+        text="11",
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.REVIEW
+    assert classified.type is RegionType.UNKNOWN
+    assert classified.review_reason == "ambiguous_unknown_review"
+
+
+def test_short_alphabetic_unknown_stays_review(tmp_path) -> None:
+    page_path = tmp_path / "001.png"
+    Image.new("RGB", (200, 200), "white").save(page_path)
+    coords = GlobalCoordinateSystem((Page(0, page_path, 200, 200, 0),))
+    region = Region(
+        id=13,
+        global_bbox=BBox(50, 50, 100, 100),
+        type=RegionType.UNKNOWN,
+        detection_confidence=0.5,
+        source_window_ids=(1,),
+        status=RegionStatus.REVIEW,
+        text="OK",
+        review_reason="word_difference",
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.REVIEW
+    assert classified.type is RegionType.UNKNOWN
+    assert classified.review_reason == "word_difference"
+
+
+def test_dialogue_unknown_is_not_affected_by_non_story_skip(tmp_path) -> None:
+    page_path = tmp_path / "001.png"
+    Image.new("RGB", (200, 200), "white").save(page_path)
+    coords = GlobalCoordinateSystem((Page(0, page_path, 200, 200, 0),))
+    region = Region(
+        id=14,
+        global_bbox=BBox(50, 50, 100, 100),
+        type=RegionType.DIALOGUE,
+        detection_confidence=0.9,
+        source_window_ids=(1,),
+        status=RegionStatus.AUTO,
+        text="HELLO",
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.AUTO
+    assert classified.type is RegionType.DIALOGUE
+
+
+def test_sfx_region_is_not_affected_by_non_story_skip(tmp_path) -> None:
+    page_path = tmp_path / "001.png"
+    Image.new("RGB", (200, 200), "white").save(page_path)
+    coords = GlobalCoordinateSystem((Page(0, page_path, 200, 200, 0),))
+    region = Region(
+        id=15,
+        global_bbox=BBox(50, 50, 100, 100),
+        type=RegionType.SFX,
+        detection_confidence=0.9,
+        source_window_ids=(1,),
+        status=RegionStatus.REVIEW,
+        text="BOOM",
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.SKIP
+    assert classified.type is RegionType.SFX
+    assert classified.review_reason == "detector_sfx_watermark_skip"

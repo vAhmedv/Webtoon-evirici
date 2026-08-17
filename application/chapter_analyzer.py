@@ -40,7 +40,7 @@ from core.models import Page, Window
 from core.serialization.serializer import region_to_dict
 from core.visualization.draw import draw_detections, draw_regions
 from providers.detector.base import DetectorProvider
-from providers.ocr.agreement import decide_ocr_agreement
+from providers.ocr.agreement import decide_ocr_agreement, should_run_verifier
 from providers.ocr.base import OCRProvider
 from providers.ocr.repair import OCRRepairInput, OCRRepairProvider
 from providers.translation.base import TranslationInput, TranslationItem, TranslationProvider
@@ -163,11 +163,16 @@ class ChapterAnalyzer:
         warnings: list[str] = []
 
         # Phase 3 Guard: Source safety check
-        if chapter_path == output_path or output_path in chapter_path.parents or chapter_path in output_path.parents:
-            if chapter_path == output_path:
-                raise ValueError(
-                    f"SOURCE OVERWRITE GUARD: Output path '{output_path}' cannot be identical to source '{chapter_path}'"
-                )
+        if (
+            chapter_path == output_path
+            or chapter_path in output_path.parents
+            or output_path in chapter_path.parents
+        ):
+            raise ValueError(
+                f"SOURCE OVERWRITE GUARD: Output path '{output_path}' conflicts with "
+                f"source '{chapter_path}'. Output must not be identical to, inside, "
+                f"or a parent of the source directory."
+            )
 
         cfg = self.config
         if window_height is not None:
@@ -213,36 +218,57 @@ class ChapterAnalyzer:
             model_id, model_mtime = _get_model_identity(detector)
             self._cache.load()
 
-            for idx, window in enumerate(windows, start=1):
+            # Batch sliding window detection (batch_size=12)
+            batch_size = 12
+            for b_start in range(0, len(windows), batch_size):
                 if cancellation_token and cancellation_token.is_cancelled:
                     raise CancelledError()
-                _progress("Detecting", current=idx, total=len(windows), message=f"Window {idx}/{len(windows)}")
-                window_image = extract_window_image(tuple(pages), window, coords)
 
-                image_bytes = _image_to_bytes(window_image.image)
-                page_hash = DetectionCache.compute_hash(image_bytes)
-                cached = self._cache.get(page_hash, model_id, model_mtime)
+                chunk = windows[b_start : b_start + batch_size]
+                uncached_jobs: list[tuple[int, Any, Window, bytes, str]] = []  # (chunk_idx, w_img, window, bytes, hash)
 
-                if cached is not None:
-                    global_detections = cached
-                else:
-                    detections = detector.detect(window_image.image, window.id)
-                    global_detections = []
-                    for det in detections:
-                        global_bbox = window_bbox_to_global(det.bbox, window.y_start)
-                        metadata = _offset_geometry_metadata(det.metadata, window.y_start)
-                        global_det = Detection(
-                            bbox=global_bbox,
-                            confidence=det.confidence,
-                            type=det.type,
-                            source_window_id=det.source_window_id,
-                            mask=det.mask,
-                            metadata=metadata,
-                        )
-                        global_detections.append(global_det)
-                    self._cache.put(page_hash, model_id, model_mtime, global_detections)
+                for c_idx, window in enumerate(chunk):
+                    w_img = extract_window_image(tuple(pages), window, coords)
+                    img_bytes = _image_to_bytes(w_img.image)
+                    p_hash = DetectionCache.compute_hash(img_bytes)
+                    cached = self._cache.get(p_hash, model_id, model_mtime)
+                    if cached is not None:
+                        all_detections.extend(cached)
+                    else:
+                        uncached_jobs.append((c_idx, w_img, window, img_bytes, p_hash))
 
-                all_detections.extend(global_detections)
+                if uncached_jobs:
+                    items_to_detect = [(job[1].image, job[2].id) for job in uncached_jobs]
+                    if hasattr(detector, "detect_batch"):
+                        batch_results = detector.detect_batch(items_to_detect)
+                    else:
+                        batch_results = [detector.detect(img, wid) for img, wid in items_to_detect]
+
+                    for job, detections in zip(uncached_jobs, batch_results):
+                        _, _, window, img_bytes, p_hash = job
+                        global_detections = []
+                        for det in detections:
+                            global_bbox = window_bbox_to_global(det.bbox, window.y_start)
+                            metadata = _offset_geometry_metadata(det.metadata, window.y_start)
+                            global_det = Detection(
+                                bbox=global_bbox,
+                                confidence=det.confidence,
+                                type=det.type,
+                                source_window_id=det.source_window_id,
+                                mask=det.mask,
+                                metadata=metadata,
+                            )
+                            global_detections.append(global_det)
+                        self._cache.put(p_hash, model_id, model_mtime, global_detections)
+                        all_detections.extend(global_detections)
+
+                processed_so_far = min(b_start + len(chunk), len(windows))
+                _progress(
+                    "Sliding window detection",
+                    current=processed_so_far,
+                    total=len(windows),
+                    message=f"Window {processed_so_far}/{len(windows)}",
+                )
 
             self._cache.save()
         finally:
@@ -271,151 +297,185 @@ class ChapterAnalyzer:
                         warnings.append(f"Verifier OCR load failed: {e}")
                         verifier_ocr = None
 
-                for idx, region in enumerate(regions, start=1):
+                batch_size = 32
+                total_regions = len(regions)
+
+                for chunk_start in range(0, total_regions, batch_size):
                     if cancellation_token and cancellation_token.is_cancelled:
                         raise CancelledError()
-                    _progress("OCR Recognition", current=idx, total=len(regions), message=f"OCR {idx}/{len(regions)}")
 
-                    bbox = region.global_bbox
+                    chunk_regions = regions[chunk_start : chunk_start + batch_size]
+                    processed_so_far = min(chunk_start + len(chunk_regions), total_regions)
+                    _progress(
+                        "OCR Recognition",
+                        current=processed_so_far,
+                        total=total_regions,
+                        message=f"OCR {processed_so_far}/{total_regions}",
+                    )
+
                     # 5a. Early Classification & Filtering
-                    # SFX / Watermark / Extremely small noise boxes -> SKIP early
-                    if region.type in (RegionType.SFX, RegionType.WATERMARK) or bbox.height < 10 or bbox.width < 10:
-                        skipped_region = _replace_region(
-                            region,
-                            status=RegionStatus.SKIP,
-                            review_reason="sfx_or_non_text_skip",
-                        )
-                        ocr_regions.append(skipped_region)
+                    active_items: list[tuple[int, Region, Any]] = []
+                    chunk_results: list[Region | None] = [None] * len(chunk_regions)
+
+                    for rel_idx, region in enumerate(chunk_regions):
+                        bbox = region.global_bbox
+                        if region.type in (RegionType.SFX, RegionType.WATERMARK) or bbox.height < 10 or bbox.width < 10:
+                            skipped_region = _replace_region(
+                                region,
+                                status=RegionStatus.SKIP,
+                                review_reason="sfx_or_non_text_skip",
+                            )
+                            chunk_results[rel_idx] = skipped_region
+                        else:
+                            crop = cropper.crop_region(region, adaptive_padding=True)
+                            active_items.append((rel_idx, region, crop))
+
+                    if not active_items:
+                        for item in chunk_results:
+                            if item is not None:
+                                ocr_regions.append(item)
                         continue
 
-                    crop = cropper.crop_region(region, adaptive_padding=True)
+                    # 5b. Primary OCR Batch Recognition
+                    p_crops = [item[2].image for item in active_items]
+                    p_bboxes = [item[1].global_bbox for item in active_items]
+                    primary_results = primary_ocr.recognize_batch(p_crops, p_bboxes)
 
-                    # Primary OCR Recognition
-                    p_res = primary_ocr.recognize(crop.image, region_bbox=region.global_bbox)
+                    # 5c. Validity Check, Geometric Recovery & Gated Verifier Evaluation
+                    verifier_queue: list[tuple[int, Region, Any, OCRResult, dict[str, object], OCRVerdict]] = []
+                    processed_items: dict[int, tuple[Region, OCRResult, dict[str, object], OCRVerdict, OCRResult | None, Any]] = {}
 
-                    # Reject strong CTD non-text geometry before either expensive
-                    # repair stage.  If retained CTD geometry extends past the
-                    # canonical bbox, recrop once and validate the recovered crop.
-                    validity = evaluate_region_validity(region, p_res.text)
-                    recovery_metadata: dict[str, object] = {}
-                    if validity.recovered_bbox is not None:
-                        original_bbox = region.global_bbox
-                        region = _replace_region(region, global_bbox=validity.recovered_bbox)
-                        crop = cropper.crop_region(region, adaptive_padding=True)
-                        p_res = primary_ocr.recognize(crop.image, region_bbox=region.global_bbox)
+                    for (rel_idx, region, crop), p_res in zip(active_items, primary_results):
                         validity = evaluate_region_validity(region, p_res.text)
-                        recovery_metadata = {
-                            "geometry_recovered": True,
-                            "original_bbox": list(original_bbox.to_tuple()),
-                            "recovered_bbox": list(region.global_bbox.to_tuple()),
+                        recovery_metadata: dict[str, object] = {}
+                        if validity.recovered_bbox is not None:
+                            original_bbox = region.global_bbox
+                            region = _replace_region(region, global_bbox=validity.recovered_bbox)
+                            crop = cropper.crop_region(region, adaptive_padding=True)
+                            p_res = primary_ocr.recognize(crop.image, region_bbox=region.global_bbox)
+                            validity = evaluate_region_validity(region, p_res.text)
+                            recovery_metadata = {
+                                "geometry_recovered": True,
+                                "original_bbox": list(original_bbox.to_tuple()),
+                                "recovered_bbox": list(region.global_bbox.to_tuple()),
+                            }
+
+                        validity_metadata = {
+                            "valid": validity.is_valid,
+                            "reason": validity.reason,
+                            **validity.evidence,
+                            **recovery_metadata,
                         }
 
-                    validity_metadata = {
-                        "valid": validity.is_valid,
-                        "reason": validity.reason,
-                        **validity.evidence,
-                        **recovery_metadata,
-                    }
-                    if not validity.is_valid:
-                        skipped_region = _replace_region(
+                        if not validity.is_valid:
+                            skipped_region = _replace_region(
+                                region,
+                                text=p_res.text or "",
+                                ocr_confidence=p_res.confidence,
+                                status=RegionStatus.SKIP,
+                                review_reason=validity.reason,
+                                metadata={
+                                    **region.metadata,
+                                    "region_validity": validity_metadata,
+                                    "ocr_verdict": {
+                                        "source": "primary",
+                                        "requires_review": False,
+                                        "needs_repair": False,
+                                        "reason": validity.reason,
+                                        "second_pass_invoked": False,
+                                    },
+                                },
+                            )
+                            chunk_results[rel_idx] = skipped_region
+                            continue
+
+                        single_verdict = decide_ocr_agreement(p_res, verifier=None)
+                        needs_verifier, _ = should_run_verifier(p_res, region, min_confidence=0.92)
+
+                        if (single_verdict.requires_review or needs_verifier) and verifier_ocr is not None:
+                            verifier_queue.append((rel_idx, region, crop, p_res, validity_metadata, single_verdict))
+                        else:
+                            processed_items[rel_idx] = (region, p_res, validity_metadata, single_verdict, None, crop)
+
+                    # 5d. Secondary OCR Batch Execution (PaddleOCR-VL GPU Batch)
+                    if verifier_queue and verifier_ocr is not None:
+                        v_crops = [item[2].image for item in verifier_queue]
+                        v_bboxes = [item[1].global_bbox for item in verifier_queue]
+                        verifier_results = verifier_ocr.recognize_batch(v_crops, v_bboxes, batch_size=32)
+
+                        for item, v_res in zip(verifier_queue, verifier_results):
+                            rel_idx, region, crop, p_res, validity_metadata, single_verdict = item
+                            final_verdict = decide_ocr_agreement(p_res, v_res)
+                            processed_items[rel_idx] = (region, p_res, validity_metadata, final_verdict, v_res, crop)
+
+                    # 5e. Form Final Regions & Repair Eligibility
+                    for rel_idx, (region, p_res, validity_metadata, verdict, v_res, crop) in processed_items.items():
+                        if region.status == RegionStatus.SKIP:
+                            status = RegionStatus.SKIP
+                        else:
+                            status = RegionStatus.REVIEW if verdict.requires_review else RegionStatus.AUTO
+
+                        accepted = verdict.accepted_text or verdict.provisional_text or p_res.text or ""
+                        has_text_content = bool(accepted and accepted.strip() and any(c.isalnum() for c in accepted))
+                        if region.type == RegionType.UNKNOWN and not has_text_content:
+                            status = RegionStatus.SKIP
+                            verdict_reason = "unknown_non_text_skip"
+                        else:
+                            verdict_reason = verdict.reason
+
+                        updated_region = _replace_region(
                             region,
-                            text=p_res.text or "",
+                            text=accepted,
                             ocr_confidence=p_res.confidence,
-                            status=RegionStatus.SKIP,
-                            review_reason=validity.reason,
+                            status=status,
+                            review_reason=verdict_reason,
                             metadata={
                                 **region.metadata,
                                 "region_validity": validity_metadata,
                                 "ocr_verdict": {
-                                    "source": "primary",
-                                    "requires_review": False,
-                                    "needs_repair": False,
-                                    "reason": validity.reason,
-                                    "second_pass_invoked": False,
+                                    "source": verdict.source,
+                                    "requires_review": verdict.requires_review,
+                                    "needs_repair": verdict.needs_repair,
+                                    "reason": verdict_reason,
+                                    "second_pass_invoked": v_res is not None,
                                 },
                             },
                         )
-                        ocr_regions.append(skipped_region)
-                        continue
 
-                    # Single-pass structural evaluation
-                    single_verdict = decide_ocr_agreement(p_res, verifier=None)
-
-                    # Selective second-pass trigger: invoke verifier ONLY if primary is suspicious/unaccepted
-                    v_res = None
-                    if single_verdict.requires_review and verifier_ocr is not None:
-                        v_res = verifier_ocr.recognize(crop.image, region_bbox=region.global_bbox)
-                        verdict = decide_ocr_agreement(p_res, v_res)
-                    else:
-                        verdict = single_verdict
-
-                    if region.status == RegionStatus.SKIP:
-                        status = RegionStatus.SKIP
-                    else:
-                        status = RegionStatus.REVIEW if verdict.requires_review else RegionStatus.AUTO
-
-                    accepted = verdict.accepted_text or verdict.provisional_text or p_res.text or ""
-
-                    # UNKNOWN regions: skip ONLY if there is strong generic non-text evidence (empty text or no alphanumeric content)
-                    has_text_content = bool(accepted and accepted.strip() and any(c.isalnum() for c in accepted))
-                    if region.type == RegionType.UNKNOWN and not has_text_content:
-                        status = RegionStatus.SKIP
-                        verdict_reason = "unknown_non_text_skip"
-                    else:
-                        verdict_reason = verdict.reason
-
-                    updated_region = _replace_region(
-                        region,
-                        text=accepted,
-                        ocr_confidence=p_res.confidence,
-                        status=status,
-                        review_reason=verdict_reason,
-                        metadata={
-                            **region.metadata,
-                            "region_validity": validity_metadata,
-                            "ocr_verdict": {
-                                "source": verdict.source,
-                                "requires_review": verdict.requires_review,
-                                "needs_repair": verdict.needs_repair,
-                                "reason": verdict_reason,
-                                "second_pass_invoked": v_res is not None,
+                        repair_eligibility = evaluate_repair_eligibility(updated_region, verdict)
+                        eligibility_metadata = {
+                            "eligible": repair_eligibility.eligible,
+                            "reason": repair_eligibility.reason,
+                            **repair_eligibility.evidence,
+                        }
+                        updated_region = _replace_region(
+                            updated_region,
+                            metadata={
+                                **updated_region.metadata,
+                                "repair_eligibility": eligibility_metadata,
                             },
-                        },
-                    )
-                    ocr_regions.append(updated_region)
-
-                    repair_eligibility = evaluate_repair_eligibility(updated_region, verdict)
-                    eligibility_metadata = {
-                        "eligible": repair_eligibility.eligible,
-                        "reason": repair_eligibility.reason,
-                        **repair_eligibility.evidence,
-                    }
-                    updated_region = _replace_region(
-                        updated_region,
-                        metadata={
-                            **updated_region.metadata,
-                            "repair_eligibility": eligibility_metadata,
-                        },
-                    )
-                    ocr_regions[-1] = updated_region
-
-                    # Queue for Qwen repair only after explicit validity and
-                    # unresolved-ambiguity eligibility has been established.
-                    if (
-                        updated_region.status == RegionStatus.REVIEW
-                        and updated_region.type in (RegionType.DIALOGUE, RegionType.NARRATION, RegionType.UNKNOWN)
-                        and verdict.needs_repair
-                        and accepted
-                        and repair_eligibility.eligible
-                    ):
-                        repair_inp = OCRRepairInput(
-                            primary_raw=verdict.primary_raw,
-                            primary_normalized=verdict.primary_normalized,
-                            verifier_raw=verdict.verifier_raw,
-                            verifier_normalized=verdict.verifier_normalized,
-                            reason=verdict_reason or "disagreement",
                         )
-                        repair_candidates.append((updated_region, repair_inp, crop.image))
+                        chunk_results[rel_idx] = updated_region
+
+                        if (
+                            updated_region.status == RegionStatus.REVIEW
+                            and updated_region.type in (RegionType.DIALOGUE, RegionType.NARRATION, RegionType.UNKNOWN)
+                            and verdict.needs_repair
+                            and accepted
+                            and repair_eligibility.eligible
+                        ):
+                            repair_inp = OCRRepairInput(
+                                primary_raw=verdict.primary_raw,
+                                primary_normalized=verdict.primary_normalized,
+                                verifier_raw=verdict.verifier_raw,
+                                verifier_normalized=verdict.verifier_normalized,
+                                reason=verdict_reason or "disagreement",
+                            )
+                            repair_candidates.append((updated_region, repair_inp, crop.image))
+
+                    for item in chunk_results:
+                        if item is not None:
+                            ocr_regions.append(item)
 
                 regions = ocr_regions
             finally:

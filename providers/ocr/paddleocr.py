@@ -89,7 +89,7 @@ class PaddleOCRProvider(OCRProvider):
             engine="onnxruntime",
             use_doc_orientation_classify=False,
             use_doc_unwarping=False,
-            use_textline_orientation=True,
+            use_textline_orientation=False,
             device=self._device,
         )
         self._loaded = True
@@ -108,6 +108,32 @@ class PaddleOCRProvider(OCRProvider):
         except Exception:
             pass
         logger.info("PaddleOCR candidate unloaded")
+
+    def recognize_batch(
+        self,
+        images: Sequence[Any],
+        region_bboxes: Sequence[BBox | None] | None = None,
+        max_workers: int = 10,
+    ) -> Sequence[OCRResult]:
+        if not self._loaded:
+            raise RuntimeError("PaddleOCR not loaded; call load() first")
+        if not images:
+            return []
+        bboxes = region_bboxes if region_bboxes is not None else [None] * len(images)
+        if len(images) == 1:
+            return [self.recognize(images[0], bboxes[0])]
+
+        import concurrent.futures
+        results: list[OCRResult] = [None] * len(images)  # type: ignore
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
+            futures = {
+                pool.submit(self.recognize, img, bbox): idx
+                for idx, (img, bbox) in enumerate(zip(images, bboxes))
+            }
+            for fut in concurrent.futures.as_completed(futures):
+                idx = futures[fut]
+                results[idx] = fut.result()
+        return results
 
     def recognize(
         self,

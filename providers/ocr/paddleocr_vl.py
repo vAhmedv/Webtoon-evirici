@@ -27,7 +27,7 @@ from providers.ocr.base import OCRLine, OCRProvider, OCRResult
 
 MODEL_ID = "PaddlePaddle/PaddleOCR-VL-1.6"
 TASK_PROMPT = "OCR:"
-MAX_NEW_TOKENS = 512
+MAX_NEW_TOKENS = 128
 
 
 class PaddleOCRVLOcrProvider(OCRProvider):
@@ -105,6 +105,109 @@ class PaddleOCRVLOcrProvider(OCRProvider):
             pass
         logger.info("PaddleOCR-VL-1.6 unloaded")
 
+    def recognize_batch(
+        self,
+        images: Sequence[Any],
+        region_bboxes: Sequence[BBox | None] | None = None,
+        batch_size: int = 32,
+    ) -> Sequence[OCRResult]:
+        if not self._loaded or self._model is None or self._processor is None:
+            raise RuntimeError("PaddleOCR-VL-1.6 not loaded; call load() first")
+        if not images:
+            return []
+
+        import torch
+        from PIL import Image
+
+        bboxes = region_bboxes if region_bboxes is not None else [None] * len(images)
+        if len(images) == 1:
+            return [self.recognize(images[0], bboxes[0])]
+
+        self._processor.tokenizer.padding_side = "left"
+        pairs = list(zip(images, bboxes))
+
+        def _forward_chunk(chunk_pairs: Sequence[tuple[Any, BBox | None]]) -> list[OCRResult]:
+            chunk_imgs = [p[0] for p in chunk_pairs]
+            chunk_bboxes = [p[1] for p in chunk_pairs]
+            chunk_results: list[OCRResult] = []
+
+            pil_chunk = [
+                img.convert("RGB") if isinstance(img, Image.Image) else Image.fromarray(img).convert("RGB")
+                for img in chunk_imgs
+            ]
+
+            messages_batch = [
+                [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "image", "image": img},
+                            {"type": "text", "text": TASK_PROMPT},
+                        ],
+                    }
+                ]
+                for img in pil_chunk
+            ]
+
+            texts_input = [
+                self._processor.apply_chat_template(msg, add_generation_prompt=True, tokenize=False)
+                for msg in messages_batch
+            ]
+            images_input = [[img] for img in pil_chunk]
+
+            ip = self._processor.image_processor
+            size = dict(ip.size) if hasattr(ip.size, "items") else {}
+            size["shortest_edge"] = size.get("shortest_edge", 112896)
+            size["longest_edge"] = 1280 * 28 * 28
+
+            inputs = self._processor(
+                text=texts_input,
+                images=images_input,
+                padding=True,
+                return_tensors="pt",
+            ).to(self._model.device)
+
+            start = time.perf_counter()
+            with torch.inference_mode():
+                outputs = self._model.generate(**inputs, max_new_tokens=MAX_NEW_TOKENS, use_cache=True)
+            elapsed = (time.perf_counter() - start) / len(chunk_imgs)
+
+            input_len = inputs["input_ids"].shape[1]
+            for i, out in enumerate(outputs):
+                gen_tokens = out[input_len:]
+                raw_text = self._processor.decode(gen_tokens, skip_special_tokens=True)
+                canonical = normalize_ocr_text(raw_text)
+                warnings: list[str] = []
+                if not canonical:
+                    warnings.append("empty_ocr_result")
+
+                reg_bbox = chunk_bboxes[i]
+                chunk_results.append(
+                    OCRResult(
+                        text=canonical,
+                        confidence=None,
+                        raw_text=raw_text,
+                        lines=[],
+                        warnings=warnings,
+                        metadata={
+                            "provider": self.name,
+                            "version": self.version,
+                            "language": self.language,
+                            "device": self._device,
+                            "model_id": self._model_id,
+                            "inference_seconds": round(elapsed, 3),
+                            "region_bbox": _bbox_to_dict(reg_bbox) if reg_bbox else None,
+                        },
+                    )
+                )
+            return chunk_results
+
+        if not hasattr(self, "_batcher") or self._batcher is None:
+            from core.system.adaptive_batcher import ElasticAdaptiveBatcher
+            self._batcher = ElasticAdaptiveBatcher(default_batch_size=batch_size, min_batch_size=1, vram_ceiling=0.95)
+
+        return self._batcher.execute(pairs, _forward_chunk, batch_size=batch_size)
+
     def recognize(
         self,
         image,
@@ -146,8 +249,8 @@ class PaddleOCRVLOcrProvider(OCRProvider):
             processor_kwargs={"images_kwargs": {"size": size}},
         ).to(self._model.device)
 
-        with torch.no_grad():
-            outputs = self._model.generate(**inputs, max_new_tokens=MAX_NEW_TOKENS)
+        with torch.inference_mode():
+            outputs = self._model.generate(**inputs, max_new_tokens=MAX_NEW_TOKENS, use_cache=True)
         raw_text = self._processor.decode(
             outputs[0][inputs["input_ids"].shape[-1]:-1]
         )

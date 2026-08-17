@@ -99,6 +99,25 @@ class OCRProvider(ABC):
             OCRResult.
         """
 
+    def recognize_batch(
+        self,
+        images: Sequence[Any],
+        region_bboxes: Sequence[BBox | None] | None = None,
+    ) -> Sequence[OCRResult]:
+        """Toplu görsel OCR tanıma.
+
+        Args:
+            images: Giriş görüntüleri dizisi.
+            region_bboxes: Opsiyonel global bbox dizisi.
+
+        Returns:
+            OCRResult dizisi.
+        """
+        if not images:
+            return []
+        bboxes = region_bboxes if region_bboxes is not None else [None] * len(images)
+        return [self.recognize(img, bbox) for img, bbox in zip(images, bboxes)]
+
     @property
     @abstractmethod
     def name(self) -> str:

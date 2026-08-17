@@ -45,6 +45,15 @@ class Inpainter:
     def unload(self) -> None:
         self.lama.unload()
 
+    def inpaint_batch(
+        self,
+        images: Sequence[np.ndarray],
+        masks: Sequence[np.ndarray],
+        batch_size: int = 24,
+    ) -> list[np.ndarray]:
+        """Inpaint a list of image crops with corresponding masks using GPU batching."""
+        return self.lama.inpaint_batch(images, masks, batch_size=batch_size)
+
     def inpaint_blocks(self, canvas: Image.Image, text_blocks: Sequence[Any]) -> Image.Image:
         self.last_text_mask = None
         result = np.ascontiguousarray(np.asarray(canvas.convert("RGB"), dtype=np.uint8))
@@ -81,7 +90,16 @@ class Inpainter:
             self._save_debug(debug_name, text_mask, text_mask.source, "empty")
             return full_source
 
-        if text_mask.is_uniform_background:
+        can_flat, flat_color = self._can_use_flat_fill(
+            text_mask.source, text_mask.refined, text_mask.bubble_interior
+        )
+
+        if can_flat:
+            inpainted_crop = self._apply_flat_fill_with_soft_blend(
+                text_mask.source, text_mask.refined, flat_color
+            )
+            method = "flat_fill_fast"
+        elif text_mask.is_uniform_background:
             inpainted_crop = text_mask.source.copy()
             inpainted_crop[refined] = np.asarray(text_mask.background_color, dtype=np.uint8)
             method = "median"
@@ -104,7 +122,11 @@ class Inpainter:
             residual_expansion_passes += 1
             text_mask = replace(text_mask, refined=expanded)
             refined = expanded > 0
-            if text_mask.is_uniform_background:
+            if can_flat:
+                inpainted_crop = self._apply_flat_fill_with_soft_blend(
+                    text_mask.source, expanded, flat_color
+                )
+            elif text_mask.is_uniform_background:
                 inpainted_crop = text_mask.source.copy()
                 inpainted_crop[refined] = np.asarray(text_mask.background_color, dtype=np.uint8)
             else:
@@ -117,11 +139,10 @@ class Inpainter:
             except ValueError:
                 pass
 
-        # The final write is deliberately mask-only. The crop context, borders and
-        # artwork remain byte-for-byte identical to the incoming source.
         result = np.array(full_source, copy=True)
-        destination = result[y1:y2, x1:x2]
-        destination[refined] = inpainted_crop[refined]
+        if not review:
+            destination = result[y1:y2, x1:x2]
+            destination[refined] = inpainted_crop[refined]
         self._save_debug(
             debug_name,
             text_mask,
@@ -131,6 +152,71 @@ class Inpainter:
             review=review,
         )
         return result
+
+    @staticmethod
+    def _can_use_flat_fill(
+        image_crop: np.ndarray,
+        mask_crop: np.ndarray,
+        bubble_interior: np.ndarray | None = None,
+        max_std_threshold: float = 4.0,
+        overall_std_threshold: float = 3.5,
+    ) -> tuple[bool, tuple[int, int, int]]:
+        """Maskenin etrafındaki pikselleri analiz ederek düz renkli konuşma balonu kontrolü yapar."""
+        import cv2
+
+        if not np.any(mask_crop):
+            return False, (255, 255, 255)
+
+        mask = (mask_crop > 0).astype(np.uint8)
+
+        # Maske çevresindeki 2-7px halka piksellerini belirle
+        d_outer = cv2.dilate(mask, np.ones((7, 7), np.uint8))
+        d_inner = cv2.dilate(mask, np.ones((2, 2), np.uint8))
+        ring = (d_outer > 0) & (d_inner == 0)
+
+        if bubble_interior is not None and np.any(bubble_interior):
+            ring &= (bubble_interior > 0)
+
+        ring_pixels = image_crop[ring]
+        if len(ring_pixels) < 16:
+            ring_pixels = image_crop[mask == 0]
+
+        if len(ring_pixels) < 8:
+            return False, (255, 255, 255)
+
+        std_rgb = np.std(ring_pixels, axis=0)
+        max_std = float(np.max(std_rgb))
+        overall_std = float(np.std(ring_pixels))
+
+        if overall_std <= overall_std_threshold or max_std <= max_std_threshold:
+            median_color = tuple(int(round(c)) for c in np.median(ring_pixels, axis=0))
+            return True, median_color
+
+        return False, (255, 255, 255)
+
+    @staticmethod
+    def _apply_flat_fill_with_soft_blend(
+        source: np.ndarray,
+        mask: np.ndarray,
+        fill_color: tuple[int, int, int],
+    ) -> np.ndarray:
+        """Düz renk dolgusunu yumuşak kenar harmanlama (soft-blend) ile uygular."""
+        import cv2
+
+        refined = mask > 0
+        if not np.any(refined):
+            return source.copy()
+
+        # Maske kenarlarına 1-2px Gaussian Blur ile yumuşak geçiş
+        mask_float = refined.astype(np.float32)
+        blurred_mask = cv2.GaussianBlur(mask_float, (3, 3), 0.8)
+        alpha = np.expand_dims(blurred_mask, axis=-1)
+
+        fill_arr = np.full_like(source, fill_color, dtype=np.float32)
+        src_float = source.astype(np.float32)
+
+        blended = np.clip(fill_arr * alpha + src_float * (1.0 - alpha), 0, 255).astype(np.uint8)
+        return blended
 
     @staticmethod
     def _residual_candidates(text_mask: TextMask, result: np.ndarray) -> np.ndarray:

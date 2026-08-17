@@ -151,6 +151,96 @@ def test_source_overwrite_protection(synthetic_chapter_dir: Path) -> None:
         )
 
 
+def test_output_inside_source_is_rejected(synthetic_chapter_dir: Path) -> None:
+    """Output directory directly inside source must be rejected."""
+    analyzer = ChapterAnalyzer()
+    detector = DummyDetector()
+
+    with pytest.raises(ValueError, match="SOURCE OVERWRITE GUARD"):
+        analyzer.process_chapter(
+            chapter_path=synthetic_chapter_dir,
+            output_path=synthetic_chapter_dir / "output",
+            detector=detector,
+        )
+
+
+def test_output_deeply_nested_inside_source_is_rejected(synthetic_chapter_dir: Path) -> None:
+    """Output directory deeply nested inside source must be rejected."""
+    analyzer = ChapterAnalyzer()
+    detector = DummyDetector()
+
+    with pytest.raises(ValueError, match="SOURCE OVERWRITE GUARD"):
+        analyzer.process_chapter(
+            chapter_path=synthetic_chapter_dir,
+            output_path=synthetic_chapter_dir / "a" / "b" / "output",
+            detector=detector,
+        )
+
+
+def test_source_inside_output_is_rejected(tmp_path: Path) -> None:
+    """Source directory inside output must be rejected."""
+    analyzer = ChapterAnalyzer()
+    detector = DummyDetector()
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    chapter_dir = output_dir / "chapter1"
+    chapter_dir.mkdir()
+
+    with pytest.raises(ValueError, match="SOURCE OVERWRITE GUARD"):
+        analyzer.process_chapter(
+            chapter_path=chapter_dir,
+            output_path=output_dir,
+            detector=detector,
+        )
+
+
+def test_sibling_output_path_is_allowed(synthetic_chapter_dir: Path, tmp_path: Path) -> None:
+    """Sibling source/output directories must be allowed."""
+    analyzer = ChapterAnalyzer()
+    detector = DummyDetector()
+    ocr = DummyOCR("HELLO")
+    translator = DummyTranslator()
+    output_dir = tmp_path / "translated"
+
+    result = analyzer.process_chapter(
+        chapter_path=synthetic_chapter_dir,
+        output_path=output_dir,
+        detector=detector,
+        primary_ocr=ocr,
+        translator=translator,
+    )
+    assert result.page_count == 2
+    assert len(result.exported_page_paths) == 2
+
+
+def test_similarly_named_sibling_paths_are_allowed(tmp_path: Path) -> None:
+    """Similarly named sibling directories like chapter1/chapter10 must be allowed."""
+    chapter1 = tmp_path / "chapter1"
+    chapter1.mkdir()
+    chapter10 = tmp_path / "chapter10"
+    chapter10.mkdir()
+
+    img = Image.new("RGB", (200, 400), (255, 255, 255))
+    img.save(chapter1 / "001.png")
+    img.save(chapter10 / "001.png")
+
+    analyzer = ChapterAnalyzer()
+    detector = DummyDetector()
+    ocr = DummyOCR("HELLO")
+    translator = DummyTranslator()
+    output_dir = tmp_path / "output"
+
+    result = analyzer.process_chapter(
+        chapter_path=chapter1,
+        output_path=output_dir,
+        detector=detector,
+        primary_ocr=ocr,
+        translator=translator,
+    )
+    assert result.page_count == 1
+    assert len(result.exported_page_paths) == 1
+
+
 def test_inpainter_and_renderer_skipped_region() -> None:
     """Test 2: Skipped regions are never inpainted or rendered."""
     canvas = Image.new("RGB", (100, 100), (255, 255, 255))

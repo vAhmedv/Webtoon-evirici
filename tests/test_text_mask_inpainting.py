@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 from PIL import Image, ImageDraw
@@ -12,8 +13,8 @@ from core.detection.text_block import group_text_blocks
 from core.imaging.inpainter import Inpainter
 from core.imaging.text_mask import TextMask, TextMaskBuilder
 from core.imaging.text_mask import merge_xor_components, self_or_inverse
-from providers.detector.ctd import ComicTextDetector
 from core.models import Page
+from providers.detector.ctd import ComicTextDetector
 
 
 def _region(region_id: int, bbox: tuple[int, int, int, int], text: str, metadata=None) -> Region:
@@ -308,3 +309,81 @@ def test_hyphenated_continuation_with_quote_and_offset_grouping() -> None:
     assert len(blocks) == 1
     assert blocks[0].member_ids == (30, 31)
     assert blocks[0].source_text == 'UNDERSTAND ITS STRUC- TURE"...'
+
+
+def test_review_inpaint_returns_original_source_unchanged() -> None:
+    """REVIEW block with non-empty refined mask must leave production canvas byte-identical to input."""
+    source = np.arange(20 * 20 * 3, dtype=np.uint8).reshape(20, 20, 3)
+    refined = np.zeros((8, 8), dtype=np.uint8)
+    refined[3:5, 2:6] = 255
+    text_mask = TextMask(
+        (4, 4, 12, 12),
+        source[4:12, 4:12].copy(),
+        np.full((8, 8), 255, np.uint8),
+        refined,
+        (0, 0, 0),
+        False,
+    )
+
+    inpainter = Inpainter()
+    inpainter.lama = type("FakeLaMa", (), {"inpaint": lambda self, image, mask: np.full_like(image, (0, 255, 255)), "unload": lambda self: None})()
+    with patch.object(Inpainter, "_has_boundary_residual", return_value=True):
+        output = inpainter._apply_mask(source, text_mask, "block_0099")
+
+    assert 99 in inpainter.review_block_ids
+    assert np.array_equal(output, source)
+    assert len(inpainter.debug_records) == 1
+    assert inpainter.debug_records[0]["review"] is True
+
+
+def test_non_review_inpaint_modifies_only_approved_mask() -> None:
+    """Successful inpaint must change pixels inside refined mask and preserve everything outside."""
+    source = np.full((24, 24, 3), 255, np.uint8)
+    source[10:14, 6:18] = 0
+    raw = np.zeros((14, 18), np.uint8)
+    raw[5:9, 1:17] = 255
+    refined = np.zeros_like(raw)
+    refined[5:9, 7:11] = 255
+    mask = TextMask(
+        (3, 5, 21, 19),
+        source[5:19, 3:21].copy(),
+        raw,
+        refined,
+        (255, 255, 255),
+        True,
+        dilation_radius=2,
+    )
+
+    inpainter = Inpainter()
+    output = inpainter._apply_mask(source, mask, "block_0100")
+
+    final_mask = np.zeros(source.shape[:2], bool)
+    x1, y1, x2, y2 = inpainter.last_text_mask.crop_bbox
+    final_mask[y1:y2, x1:x2] = inpainter.last_text_mask.refined > 0
+    assert np.array_equal(output[~final_mask], source[~final_mask])
+    assert np.any(output[final_mask] != source[final_mask])
+
+
+def test_empty_mask_block_remains_review_and_unchanged() -> None:
+    """Empty mask must leave image unchanged and mark block as REVIEW."""
+    source = np.full((20, 20, 3), 255, np.uint8)
+    source[5:10, 5:10] = 0
+    raw = np.zeros((10, 10), np.uint8)
+    refined = np.zeros_like(raw)
+    text_mask = TextMask(
+        (5, 5, 15, 15),
+        source[5:15, 5:15].copy(),
+        raw,
+        refined,
+        (255, 255, 255),
+        True,
+    )
+
+    inpainter = Inpainter()
+    output = inpainter._apply_mask(source, text_mask, "block_0200")
+
+    # Empty mask REVIEW tracking happens at inpaint_blocks level, not _apply_mask.
+    # Here we verify the canvas is byte-identical and debug data records the empty method.
+    assert np.array_equal(output, source)
+    assert len(inpainter.debug_records) == 1
+    assert inpainter.debug_records[0]["method"] == "empty"

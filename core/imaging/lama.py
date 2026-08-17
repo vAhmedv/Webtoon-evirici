@@ -111,6 +111,123 @@ class LaMaLargeInpainter:
         result[selected] = predicted[selected]
         return result
 
+    def inpaint_batch(
+        self,
+        images: Sequence[np.ndarray],
+        masks: Sequence[np.ndarray],
+        batch_size: int = 24,
+    ) -> list[np.ndarray]:
+        """Run GPU batched Big-LaMa inference across multiple crops with elastic batch recovery."""
+        import cv2
+
+        if not images:
+            return []
+        if len(images) == 1:
+            return [self.inpaint(images[0], masks[0])]
+
+        self.load()
+        assert self._model is not None and self._torch is not None
+        torch = self._torch
+
+        pairs = list(zip(images, masks))
+
+        def _forward_chunk(chunk_pairs: Sequence[tuple[np.ndarray, np.ndarray]]) -> list[np.ndarray]:
+            chunk_imgs = [p[0] for p in chunk_pairs]
+            chunk_masks = [p[1] for p in chunk_pairs]
+            chunk_results: list[np.ndarray] = []
+
+            try:
+                # Check if any item in chunk has an empty mask
+                scaled_info = []
+                for img, mask in zip(chunk_imgs, chunk_masks):
+                    sh, sw = img.shape[:2]
+                    scale = min(1.0, self.max_side / max(sh, sw))
+                    rw = max(8, int(round(sw * scale)))
+                    rh = max(8, int(round(sh * scale)))
+                    scaled_info.append((sh, sw, rh, rw, scale))
+
+                max_h = max(info[2] for info in scaled_info)
+                max_w = max(info[3] for info in scaled_info)
+                target_h = ((max_h + 7) // 8) * 8
+                target_w = ((max_w + 7) // 8) * 8
+
+                batch_img_t = []
+                batch_mask_t = []
+
+                for (img, mask), (sh, sw, rh, rw, scale) in zip(zip(chunk_imgs, chunk_masks), scaled_info):
+                    resized = cv2.resize(
+                        img, (rw, rh),
+                        interpolation=cv2.INTER_AREA if scale < 1 else cv2.INTER_LINEAR,
+                    )
+                    resized_mask = cv2.resize(mask, (rw, rh), interpolation=cv2.INTER_NEAREST)
+                    pad_h = target_h - rh
+                    pad_w = target_w - rw
+                    padded = cv2.copyMakeBorder(resized, 0, pad_h, 0, pad_w, cv2.BORDER_REFLECT_101)
+                    padded_mask = cv2.copyMakeBorder(resized_mask, 0, pad_h, 0, pad_w, cv2.BORDER_CONSTANT, value=0)
+
+                    img_t = torch.from_numpy(padded.transpose(2, 0, 1)).float() / 255.0
+                    mask_t = torch.from_numpy((padded_mask > 0).astype(np.float32)).unsqueeze(0)
+                    batch_img_t.append(img_t)
+                    batch_mask_t.append(mask_t)
+
+                stacked_imgs = torch.stack(batch_img_t).cuda()
+                stacked_masks = torch.stack(batch_mask_t).cuda()
+                model_input = torch.cat((stacked_imgs * (1.0 - stacked_masks), stacked_masks), dim=1)
+
+                def _forward_batch(use_bf16: bool):
+                    with torch.inference_mode(), torch.autocast(
+                        device_type="cuda", dtype=torch.bfloat16, enabled=use_bf16
+                    ):
+                        return self._model(model_input)
+
+                try:
+                    predictions = _forward_batch(self._use_bf16)
+                except RuntimeError as exc:
+                    if "out of memory" in str(exc).lower():
+                        raise
+                    if not self._use_bf16:
+                        raise
+                    self._use_bf16 = False
+                    predictions = _forward_batch(False)
+
+                preds_np = predictions.float().clamp(0, 1).cpu().numpy().transpose(0, 2, 3, 1)
+
+                for k, ((img, mask), (sh, sw, rh, rw, _)) in enumerate(zip(zip(chunk_imgs, chunk_masks), scaled_info)):
+                    if not np.any(mask):
+                        chunk_results.append(img.copy())
+                        continue
+
+                    pred = (preds_np[k, :rh, :rw] * 255.0 + 0.5).astype(np.uint8)
+                    if (rh, rw) != (sh, sw):
+                        pred = cv2.resize(pred, (sw, sh), interpolation=cv2.INTER_CUBIC)
+
+                    selected = mask > 0
+                    ring = (cv2.dilate(selected.astype(np.uint8), np.ones((11, 11), np.uint8)) > 0) & ~selected
+                    if np.count_nonzero(ring) >= 24:
+                        context_median = np.median(img[ring].astype(np.float32), axis=0)
+                        prediction_median = np.median(pred[selected].astype(np.float32), axis=0)
+                        color_shift = context_median - prediction_median
+                        if float(np.linalg.norm(color_shift)) > 35.0:
+                            corrected = pred[selected].astype(np.float32) + color_shift
+                            pred[selected] = np.clip(corrected, 0, 255).astype(np.uint8)
+                    res = img.copy()
+                    res[selected] = pred[selected]
+                    chunk_results.append(res)
+
+            except Exception as exc:
+                if "out of memory" in str(exc).lower() or exc.__class__.__name__ == "OutOfMemoryError":
+                    raise
+                # Fallback to single inpaint for non-OOM errors / mock execution
+                chunk_results = [self.inpaint(img, mask) for img, mask in zip(chunk_imgs, chunk_masks)]
+
+            return chunk_results
+
+        if not hasattr(self, "_batcher") or self._batcher is None:
+            from core.system.adaptive_batcher import ElasticAdaptiveBatcher
+            self._batcher = ElasticAdaptiveBatcher(default_batch_size=batch_size, min_batch_size=1, vram_ceiling=0.95)
+
+        return self._batcher.execute(pairs, _forward_chunk, batch_size=batch_size)
+
 
 def _build_big_lama_generator(torch):
     nn = torch.nn

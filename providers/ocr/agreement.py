@@ -225,6 +225,48 @@ def _make_verdict(
     )
 
 
+def should_run_verifier(
+    primary: OCRResult,
+    region: Any = None,
+    min_confidence: float = 0.92,
+) -> tuple[bool, str]:
+    """Koşullu Doğrulama (Gated Verifier) kontrolü.
+
+    Primary OCR sonucu yüksek güvenli (>= 0.92), temiz ve yapısal olarak
+    kusursuz ise ikincil ağır verifier model çağrısını güvenle atlar.
+
+    Returns:
+        (should_run: bool, reason: str)
+    """
+    raw = primary.raw_text or primary.text or ""
+    text = normalize_ocr_text(raw).strip()
+
+    if not text:
+        return True, "primary_empty"
+
+    conf = primary.confidence
+    if conf is None or conf < min_confidence:
+        conf_str = f"{conf:.3f}" if conf is not None else "none"
+        return True, f"low_confidence:{conf_str}"
+
+    if "low_ocr_confidence" in primary.warnings:
+        return True, "low_confidence_warning"
+
+    is_susp, susp_reason = _is_structurally_suspicious_latin(text)
+    if is_susp:
+        return True, f"suspicious:{susp_reason}"
+
+    if not any(c.isalnum() for c in text):
+        return True, "no_alphanumeric"
+
+    if region is not None:
+        review_reason = getattr(region, "review_reason", None)
+        if review_reason == "ambiguous_cjk_review":
+            return True, "ambiguous_cjk_review"
+
+    return False, "high_confidence_clean_primary"
+
+
 def decide_ocr_agreement(
     primary: OCRResult,
     verifier: OCRResult | None = None,

@@ -313,7 +313,11 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
             finally:
                 self._server_log_handle = None
 
-    def _query_chat_completion(self, prepared_text: str) -> tuple[str, int, int, float]:
+    def _query_chat_completion(
+        self,
+        prepared_text: str,
+        max_tokens: int | None = None,
+    ) -> tuple[str, int, int, float]:
         rendered_prompt = render_hy_mt2_prompt(prepared_text)
         payload = {
             "prompt": rendered_prompt,
@@ -322,9 +326,9 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
             "top_p": 1.0,
             "min_p": 0.0,
             "seed": 0,
-            "n_predict": self.max_output_tokens,
+            "n_predict": max_tokens or self.max_output_tokens,
             "stream": False,
-            "cache_prompt": False,
+            "cache_prompt": True,
         }
         request = urllib.request.Request(
             f"{self.server_url}/completion",
@@ -356,7 +360,12 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
             generation_seconds,
         )
 
-    def _request_translation(self, prepared_text: str, label: str) -> tuple[str, str, bool]:
+    def _request_translation(
+        self,
+        prepared_text: str,
+        label: str,
+        max_tokens: int | None = None,
+    ) -> tuple[str, str, bool]:
         raw_text = ""
         rendered_prompt = render_hy_mt2_prompt(prepared_text)
         for attempt in range(2):
@@ -365,7 +374,7 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
             self.metrics.generation_call_count += 1
             try:
                 raw_text, input_tokens, generated_tokens, generation_seconds = (
-                    self._query_chat_completion(prepared_text)
+                    self._query_chat_completion(prepared_text, max_tokens=max_tokens)
                 )
             except (
                 http.client.RemoteDisconnected,
@@ -432,7 +441,126 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
     def _protected_terms(prepared: Any) -> list[dict[str, Any]]:
         return [asdict(meta) for meta in prepared.placeholder_map.values()]
 
-    def translate(self, inp: TranslationInput) -> TranslationOutput:
+    def _process_single_prepared_item(
+        self,
+        item: TranslationItem,
+        prepared: Any,
+    ) -> tuple[TranslationOutputItem, str, HyMT2ProductionTrace]:
+        protected_terms = self._protected_terms(prepared)
+
+        if prepared.system_ui_translation is not None:
+            self.metrics.system_ui_bypass_count += 1
+            result = TranslationOutputItem(
+                region_id=item.region_id,
+                source=item.source,
+                translation=prepared.system_ui_translation,
+                raw_model_response="[SYSTEM_UI_BYPASS]",
+            )
+            trace = HyMT2ProductionTrace(
+                region_id=item.region_id,
+                original_source=item.source,
+                normalized_input=prepared.normalized_source,
+                protected_input=prepared.prepared_text,
+                protected_terms=protected_terms,
+                raw_hy_output="[SYSTEM_UI_BYPASS]",
+                stripped_output=prepared.system_ui_translation,
+                restored_output=prepared.system_ui_translation,
+                final_output=prepared.system_ui_translation,
+                guard_flags=[],
+                requires_review=False,
+                model_call_performed=False,
+                latency_sec=None,
+                pipeline_diagnosis="SYSTEM_UI_BYPASS",
+            )
+            return result, "[SYSTEM_UI_BYPASS]", trace
+
+        if prepared.term_only_translation is not None:
+            self.metrics.term_only_bypass_count += 1
+            result = TranslationOutputItem(
+                region_id=item.region_id,
+                source=item.source,
+                translation=prepared.term_only_translation,
+                raw_model_response="[TERM_ONLY_BYPASS]",
+            )
+            trace = HyMT2ProductionTrace(
+                region_id=item.region_id,
+                original_source=item.source,
+                normalized_input=prepared.normalized_source,
+                protected_input=prepared.prepared_text,
+                protected_terms=protected_terms,
+                raw_hy_output="[TERM_ONLY_BYPASS]",
+                stripped_output=prepared.term_only_translation,
+                restored_output=prepared.term_only_translation,
+                final_output=prepared.term_only_translation,
+                guard_flags=[],
+                requires_review=False,
+                model_call_performed=False,
+                latency_sec=None,
+                pipeline_diagnosis="TERM_ONLY_BYPASS",
+            )
+            return result, "[TERM_ONLY_BYPASS]", trace
+
+        request_started = time.perf_counter()
+        raw_text, cleaned, error_occurred = self._request_translation(
+            prepared.prepared_text, label=f"item {item.region_id}"
+        )
+        latency = time.perf_counter() - request_started
+
+        if error_occurred or not cleaned:
+            warning = "translation_server_error" if error_occurred else "empty_translation"
+            result = TranslationOutputItem(
+                region_id=item.region_id,
+                source=item.source,
+                translation=None,
+                raw_model_response=raw_text[:500] if raw_text else "[Server Error]",
+                validation_warnings=[warning],
+                requires_review=True,
+            )
+            restored = None
+            diagnosis = "PROVIDER_FAILURE" if error_occurred else "EMPTY_MODEL_OUTPUT"
+        else:
+            restored = restore_protected_translation(cleaned, prepared.placeholder_map)
+            result = self._finalize_prepared_item(prepared, cleaned, raw_text)
+            diagnosis = (
+                "GUARD_REVIEW:" + ",".join(result.validation_warnings)
+                if result.validation_warnings
+                else "MODEL_OUTPUT_ACCEPTED"
+            )
+
+        trace = HyMT2ProductionTrace(
+            region_id=item.region_id,
+            original_source=item.source,
+            normalized_input=prepared.normalized_source,
+            protected_input=prepared.prepared_text,
+            protected_terms=protected_terms,
+            raw_hy_output=raw_text,
+            stripped_output=cleaned,
+            restored_output=restored,
+            final_output=result.translation,
+            guard_flags=list(result.validation_warnings),
+            requires_review=result.requires_review,
+            model_call_performed=True,
+            latency_sec=round(latency, 6),
+            pipeline_diagnosis=diagnosis,
+        )
+        return result, raw_text, trace
+
+    def translate_batch(
+        self,
+        texts: list[str],
+        context: dict[str, Any] | None = None,
+        chunk_size: int = 16,
+    ) -> list[str]:
+        """Numaralandırılmış toplu istemleme (Batch Prompting) ve otomatik fallback ile çevirir."""
+        if not texts:
+            return []
+        items = [TranslationItem(region_id=idx + 1, source=t) for idx, t in enumerate(texts)]
+        inp = TranslationInput(items=items)
+        out = self.translate(inp, chunk_size=chunk_size)
+        out_map = {item.region_id: item.translation for item in out.results}
+        return [out_map.get(idx + 1, "") or "" for idx in range(len(texts))]
+
+    def translate(self, inp: TranslationInput, chunk_size: int = 16) -> TranslationOutput:
         if not self.is_loaded:
             self.load()
 
@@ -440,117 +568,107 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
         results: list[TranslationOutputItem] = []
         raw_responses: list[str] = []
 
+        prepared_items = []
         for item in inp.items:
-            prepared = self._prepare_item(item, inp)
-            protected_terms = self._protected_terms(prepared)
+            prep = self._prepare_item(item, inp)
+            prepared_items.append((item, prep))
 
-            if prepared.system_ui_translation is not None:
-                self.metrics.system_ui_bypass_count += 1
-                result = TranslationOutputItem(
-                    region_id=item.region_id,
-                    source=item.source,
-                    translation=prepared.system_ui_translation,
-                    raw_model_response="[SYSTEM_UI_BYPASS]",
-                )
-                results.append(result)
-                raw_responses.append("[SYSTEM_UI_BYPASS]")
-                self.last_traces.append(
-                    HyMT2ProductionTrace(
-                        region_id=item.region_id,
-                        original_source=item.source,
-                        normalized_input=prepared.normalized_source,
-                        protected_input=prepared.prepared_text,
-                        protected_terms=protected_terms,
-                        raw_hy_output="[SYSTEM_UI_BYPASS]",
-                        stripped_output=prepared.system_ui_translation,
-                        restored_output=prepared.system_ui_translation,
-                        final_output=prepared.system_ui_translation,
-                        guard_flags=[],
-                        requires_review=False,
-                        model_call_performed=False,
-                        latency_sec=None,
-                        pipeline_diagnosis="SYSTEM_UI_BYPASS",
-                    )
-                )
+        # Chunked multi-line batching
+        for i in range(0, len(prepared_items), chunk_size):
+            chunk = prepared_items[i : i + chunk_size]
+
+            non_bypass = [
+                (idx, it, pr)
+                for idx, (it, pr) in enumerate(chunk)
+                if pr.system_ui_translation is None and pr.term_only_translation is None
+            ]
+
+            if len(non_bypass) <= 1:
+                for it, pr in chunk:
+                    res, raw, trace = self._process_single_prepared_item(it, pr)
+                    results.append(res)
+                    raw_responses.append(raw)
+                    self.last_traces.append(trace)
                 continue
 
-            if prepared.term_only_translation is not None:
-                self.metrics.term_only_bypass_count += 1
-                result = TranslationOutputItem(
-                    region_id=item.region_id,
-                    source=item.source,
-                    translation=prepared.term_only_translation,
-                    raw_model_response="[TERM_ONLY_BYPASS]",
-                )
-                results.append(result)
-                raw_responses.append("[TERM_ONLY_BYPASS]")
-                self.last_traces.append(
-                    HyMT2ProductionTrace(
-                        region_id=item.region_id,
-                        original_source=item.source,
-                        normalized_input=prepared.normalized_source,
-                        protected_input=prepared.prepared_text,
-                        protected_terms=protected_terms,
-                        raw_hy_output="[TERM_ONLY_BYPASS]",
-                        stripped_output=prepared.term_only_translation,
-                        restored_output=prepared.term_only_translation,
-                        final_output=prepared.term_only_translation,
-                        guard_flags=[],
-                        requires_review=False,
-                        model_call_performed=False,
-                        latency_sec=None,
-                        pipeline_diagnosis="TERM_ONLY_BYPASS",
-                    )
-                )
-                continue
+            # Multi-line numbered prompt
+            numbered_lines = [f"[{k+1}] {pr.prepared_text}" for k, (_, it, pr) in enumerate(non_bypass)]
+            batch_prompt = "\n".join(numbered_lines)
+            max_tokens = max(self.max_output_tokens, len(non_bypass) * 64)
 
-            request_started = time.perf_counter()
-            raw_text, cleaned, error_occurred = self._request_translation(
-                prepared.prepared_text, label=f"item {item.region_id}"
+            req_start = time.perf_counter()
+            raw_text, cleaned, err = self._request_translation(
+                batch_prompt, label=f"batch_{i}", max_tokens=max_tokens
             )
-            latency = time.perf_counter() - request_started
-            raw_responses.append(raw_text)
+            req_latency = time.perf_counter() - req_start
 
-            if error_occurred or not cleaned:
-                warning = "translation_server_error" if error_occurred else "empty_translation"
-                result = TranslationOutputItem(
-                    region_id=item.region_id,
-                    source=item.source,
-                    translation=None,
-                    raw_model_response=raw_text[:500] if raw_text else "[Server Error]",
-                    validation_warnings=[warning],
-                    requires_review=True,
-                )
-                restored = None
-                diagnosis = "PROVIDER_FAILURE" if error_occurred else "EMPTY_MODEL_OUTPUT"
+            # Parse numbered responses [1] ... [N]
+            pattern = re.compile(r"\[(\d+)\]\s*(.*?)(?=\n\s*\[\d+\]|\Z)", re.DOTALL)
+            parsed: dict[int, str] = {}
+            for m in pattern.finditer(cleaned):
+                try:
+                    parsed[int(m.group(1))] = m.group(2).strip()
+                except ValueError:
+                    pass
+
+            batch_valid = (
+                not err
+                and len(parsed) == len(non_bypass)
+                and all((k + 1) in parsed and parsed[k + 1] for k in range(len(non_bypass)))
+            )
+
+            if batch_valid:
+                nb_map = {orig_k: (k + 1) for k, (orig_k, it, pr) in enumerate(non_bypass)}
+                temp_chunk_results = []
+
+                for chunk_k, (it, pr) in enumerate(chunk):
+                    if pr.system_ui_translation is not None or pr.term_only_translation is not None:
+                        temp_chunk_results.append(self._process_single_prepared_item(it, pr))
+                    else:
+                        batch_num = nb_map[chunk_k]
+                        raw_tr = parsed[batch_num]
+                        restored = restore_protected_translation(raw_tr, pr.placeholder_map)
+                        res = self._finalize_prepared_item(pr, raw_tr, raw_text)
+                        diagnosis = (
+                            "GUARD_REVIEW:" + ",".join(res.validation_warnings)
+                            if res.validation_warnings
+                            else "MODEL_OUTPUT_ACCEPTED"
+                        )
+                        trace = HyMT2ProductionTrace(
+                            region_id=it.region_id,
+                            original_source=it.source,
+                            normalized_input=pr.normalized_source,
+                            protected_input=pr.prepared_text,
+                            protected_terms=self._protected_terms(pr),
+                            raw_hy_output=raw_text,
+                            stripped_output=raw_tr,
+                            restored_output=restored,
+                            final_output=res.translation,
+                            guard_flags=list(res.validation_warnings),
+                            requires_review=res.requires_review,
+                            model_call_performed=True,
+                            latency_sec=round(req_latency / len(non_bypass), 6),
+                            pipeline_diagnosis=diagnosis,
+                        )
+                        temp_chunk_results.append((res, raw_text, trace))
+
+                for res, raw, trace in temp_chunk_results:
+                    results.append(res)
+                    raw_responses.append(raw)
+                    self.last_traces.append(trace)
             else:
-                restored = restore_protected_translation(cleaned, prepared.placeholder_map)
-                result = self._finalize_prepared_item(prepared, cleaned, raw_text)
-                diagnosis = (
-                    "GUARD_REVIEW:" + ",".join(result.validation_warnings)
-                    if result.validation_warnings
-                    else "MODEL_OUTPUT_ACCEPTED"
+                # Transparent fallback to sequential for this chunk
+                logger.info(
+                    "Hy-MT2 batch parse incomplete (%d/%d parsed); falling back to sequential for chunk %d",
+                    len(parsed),
+                    len(non_bypass),
+                    i // chunk_size,
                 )
-
-            results.append(result)
-            self.last_traces.append(
-                HyMT2ProductionTrace(
-                    region_id=item.region_id,
-                    original_source=item.source,
-                    normalized_input=prepared.normalized_source,
-                    protected_input=prepared.prepared_text,
-                    protected_terms=protected_terms,
-                    raw_hy_output=raw_text,
-                    stripped_output=cleaned,
-                    restored_output=restored,
-                    final_output=result.translation,
-                    guard_flags=list(result.validation_warnings),
-                    requires_review=result.requires_review,
-                    model_call_performed=True,
-                    latency_sec=round(latency, 6),
-                    pipeline_diagnosis=diagnosis,
-                )
-            )
+                for it, pr in chunk:
+                    res, raw, trace = self._process_single_prepared_item(it, pr)
+                    results.append(res)
+                    raw_responses.append(raw)
+                    self.last_traces.append(trace)
 
         return TranslationOutput(
             inputs=inp,
