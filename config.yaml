@@ -37,7 +37,7 @@ translator:
   enabled: true
   fallback_provider: null
   gemini_api_key: null
-  gemini_model: gemini-2.5-flash
+  gemini_model: gemini-2.0-flash
   llama_executable: C:\AI\llama-cpp-cuda\llama-server.exe
   model_path: C:\AI\Models\HY-MT2-7B-Q8_0.gguf
   provider: hy_mt2_gguf

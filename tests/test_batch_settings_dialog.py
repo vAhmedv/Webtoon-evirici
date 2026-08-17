@@ -128,7 +128,7 @@ def test_gemini_api_key_ui_interaction(qapp, tmp_path):
     dialog.combo_model.setCurrentText("gemini-2.0-flash")
 
     # Test mock test button
-    with patch("providers.translation.gemini_translation.GeminiTranslationProvider.translate_batch", return_value=["Merhaba, dunya!"]):
+    with patch("providers.translation.gemini_translation.GeminiTranslationProvider.verify_connection", return_value=(True, "Bağlantı Başarılı (gemini-2.0-flash -> 'Merhaba')")):
         dialog._on_test_gemini_api()
         assert "Bağlantı Başarılı" in dialog.lbl_gemini_status.text()
 

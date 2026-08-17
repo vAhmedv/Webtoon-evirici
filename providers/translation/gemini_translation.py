@@ -26,7 +26,7 @@ from providers.translation.base import (
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
+DEFAULT_GEMINI_MODEL = "gemini-2.0-flash"
 GEMINI_ENDPOINT_TEMPLATE = (
     "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
 )
@@ -294,3 +294,62 @@ class GeminiTranslationProvider(TranslationProvider):
                     pass
 
         return result
+
+    @classmethod
+    def verify_connection(
+        cls,
+        api_key: str,
+        model_name: str = DEFAULT_GEMINI_MODEL,
+        timeout_sec: float = 10.0,
+    ) -> tuple[bool, str]:
+        """Tests the API key and returns (success, detail_message)."""
+        key = (api_key or "").strip()
+        if not key:
+            return False, "API anahtarı boş olamaz."
+
+        models_to_try = [model_name]
+        if model_name != "gemini-2.0-flash":
+            models_to_try.append("gemini-2.0-flash")
+        if "gemini-1.5-flash" not in models_to_try:
+            models_to_try.append("gemini-1.5-flash")
+
+        last_error = ""
+        for m in models_to_try:
+            url = GEMINI_ENDPOINT_TEMPLATE.format(model=m, api_key=key)
+            body = {
+                "contents": [
+                    {
+                        "parts": [{"text": "Translate 'Hello' to Turkish. Output only 'Merhaba'."}]
+                    }
+                ],
+                "generationConfig": {
+                    "temperature": 0.1,
+                    "maxOutputTokens": 32,
+                },
+            }
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(body).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
+                    resp_data = json.loads(resp.read().decode("utf-8"))
+                    candidates = resp_data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts and parts[0].get("text"):
+                            answer = parts[0]["text"].strip()
+                            return True, f"Bağlantı Başarılı ({m} -> '{answer}')"
+            except urllib.error.HTTPError as http_err:
+                try:
+                    err_json = json.loads(http_err.read().decode("utf-8", errors="replace"))
+                    msg = err_json.get("error", {}).get("message", f"HTTP {http_err.code}")
+                except Exception:
+                    msg = f"HTTP {http_err.code}: {http_err.reason}"
+                last_error = msg
+            except Exception as e:
+                last_error = str(e)
+
+        return False, last_error or "Yanıt alınamadı."

@@ -138,7 +138,7 @@ class BatchSettingsDialog(QDialog):
         status_row.addWidget(self.lbl_gemini_status, 1)
 
         self.combo_model = QComboBox(self)
-        self.combo_model.addItems(["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
+        self.combo_model.addItems(["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"])
         status_row.addWidget(self.combo_model)
 
         gemini_layout.addLayout(status_row)
@@ -378,16 +378,15 @@ class BatchSettingsDialog(QDialog):
 
         from providers.translation.gemini_translation import GeminiTranslationProvider
         try:
-            prov = GeminiTranslationProvider(api_key=key, model_name=model, timeout_sec=10.0)
-            res = prov.translate_batch(["Hello, world!"])
-            if res and res[0]:
-                self.lbl_gemini_status.setText(f"✅ Bağlantı Başarılı! Çıktı: '{res[0]}'")
+            ok, msg = GeminiTranslationProvider.verify_connection(api_key=key, model_name=model, timeout_sec=10.0)
+            if ok:
+                self.lbl_gemini_status.setText(f"✅ {msg}")
                 self.lbl_gemini_status.setStyleSheet("color: #10B981; font-weight: bold;")
             else:
-                self.lbl_gemini_status.setText("❌ Yanıt alınamadı.")
+                self.lbl_gemini_status.setText(f"❌ {msg}")
                 self.lbl_gemini_status.setStyleSheet("color: #EF4444;")
         except Exception as e:
-            self.lbl_gemini_status.setText(f"❌ Test Başarısız: {str(e)[:45]}...")
+            self.lbl_gemini_status.setText(f"❌ Hata: {str(e)[:50]}")
             self.lbl_gemini_status.setStyleSheet("color: #EF4444;")
 
     def _load_values(self) -> None:

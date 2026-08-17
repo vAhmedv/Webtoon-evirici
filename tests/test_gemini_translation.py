@@ -121,3 +121,24 @@ def test_gemini_translate_batch_mocked():
         results = provider.translate_batch(texts)
 
     assert results == ["Selam!", "Görüşürüz!"]
+
+
+def test_gemini_verify_connection_success():
+    mock_data = {
+        "candidates": [
+            {"content": {"parts": [{"text": "Merhaba"}]}}
+        ]
+    }
+    mock_resp = io.BytesIO(json.dumps(mock_data).encode("utf-8"))
+
+    with patch("urllib.request.urlopen", return_value=mock_resp):
+        ok, msg = GeminiTranslationProvider.verify_connection(api_key="valid-key", model_name="gemini-2.0-flash")
+        assert ok is True
+        assert "Bağlantı Başarılı" in msg
+        assert "Merhaba" in msg
+
+
+def test_gemini_verify_connection_empty_key():
+    ok, msg = GeminiTranslationProvider.verify_connection(api_key="")
+    assert ok is False
+    assert "boş olamaz" in msg

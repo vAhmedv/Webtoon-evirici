@@ -66,7 +66,7 @@ class TranslatorConfig:
     server_url: str | None = None
     fallback_provider: str | None = None
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-2.0-flash"
 
 
 @dataclass(frozen=True)
@@ -136,7 +136,7 @@ def load_config(path: str | Path | None = None) -> Config:
 
 def update_gemini_api_key(
     api_key: str,
-    model_name: str = "gemini-2.5-flash",
+    model_name: str = "gemini-2.0-flash",
     path: str | Path | None = None,
 ) -> None:
     """Updates the Gemini API key and model in config.yaml and the environment."""
