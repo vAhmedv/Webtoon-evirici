@@ -5,6 +5,7 @@ Core pipeline'ı UI'dan bağımsız olarak orchestrate eder.
 
 from __future__ import annotations
 
+import gc
 import io
 import json
 import os
@@ -74,6 +75,7 @@ class AnalysisResult:
         visualization_paths: list[Path] | None = None,
         warnings: list[str] | None = None,
         ocr_elapsed_time: float = 0.0,
+        stage_timings: dict[str, float] | None = None,
     ) -> None:
         self.pages = pages
         self.windows = windows
@@ -85,6 +87,7 @@ class AnalysisResult:
         self.visualization_paths = visualization_paths or []
         self.warnings = warnings or []
         self.ocr_elapsed_time = ocr_elapsed_time
+        self.stage_timings = stage_timings or {}
 
 
 class ProductionPipelineResult:
@@ -103,6 +106,7 @@ class ProductionPipelineResult:
         translation_elapsed_time: float = 0.0,
         inpainting_rendering_elapsed_time: float = 0.0,
         warnings: list[str] | None = None,
+        stage_timings: dict[str, float] | None = None,
     ) -> None:
         self.source_chapter = source_chapter
         self.output_directory = output_directory
@@ -120,6 +124,7 @@ class ProductionPipelineResult:
         self.translation_elapsed_time = translation_elapsed_time
         self.inpainting_rendering_elapsed_time = inpainting_rendering_elapsed_time
         self.warnings = warnings or []
+        self.stage_timings = stage_timings or {}
 
 
 class ChapterAnalyzer:
@@ -158,6 +163,8 @@ class ChapterAnalyzer:
         bir dizine aktarır.
         """
         start_time = time.time()
+        t_total_start = time.perf_counter()
+        stage_timings: dict[str, float] = {}
         chapter_path = Path(chapter_path).resolve()
         output_path = Path(output_path).resolve()
         warnings: list[str] = []
@@ -190,9 +197,11 @@ class ChapterAnalyzer:
             progress_callback(ProgressEvent(stage=stage, current=current, total=total, message=message, percent=pct))
 
         # 1. Load Chapter
+        t_load_start = time.perf_counter()
         _progress("Loading chapter", message=str(chapter_path))
         pages = load_chapter(chapter_path, cfg, allow_non_uniform_widths=True)
         _progress("Loading chapter", current=1, total=1, message=f"{len(pages)} pages loaded")
+        stage_timings["load_chapter"] = round(time.perf_counter() - t_load_start, 3)
 
         if cancellation_token and cancellation_token.is_cancelled:
             raise CancelledError()
@@ -208,6 +217,7 @@ class ChapterAnalyzer:
         )
 
         # 4. Detection Stage
+        t_det_start = time.perf_counter()
         _progress("Loading detector")
         if hasattr(detector, "confidence_threshold"):
             detector.confidence_threshold = conf
@@ -276,12 +286,17 @@ class ChapterAnalyzer:
 
         # Merge duplicates
         regions = merge_duplicates(all_detections, min_confidence=conf)
+        stage_timings["detection"] = round(time.perf_counter() - t_det_start, 3)
 
         if cancellation_token and cancellation_token.is_cancelled:
             raise CancelledError()
 
         # 5. Dual OCR Stage with Selective Second-Pass & Region Classification
         ocr_start = time.time()
+        t_ocr_start = time.perf_counter()
+        total_ocr_boxes = 0
+        gated_verified_boxes = 0
+        gated_passed_boxes = 0
         repair_candidates: list[tuple[Region, OCRRepairInput, Any]] = []
 
         if primary_ocr is not None:
@@ -336,8 +351,10 @@ class ChapterAnalyzer:
                                 ocr_regions.append(item)
                         continue
 
+                    total_ocr_boxes += len(active_items)
+
                     # 5b. Primary OCR Batch Recognition
-                    p_crops = [item[2].image for item in active_items]
+                    p_crops = [item[2].to_pil() for item in active_items]
                     p_bboxes = [item[1].global_bbox for item in active_items]
                     primary_results = primary_ocr.recognize_batch(p_crops, p_bboxes)
 
@@ -352,7 +369,7 @@ class ChapterAnalyzer:
                             original_bbox = region.global_bbox
                             region = _replace_region(region, global_bbox=validity.recovered_bbox)
                             crop = cropper.crop_region(region, adaptive_padding=True)
-                            p_res = primary_ocr.recognize(crop.image, region_bbox=region.global_bbox)
+                            p_res = primary_ocr.recognize(crop.to_pil(), region_bbox=region.global_bbox)
                             validity = evaluate_region_validity(region, p_res.text)
                             recovery_metadata = {
                                 "geometry_recovered": True,
@@ -390,18 +407,23 @@ class ChapterAnalyzer:
                             continue
 
                         single_verdict = decide_ocr_agreement(p_res, verifier=None)
-                        needs_verifier, _ = should_run_verifier(p_res, region, min_confidence=0.92)
+                        needs_verifier, _ = should_run_verifier(p_res, region, min_confidence=0.85)
 
                         if (single_verdict.requires_review or needs_verifier) and verifier_ocr is not None:
                             verifier_queue.append((rel_idx, region, crop, p_res, validity_metadata, single_verdict))
                         else:
                             processed_items[rel_idx] = (region, p_res, validity_metadata, single_verdict, None, crop)
 
-                    # 5d. Secondary OCR Batch Execution (PaddleOCR-VL GPU Batch)
+                    gated_verified_boxes += len(verifier_queue)
+                    gated_passed_boxes += len(active_items) - len(verifier_queue)
+
+                    # 5d. Secondary OCR Batch Execution (PaddleOCR-VL GPU Batch with In-GPU Tensor Cropping)
                     if verifier_queue and verifier_ocr is not None:
-                        v_crops = [item[2].image for item in verifier_queue]
+                        from core.system.adaptive_batcher import get_batch_config
+                        v_crops = [item[2] for item in verifier_queue]
                         v_bboxes = [item[1].global_bbox for item in verifier_queue]
-                        verifier_results = verifier_ocr.recognize_batch(v_crops, v_bboxes, batch_size=32)
+                        v_batch_size = get_batch_config().ocr_vl_batch
+                        verifier_results = verifier_ocr.recognize_batch(v_crops, v_bboxes, batch_size=v_batch_size)
 
                         for item, v_res in zip(verifier_queue, verifier_results):
                             rel_idx, region, crop, p_res, validity_metadata, single_verdict = item
@@ -455,23 +477,19 @@ class ChapterAnalyzer:
                                 "repair_eligibility": eligibility_metadata,
                             },
                         )
-                        chunk_results[rel_idx] = updated_region
 
-                        if (
-                            updated_region.status == RegionStatus.REVIEW
-                            and updated_region.type in (RegionType.DIALOGUE, RegionType.NARRATION, RegionType.UNKNOWN)
-                            and verdict.needs_repair
-                            and accepted
-                            and repair_eligibility.eligible
-                        ):
+                        if repair_eligibility.eligible and qwen_repair is not None:
                             repair_inp = OCRRepairInput(
-                                primary_raw=verdict.primary_raw,
-                                primary_normalized=verdict.primary_normalized,
-                                verifier_raw=verdict.verifier_raw,
-                                verifier_normalized=verdict.verifier_normalized,
-                                reason=verdict_reason or "disagreement",
+                                region_id=region.id,
+                                primary_text=p_res.text or "",
+                                primary_confidence=p_res.confidence,
+                                verifier_text=v_res.text if v_res else None,
+                                verifier_confidence=v_res.confidence if v_res else None,
+                                agreement_verdict=verdict.reason,
                             )
-                            repair_candidates.append((updated_region, repair_inp, crop.image))
+                            repair_candidates.append((updated_region, repair_inp, crop.to_pil()))
+
+                        chunk_results[rel_idx] = updated_region
 
                     for item in chunk_results:
                         if item is not None:
@@ -479,11 +497,20 @@ class ChapterAnalyzer:
 
                 regions = ocr_regions
             finally:
+                cropper.clear_gpu_cache()
                 primary_ocr.unload()
                 if verifier_ocr is not None:
                     verifier_ocr.unload()
+                try:
+                    import torch
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                except Exception:
+                    pass
+                gc.collect()
 
         ocr_elapsed = time.time() - ocr_start
+        stage_timings["ocr"] = round(time.perf_counter() - t_ocr_start, 3)
 
         # 6. Visual OCR Repair Stage (Sequential VRAM lifecycle)
         if repair_candidates and qwen_repair is not None:
@@ -576,6 +603,7 @@ class ChapterAnalyzer:
 
         # 9. Block-Level Translation Stage (Hy-MT2 GGUF)
         trans_start = time.time()
+        t_trans_start = time.perf_counter()
         translated_block_pairs: list[tuple[TextBlock, str]] = []
 
         if translation_eligible_blocks and translator is not None:
@@ -612,11 +640,13 @@ class ChapterAnalyzer:
                 translator.unload()
 
         trans_elapsed = time.time() - trans_start
+        stage_timings["translation"] = round(time.perf_counter() - t_trans_start, 3)
         translation_failed_count = len(translation_eligible_blocks) - len(translated_block_pairs)
         pre_inpaint_skipped_count = len(text_blocks) - len(translated_block_pairs)
 
         # 10. Block-Level Inpainting & Rendering Stage
         inp_render_start = time.time()
+        t_inp_render_start = time.perf_counter()
         _progress("Inpainting and Rendering Turkish Text Blocks")
 
         from PIL import Image as PILImage
@@ -640,11 +670,13 @@ class ChapterAnalyzer:
         if cfg.inpainter.model:
             inpainter_kwargs["lama_checkpoint"] = cfg.inpainter.model
         inpainter = Inpainter(**inpainter_kwargs)
+        t_inp_start = time.perf_counter()
         try:
             cleaned_canvas = inpainter.inpaint_blocks(global_canvas, [b for b, _ in translated_block_pairs])
         finally:
             # Translation models are already unloaded above; release LaMa before rendering/export.
             inpainter.unload()
+        stage_timings["inpainting"] = round(time.perf_counter() - t_inp_start, 3)
 
         # Flag regions belonging to inpainting review blocks
         if inpainter.review_block_ids:
@@ -663,6 +695,7 @@ class ChapterAnalyzer:
             regions = updated_regions
 
         # Render Turkish text into merged block bounding boxes (excluding review blocks)
+        t_render_start = time.perf_counter()
         renderer = TextRenderer()
         renderable_pairs = [
             pair for pair in translated_block_pairs
@@ -676,6 +709,7 @@ class ChapterAnalyzer:
         # 11. Output Export & Analysis Metadata
         _progress("Exporting final output pages")
         exported_page_paths = export_chapter_pages(pages, rendered_canvas, output_path)
+        stage_timings["render_and_save"] = round(time.perf_counter() - t_render_start, 3)
 
         analysis_dir = output_path / "analysis"
         analysis_dir.mkdir(parents=True, exist_ok=True)
@@ -725,6 +759,32 @@ class ChapterAnalyzer:
             )
 
         elapsed = time.time() - start_time
+        stage_timings["total"] = round(time.perf_counter() - t_total_start, 3)
+
+        # Build and log telemetry stage timings banner
+        trans_chunk_sz = getattr(translator, "chunk_size", 32)
+        total_tr_items = len(translation_eligible_blocks)
+        total_tr_chunks = (total_tr_items + trans_chunk_sz - 1) // trans_chunk_sz if total_tr_items > 0 else 0
+        trans_fallbacks = getattr(translator, "fallback_count", 0)
+
+        profile_banner = (
+            "\n"
+            + "=" * 80 + "\n"
+            + "                    ⚡ WEBTOON PIPELINE PROFİLE RAPORU ⚡\n"
+            + "=" * 80 + "\n"
+            + "  Aşama                                    | Süre (sn) | Detay\n"
+            + "-" * 80 + "\n"
+            + f"  Detection (CTD Batch GPU + Post-Process) | {stage_timings.get('detection', 0.0):>7.2f} s | {len(pages)} Sayfa / {len(windows)} Pencere\n"
+            + f"  OCR (PP-OCR CPU + PaddleOCR-VL GPU Gated)| {stage_timings.get('ocr', 0.0):>7.2f} s | Doğrulanan Kutu: {gated_verified_boxes} / Toplam: {total_ocr_boxes} (Gated: {gated_passed_boxes})\n"
+            + f"  Translation (Hy-MT2 Chunks: {total_tr_chunks}, Fallback: {trans_fallbacks}) | {stage_timings.get('translation', 0.0):>7.2f} s | {len(translated_block_pairs)} Blok Çevrildi\n"
+            + f"  Inpainting (LaMa GPU Batch)              | {stage_timings.get('inpainting', 0.0):>7.2f} s | {successful_inpainting_count} Blok\n"
+            + f"  Render & Save                            | {stage_timings.get('render_and_save', 0.0):>7.2f} s | {len(exported_page_paths)} Sayfa Dışa Aktarıldı\n"
+            + "-" * 80 + "\n"
+            + f"  TOPLAM ÇALIŞMA SÜRESİ                    | {stage_timings.get('total', 0.0):>7.2f} s | 🚀 Hızlandırılmış Mod\n"
+            + "=" * 80
+        )
+        logger.info(profile_banner)
+
         summary = {
             "chapter": str(chapter_path),
             "output": str(output_path),
@@ -746,6 +806,7 @@ class ChapterAnalyzer:
             "rendered_blocks_count": actual_rendered_count,
             "overflow_blocks_count": overflow_count,
             "elapsed_time": round(elapsed, 2),
+            "stage_timings": stage_timings,
             "warnings": warnings,
         }
         with open(analysis_dir / "summary.json", "w", encoding="utf-8") as f:
@@ -765,6 +826,7 @@ class ChapterAnalyzer:
             translation_elapsed_time=trans_elapsed,
             inpainting_rendering_elapsed_time=inp_render_elapsed,
             warnings=warnings,
+            stage_timings=stage_timings,
         )
 
     def analyze(
@@ -781,6 +843,8 @@ class ChapterAnalyzer:
     ) -> AnalysisResult:
         """Bölüm analizini çalıştırır (analiz modu)."""
         start_time = time.time()
+        t_total_start = time.perf_counter()
+        stage_timings: dict[str, float] = {}
         chapter_path = Path(chapter_path)
         output_path = Path(output_path)
         warnings: list[str] = []
@@ -801,9 +865,11 @@ class ChapterAnalyzer:
             progress_callback(ProgressEvent(stage=stage, current=current, total=total, message=message, percent=pct))
 
         # 1. Load chapter
+        t_load_start = time.perf_counter()
         _progress("Loading chapter", message=str(chapter_path))
         pages = load_chapter(chapter_path, cfg)
         _progress("Loading chapter", current=1, total=1, message=f"{len(pages)} pages loaded")
+        stage_timings["load_chapter"] = round(time.perf_counter() - t_load_start, 3)
 
         if cancellation_token and cancellation_token.is_cancelled:
             raise CancelledError()
@@ -825,6 +891,7 @@ class ChapterAnalyzer:
             raise CancelledError()
 
         # 4. Load detector
+        t_det_start = time.perf_counter()
         _progress("Loading detector")
         if hasattr(detector, "confidence_threshold"):
             detector.confidence_threshold = conf
@@ -883,12 +950,10 @@ class ChapterAnalyzer:
         self._cache.save()
         detector.unload()
 
-        if cancellation_token and cancellation_token.is_cancelled:
-            raise CancelledError()
-
         # 6. Merge duplicates
         _progress("Merging regions")
         regions = merge_duplicates(all_detections, min_confidence=conf)
+        stage_timings["detection"] = round(time.perf_counter() - t_det_start, 3)
 
         regions = [
             _replace_status(reg, RegionStatus.REVIEW) if reg.status == RegionStatus.AUTO and reg.detection_confidence < conf else reg
@@ -902,6 +967,7 @@ class ChapterAnalyzer:
         ocr_start = 0.0
         ocr_elapsed = 0.0
         if ocr_provider is not None:
+            t_ocr_start = time.perf_counter()
             _progress("Loading OCR")
             try:
                 ocr_provider.load()
@@ -920,7 +986,7 @@ class ChapterAnalyzer:
                     _progress("OCR", current=idx, total=len(regions), message=f"OCR {idx}/{len(regions)}")
                     try:
                         crop = cropper.crop_region(region)
-                        result = ocr_provider.recognize(crop.image, region_bbox=region.global_bbox)
+                        result = ocr_provider.recognize(crop.to_pil(), region_bbox=region.global_bbox)
                         if result.text:
                             ocr_regions.append(
                                 _replace_region(
@@ -937,8 +1003,10 @@ class ChapterAnalyzer:
                         logger.error(f"OCR failed for region {region.id}: {e}")
                         warnings.append(f"OCR region {region.id}: {e}")
                         ocr_regions.append(region)
+                cropper.clear_gpu_cache()
                 regions = ocr_regions
                 ocr_elapsed = time.time() - ocr_start
+                stage_timings["ocr"] = round(time.perf_counter() - t_ocr_start, 3)
                 try:
                     ocr_provider.unload()
                 except Exception:
@@ -965,6 +1033,8 @@ class ChapterAnalyzer:
                 indent=2,
             )
 
+        elapsed = time.time() - start_time
+        stage_timings["total"] = round(time.perf_counter() - t_total_start, 3)
         summary = {
             "pages": len(pages),
             "windows": len(windows),
@@ -972,15 +1042,11 @@ class ChapterAnalyzer:
             "auto": sum(1 for r in regions if r.status == RegionStatus.AUTO),
             "review": sum(1 for r in regions if r.status == RegionStatus.REVIEW),
             "skip": sum(1 for r in regions if r.status == RegionStatus.SKIP),
-            "elapsed_time": 0.0,
+            "elapsed_time": round(elapsed, 2),
+            "stage_timings": stage_timings,
             "warnings": warnings,
         }
         summary_path = analysis_dir / "summary.json"
-        with open(summary_path, "w", encoding="utf-8") as f:
-            json.dump(summary, f, ensure_ascii=False, indent=2)
-
-        elapsed = time.time() - start_time
-        summary["elapsed_time"] = elapsed
         with open(summary_path, "w", encoding="utf-8") as f:
             json.dump(summary, f, ensure_ascii=False, indent=2)
 
@@ -998,6 +1064,7 @@ class ChapterAnalyzer:
             visualization_paths=window_visualization_paths + [preview_path],
             warnings=warnings,
             ocr_elapsed_time=ocr_elapsed,
+            stage_timings=stage_timings,
         )
 
     def _render_global_preview(

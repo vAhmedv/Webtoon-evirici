@@ -191,6 +191,7 @@ class TelemetryStatusBar(QFrame):
         self.btn_batch_settings.setToolTip("Donanım & Elastik Batch Ayarlarını Aç (Ctrl+Shift+B)")
         self.btn_batch_settings.clicked.connect(self._on_batch_settings_clicked)
         layout.addWidget(self.btn_batch_settings)
+        self.update_batch_badge()
 
         self.vram_badge = QLabel("VRAM: --")
         self.vram_badge.setFont(QFont("JetBrains Mono", 9))

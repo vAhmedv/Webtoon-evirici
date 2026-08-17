@@ -15,7 +15,7 @@ from providers.translation.base import (
     TranslationProvider,
 )
 
-DEFAULT_MAX_INPUT_TOKENS = 1200
+DEFAULT_MAX_INPUT_TOKENS = 2400
 DEFAULT_CONTEXT_WINDOW_SIZE = 3
 
 

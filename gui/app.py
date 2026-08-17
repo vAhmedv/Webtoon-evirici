@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
+from core.system.adaptive_batcher import load_batch_config
 from gui.main_window import MainWindow
 
 
@@ -20,6 +21,9 @@ def main() -> None:
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
     )
+
+    # Load persistent batch configuration
+    load_batch_config()
 
     app = QApplication(sys.argv)
     app.setApplicationName("Webtoon Translator")

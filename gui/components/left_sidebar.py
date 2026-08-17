@@ -35,12 +35,11 @@ class PageCardWidget(QWidget):
         layout.setContentsMargins(6, 6, 6, 6)
         layout.setSpacing(10)
 
-        # Thumbnail Label
-        self.thumb_label = QLabel()
+        # Thumbnail Label (Placeholder until loaded asynchronously)
+        self.thumb_label = QLabel(f"#{self.page.index + 1}")
         self.thumb_label.setFixedSize(48, 64)
-        self.thumb_label.setStyleSheet("background-color: #18181B; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px;")
+        self.thumb_label.setStyleSheet("background-color: #18181B; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; color: #52525B; font-size: 10px;")
         self.thumb_label.setAlignment(Qt.AlignCenter)
-        self._load_thumbnail()
         layout.addWidget(self.thumb_label)
 
         # Details Column
@@ -76,15 +75,12 @@ class PageCardWidget(QWidget):
 
         layout.addLayout(details_box)
 
-    def _load_thumbnail(self) -> None:
-        if self.page.path and Path(self.page.path).exists():
-            pix = QPixmap(str(self.page.path))
-            if not pix.isNull():
-                scaled = pix.scaled(48, 64, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
-                self.thumb_label.setPixmap(scaled)
-                return
-        self.thumb_label.setText(f"#{self.page.index + 1}")
-        self.thumb_label.setStyleSheet("color: #52525B; font-size: 10px;")
+    def update_thumbnail(self, pixmap: QPixmap) -> None:
+        """Asenkron olarak üretilen küçük resmi karta yerleştirir."""
+        if not pixmap.isNull():
+            scaled = pixmap.scaled(48, 64, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+            self.thumb_label.setPixmap(scaled)
+            self.thumb_label.setText("")
 
 
 class LeftSidebar(QFrame):
@@ -150,6 +146,14 @@ class LeftSidebar(QFrame):
             )
             self.page_list.addItem(item)
             self.page_list.setItemWidget(item, card)
+
+    def update_page_thumbnail(self, page_index: int, pixmap: QPixmap) -> None:
+        """Belirtilen sayfanın küçük resmini günceller."""
+        if 0 <= page_index < self.page_list.count():
+            item = self.page_list.item(page_index)
+            widget = self.page_list.itemWidget(item)
+            if isinstance(widget, PageCardWidget):
+                widget.update_thumbnail(pixmap)
 
     def select_page(self, page_index: int) -> None:
         if 0 <= page_index < self.page_list.count():

@@ -131,10 +131,17 @@ class PaddleOCRVLOcrProvider(OCRProvider):
             chunk_bboxes = [p[1] for p in chunk_pairs]
             chunk_results: list[OCRResult] = []
 
-            pil_chunk = [
-                img.convert("RGB") if isinstance(img, Image.Image) else Image.fromarray(img).convert("RGB")
-                for img in chunk_imgs
-            ]
+            pil_chunk = []
+            for img in chunk_imgs:
+                if hasattr(img, "to_pil"):
+                    pil_chunk.append(img.to_pil().convert("RGB"))
+                elif hasattr(img, "detach") and hasattr(img, "permute"):
+                    arr = img.detach().cpu().permute(1, 2, 0).numpy()
+                    pil_chunk.append(Image.fromarray(arr).convert("RGB"))
+                elif isinstance(img, Image.Image):
+                    pil_chunk.append(img.convert("RGB"))
+                else:
+                    pil_chunk.append(Image.fromarray(img).convert("RGB"))
 
             messages_batch = [
                 [
@@ -165,7 +172,11 @@ class PaddleOCRVLOcrProvider(OCRProvider):
                 images=images_input,
                 padding=True,
                 return_tensors="pt",
-            ).to(self._model.device)
+            )
+            if hasattr(inputs, "to"):
+                inputs = inputs.to(self._model.device)
+            elif isinstance(inputs, dict):
+                inputs = {k: v.to(self._model.device) if hasattr(v, "to") else v for k, v in inputs.items()}
 
             start = time.perf_counter()
             with torch.inference_mode():
@@ -219,7 +230,12 @@ class PaddleOCRVLOcrProvider(OCRProvider):
         import torch
         from PIL import Image
 
-        if isinstance(image, Image.Image):
+        if hasattr(image, "to_pil"):
+            pil_image = image.to_pil().convert("RGB")
+        elif hasattr(image, "detach") and hasattr(image, "permute"):
+            arr = image.detach().cpu().permute(1, 2, 0).numpy()
+            pil_image = Image.fromarray(arr).convert("RGB")
+        elif isinstance(image, Image.Image):
             pil_image = image.convert("RGB")
         else:
             pil_image = Image.fromarray(image).convert("RGB")
@@ -247,7 +263,11 @@ class PaddleOCRVLOcrProvider(OCRProvider):
             return_dict=True,
             return_tensors="pt",
             processor_kwargs={"images_kwargs": {"size": size}},
-        ).to(self._model.device)
+        )
+        if hasattr(inputs, "to"):
+            inputs = inputs.to(self._model.device)
+        elif isinstance(inputs, dict):
+            inputs = {k: v.to(self._model.device) if hasattr(v, "to") else v for k, v in inputs.items()}
 
         with torch.inference_mode():
             outputs = self._model.generate(**inputs, max_new_tokens=MAX_NEW_TOKENS, use_cache=True)

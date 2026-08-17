@@ -34,6 +34,7 @@ from gui.components.webtoon_canvas import WebtoonCanvas
 from gui.components.right_inspector import RightInspector
 from gui.components.telemetry_bar import TelemetryStatusBar
 from gui.workers.analysis_worker import AnalysisWorker
+from gui.workers.async_page_loader import AsyncPageLoaderWorker
 
 
 class MainWindow(QMainWindow):
@@ -51,15 +52,19 @@ class MainWindow(QMainWindow):
         self._regions: list[Region] = []
         self._selected_region_index: int = 0
         self._worker: Optional[AnalysisWorker] = None
+        self._page_loader_worker: Optional[AsyncPageLoaderWorker] = None
 
         self._load_stylesheet()
         self._build_ui()
         self._setup_shortcuts()
 
     def closeEvent(self, event) -> None:
-        """Safely cancel and wait for background worker when window closes."""
+        """Safely cancel and wait for background workers when window closes."""
         if hasattr(self, "telemetry_bar") and hasattr(self.telemetry_bar, "timer"):
             self.telemetry_bar.timer.stop()
+        if self._page_loader_worker and self._page_loader_worker.isRunning():
+            self._page_loader_worker.request_cancel()
+            self._page_loader_worker.wait(1000)
         if self._worker and self._worker.isRunning():
             self._worker.request_cancel()
             self._worker.wait(1500)
@@ -153,6 +158,17 @@ class MainWindow(QMainWindow):
         self.canvas.load_chapter_pages(self._pages, regions=[])
         self.top_bar.reset_stages()
 
+        # Stop previous async loader if running
+        if self._page_loader_worker and self._page_loader_worker.isRunning():
+            self._page_loader_worker.request_cancel()
+            self._page_loader_worker.wait(1000)
+
+        # Start asynchronous background page loader
+        self._page_loader_worker = AsyncPageLoaderWorker(self._pages, parent=self)
+        self._page_loader_worker.thumbnail_ready.connect(self.left_sidebar.update_page_thumbnail)
+        self._page_loader_worker.page_loaded.connect(self._on_page_loaded_async)
+        self._page_loader_worker.start()
+
         # Check for cached or existing audit analysis and rendered pages
         analysis_json = path / "analysis" / "regions.json"
         rendered_dir: Optional[Path] = None
@@ -169,6 +185,10 @@ class MainWindow(QMainWindow):
 
         if analysis_json.exists():
             self._load_regions_from_json(analysis_json, rendered_dir=rendered_dir)
+
+    def _on_page_loaded_async(self, page_index: int, qimage: Any, np_array: Any) -> None:
+        """Asenkron olarak çözülen sayfayı kanvasa aktarır."""
+        self.canvas.update_page_image(page_index, qimage)
 
     def _load_regions_from_json(self, json_path: Path, rendered_dir: Optional[Path] = None) -> None:
         try:

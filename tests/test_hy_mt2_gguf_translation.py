@@ -81,7 +81,7 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertEqual(payload["temperature"], 0.0)
         self.assertEqual(payload["top_k"], 1)
         self.assertEqual(payload["seed"], 0)
-        self.assertEqual(payload["n_predict"], 128)
+        self.assertEqual(payload["n_predict"], 2048)
         self.assertNotIn("messages", payload)
         self.assertEqual((raw, prompt_n, predicted_n, seconds), ("Merhaba.<|eos|>", 21, 4, 0.1))
         self.assertEqual(clean_hy_mt2_output(raw, payload["prompt"]), "Merhaba.")

@@ -16,7 +16,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from core.system.adaptive_batcher import BatchConfig, get_batch_config, set_batch_config
+from core.system.adaptive_batcher import (
+    BatchConfig,
+    get_batch_config,
+    load_batch_config,
+    save_batch_config,
+    set_batch_config,
+)
 from gui.components.telemetry_bar import SystemTelemetry
 
 
@@ -28,7 +34,7 @@ class BatchSettingsDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.setWindowTitle("⚡ Donanım & Elastik Batch Ayarları")
-        self.setFixedSize(580, 580)
+        self.setFixedSize(580, 620)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setStyleSheet(
             "QDialog { background-color: #09090B; border: 1px solid #27272A; } "
@@ -148,34 +154,50 @@ class BatchSettingsDialog(QDialog):
         # PaddleOCR-VL Slider
         lbl_ocr_title = QLabel("PaddleOCR-VL GPU Batch:")
         lbl_ocr_title.setFont(QFont("Inter", 9))
-        self.lbl_ocr_val = QLabel("32")
+        self.lbl_ocr_val = QLabel("64")
         self.lbl_ocr_val.setFont(QFont("JetBrains Mono", 9, QFont.Bold))
         self.lbl_ocr_val.setStyleSheet("color: #38BDF8;")
 
         self.slider_ocr = QSlider(Qt.Horizontal)
         self.slider_ocr.setRange(1, 256)
-        self.slider_ocr.setValue(32)
+        self.slider_ocr.setValue(64)
         self.slider_ocr.valueChanged.connect(lambda v: self.lbl_ocr_val.setText(str(v)))
 
         grid.addWidget(lbl_ocr_title, 2, 0)
         grid.addWidget(self.slider_ocr, 2, 1)
         grid.addWidget(self.lbl_ocr_val, 2, 2)
 
+        # CTD Detector Tile Batch Slider
+        lbl_det_title = QLabel("CTD Detector Tile Batch:")
+        lbl_det_title.setFont(QFont("Inter", 9))
+        self.lbl_det_val = QLabel("16")
+        self.lbl_det_val.setFont(QFont("JetBrains Mono", 9, QFont.Bold))
+        self.lbl_det_val.setStyleSheet("color: #38BDF8;")
+
+        self.slider_det = QSlider(Qt.Horizontal)
+        self.slider_det.setRange(1, 32)
+        self.slider_det.setValue(16)
+        self.slider_det.valueChanged.connect(lambda v: self.lbl_det_val.setText(str(v)))
+
+        grid.addWidget(lbl_det_title, 3, 0)
+        grid.addWidget(self.slider_det, 3, 1)
+        grid.addWidget(self.lbl_det_val, 3, 2)
+
         # Hy-MT2 LLM Chunk Slider
         lbl_llm_title = QLabel("Hy-MT2 LLM Chunk:")
         lbl_llm_title.setFont(QFont("Inter", 9))
-        self.lbl_llm_val = QLabel("16")
+        self.lbl_llm_val = QLabel("32")
         self.lbl_llm_val.setFont(QFont("JetBrains Mono", 9, QFont.Bold))
         self.lbl_llm_val.setStyleSheet("color: #38BDF8;")
 
         self.slider_llm = QSlider(Qt.Horizontal)
         self.slider_llm.setRange(1, 64)
-        self.slider_llm.setValue(16)
+        self.slider_llm.setValue(32)
         self.slider_llm.valueChanged.connect(lambda v: self.lbl_llm_val.setText(str(v)))
 
-        grid.addWidget(lbl_llm_title, 3, 0)
-        grid.addWidget(self.slider_llm, 3, 1)
-        grid.addWidget(self.lbl_llm_val, 3, 2)
+        grid.addWidget(lbl_llm_title, 4, 0)
+        grid.addWidget(self.slider_llm, 4, 1)
+        grid.addWidget(self.lbl_llm_val, 4, 2)
 
         # CPU OCR Workers Slider
         lbl_cpu_title = QLabel("CPU OCR Workers:")
@@ -189,9 +211,9 @@ class BatchSettingsDialog(QDialog):
         self.slider_cpu.setValue(10)
         self.slider_cpu.valueChanged.connect(lambda v: self.lbl_cpu_val.setText(str(v)))
 
-        grid.addWidget(lbl_cpu_title, 4, 0)
-        grid.addWidget(self.slider_cpu, 4, 1)
-        grid.addWidget(self.lbl_cpu_val, 4, 2)
+        grid.addWidget(lbl_cpu_title, 5, 0)
+        grid.addWidget(self.slider_cpu, 5, 1)
+        grid.addWidget(self.lbl_cpu_val, 5, 2)
 
         layout.addWidget(sliders_frame)
 
@@ -264,6 +286,7 @@ class BatchSettingsDialog(QDialog):
         self.slider_vram.setValue(int(cfg.vram_ceiling * 100))
         self.slider_lama.setValue(cfg.lama_batch)
         self.slider_ocr.setValue(cfg.ocr_vl_batch)
+        self.slider_det.setValue(cfg.detector_tile_batch)
         self.slider_llm.setValue(cfg.llm_chunk)
         self.slider_cpu.setValue(cfg.cpu_ocr_workers)
         self._on_mode_changed(self.radio_auto.isChecked())
@@ -272,6 +295,7 @@ class BatchSettingsDialog(QDialog):
         # In auto mode, module batch sliders are dimmed since adaptive batcher dynamically scales them
         self.slider_lama.setEnabled(not is_auto)
         self.slider_ocr.setEnabled(not is_auto)
+        self.slider_det.setEnabled(not is_auto)
         self.slider_llm.setEnabled(not is_auto)
         self.slider_cpu.setEnabled(not is_auto)
 
@@ -279,6 +303,7 @@ class BatchSettingsDialog(QDialog):
         dim_style = f"opacity: {opacity};"
         self.lbl_lama_val.setStyleSheet(f"color: #38BDF8; {dim_style}")
         self.lbl_ocr_val.setStyleSheet(f"color: #38BDF8; {dim_style}")
+        self.lbl_det_val.setStyleSheet(f"color: #38BDF8; {dim_style}")
         self.lbl_llm_val.setStyleSheet(f"color: #38BDF8; {dim_style}")
         self.lbl_cpu_val.setStyleSheet(f"color: #38BDF8; {dim_style}")
 
@@ -286,8 +311,9 @@ class BatchSettingsDialog(QDialog):
         self.radio_auto.setChecked(True)
         self.slider_vram.setValue(95)
         self.slider_lama.setValue(24)
-        self.slider_ocr.setValue(32)
-        self.slider_llm.setValue(16)
+        self.slider_ocr.setValue(64)
+        self.slider_det.setValue(16)
+        self.slider_llm.setValue(32)
         self.slider_cpu.setValue(10)
 
     def _on_start_benchmark(self) -> None:
@@ -303,6 +329,11 @@ class BatchSettingsDialog(QDialog):
         self._bench_worker.benchmark_completed.connect(self._on_bench_completed)
         self._bench_worker.benchmark_failed.connect(self._on_bench_failed)
         self._bench_worker.start()
+
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+        self._config = get_batch_config()
+        self._load_values()
 
     def _on_bench_step(self, batch: int, used_gb: float, tot_gb: float, pct: float) -> None:
         self.bench_progress.setValue(min(95, int((batch / 256) * 100)))
@@ -320,6 +351,17 @@ class BatchSettingsDialog(QDialog):
         self.slider_ocr.setValue(optimal_ocr)
         self.slider_llm.setValue(optimal_llm)
 
+        # Update sticky optimal values and persist
+        sticky = dict(self._config.sticky_optimal_batch)
+        sticky.update({
+            "lama_batch": optimal_lama,
+            "ocr_vl_batch": optimal_ocr,
+            "llm_chunk": optimal_llm,
+            "benchmark_vram_pct": max_vram_pct,
+        })
+        self._config.sticky_optimal_batch = sticky
+        save_batch_config(self._config)
+
     def _on_bench_failed(self, err: str) -> None:
         self.bench_progress.setValue(0)
         self.lbl_bench_status.setText(f"Hata: {err}")
@@ -334,8 +376,11 @@ class BatchSettingsDialog(QDialog):
             ocr_vl_batch=self.slider_ocr.value(),
             llm_chunk=self.slider_llm.value(),
             cpu_ocr_workers=self.slider_cpu.value(),
+            detector_tile_batch=self.slider_det.value(),
+            sticky_optimal_batch=dict(self._config.sticky_optimal_batch),
         )
         set_batch_config(new_config)
+        save_batch_config(new_config)
         self.config_applied.emit(new_config)
         self.accept()
 

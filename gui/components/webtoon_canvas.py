@@ -161,33 +161,53 @@ class SplitPageGraphicsItem(QGraphicsItem):
     def paint(self, painter: QPainter, option: Any, widget: Optional[QWidget] = None) -> None:
         w = self.page_rect.width()
         h = self.page_rect.height()
+        has_orig = not self.original_pixmap.isNull()
         has_rendered = not self.rendered_pixmap.isNull()
 
+        # If no pixmap is loaded yet, draw modern dark skeleton placeholder
+        if not has_orig and not has_rendered:
+            painter.save()
+            painter.setBrush(QBrush(QColor(18, 18, 22)))
+            painter.setPen(QPen(QColor(255, 255, 255, 20), 1.0, Qt.DashLine))
+            painter.drawRect(self.page_rect)
+
+            font = QFont("JetBrains Mono", 10, QFont.Bold)
+            painter.setFont(font)
+            painter.setPen(QColor(113, 113, 122))
+            painter.drawText(self.page_rect, Qt.AlignCenter, f"PAGE • {int(w)} × {int(h)} px")
+            painter.restore()
+            return
+
         if self.view_mode in ("original", "peek_original") or not has_rendered:
-            if not self.original_pixmap.isNull():
+            if has_orig:
                 painter.drawPixmap(0, 0, self.original_pixmap)
             return
 
         if self.view_mode == "translated":
-            painter.drawPixmap(0, 0, self.rendered_pixmap)
+            if has_rendered:
+                painter.drawPixmap(0, 0, self.rendered_pixmap)
+            elif has_orig:
+                painter.drawPixmap(0, 0, self.original_pixmap)
             return
 
         if self.view_mode == "split":
             split_pos = self.split_x
 
             # 1. Left partition: Original Pixmap clipped to [0, 0, split_pos, h]
-            if split_pos > 0 and not self.original_pixmap.isNull():
+            if split_pos > 0 and has_orig:
                 painter.save()
                 painter.setClipRect(QRectF(0, 0, split_pos, h))
                 painter.drawPixmap(0, 0, self.original_pixmap)
                 painter.restore()
 
             # 2. Right partition: Rendered Pixmap clipped to [split_pos, 0, w - split_pos, h]
-            if split_pos < w and not self.rendered_pixmap.isNull():
-                painter.save()
-                painter.setClipRect(QRectF(split_pos, 0, w - split_pos, h))
-                painter.drawPixmap(0, 0, self.rendered_pixmap)
-                painter.restore()
+            if split_pos < w:
+                target_pix = self.rendered_pixmap if has_rendered else self.original_pixmap
+                if not target_pix.isNull():
+                    painter.save()
+                    painter.setClipRect(QRectF(split_pos, 0, w - split_pos, h))
+                    painter.drawPixmap(0, 0, target_pix)
+                    painter.restore()
 
             # 3. Crisp Split Divider Line
             painter.save()
@@ -362,24 +382,21 @@ class WebtoonCanvas(QWidget):
             badge_text.setBrush(QBrush(QColor(161, 161, 170)))
             badge_text.setPos(14, current_y + 11)
 
-            # Load Original Pixmap
+            # Skeleton Pixmaps (populated asynchronously via update_page_image)
             orig_pix = QPixmap()
-            if page.path and Path(page.path).exists():
-                orig_pix.load(str(page.path))
             self._original_pixmaps.append(orig_pix)
 
-            # Rendered Pixmap (if provided)
             rend_pix = QPixmap()
             if rendered_pages and idx < len(rendered_pages):
                 r_item = rendered_pages[idx]
                 r_path = Path(r_item.path) if hasattr(r_item, "path") else Path(r_item)
                 if r_path.exists():
                     rend_pix.load(str(r_path))
-            self._rendered_pixmaps.append(rend_pix if not rend_pix.isNull() else orig_pix)
+            self._rendered_pixmaps.append(rend_pix)
 
-            # Add Split Page Item to Scene
+            # Add Split Page Item with skeleton dimensions to Scene
             page_rect = QRectF(0, 0, page.width, page.height)
-            page_item = SplitPageGraphicsItem(orig_pix, self._rendered_pixmaps[idx], page_rect)
+            page_item = SplitPageGraphicsItem(orig_pix, rend_pix, page_rect)
             page_item.setPos(0, current_y)
             page_item.set_split_x(self._split_x)
             page_item.set_view_mode(self._view_mode)
@@ -397,6 +414,17 @@ class WebtoonCanvas(QWidget):
 
         self.scene.setSceneRect(0, 0, 800, current_y)
         self.fit_width()
+
+    def update_page_image(self, page_index: int, image_or_pixmap: Any) -> None:
+        """Asenkron olarak çözülen sayfa görüntüsünü kanvasa yükler."""
+        if 0 <= page_index < len(self._page_items):
+            pix = image_or_pixmap if isinstance(image_or_pixmap, QPixmap) else QPixmap.fromImage(image_or_pixmap)
+            self._original_pixmaps[page_index] = pix
+            self._page_items[page_index].original_pixmap = pix
+            if self._rendered_pixmaps[page_index].isNull():
+                self._rendered_pixmaps[page_index] = pix
+                self._page_items[page_index].rendered_pixmap = pix
+            self._page_items[page_index].update()
 
     def set_rendered_pages(self, rendered_paths: Sequence[Any]) -> None:
         self._rendered_pixmaps.clear()

@@ -104,9 +104,9 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
         server_url: str = DEFAULT_HY_MT2_SERVER_URL,
         *,
         managed: bool = True,
-        max_context_length: int = 2048,
+        max_context_length: int = 4096,
         gpu_layers: int = 99,
-        max_output_tokens: int = 128,
+        max_output_tokens: int = 2048,
         startup_timeout_sec: float = 90.0,
         request_timeout_sec: float = 90.0,
         server_alias: str = DEFAULT_HY_MT2_SERVER_ALIAS,
@@ -549,7 +549,7 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
         self,
         texts: list[str],
         context: dict[str, Any] | None = None,
-        chunk_size: int = 16,
+        chunk_size: int = 32,
     ) -> list[str]:
         """Numaralandırılmış toplu istemleme (Batch Prompting) ve otomatik fallback ile çevirir."""
         if not texts:
@@ -560,7 +560,7 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
         out_map = {item.region_id: item.translation for item in out.results}
         return [out_map.get(idx + 1, "") or "" for idx in range(len(texts))]
 
-    def translate(self, inp: TranslationInput, chunk_size: int = 16) -> TranslationOutput:
+    def translate(self, inp: TranslationInput, chunk_size: int = 32) -> TranslationOutput:
         if not self.is_loaded:
             self.load()
 
@@ -573,7 +573,7 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
             prep = self._prepare_item(item, inp)
             prepared_items.append((item, prep))
 
-        # Chunked multi-line batching
+        # Chunked multi-line batching (default 32 dialogues)
         for i in range(0, len(prepared_items), chunk_size):
             chunk = prepared_items[i : i + chunk_size]
 
@@ -591,10 +591,10 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
                     self.last_traces.append(trace)
                 continue
 
-            # Multi-line numbered prompt
+            # Multi-line numbered prompt [1] ... [32]
             numbered_lines = [f"[{k+1}] {pr.prepared_text}" for k, (_, it, pr) in enumerate(non_bypass)]
             batch_prompt = "\n".join(numbered_lines)
-            max_tokens = max(self.max_output_tokens, len(non_bypass) * 64)
+            max_tokens = min(4096, max(self.max_output_tokens, len(non_bypass) * 96))
 
             req_start = time.perf_counter()
             raw_text, cleaned, err = self._request_translation(
@@ -611,57 +611,76 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
                 except ValueError:
                     pass
 
-            batch_valid = (
-                not err
-                and len(parsed) == len(non_bypass)
-                and all((k + 1) in parsed and parsed[k + 1] for k in range(len(non_bypass)))
-            )
+            # Secondary fallback pattern if brackets were altered (e.g. 1. or 1) )
+            if len(parsed) < len(non_bypass):
+                alt_pattern = re.compile(r"(?:^|\n)\s*\[?(\d+)\]?[\.\)\:\-]\s*(.*?)(?=\n\s*\[?\d+\]?[\.\)\:\-]|\Z)", re.DOTALL)
+                for m in alt_pattern.finditer(cleaned):
+                    try:
+                        idx = int(m.group(1))
+                        if idx not in parsed and m.group(2).strip():
+                            parsed[idx] = m.group(2).strip()
+                    except ValueError:
+                        pass
 
-            if batch_valid:
+            if not err and len(parsed) > 0:
                 nb_map = {orig_k: (k + 1) for k, (orig_k, it, pr) in enumerate(non_bypass)}
                 temp_chunk_results = []
+                missing_fallback_count = 0
 
                 for chunk_k, (it, pr) in enumerate(chunk):
                     if pr.system_ui_translation is not None or pr.term_only_translation is not None:
                         temp_chunk_results.append(self._process_single_prepared_item(it, pr))
                     else:
                         batch_num = nb_map[chunk_k]
-                        raw_tr = parsed[batch_num]
-                        restored = restore_protected_translation(raw_tr, pr.placeholder_map)
-                        res = self._finalize_prepared_item(pr, raw_tr, raw_text)
-                        diagnosis = (
-                            "GUARD_REVIEW:" + ",".join(res.validation_warnings)
-                            if res.validation_warnings
-                            else "MODEL_OUTPUT_ACCEPTED"
-                        )
-                        trace = HyMT2ProductionTrace(
-                            region_id=it.region_id,
-                            original_source=it.source,
-                            normalized_input=pr.normalized_source,
-                            protected_input=pr.prepared_text,
-                            protected_terms=self._protected_terms(pr),
-                            raw_hy_output=raw_text,
-                            stripped_output=raw_tr,
-                            restored_output=restored,
-                            final_output=res.translation,
-                            guard_flags=list(res.validation_warnings),
-                            requires_review=res.requires_review,
-                            model_call_performed=True,
-                            latency_sec=round(req_latency / len(non_bypass), 6),
-                            pipeline_diagnosis=diagnosis,
-                        )
-                        temp_chunk_results.append((res, raw_text, trace))
+                        raw_tr = parsed.get(batch_num, "").strip()
+                        if raw_tr:
+                            # Batch successfully parsed this item
+                            restored = restore_protected_translation(raw_tr, pr.placeholder_map)
+                            res = self._finalize_prepared_item(pr, raw_tr, raw_text)
+                            diagnosis = (
+                                "GUARD_REVIEW:" + ",".join(res.validation_warnings)
+                                if res.validation_warnings
+                                else "MODEL_OUTPUT_ACCEPTED"
+                            )
+                            trace = HyMT2ProductionTrace(
+                                region_id=it.region_id,
+                                original_source=it.source,
+                                normalized_input=pr.normalized_source,
+                                protected_input=pr.prepared_text,
+                                protected_terms=self._protected_terms(pr),
+                                raw_hy_output=raw_text,
+                                stripped_output=raw_tr,
+                                restored_output=restored,
+                                final_output=res.translation,
+                                guard_flags=list(res.validation_warnings),
+                                requires_review=res.requires_review,
+                                model_call_performed=True,
+                                latency_sec=round(req_latency / len(non_bypass), 6),
+                                pipeline_diagnosis=diagnosis,
+                            )
+                            temp_chunk_results.append((res, raw_text, trace))
+                        else:
+                            # Fine-grained item fallback: translate ONLY this single missing item
+                            missing_fallback_count += 1
+                            temp_chunk_results.append(self._process_single_prepared_item(it, pr))
+
+                if missing_fallback_count > 0:
+                    logger.info(
+                        "Hy-MT2 partial fallback: %d/%d items parsed from batch %d, %d items recovered via single request",
+                        len(non_bypass) - missing_fallback_count,
+                        len(non_bypass),
+                        i // chunk_size,
+                        missing_fallback_count,
+                    )
 
                 for res, raw, trace in temp_chunk_results:
                     results.append(res)
                     raw_responses.append(raw)
                     self.last_traces.append(trace)
             else:
-                # Transparent fallback to sequential for this chunk
+                # Full fallback if error or 0 items parsed
                 logger.info(
-                    "Hy-MT2 batch parse incomplete (%d/%d parsed); falling back to sequential for chunk %d",
-                    len(parsed),
-                    len(non_bypass),
+                    "Hy-MT2 batch failed; falling back to sequential for chunk %d",
                     i // chunk_size,
                 )
                 for it, pr in chunk:

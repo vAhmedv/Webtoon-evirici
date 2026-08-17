@@ -27,7 +27,12 @@ from typing import TYPE_CHECKING, Any, Sequence
 from loguru import logger
 
 from core.detection import BBox, Detection, RegionType
+from core.system.adaptive_batcher import ElasticAdaptiveBatcher, get_batch_config
+from core.system.cuda_init import init_cuda_runtime
 from providers.detector.base import DetectorProvider
+
+# Initialize CUDA & cuDNN DLL search paths before loading ONNX Runtime
+init_cuda_runtime()
 
 if TYPE_CHECKING:
     import numpy as np
@@ -40,15 +45,80 @@ def _native_modules() -> tuple[Any, Any]:
 
     return cv2, np
 
+
+def _make_dynamic_batch_onnx(model_path: Path | str) -> bytes:
+    """CTD ONNX modelini dinamik batch [B, 3, 1024, 1024] desteğiyle dönüştürür."""
+    import onnx
+    from onnx import helper, numpy_helper
+    _, np = _native_modules()
+
+    model = onnx.load(str(model_path))
+
+    # 1. Giriş ve çıkış tensörlerinin 0. boyutunu 'batch' yap
+    model.graph.input[0].type.tensor_type.shape.dim[0].dim_param = "batch"
+    for out in model.graph.output:
+        out.type.tensor_type.shape.dim[0].dim_param = "batch"
+
+    # 2. Shape(images) -> Gather(0) düğümleri ile dinamik batch boyutunu al
+    shape_node = helper.make_node("Shape", inputs=["images"], outputs=["img_shape"], name="DynamicBatch_Shape")
+    gather_node = helper.make_node(
+        "Gather",
+        inputs=["img_shape", "dynamic_batch_idx"],
+        outputs=["dyn_batch"],
+        name="DynamicBatch_Gather",
+        axis=0,
+    )
+
+    idx_init = numpy_helper.from_array(np.array(0, dtype=np.int64), name="dynamic_batch_idx")
+    model.graph.initializer.append(idx_init)
+
+    new_nodes = [shape_node, gather_node]
+
+    # YOLO head reshape sabitleri
+    shapes_to_replace = {
+        "1317": np.array([3, 7, 128, 128], dtype=np.int64),
+        "1356": np.array([3, 7, 64, 64], dtype=np.int64),
+        "1395": np.array([3, 7, 32, 32], dtype=np.int64),
+        "1350": np.array([-1, 7], dtype=np.int64),
+    }
+
+    for init_name, rem_shape in shapes_to_replace.items():
+        rem_name = f"rem_{init_name}"
+        rem_init = numpy_helper.from_array(rem_shape, name=rem_name)
+        model.graph.initializer.append(rem_init)
+
+        unsqueezed_dyn = f"unsqueezed_dyn_{init_name}"
+        unsq_node = helper.make_node("Unsqueeze", inputs=["dyn_batch"], outputs=[unsqueezed_dyn], name=f"DynamicUnsq_{init_name}", axes=[0])
+        concat_node = helper.make_node("Concat", inputs=[unsqueezed_dyn, rem_name], outputs=[f"dynamic_shape_{init_name}"], name=f"DynamicConcat_{init_name}", axis=0)
+        new_nodes.extend([unsq_node, concat_node])
+
+    # Reshape düğümlerinin girdi şeklini dinamik tensörle değiştir
+    for node in model.graph.node:
+        if node.op_type == "Reshape":
+            if len(node.input) >= 2 and node.input[1] in shapes_to_replace:
+                orig = node.input[1]
+                node.input[1] = f"dynamic_shape_{orig}"
+
+    # Yeni düğümleri grafiğin başına ekle
+    for n in reversed(new_nodes):
+        model.graph.node.insert(0, n)
+
+    return model.SerializeToString()
+
 MODEL_FILENAME = "comictextdetector.pt.onnx"
 MODEL_URL = "https://github.com/zyddnys/manga-image-translator/releases/download/beta-0.3/comictextdetector.pt.onnx"
 MODEL_SHA256 = "1a86ace74961413cbd650002e7bb4dcec4980ffa21b2f19b86933372071d718f"
 
 
 class ComicTextDetector(DetectorProvider):
-    """ComicTextDetector provider (Optimized ONNXRuntime / OpenCV DNN backend)."""
+    """ComicTextDetector provider (Optimized GPU Tile Batching ONNXRuntime / OpenCV DNN backend)."""
 
-    def __init__(self, model_dir: str | Path | None = None, input_size: int = 1024) -> None:
+    def __init__(
+        self,
+        model_dir: str | Path | None = None,
+        input_size: int = 1024,
+        tile_batch_size: int | None = None,
+    ) -> None:
         logger.debug(f"[THREAD] ComicTextDetector.__init__ thread id: {threading.get_ident()}")
         self._model_dir = Path(model_dir) if model_dir else Path(__file__).resolve().parent.parent.parent / "models" / "detectors" / "ctd"
         self._model_path = self._model_dir / MODEL_FILENAME
@@ -59,6 +129,8 @@ class ComicTextDetector(DetectorProvider):
         self._ort_input_name: str = ""
         self._ort_output_names: list[str] = []
         self._input_size = input_size
+        self._tile_batch_size = tile_batch_size if tile_batch_size is not None else get_batch_config().detector_tile_batch
+        self._adaptive_batcher: ElasticAdaptiveBatcher | None = None
         self._conf_thresh = 0.4
         self._nms_thresh = 0.35
         self._seg_thresh = 0.3
@@ -85,8 +157,21 @@ class ComicTextDetector(DetectorProvider):
         return self._loaded
 
     @property
+    def session(self) -> Any:
+        """First active ONNXRuntime session in pool (if loaded)."""
+        return self._ort_sessions[0] if self._ort_sessions else None
+
+    @property
     def device(self) -> str:
         return self._device
+
+    @property
+    def tile_batch_size(self) -> int:
+        return self._tile_batch_size
+
+    @tile_batch_size.setter
+    def tile_batch_size(self, val: int) -> None:
+        self._tile_batch_size = max(1, int(val))
 
     def set_debug(self, enabled: bool, output_dir: str | Path | None = None) -> None:
         """Debug modunu ayarlar."""
@@ -120,7 +205,7 @@ class ComicTextDetector(DetectorProvider):
                 f"Or run: python scripts/download_detector_models.py --detector ctd"
             )
 
-        # 1. Try accelerated ONNXRuntime with multi-worker session pool
+        # 1. Try accelerated ONNXRuntime with dynamic batch surgery
         try:
             import onnxruntime as ort
             session_options = ort.SessionOptions()
@@ -145,17 +230,41 @@ class ComicTextDetector(DetectorProvider):
 
             providers_to_use.append("CPUExecutionProvider")
 
+            model_to_load: str | bytes = str(self._model_path)
+            try:
+                model_to_load = _make_dynamic_batch_onnx(self._model_path)
+                logger.debug("CTD dynamic batch surgery applied to ONNX model.")
+            except Exception as dyn_err:
+                logger.warning(f"Could not apply dynamic batch surgery to CTD model: {dyn_err}, using static model.")
+                model_to_load = str(self._model_path)
+
             num_workers = 3 if self._device == "cpu" else 1
             self._ort_sessions = [
-                ort.InferenceSession(str(self._model_path), session_options, providers=providers_to_use)
+                ort.InferenceSession(model_to_load, session_options, providers=providers_to_use)
                 for _ in range(num_workers)
             ]
             self._ort_input_name = self._ort_sessions[0].get_inputs()[0].name
             self._ort_input_type = self._ort_sessions[0].get_inputs()[0].type
             self._ort_output_names = [o.name for o in self._ort_sessions[0].get_outputs()]
             active_p = self._ort_sessions[0].get_providers()
+
+            if "CUDAExecutionProvider" in available and "CUDAExecutionProvider" not in active_p:
+                logger.warning(
+                    "CUDAExecutionProvider was available in ORT but session fell back to: {}. "
+                    "Verify CUDA 12 and cuDNN DLL dependencies.",
+                    active_p,
+                )
+                self._device = "cpu"
+            else:
+                self._device = "cuda" if "CUDAExecutionProvider" in active_p else "cpu"
+
             self._loaded = True
-            logger.info("CTD ONNXRuntime model pool ({} workers, providers: {}) loaded successfully", num_workers, active_p)
+            logger.info(
+                "CTD ONNXRuntime model pool ({} workers, device: {}, providers: {}) loaded successfully",
+                num_workers,
+                self._device,
+                active_p,
+            )
             return
         except Exception as ort_err:
             logger.warning("ONNXRuntime initialization failed, falling back to OpenCV DNN: {}", ort_err)
@@ -210,16 +319,14 @@ class ComicTextDetector(DetectorProvider):
         return self._detect_single_array(img, window_id, worker_idx=0)
 
     def detect_batch(self, items: Sequence[tuple[Any, int]]) -> Sequence[Sequence[Detection]]:
-        """Optimized parallel batch detection across worker pool."""
+        """Optimized GPU Tile Batching with ElasticAdaptiveBatcher & dynamic fallback."""
         if not self._loaded:
             raise RuntimeError("CTD model not loaded; call load() first")
 
         if not items:
             return []
 
-        import concurrent.futures
         cv2, np = _native_modules()
-
         results: list[Sequence[Detection]] = [[] for _ in range(len(items))]
         active_jobs: list[tuple[int, np.ndarray, int]] = []  # (original_idx, img_arr, window_id)
 
@@ -233,28 +340,156 @@ class ComicTextDetector(DetectorProvider):
         if not active_jobs:
             return results
 
-        num_workers = len(self._ort_sessions) if self._ort_sessions else 1
+        # If fallback to OpenCV DNN
+        if not self._ort_sessions or self._net is not None:
+            for orig_idx, img_arr, wid in active_jobs:
+                results[orig_idx] = self._detect_single_array(img_arr, wid, worker_idx=0)
+            return results
 
-        def _worker_task(job_info: tuple[int, np.ndarray, int, int]) -> tuple[int, Sequence[Detection]]:
-            orig_idx, img_arr, wid, worker_slot = job_info
-            dets = self._detect_single_array(img_arr, wid, worker_idx=worker_slot)
-            return orig_idx, dets
+        if self._adaptive_batcher is None:
+            self._adaptive_batcher = ElasticAdaptiveBatcher(
+                default_batch_size=self._tile_batch_size,
+                min_batch_size=1,
+            )
 
-        if num_workers > 1 and len(active_jobs) > 1:
-            worker_assignments = [
-                (orig_idx, img_arr, wid, i % num_workers)
-                for i, (orig_idx, img_arr, wid) in enumerate(active_jobs)
-            ]
-            with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as pool:
-                completed = pool.map(_worker_task, worker_assignments)
-                for orig_idx, dets in completed:
-                    results[orig_idx] = dets
-        else:
-            for i, (orig_idx, img_arr, wid) in enumerate(active_jobs):
-                dets = self._detect_single_array(img_arr, wid, worker_idx=0)
-                results[orig_idx] = dets
+        def _process_chunk(chunk: Sequence[tuple[int, np.ndarray, int]]) -> list[tuple[int, Sequence[Detection]]]:
+            sub_jobs = [(job[1], job[2]) for job in chunk]
+            chunk_results = self._detect_batch_chunk(sub_jobs)
+            return [(chunk[i][0], chunk_results[i]) for i in range(len(chunk))]
+
+        executed_batches = self._adaptive_batcher.execute(
+            active_jobs,
+            _process_chunk,
+            batch_size=self._tile_batch_size,
+        )
+
+        for orig_idx, dets in executed_batches:
+            results[orig_idx] = dets
 
         return results
+
+    def _preprocess_batch(self, images: Sequence[np.ndarray]) -> tuple[np.ndarray, list[dict[str, Any]]]:
+        """Vektörize letterbox, normalizasyon ve [B, 3, 1024, 1024] tensör paketleme."""
+        cv2, np = _native_modules()
+        tensors = []
+        meta_list = []
+
+        for img in images:
+            im_h, im_w = img.shape[:2]
+            img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR) if img.ndim == 3 and img.shape[2] == 3 else img
+            img_in, ratio, (dw, dh) = self._letterbox(
+                img_bgr, new_shape=(self._input_size, self._input_size), auto=False, stride=64
+            )
+            img_in = img_in.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
+            img_in = np.ascontiguousarray(img_in, dtype=np.float32) / 255.0
+            tensors.append(img_in)
+
+            scale_x = im_w / (self._input_size - dw)
+            scale_y = im_h / (self._input_size - dh)
+            meta_list.append({
+                "im_w": im_w,
+                "im_h": im_h,
+                "scale_x": scale_x,
+                "scale_y": scale_y,
+                "dw": dw,
+                "dh": dh,
+            })
+
+        batch_tensor = np.stack(tensors, axis=0)  # [B, 3, 1024, 1024]
+        return batch_tensor, meta_list
+
+    def _detect_batch_chunk(self, chunk: Sequence[tuple[np.ndarray, int]]) -> list[Sequence[Detection]]:
+        """Toplu (batched) forward pass ve tespit koordinat dönüşümü."""
+        if not chunk:
+            return []
+
+        images = [item[0] for item in chunk]
+        window_ids = [item[1] for item in chunk]
+        batch_size = len(images)
+
+        batch_tensor, meta_list = self._preprocess_batch(images)
+        outputs, _ = self._forward_raw(batch_tensor, worker_idx=0)
+
+        blk_output = next((value for value in outputs if value.ndim == 3 and value.shape[-1] == 7), None)
+        dense = [value for value in outputs if value.ndim == 4]
+        det_output = next((value for value in dense if value.shape[1] == 2), None)
+        seg_output = next((value for value in dense if value.shape[1] == 1), None)
+
+        def _process_tile(b: int) -> list[Detection]:
+            wid = window_ids[b]
+            meta = meta_list[b]
+            im_w = meta["im_w"]
+            im_h = meta["im_h"]
+            scale_x = meta["scale_x"]
+            scale_y = meta["scale_y"]
+            dw = meta["dw"]
+            dh = meta["dh"]
+
+            blocks = []
+            if blk_output is not None:
+                blk_b = blk_output[b]
+                blocks = self._postprocess_yolo_blocks(blk_b, scale_x, scale_y, im_w, im_h)
+
+            lines = []
+            if det_output is not None:
+                det_b = det_output[b : b + 1]
+                lines = self._postprocess_dbnet_lines(det_b, im_w, im_h, dw, dh)
+
+            seg_mask = None
+            if seg_output is not None:
+                seg_b = seg_output[b : b + 1]
+                seg_mask = self._postprocess_segmentation_mask(seg_b, im_w, im_h, dw, dh)
+
+            grouped_blocks = self._group_blocks_and_lines(blocks, lines, seg_mask, im_w, im_h)
+
+            detections: list[Detection] = []
+            for block_index, block in enumerate(grouped_blocks):
+                x1, y1, x2, y2 = block["bbox"]
+                ix1, iy1, ix2, iy2 = int(x1), int(y1), int(x2), int(y2)
+                if ix2 <= ix1 or iy2 <= iy1:
+                    continue
+                line_polygons = [
+                    line["polygon"].astype(int).tolist()
+                    for line in block.get("lines", [])
+                    if not line.get("synthetic", False)
+                    and line.get("polygon") is not None
+                    and len(line["polygon"]) >= 3
+                ]
+                metadata: dict[str, Any] = {
+                    "geometry_source": "ctd",
+                    "ctd_block_id": f"w{wid}:b{block_index}",
+                    "ctd_block_bbox": [ix1, iy1, ix2, iy2],
+                    "line_polygons": line_polygons,
+                    "line_scores": [
+                        float(line.get("score", 0.0))
+                        for line in block.get("lines", [])
+                        if not line.get("synthetic", False)
+                    ],
+                }
+                segmentation_polygons = self._compact_segmentation_polygons(seg_mask, (ix1, iy1, ix2, iy2))
+                if segmentation_polygons:
+                    metadata["segmentation_polygons"] = segmentation_polygons
+
+                detections.append(
+                    Detection(
+                        bbox=BBox(x1=ix1, y1=iy1, x2=ix2, y2=iy2),
+                        confidence=float(block.get("confidence", 0.5)),
+                        type=RegionType.UNKNOWN,
+                        source_window_id=wid,
+                        metadata=metadata,
+                    )
+                )
+            return detections
+
+        if batch_size == 1:
+            chunk_detections = [_process_tile(0)]
+        else:
+            import concurrent.futures
+            max_workers = min(8, batch_size)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                chunk_detections = list(executor.map(_process_tile, range(batch_size)))
+
+        return chunk_detections
 
     def _detect_single_array(self, img: np.ndarray, window_id: int, worker_idx: int = 0) -> Sequence[Detection]:
         cv2, np = _native_modules()

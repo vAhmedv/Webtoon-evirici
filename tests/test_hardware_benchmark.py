@@ -34,10 +34,6 @@ def test_hardware_benchmark_simulated_cuda_ceiling(qapp):
     mock_props = MagicMock()
     mock_props.total_memory = 12 * (1024 ** 3)  # 12 GB
 
-    # Simulate memory stepping: 4, 8, 16, 24 safe, 32 hits >= 95% ceiling
-    def mock_mem_allocated(device_idx):
-        return 11.5 * (1024 ** 3)  # 11.5 / 12 = 95.8%
-
     steps_recorded = []
     completed_results = []
 
@@ -51,11 +47,13 @@ def test_hardware_benchmark_simulated_cuda_ceiling(qapp):
          patch("torch.empty", return_value=MagicMock()), \
          patch("torch.cuda.synchronize"), \
          patch("torch.cuda.memory_allocated", side_effect=[
-             2 * (1024**3),   # batch 8 -> 16%
-             4 * (1024**3),   # batch 16 -> 33%
-             8 * (1024**3),   # batch 24 -> 66%
-             10 * (1024**3),  # batch 32 -> 83%
-             11.6 * (1024**3) # batch 48 -> 96.6% (exceeds 95%)
+             1 * (1024**3),   # batch 4 -> 8.3%
+             2 * (1024**3),   # batch 8 -> 16.6%
+             4 * (1024**3),   # batch 16 -> 33.3%
+             6 * (1024**3),   # batch 24 -> 50.0%
+             8 * (1024**3),   # batch 32 -> 66.6%
+             10 * (1024**3),  # batch 48 -> 83.3%
+             11.6 * (1024**3) # batch 64 -> 96.6% (exceeds 95%)
          ]), \
          patch("torch.cuda.memory_reserved", return_value=0), \
          patch("torch.cuda.empty_cache"), \
@@ -63,12 +61,39 @@ def test_hardware_benchmark_simulated_cuda_ceiling(qapp):
 
         worker.run()
 
-    assert len(steps_recorded) >= 4
+    assert len(steps_recorded) >= 6
     assert len(completed_results) == 1
     optimal_lama, optimal_ocr, optimal_llm, max_vram = completed_results[0]
-    assert optimal_lama == 32
-    assert optimal_ocr >= 32
+    assert optimal_lama == 48
+    assert optimal_ocr >= 48
     assert optimal_llm >= 8
+
+
+def test_hardware_benchmark_reaches_256(qapp):
+    mock_props = MagicMock()
+    mock_props.total_memory = 16 * (1024 ** 3)  # 16 GB
+
+    completed_results = []
+    worker = HardwareBenchmarkWorker(vram_ceiling=0.98)
+    worker.benchmark_completed.connect(lambda l, o, ll, v: completed_results.append((l, o, ll, v)))
+
+    with patch("torch.cuda.is_available", return_value=True), \
+         patch("torch.cuda.get_device_properties", return_value=mock_props), \
+         patch("torch.zeros", return_value=MagicMock()), \
+         patch("torch.empty", return_value=MagicMock()), \
+         patch("torch.cuda.synchronize"), \
+         patch("torch.cuda.memory_allocated", return_value=8 * (1024**3)), \
+         patch("torch.cuda.memory_reserved", return_value=0), \
+         patch("torch.cuda.empty_cache"), \
+         patch("time.sleep"):
+
+        worker.run()
+
+    assert len(completed_results) == 1
+    optimal_lama, optimal_ocr, optimal_llm, _ = completed_results[0]
+    assert optimal_lama == 256
+    assert optimal_ocr == 256
+    assert optimal_llm == 64
 
 
 def test_batch_settings_dialog_benchmark_integration(qapp):

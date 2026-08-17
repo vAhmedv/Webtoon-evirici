@@ -4,7 +4,7 @@
 
 | Purpose | Available | Notes |
 |---|---|---|
-| Repo graph | Graphify MCP | `.kilo/kilo.json`; local stdio; architecture/dependency graph |
+| Repo graph | Graphify MCP | `graphify-out/graph.json`; local stdio; architecture/dependency graph |
 | Symbol/reference | Serena MCP | `uvx serena-agent`; `find_symbol`, `find_referencing_symbols`, `get_symbols_overview` |
 | Library docs | `context7-mcp` skill | PySide6, ultralytics, OCR vb. guncel dokumanlar |
 | GitHub | bash + git | PR/issue/clone erisimi hazir |

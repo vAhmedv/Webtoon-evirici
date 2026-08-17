@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import gc
 import time
-from typing import Optional
+from typing import Any, Optional
 from PySide6.QtCore import QThread, Signal
 from loguru import logger
+
+MAX_BENCHMARK_BATCH = 256
+BENCHMARK_STEPS = [4, 8, 16, 24, 32, 48, 64, 96, 128, 192, 256]
 
 
 class HardwareBenchmarkWorker(QThread):
@@ -41,8 +44,8 @@ class HardwareBenchmarkWorker(QThread):
             total_gb = total_vram / (1024 ** 3)
 
             # Progressive test steps up to 256
-            test_steps = [8, 16, 24, 32, 48, 64, 80, 96, 128, 160, 192, 224, 256]
-            last_safe_batch = 8
+            test_steps = BENCHMARK_STEPS
+            last_safe_batch = 4
             max_vram_pct = 0.0
 
             allocated_tensors = []
@@ -97,8 +100,8 @@ class HardwareBenchmarkWorker(QThread):
             gc.collect()
 
             # Calibrate modules based on safe ceiling (up to 256)
-            optimal_lama = max(1, last_safe_batch)
-            optimal_ocr = min(256, max(1, int(last_safe_batch * 1.3)))
+            optimal_lama = min(MAX_BENCHMARK_BATCH, max(1, last_safe_batch))
+            optimal_ocr = min(MAX_BENCHMARK_BATCH, max(1, int(last_safe_batch * 1.3)))
             optimal_llm = min(64, max(8, int(last_safe_batch * 0.6)))
 
             logger.info(

@@ -228,11 +228,11 @@ def _make_verdict(
 def should_run_verifier(
     primary: OCRResult,
     region: Any = None,
-    min_confidence: float = 0.92,
+    min_confidence: float = 0.85,
 ) -> tuple[bool, str]:
     """Koşullu Doğrulama (Gated Verifier) kontrolü.
 
-    Primary OCR sonucu yüksek güvenli (>= 0.92), temiz ve yapısal olarak
+    Primary OCR sonucu yüksek güvenli (>= 0.85), temiz ve yapısal olarak
     kusursuz ise ikincil ağır verifier model çağrısını güvenle atlar.
 
     Returns:

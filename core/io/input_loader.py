@@ -68,7 +68,7 @@ def load_chapter(
     allow_non_uniform_widths: bool = False,
 ) -> list[Page]:
     """Bölüm klasörünü yükler ve sıralı Page listesi döndürür."""
-    from PIL import Image
+    from core.imaging.fast_loader import get_image_dimensions
 
     cfg = config if config is not None else Config()
 
@@ -78,8 +78,7 @@ def load_chapter(
     raw_dims: list[tuple[int, int]] = []
     for path in image_paths:
         try:
-            with Image.open(path) as img:
-                raw_dims.append(img.size)
+            raw_dims.append(get_image_dimensions(path))
         except Exception as e:
             raise ValueError(f"Görüntü okunamadı: {path} — {e}") from e
 

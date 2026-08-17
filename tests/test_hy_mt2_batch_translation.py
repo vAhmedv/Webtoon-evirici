@@ -89,3 +89,66 @@ def test_hy_mt2_batch_fallback_on_malformed_response():
     assert len(out.results) == 2
     assert out.results[0].translation == "Satır bir."
     assert out.results[1].translation == "Satır iki."
+
+
+def test_hy_mt2_32_item_batch_translation():
+    """Verifies that Hy-MT2 can translate a full 32-dialogue batch in one single call."""
+    provider = HyMT2GGUFTranslationProvider(managed=False)
+    provider._loaded = True
+
+    items = [
+        TranslationItem(region_id=i + 1, source=f"Dialogue {i + 1}")
+        for i in range(32)
+    ]
+    inp = TranslationInput(items=items)
+
+    mock_batch_reply = "\n".join(f"[{i + 1}] Diyalog {i + 1}" for i in range(32))
+
+    call_count = 0
+    def fake_request(prompt, label, max_tokens=None):
+        nonlocal call_count
+        call_count += 1
+        return mock_batch_reply, mock_batch_reply, False
+
+    with patch.object(provider, "_check_health", return_value=True), \
+         patch.object(provider, "_server_identity_compatible", return_value=True), \
+         patch.object(provider, "_request_translation", side_effect=fake_request):
+        out = provider.translate(inp, chunk_size=32)
+
+    assert call_count == 1
+    assert len(out.results) == 32
+    for i in range(32):
+        assert out.results[i].translation == f"Diyalog {i + 1}"
+
+
+def test_hy_mt2_secondary_pattern_recovery():
+    """Verifies recovery when the model formats responses as '1. text' instead of '[1] text'."""
+    provider = HyMT2GGUFTranslationProvider(managed=False)
+    provider._loaded = True
+
+    items = [
+        TranslationItem(region_id=1, source="First line"),
+        TranslationItem(region_id=2, source="Second line"),
+        TranslationItem(region_id=3, source="Third line"),
+    ]
+    inp = TranslationInput(items=items)
+
+    mock_dot_reply = "1. İlk satır\n2. İkinci satır\n3. Üçüncü satır"
+
+    call_count = 0
+    def fake_request(prompt, label, max_tokens=None):
+        nonlocal call_count
+        call_count += 1
+        return mock_dot_reply, mock_dot_reply, False
+
+    with patch.object(provider, "_check_health", return_value=True), \
+         patch.object(provider, "_server_identity_compatible", return_value=True), \
+         patch.object(provider, "_request_translation", side_effect=fake_request):
+        out = provider.translate(inp, chunk_size=32)
+
+    assert call_count == 1
+    assert len(out.results) == 3
+    assert out.results[0].translation == "İlk satır"
+    assert out.results[1].translation == "İkinci satır"
+    assert out.results[2].translation == "Üçüncü satır"
+

@@ -92,3 +92,20 @@ def test_execute_with_elastic_batch_helper():
     items = ["a", "b", "c", "d"]
     res = execute_with_elastic_batch(items, lambda c: [x.upper() for x in c], initial_batch=2)
     assert res == ["A", "B", "C", "D"]
+
+
+def test_elastic_batcher_high_batch_scaling_256():
+    """Verifies that ElasticAdaptiveBatcher scales up to 256 batch sizes without artificial clamp."""
+    items = list(range(512))
+    batcher = ElasticAdaptiveBatcher(default_batch_size=256, min_batch_size=1, vram_ceiling=0.95)
+
+    call_sizes = []
+
+    def mock_process(chunk):
+        call_sizes.append(len(chunk))
+        return [x * 2 for x in chunk]
+
+    results = batcher.execute(items, mock_process)
+    assert len(results) == 512
+    assert call_sizes == [256, 256]
+    assert batcher.current_optimal_batch == 256
