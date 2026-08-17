@@ -269,6 +269,11 @@ class MainWindow(QMainWindow):
         self.top_bar.reset_stages()
         self.top_bar.set_pipeline_running(True)
 
+        try:
+            self.config = load_config()
+        except Exception:
+            pass
+
         self._worker = AnalysisWorker(
             chapter_path=self._current_chapter_dir,
             output_path=out_dir,
