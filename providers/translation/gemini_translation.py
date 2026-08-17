@@ -184,11 +184,15 @@ class GeminiTranslationProvider(TranslationProvider):
             },
         }
 
-        url = GEMINI_ENDPOINT_TEMPLATE.format(model=self.model_name, api_key=self.api_key)
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={self.api_key}"
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": self.api_key,
+        }
         req = urllib.request.Request(
             url,
             data=json.dumps(request_body).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
+            headers=headers,
             method="POST",
         )
 
@@ -315,7 +319,11 @@ class GeminiTranslationProvider(TranslationProvider):
 
         last_error = ""
         for m in models_to_try:
-            url = GEMINI_ENDPOINT_TEMPLATE.format(model=m, api_key=key)
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={key}"
+            headers = {
+                "Content-Type": "application/json",
+                "x-goog-api-key": key,
+            }
             body = {
                 "contents": [
                     {
@@ -330,7 +338,7 @@ class GeminiTranslationProvider(TranslationProvider):
             req = urllib.request.Request(
                 url,
                 data=json.dumps(body).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
+                headers=headers,
                 method="POST",
             )
             try:
