@@ -296,7 +296,7 @@ class TextMaskBuilder:
             merged = merge_xor_components(candidates, pred_crop)
             final[y1:y2, x1:x2] = cv2.bitwise_or(final[y1:y2, x1:x2], merged)
         text_size = float(np.median(heights)) if heights else 12.0
-        radius = int(np.clip(round(text_size * .055), 1, 3))
+        radius = int(np.clip(round(text_size * .08), 2, 4))
         # Bounded recovery: the XOR-merge target is seeded from the (often
         # partial) segmentation, so valid glyph pixels that lie inside the raw
         # CTD envelope but outside the partial segmentation can be rejected.

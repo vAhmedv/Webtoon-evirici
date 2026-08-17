@@ -318,7 +318,7 @@ class BatchSettingsDialog(QDialog):
 
     def _on_start_benchmark(self) -> None:
         self.btn_benchmark.setEnabled(False)
-        self.lbl_bench_status.setText("Donanım stres testi başlatılıyor...")
+        self.lbl_bench_status.setText("1024x4096 kalibrasyon şeridi oluşturuluyor ve donanım test ediliyor...")
         self.lbl_bench_status.setStyleSheet("color: #38BDF8;")
         self.bench_progress.setValue(10)
 
@@ -335,14 +335,34 @@ class BatchSettingsDialog(QDialog):
         self._config = get_batch_config()
         self._load_values()
 
-    def _on_bench_step(self, batch: int, used_gb: float, tot_gb: float, pct: float) -> None:
-        self.bench_progress.setValue(min(95, int((batch / 256) * 100)))
-        self.lbl_bench_status.setText(f"Batch {batch} deneniyor... VRAM: {used_gb:.1f}/{tot_gb:.1f} GB (%{int(pct)})")
+    def _on_bench_step(self, batch: int = 4, used_gb: float = 0.0, tot_gb: float = 0.0, pct: float = 0.0, **kwargs: Any) -> None:
+        self.bench_progress.setValue(min(98, max(5, int((batch / 256) * 100))))
+        if tot_gb > 0:
+            self.lbl_bench_status.setText(f"Batch {batch} deneniyor... VRAM: {used_gb:.1f}/{tot_gb:.1f} GB (%{int(pct)})")
+        else:
+            self.lbl_bench_status.setText(f"Batch {batch} test ediliyor...")
         self.lbl_bench_status.setStyleSheet("color: #F59E0B;")
 
-    def _on_bench_completed(self, optimal_lama: int, optimal_ocr: int, optimal_llm: int, max_vram_pct: float) -> None:
+    def _on_bench_completed(
+        self,
+        optimal_lama: int = 12,
+        optimal_ocr: int = 12,
+        optimal_det: int = 4,
+        optimal_llm: int = 32,
+        max_vram_pct: float = 80.0,
+        **kwargs: Any,
+    ) -> None:
+        if "optimal_llm" in kwargs:
+            optimal_llm = kwargs["optimal_llm"]
+        if "max_vram_pct" in kwargs:
+            max_vram_pct = kwargs["max_vram_pct"]
+        if "optimal_det" in kwargs:
+            optimal_det = kwargs["optimal_det"]
+
         self.bench_progress.setValue(100)
-        self.lbl_bench_status.setText(f"✔ Test Başarılı! Maksimum Kararlı Batch: {optimal_lama} (VRAM %{int(max_vram_pct)})")
+        self.lbl_bench_status.setText(
+            f"✔ Kalibrasyon Tamamlandı! LaMa={optimal_lama}, OCR={optimal_ocr}, LLM={optimal_llm} (VRAM: %{int(max_vram_pct)})"
+        )
         self.lbl_bench_status.setStyleSheet("color: #10B981; font-weight: 600;")
         self.btn_benchmark.setEnabled(True)
 
@@ -362,11 +382,15 @@ class BatchSettingsDialog(QDialog):
         self._config.sticky_optimal_batch = sticky
         save_batch_config(self._config)
 
+
+
+
     def _on_bench_failed(self, err: str) -> None:
         self.bench_progress.setValue(0)
         self.lbl_bench_status.setText(f"Hata: {err}")
         self.lbl_bench_status.setStyleSheet("color: #EF4444;")
         self.btn_benchmark.setEnabled(True)
+
 
     def _on_save_clicked(self) -> None:
         new_config = BatchConfig(

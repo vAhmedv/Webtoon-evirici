@@ -46,7 +46,6 @@ class LogPanel(QWidget):
             return
         self._emitting = True
         try:
-            logger.debug(f"[THREAD] Log sink receiving thread id: {threading.get_ident()}")
             self._emitter.message.emit(message.rstrip())
         finally:
             self._emitting = False
@@ -57,7 +56,6 @@ class LogPanel(QWidget):
             return
         self._appending = True
         try:
-            logger.debug(f"[THREAD] LogPanel.append slot thread id: {threading.get_ident()}")
             self._text_edit.append(message)
             cursor = self._text_edit.textCursor()
             cursor.movePosition(QTextCursor.End)
@@ -69,6 +67,10 @@ class LogPanel(QWidget):
         """Disconnects signals and removes loguru handler."""
         try:
             self._emitter.message.disconnect(self._append_log)
-        except RuntimeError:
+        except (RuntimeError, TypeError):
             pass
-        logger.remove(self._handler_id)
+        try:
+            logger.remove(self._handler_id)
+        except ValueError:
+            pass
+

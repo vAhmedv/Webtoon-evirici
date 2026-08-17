@@ -202,7 +202,9 @@ class MainWindow(QMainWindow):
         rendered_paths: list[Path] = []
         if rendered_dir and rendered_dir.exists():
             for p in self._pages:
-                r_file = rendered_dir / f"{p.index:03d}.png"
+                r_file = rendered_dir / p.path.name
+                if not r_file.exists():
+                    r_file = rendered_dir / f"{p.index:03d}.png"
                 if r_file.exists():
                     rendered_paths.append(r_file)
 
@@ -260,7 +262,7 @@ class MainWindow(QMainWindow):
             if not dialog.was_successful:
                 return
 
-        out_dir = Path("audit_output/gui_run")
+        out_dir = Path("output") / self._current_chapter_dir.name
         out_dir.mkdir(parents=True, exist_ok=True)
 
         self.top_bar.reset_stages()
@@ -353,17 +355,25 @@ class MainWindow(QMainWindow):
                 break
 
     def _on_translation_updated(self, region_id: int, new_text: str) -> None:
-        for r in self._regions:
+        from dataclasses import replace
+        for idx, r in enumerate(self._regions):
             if r.id == region_id:
-                r.translation = new_text
+                updated_r = replace(r, translation=new_text)
+                self._regions[idx] = updated_r
+                if hasattr(self.canvas, "_region_items") and region_id in self.canvas._region_items:
+                    self.canvas._region_items[region_id].region = updated_r
                 break
 
     def _on_status_changed(self, region_id: int, new_status: RegionStatus) -> None:
-        for r in self._regions:
+        from dataclasses import replace
+        for idx, r in enumerate(self._regions):
             if r.id == region_id:
-                r.status = new_status
-                if self.canvas._region_items.get(region_id):
-                    self.canvas._region_items[region_id]._update_appearance()
+                updated_r = replace(r, status=new_status)
+                self._regions[idx] = updated_r
+                if hasattr(self.canvas, "_region_items") and region_id in self.canvas._region_items:
+                    item = self.canvas._region_items[region_id]
+                    item.region = updated_r
+                    item._update_appearance()
                 break
 
     def _on_navigate_requested(self, delta: int) -> None:
@@ -386,3 +396,4 @@ class MainWindow(QMainWindow):
     def _on_skip_requested(self, region_id: int) -> None:
         self._on_status_changed(region_id, RegionStatus.SKIP)
         self._on_navigate_requested(1)
+

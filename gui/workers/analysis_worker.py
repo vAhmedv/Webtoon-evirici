@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import threading
 import traceback
 from pathlib import Path
@@ -17,7 +18,7 @@ from loguru import logger
 from providers.detector.registry import get_registry
 from providers.ocr.paddleocr import PaddleOCRProvider
 from providers.ocr.paddleocr_vl import PaddleOCRVLOcrProvider
-from providers.ocr.qwen_repair import QwenRepairConfig, QwenRepairProvider
+from providers.translation.gemini_translation import GeminiTranslationProvider
 from providers.translation.hy_mt2_gguf_translation import HyMT2GGUFTranslationProvider
 from providers.translation.hy_mt2_gguf_translation import (
     DEFAULT_HY_MT2_MODEL_PATH,
@@ -90,23 +91,28 @@ class AnalysisWorker(QThread):
 
             primary = PaddleOCRProvider(self.config.ocr.primary_model)
             verifier = PaddleOCRVLOcrProvider()
-            qwen_defaults = QwenRepairConfig()
-            repair = QwenRepairProvider(QwenRepairConfig(
-                model_path=self.config.ocr.qwen_model_path or qwen_defaults.model_path,
-                mmproj_path=self.config.ocr.qwen_mmproj_path or qwen_defaults.mmproj_path,
-                server_path=self.config.ocr.qwen_server_path or qwen_defaults.server_path,
-                server_url=self.config.ocr.qwen_server_url,
-                server_port=self.config.ocr.qwen_server_port,
-            ))
-            translator = HyMT2GGUFTranslationProvider(
-                model_path=self.config.translator.model_path
-                or DEFAULT_HY_MT2_MODEL_PATH,
-                executable_path=self.config.translator.llama_executable
-                or DEFAULT_HY_LLAMA_SERVER_PATH,
-                server_url=self.config.translator.server_url
-                or DEFAULT_HY_MT2_SERVER_URL,
+            gemini_key = (
+                self.config.translator.gemini_api_key
+                or os.environ.get("GEMINI_API_KEY")
+                or os.environ.get("GOOGLE_API_KEY")
             )
-            providers = [provider, primary, verifier, repair, translator]
+            if gemini_key:
+                logger.info("Using Google Gemini API Translation Provider (%s)", self.config.translator.gemini_model)
+                translator = GeminiTranslationProvider(
+                    api_key=gemini_key,
+                    model_name=self.config.translator.gemini_model,
+                )
+            else:
+                logger.info("Using Local Hy-MT2 GGUF Translation Provider")
+                translator = HyMT2GGUFTranslationProvider(
+                    model_path=self.config.translator.model_path
+                    or DEFAULT_HY_MT2_MODEL_PATH,
+                    executable_path=self.config.translator.llama_executable
+                    or DEFAULT_HY_LLAMA_SERVER_PATH,
+                    server_url=self.config.translator.server_url
+                    or DEFAULT_HY_MT2_SERVER_URL,
+                )
+            providers = [provider, primary, verifier, translator]
 
             result: ProductionPipelineResult = analyzer.process_chapter(
                 chapter_path=self.chapter_path,
@@ -114,7 +120,6 @@ class AnalysisWorker(QThread):
                 detector=provider,
                 primary_ocr=primary,
                 verifier_ocr=verifier,
-                qwen_repair=repair,
                 translator=translator,
                 progress_callback=on_progress,
                 cancellation_token=self._cancellation_token,
@@ -128,6 +133,7 @@ class AnalysisWorker(QThread):
             self.cancelled.emit()
         except Exception as exc:
             tb = traceback.format_exc()
+            logger.error(f"[THREAD] AnalysisWorker failed: {tb}")
             self.error.emit(f"{type(exc).__name__}: {repr(exc)}\n{tb}")
         finally:
             for active_provider in reversed(providers):

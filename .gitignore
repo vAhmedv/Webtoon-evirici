@@ -22,6 +22,7 @@ __pycache__/
 input/
 output/
 outputs/
+output_chapter/
 translated/
 projects/
 cache/

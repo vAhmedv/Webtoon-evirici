@@ -56,39 +56,74 @@ class Inpainter:
 
     def inpaint_blocks(self, canvas: Image.Image, text_blocks: Sequence[Any]) -> Image.Image:
         self.last_text_mask = None
-        result = np.ascontiguousarray(np.asarray(canvas.convert("RGB"), dtype=np.uint8))
+        result = np.array(canvas.convert("RGB"), dtype=np.uint8, copy=True)
+        
+        # 1. Build text masks for all eligible blocks
+        prepared: list[tuple[Any, TextMask, str]] = []
         for block in text_blocks:
             members = tuple(getattr(block, "members", ()))
             if not members or any(not _is_story_text(r) for r in members):
                 continue
             eligible = members
             mask = self.mask_builder._build(result, block.merged_bbox, eligible)
+            block_id = int(getattr(block, "id", -1))
             if np.any(mask.refined):
-                self.processed_block_ids.add(int(getattr(block, "id", -1)))
+                self.processed_block_ids.add(block_id)
             else:
                 # No approved text mask means the translated block cannot be
                 # safely rendered. Count it as inpaint REVIEW so lifecycle
                 # totals remain explicit and the original pixels stay intact.
-                self.review_block_ids.add(int(getattr(block, "id", -1)))
-            result = self._apply_mask(result, mask, f"block_{getattr(block, 'id', len(self.debug_records) + 1):04d}")
+                self.review_block_ids.add(block_id)
+            debug_name = f"block_{getattr(block, 'id', len(self.debug_records) + len(prepared) + 1):04d}"
+            prepared.append((block, mask, debug_name))
+
+        # 2. Batch GPU LaMa inference for all blocks requiring full neural inpainting
+        lama_jobs: list[tuple[int, np.ndarray, np.ndarray]] = []
+        for idx, (block, mask, _) in enumerate(prepared):
+            if not np.any(mask.refined):
+                continue
+            can_flat, _ = self._can_use_flat_fill(mask.source, mask.refined, mask.bubble_interior)
+            if not can_flat and not mask.is_uniform_background:
+                lama_jobs.append((idx, mask.source, mask.refined))
+
+        precomputed_crops: dict[int, np.ndarray] = {}
+        if lama_jobs:
+            lama_sources = [job[1] for job in lama_jobs]
+            lama_masks = [job[2] for job in lama_jobs]
+            batch_results = self.lama.inpaint_batch(lama_sources, lama_masks, batch_size=24)
+            for (prep_idx, _, _), res_crop in zip(lama_jobs, batch_results):
+                precomputed_crops[prep_idx] = res_crop
+
+        # 3. Apply masks in-place directly on the single canvas buffer
+        for idx, (block, mask, debug_name) in enumerate(prepared):
+            pre_crop = precomputed_crops.get(idx)
+            self._apply_mask(result, mask, debug_name, in_place=True, precomputed_crop=pre_crop)
+
         return Image.fromarray(result, "RGB")
 
     def inpaint_regions(self, canvas: Image.Image, regions: Sequence[Region]) -> Image.Image:
-        result = np.ascontiguousarray(np.asarray(canvas.convert("RGB"), dtype=np.uint8))
+        result = np.array(canvas.convert("RGB"), dtype=np.uint8, copy=True)
         for region in regions:
             if not _is_story_text(region):
                 continue
             mask = self.mask_builder.build_for_region(result, region)
-            result = self._apply_mask(result, mask, f"region_{region.id:04d}")
+            self._apply_mask(result, mask, f"region_{region.id:04d}", in_place=True)
         return Image.fromarray(result, "RGB")
 
-    def _apply_mask(self, full_source: np.ndarray, text_mask: TextMask, debug_name: str) -> np.ndarray:
+    def _apply_mask(
+        self,
+        full_source: np.ndarray,
+        text_mask: TextMask,
+        debug_name: str,
+        in_place: bool = False,
+        precomputed_crop: np.ndarray | None = None,
+    ) -> np.ndarray:
         x1, y1, x2, y2 = text_mask.crop_bbox
         refined = text_mask.refined > 0
         if not np.any(refined):
             self.last_text_mask = text_mask
             self._save_debug(debug_name, text_mask, text_mask.source, "empty")
-            return full_source
+            return full_source if in_place else np.array(full_source, copy=True)
 
         can_flat, flat_color = self._can_use_flat_fill(
             text_mask.source, text_mask.refined, text_mask.bubble_interior
@@ -103,6 +138,9 @@ class Inpainter:
             inpainted_crop = text_mask.source.copy()
             inpainted_crop[refined] = np.asarray(text_mask.background_color, dtype=np.uint8)
             method = "median"
+        elif precomputed_crop is not None:
+            inpainted_crop = precomputed_crop
+            method = "lama_large"
         else:
             inpainted_crop = self.lama.inpaint(text_mask.source, text_mask.refined)
             method = "lama_large"
@@ -139,10 +177,9 @@ class Inpainter:
             except ValueError:
                 pass
 
-        result = np.array(full_source, copy=True)
-        if not review:
-            destination = result[y1:y2, x1:x2]
-            destination[refined] = inpainted_crop[refined]
+        target_canvas = full_source if in_place else np.array(full_source, copy=True)
+        destination = target_canvas[y1:y2, x1:x2]
+        destination[refined] = inpainted_crop[refined]
         self._save_debug(
             debug_name,
             text_mask,
@@ -151,15 +188,17 @@ class Inpainter:
             residual_expansion_passes=residual_expansion_passes,
             review=review,
         )
-        return result
+        return target_canvas
+
+
 
     @staticmethod
     def _can_use_flat_fill(
         image_crop: np.ndarray,
         mask_crop: np.ndarray,
         bubble_interior: np.ndarray | None = None,
-        max_std_threshold: float = 4.0,
-        overall_std_threshold: float = 3.5,
+        max_std_threshold: float = 6.0,
+        overall_std_threshold: float = 5.5,
     ) -> tuple[bool, tuple[int, int, int]]:
         """Maskenin etrafındaki pikselleri analiz ederek düz renkli konuşma balonu kontrolü yapar."""
         import cv2

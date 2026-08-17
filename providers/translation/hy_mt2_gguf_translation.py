@@ -9,7 +9,7 @@ different heavyweight GPU model (notably visual OCR).
 """
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import http.client
 import json
 import logging
@@ -54,6 +54,69 @@ _RUNTIME_EOS_SUFFIX = re.compile(
     r"(?:<\|eos\|>|<\|endoftext\|>|<\|im_end\|>)\s*$",
     re.IGNORECASE,
 )
+
+_COMMON_EXCLAMATIONS_TR = {
+    "DAMMIT": "Kahretsin!",
+    "DAMMIT!": "Kahretsin!",
+    "DAMN": "Kahretsin!",
+    "DAMN!": "Kahretsin!",
+    "SHIT": "Kahretsin!",
+    "SHIT!": "Kahretsin!",
+    "WHAT?!": "Ne?!",
+    "WHAT?": "Ne?",
+    "WHAT!": "Ne!",
+    "WHAT": "Ne?",
+    "NO!": "Hayır!",
+    "NO...": "Hayır...",
+    "NO": "Hayır",
+    "DIE!": "Geber!",
+    "DIE": "Öl!",
+    "WAIT!": "Bekle!",
+    "WAIT": "Bekle!",
+    "STOP!": "Dur!",
+    "STOP": "Dur!",
+    "WHY?": "Neden?",
+    "WHY": "Neden?",
+    "PLEASE!": "Lütfen!",
+    "PLEASE": "Lütfen",
+    "HELP!": "İmdat!",
+    "HELP": "Yardım edin!",
+    "RUN!": "Kaç!",
+    "RUN": "Kaç!",
+    "LOOK!": "Bak!",
+    "LOOK": "Bak!",
+    "LISTEN!": "Dinle!",
+    "LISTEN": "Dinle!",
+    "SHUT UP!": "Kapa çeneni!",
+    "SHUT UP": "Kapa çeneni!",
+}
+
+
+def post_process_turkish_translation(translated_text: str, source_text: str) -> str:
+    """Refines Turkish translation, fixes English leftovers and converts literal speech into natural idiom."""
+    if not translated_text:
+        return ""
+
+    t = translated_text.strip()
+    src_clean = (source_text or "").strip().upper()
+
+    # Exact common exclamation override if translation copied source or failed
+    if src_clean in _COMMON_EXCLAMATIONS_TR:
+        if t.upper() == src_clean or t.upper() in _COMMON_EXCLAMATIONS_TR or len(t.split()) <= 2:
+            return _COMMON_EXCLAMATIONS_TR[src_clean]
+
+    # Clean leading leftover English words
+    t = re.sub(r"^(?:MY\s+LORD|MY\s+GOD)\s*[,:]?\s*", "Aman Tanrım! ", t, flags=re.IGNORECASE)
+    t = re.sub(r"^MY\s+", "Benim ", t, flags=re.IGNORECASE)
+    t = re.sub(r"^YOU\s+", "Sen ", t, flags=re.IGNORECASE)
+    t = re.sub(r"^DAMMIT\s*[,:]?\s*", "Kahretsin, ", t, flags=re.IGNORECASE)
+    t = re.sub(r"^WHAT\s*[,:]?\s*", "Ne, ", t, flags=re.IGNORECASE)
+
+    # Convert common robotic literal translations into natural Turkish dialogue
+    t = re.sub(r"Şaka\s+yapıyor\s+olmalısınız", "Şaka yapıyor olmalısın!", t, flags=re.IGNORECASE)
+    t = re.sub(r"Şaka\s+yapıyorsunuz\s+olmalı", "Şaka yapıyor olmalısın!", t, flags=re.IGNORECASE)
+
+    return t.strip()
 
 
 def render_hy_mt2_prompt(prepared_source_text: str) -> str:
@@ -436,6 +499,29 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
             if attempt == 0:
                 logger.warning("Hy-MT2 returned an empty translation for %s; retrying once", label)
         return raw_text, "", False
+
+    def _finalize_prepared_item(
+        self,
+        prepared: Any,
+        cleaned: str,
+        raw_text: str,
+    ) -> TranslationOutputItem:
+        res = super()._finalize_prepared_item(prepared, cleaned, raw_text)
+        src_raw = (prepared.item.source or "").strip()
+        src_upper = src_raw.upper()
+
+        if res.translation:
+            refined = post_process_turkish_translation(res.translation, src_raw)
+            return replace(res, translation=refined)
+        elif src_upper in _COMMON_EXCLAMATIONS_TR:
+            return replace(
+                res,
+                translation=_COMMON_EXCLAMATIONS_TR[src_upper],
+                requires_review=False,
+                validation_warnings=[],
+            )
+
+        return res
 
     @staticmethod
     def _protected_terms(prepared: Any) -> list[dict[str, Any]]:

@@ -100,7 +100,7 @@ class LaMaLargeInpainter:
         # context while preserving the model's spatial reconstruction/texture.
         selected = mask > 0
         ring = (cv2.dilate(selected.astype(np.uint8), np.ones((11, 11), np.uint8)) > 0) & ~selected
-        if np.count_nonzero(ring) >= 24:
+        if np.count_nonzero(ring) >= 24 and np.count_nonzero(selected) > 0:
             context_median = np.median(image[ring].astype(np.float32), axis=0)
             prediction_median = np.median(predicted[selected].astype(np.float32), axis=0)
             color_shift = context_median - prediction_median
@@ -191,8 +191,11 @@ class LaMaLargeInpainter:
                     predictions = _forward_batch(False)
 
                 preds_np = predictions.float().clamp(0, 1).cpu().numpy().transpose(0, 2, 3, 1)
+                if not isinstance(preds_np, np.ndarray):
+                    raise RuntimeError("Predictions tensor was not converted to numpy array")
 
                 for k, ((img, mask), (sh, sw, rh, rw, _)) in enumerate(zip(zip(chunk_imgs, chunk_masks), scaled_info)):
+
                     if not np.any(mask):
                         chunk_results.append(img.copy())
                         continue
@@ -203,7 +206,7 @@ class LaMaLargeInpainter:
 
                     selected = mask > 0
                     ring = (cv2.dilate(selected.astype(np.uint8), np.ones((11, 11), np.uint8)) > 0) & ~selected
-                    if np.count_nonzero(ring) >= 24:
+                    if np.count_nonzero(ring) >= 24 and np.count_nonzero(selected) > 0:
                         context_median = np.median(img[ring].astype(np.float32), axis=0)
                         prediction_median = np.median(pred[selected].astype(np.float32), axis=0)
                         color_shift = context_median - prediction_median

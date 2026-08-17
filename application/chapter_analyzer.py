@@ -43,7 +43,6 @@ from core.visualization.draw import draw_detections, draw_regions
 from providers.detector.base import DetectorProvider
 from providers.ocr.agreement import decide_ocr_agreement, should_run_verifier
 from providers.ocr.base import OCRProvider
-from providers.ocr.repair import OCRRepairInput, OCRRepairProvider
 from providers.translation.base import TranslationInput, TranslationItem, TranslationProvider
 
 
@@ -297,7 +296,6 @@ class ChapterAnalyzer:
         total_ocr_boxes = 0
         gated_verified_boxes = 0
         gated_passed_boxes = 0
-        repair_candidates: list[tuple[Region, OCRRepairInput, Any]] = []
 
         if primary_ocr is not None:
             _progress("Loading Primary OCR")
@@ -430,14 +428,15 @@ class ChapterAnalyzer:
                             final_verdict = decide_ocr_agreement(p_res, v_res)
                             processed_items[rel_idx] = (region, p_res, validity_metadata, final_verdict, v_res, crop)
 
-                    # 5e. Form Final Regions & Repair Eligibility
+                    # 5e. Form Final Regions
                     for rel_idx, (region, p_res, validity_metadata, verdict, v_res, crop) in processed_items.items():
                         if region.status == RegionStatus.SKIP:
                             status = RegionStatus.SKIP
                         else:
                             status = RegionStatus.REVIEW if verdict.requires_review else RegionStatus.AUTO
 
-                        accepted = verdict.accepted_text or verdict.provisional_text or p_res.text or ""
+
+                        accepted = verdict.accepted_text or verdict.provisional_text or (v_res.text if v_res else None) or p_res.text or ""
                         has_text_content = bool(accepted and accepted.strip() and any(c.isalnum() for c in accepted))
                         if region.type == RegionType.UNKNOWN and not has_text_content:
                             status = RegionStatus.SKIP
@@ -448,46 +447,21 @@ class ChapterAnalyzer:
                         updated_region = _replace_region(
                             region,
                             text=accepted,
-                            ocr_confidence=p_res.confidence,
+                            ocr_confidence=v_res.confidence if v_res else p_res.confidence,
                             status=status,
                             review_reason=verdict_reason,
                             metadata={
                                 **region.metadata,
                                 "region_validity": validity_metadata,
                                 "ocr_verdict": {
-                                    "source": verdict.source,
+                                    "source": "verifier" if v_res is not None else verdict.source,
                                     "requires_review": verdict.requires_review,
-                                    "needs_repair": verdict.needs_repair,
+                                    "needs_repair": False,
                                     "reason": verdict_reason,
                                     "second_pass_invoked": v_res is not None,
                                 },
                             },
                         )
-
-                        repair_eligibility = evaluate_repair_eligibility(updated_region, verdict)
-                        eligibility_metadata = {
-                            "eligible": repair_eligibility.eligible,
-                            "reason": repair_eligibility.reason,
-                            **repair_eligibility.evidence,
-                        }
-                        updated_region = _replace_region(
-                            updated_region,
-                            metadata={
-                                **updated_region.metadata,
-                                "repair_eligibility": eligibility_metadata,
-                            },
-                        )
-
-                        if repair_eligibility.eligible and qwen_repair is not None:
-                            repair_inp = OCRRepairInput(
-                                region_id=region.id,
-                                primary_text=p_res.text or "",
-                                primary_confidence=p_res.confidence,
-                                verifier_text=v_res.text if v_res else None,
-                                verifier_confidence=v_res.confidence if v_res else None,
-                                agreement_verdict=verdict.reason,
-                            )
-                            repair_candidates.append((updated_region, repair_inp, crop.to_pil()))
 
                         chunk_results[rel_idx] = updated_region
 
@@ -512,56 +486,7 @@ class ChapterAnalyzer:
         ocr_elapsed = time.time() - ocr_start
         stage_timings["ocr"] = round(time.perf_counter() - t_ocr_start, 3)
 
-        # 6. Visual OCR Repair Stage (Sequential VRAM lifecycle)
-        if repair_candidates and qwen_repair is not None:
-            _progress("Loading Visual OCR Repair Model")
-            try:
-                qwen_repair.load()
-            except Exception as e:
-                logger.warning(f"Visual OCR repair model load failed: {e}")
-                warnings.append(f"Visual OCR repair model load skipped: {e}")
-                qwen_repair = None
-
-            if qwen_repair is not None:
-                try:
-                    repaired_regions: list[Region] = []
-                    for region, repair_inp, crop_img in repair_candidates:
-                        if cancellation_token and cancellation_token.is_cancelled:
-                            raise CancelledError()
-                        try:
-                            rep_res = qwen_repair.repair(repair_inp, crop_img)
-                            region = _replace_region(
-                                region,
-                                metadata={
-                                    **region.metadata,
-                                    "qwen_repair": dict(rep_res.metadata),
-                                },
-                            )
-                            if rep_res.repaired_text and not rep_res.unresolved:
-                                region = _replace_region(
-                                    region,
-                                    text=rep_res.repaired_text,
-                                    status=RegionStatus.AUTO,
-                                    metadata={**region.metadata, "repaired": True},
-                                )
-                        except Exception as e:
-                            warnings.append(f"Visual repair failed for region {region.id}: {e}")
-                        repaired_regions.append(region)
-
-                    # Update main region list
-                    repaired_map = {r.id: r for r in repaired_regions}
-                    regions = [repaired_map.get(r.id, r) for r in regions]
-                finally:
-                    qwen_repair.unload()
-                    # Clear VRAM cache
-                    try:
-                        import torch
-                        if torch.cuda.is_available():
-                            torch.cuda.empty_cache()
-                    except ImportError:
-                        pass
-
-        # 7. Multi-Feature Classification & Generic Watermark Filtering
+        # 6. Multi-Feature Classification & Generic Watermark Filtering
         from core.detection.classification import classify_regions
         from core.detection.text_block import group_text_blocks, TextBlock
         from core.detection.translation_eligibility import evaluate_translation_eligibility
@@ -775,7 +700,7 @@ class ChapterAnalyzer:
             + "  Aşama                                    | Süre (sn) | Detay\n"
             + "-" * 80 + "\n"
             + f"  Detection (CTD Batch GPU + Post-Process) | {stage_timings.get('detection', 0.0):>7.2f} s | {len(pages)} Sayfa / {len(windows)} Pencere\n"
-            + f"  OCR (PP-OCR CPU + PaddleOCR-VL GPU Gated)| {stage_timings.get('ocr', 0.0):>7.2f} s | Doğrulanan Kutu: {gated_verified_boxes} / Toplam: {total_ocr_boxes} (Gated: {gated_passed_boxes})\n"
+            + f"  OCR (PP-OCRv6 CPU + PaddleOCR-VL GPU)    | {stage_timings.get('ocr', 0.0):>7.2f} s | Doğrulanan Kutu: {gated_verified_boxes} / Toplam: {total_ocr_boxes} (Gated: {gated_passed_boxes})\n"
             + f"  Translation (Hy-MT2 Chunks: {total_tr_chunks}, Fallback: {trans_fallbacks}) | {stage_timings.get('translation', 0.0):>7.2f} s | {len(translated_block_pairs)} Blok Çevrildi\n"
             + f"  Inpainting (LaMa GPU Batch)              | {stage_timings.get('inpainting', 0.0):>7.2f} s | {successful_inpainting_count} Blok\n"
             + f"  Render & Save                            | {stage_timings.get('render_and_save', 0.0):>7.2f} s | {len(exported_page_paths)} Sayfa Dışa Aktarıldı\n"
@@ -1169,17 +1094,20 @@ def _get_model_identity(detector: DetectorProvider) -> tuple[str, str | float]:
 
 
 def _image_to_bytes(image) -> bytes:
-    """PIL Image'ı deterministic byte string'e çevirir (PNG encode)."""
+    """Fast deterministic byte extraction without PNG encoding overhead."""
+    if isinstance(image, bytes):
+        return image
     if hasattr(image, "tobytes"):
         return image.tobytes()
+    if isinstance(image, (bytearray, memoryview)):
+        return bytes(image)
     buf = io.BytesIO()
     if hasattr(image, "save"):
         image.save(buf, format="PNG")
-    elif isinstance(image, bytes):
-        return image
     else:
         buf.write(bytes(image))
     return buf.getvalue()
+
 
 
 def _global_detection_to_window(det: Detection, window_y_start: int) -> Detection:

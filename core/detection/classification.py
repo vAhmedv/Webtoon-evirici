@@ -17,6 +17,30 @@ def _contains_cjk(text: str) -> bool:
     return bool(_CJK_RE.search(text or ""))
 
 
+_DIALOGUE_EXCLAMATIONS = {
+    "DAMMIT", "DAMN", "SHIT", "FUCK", "WHAT", "WHAT?!", "WHAT?", "WHAT!",
+    "AHH", "AHHH", "AH", "NO", "NO!", "NO...", "NO WAY", "DIE", "DIE!",
+    "HUH", "HUH?", "WAIT", "WAIT!", "WHY", "WHY?", "STOP", "STOP!",
+    "HEY", "HEY!", "UGH", "UGHH", "GASP", "HEH", "HEHE", "OH", "OH!", "OH?",
+    "WOW", "YES", "YES!", "PLEASE", "HELP", "HELP!", "RUN", "RUN!",
+    "LOOK", "LOOK!", "LISTEN", "OOF", "OUCH", "HURRY", "SHUT UP", "GET OUT",
+    "LET GO", "MY", "YOU", "ME", "HMM", "HM", "TCH", "OUCH", "PHEW", "GULP",
+    "KID", "MAN", "BRO", "SIR", "LORD", "MASTER", "WHOA", "WHO", "HOW",
+    "WHERE", "WHEN", "OKAY", "OK", "COME ON",
+}
+
+
+def _is_dialogue_exclamation(norm_txt: str) -> bool:
+    """Checks if text is a known dialogue exclamation or short speech."""
+    if not norm_txt:
+        return False
+    upper = norm_txt.upper().strip()
+    if upper in _DIALOGUE_EXCLAMATIONS:
+        return True
+    words = [w for w in re.findall(r"[A-Z']+", upper) if w]
+    return bool(words and any(w in _DIALOGUE_EXCLAMATIONS for w in words))
+
+
 def classify_regions(
     regions: Sequence[Region],
     coords: GlobalCoordinateSystem,
@@ -71,6 +95,18 @@ def classify_regions(
 
         # 1b. Güçlü Detector Sinyalleri
         if r.type in (RegionType.SFX, RegionType.WATERMARK):
+            # Diyalog ve konuşma ünlemlerinin SFX olarak bypass edilmesini engelle
+            if r.type == RegionType.SFX and _is_dialogue_exclamation(norm_txt):
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.DIALOGUE,
+                        status=RegionStatus.AUTO,
+                        reason="dialogue_exclamation_promoted",
+                    )
+                )
+                continue
+
             classified_regions.append(
                 _replace_region_status(
                     r,
@@ -259,6 +295,9 @@ def _is_cjk_stylized_sfx(region: Region, txt: str, norm_txt: str) -> bool:
 def _is_isolated_drawing_sfx(region: Region, norm_txt: str) -> bool:
     """Çizim katmanına doğrudan çizilmiş geniş alanlı stilize ses efektlerini saptar."""
     if region.type != RegionType.UNKNOWN:
+        return False
+
+    if _is_dialogue_exclamation(norm_txt):
         return False
 
     w = region.global_bbox.width

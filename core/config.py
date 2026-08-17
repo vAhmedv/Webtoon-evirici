@@ -65,6 +65,8 @@ class TranslatorConfig:
     llama_executable: str | None = None
     server_url: str | None = None
     fallback_provider: str | None = None
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-2.5-flash"
 
 
 @dataclass(frozen=True)

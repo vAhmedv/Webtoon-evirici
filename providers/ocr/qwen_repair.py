@@ -75,16 +75,31 @@ class QwenRepairInput:
     nearby_context: str | None = None
 
     @classmethod
-    def from_repair_input(cls, ri: OCRRepairInput, image: Image.Image) -> "QwenRepairInput":
+    def from_repair_input(cls, ri: OCRRepairInput, image: Image.Image | None = None) -> "QwenRepairInput":
+        target_img = image or getattr(ri, "image", None)
+        if hasattr(target_img, "to_pil"):
+            target_img = target_img.to_pil()
+        elif not isinstance(target_img, Image.Image) and target_img is not None:
+            try:
+                target_img = Image.fromarray(target_img)
+            except Exception:
+                pass
+
+        p_raw = ri.primary_raw or getattr(ri, "primary_text", "") or getattr(ri, "raw_text", "")
+        p_norm = ri.primary_normalized or p_raw
+        v_raw = ri.verifier_raw or getattr(ri, "verifier_text", "") or ""
+        v_norm = ri.verifier_normalized or v_raw
+        reason = ri.reason or getattr(ri, "agreement_verdict", "") or "disagreement"
+
         return cls(
-            image=image,
-            primary_raw=ri.primary_raw,
-            primary_normalized=ri.primary_normalized,
-            verifier_raw=ri.verifier_raw,
-            verifier_normalized=ri.verifier_normalized,
-            reason=ri.reason,
-            known_names=list(ri.known_names),
-            nearby_context=ri.nearby_context,
+            image=target_img,
+            primary_raw=p_raw,
+            primary_normalized=p_norm,
+            verifier_raw=v_raw,
+            verifier_normalized=v_norm,
+            reason=reason,
+            known_names=list(getattr(ri, "known_names", [])),
+            nearby_context=getattr(ri, "nearby_context", None) or getattr(ri, "context_hint", None),
         )
 
 
@@ -328,13 +343,25 @@ class QwenRepairProvider(OCRRepairProvider):
         b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
         return f"data:image/jpeg;base64,{b64}"
 
-    def repair(self, repair_input: OCRRepairInput, image: Image.Image) -> OCRRepairResult:
+    def repair(self, repair_input: OCRRepairInput, image: Image.Image | None = None) -> OCRRepairResult:
         if not self._loaded:
             raise RuntimeError("QwenRepairProvider not loaded; call load() first")
 
-        inp = QwenRepairInput.from_repair_input(repair_input, image)
+        target_img = image or getattr(repair_input, "image", None)
+        if target_img is None:
+            return self._unresolved("no_image_provided")
+
+        if hasattr(target_img, "to_pil"):
+            target_img = target_img.to_pil()
+        elif not isinstance(target_img, Image.Image):
+            try:
+                target_img = Image.fromarray(target_img)
+            except Exception:
+                pass
+
+        inp = QwenRepairInput.from_repair_input(repair_input, target_img)
         prompt = self._build_prompt(inp)
-        image_url = self._image_to_base64_url(image)
+        image_url = self._image_to_base64_url(target_img)
 
         payload = {
             "messages": [

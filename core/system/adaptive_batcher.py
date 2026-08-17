@@ -17,7 +17,7 @@ FALLBACK_BATCH_CONFIG_PATH = Path.home() / ".webtoon_translator_batch_config.jso
 
 @dataclass
 class BatchConfig:
-    """Global configuration for elastic/manual batch execution."""
+    """Global configuration for elastic/manual batch execution with RAM/VRAM safety."""
 
     mode: str = "auto"  # "auto" or "manual"
     vram_ceiling: float = 0.95  # 0.70 to 0.98
@@ -74,6 +74,7 @@ class BatchConfig:
             cpu_ocr_workers=max(1, min(16, cpu)),
             sticky_optimal_batch=sticky,
         )
+
 
 
 _GLOBAL_BATCH_CONFIG = BatchConfig()
@@ -149,13 +150,13 @@ if DEFAULT_BATCH_CONFIG_PATH.exists() or FALLBACK_BATCH_CONFIG_PATH.exists():
 
 
 class ElasticAdaptiveBatcher:
-    """Manages elastic batch execution with proactive 95% VRAM checks and N -> N-1 reactive OOM recovery."""
+    """Manages elastic batch execution with proactive VRAM checks and step-by-step decay on OOM."""
 
     def __init__(
         self,
-        default_batch_size: int = 32,
+        default_batch_size: int = 12,
         min_batch_size: int = 1,
-        vram_ceiling: float = 0.95,
+        vram_ceiling: float = 0.82,
     ) -> None:
         cfg = get_batch_config()
         self.default_batch_size = default_batch_size
@@ -191,8 +192,8 @@ class ElasticAdaptiveBatcher:
                 )
                 torch.cuda.empty_cache()
                 gc.collect()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("check_vram_and_adjust exception: {}", e)
 
     def execute(
         self,
@@ -254,6 +255,8 @@ class ElasticAdaptiveBatcher:
                     raise
 
         return results
+
+
 
 
 def execute_with_elastic_batch(
