@@ -129,13 +129,34 @@ def test_gemini_verify_connection_success():
             {"content": {"parts": [{"text": "Merhaba"}]}}
         ]
     }
-    mock_resp = io.BytesIO(json.dumps(mock_data).encode("utf-8"))
+    def mock_urlopen(req, timeout=10.0):
+        url = req.full_url if hasattr(req, "full_url") else str(req)
+        if "generateContent" in url:
+            return io.BytesIO(json.dumps(mock_data).encode("utf-8"))
+        models_data = {"models": [{"name": "models/gemini-1.5-flash", "supportedGenerationMethods": ["generateContent"]}]}
+        return io.BytesIO(json.dumps(models_data).encode("utf-8"))
 
-    with patch("urllib.request.urlopen", return_value=mock_resp):
-        ok, msg = GeminiTranslationProvider.verify_connection(api_key="valid-key", model_name="gemini-2.0-flash")
+    with patch("urllib.request.urlopen", side_effect=mock_urlopen):
+        ok, msg = GeminiTranslationProvider.verify_connection(api_key="valid-key", model_name="gemini-1.5-flash")
         assert ok is True
         assert "Bağlantı Başarılı" in msg
         assert "Merhaba" in msg
+
+
+def test_gemini_list_models():
+    models_data = {
+        "models": [
+            {"name": "models/gemini-1.5-flash", "supportedGenerationMethods": ["generateContent"]},
+            {"name": "models/gemini-1.5-pro", "supportedGenerationMethods": ["generateContent"]},
+            {"name": "models/text-embedding-004", "supportedGenerationMethods": ["embedContent"]},
+        ]
+    }
+    mock_resp = io.BytesIO(json.dumps(models_data).encode("utf-8"))
+    with patch("urllib.request.urlopen", return_value=mock_resp):
+        models = GeminiTranslationProvider.list_models("test-key")
+        assert "gemini-1.5-flash" in models
+        assert "gemini-1.5-pro" in models
+        assert "text-embedding-004" not in models
 
 
 def test_gemini_verify_connection_empty_key():

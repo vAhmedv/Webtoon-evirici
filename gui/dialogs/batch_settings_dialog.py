@@ -378,7 +378,19 @@ class BatchSettingsDialog(QDialog):
 
         from providers.translation.gemini_translation import GeminiTranslationProvider
         try:
-            ok, msg = GeminiTranslationProvider.verify_connection(api_key=key, model_name=model, timeout_sec=10.0)
+            # Dynamically fetch available models for this specific API key
+            available = GeminiTranslationProvider.list_models(api_key=key, timeout_sec=8.0)
+            if available:
+                current = self.combo_model.currentText()
+                self.combo_model.clear()
+                self.combo_model.addItems(available)
+                if current in available:
+                    self.combo_model.setCurrentText(current)
+                elif "gemini-1.5-flash" in available:
+                    self.combo_model.setCurrentText("gemini-1.5-flash")
+
+            target_model = self.combo_model.currentText()
+            ok, msg = GeminiTranslationProvider.verify_connection(api_key=key, model_name=target_model, timeout_sec=10.0)
             if ok:
                 self.lbl_gemini_status.setText(f"✅ {msg}")
                 self.lbl_gemini_status.setStyleSheet("color: #10B981; font-weight: bold;")

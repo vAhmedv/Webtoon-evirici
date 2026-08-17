@@ -26,7 +26,7 @@ from providers.translation.base import (
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_GEMINI_MODEL = "gemini-2.0-flash"
+DEFAULT_GEMINI_MODEL = "gemini-1.5-flash"
 GEMINI_ENDPOINT_TEMPLATE = (
     "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
 )
@@ -300,6 +300,41 @@ class GeminiTranslationProvider(TranslationProvider):
         return result
 
     @classmethod
+    def list_models(cls, api_key: str, timeout_sec: float = 10.0) -> list[str]:
+        """Fetches the list of active models supporting content generation for this API key."""
+        key = (api_key or "").strip()
+        if not key:
+            return ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp"]
+
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={key}"
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": key,
+        }
+        req = urllib.request.Request(url, headers=headers, method="GET")
+        try:
+            with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                models = data.get("models", [])
+                result = []
+                for m in models:
+                    methods = m.get("supportedGenerationMethods", [])
+                    if "generateContent" in methods:
+                        name = m.get("name", "").removeprefix("models/")
+                        if name and not name.startswith("embedding") and not name.startswith("aqa"):
+                            result.append(name)
+
+                def sort_key(name: str) -> tuple[int, str]:
+                    is_flash = 0 if "flash" in name.lower() else 1
+                    return (is_flash, name)
+
+                result.sort(key=sort_key)
+                return result if result else ["gemini-1.5-flash", "gemini-1.5-pro"]
+        except Exception as e:
+            logger.warning("Failed to fetch available Gemini models: %s", e)
+            return ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp"]
+
+    @classmethod
     def verify_connection(
         cls,
         api_key: str,
@@ -311,11 +346,11 @@ class GeminiTranslationProvider(TranslationProvider):
         if not key:
             return False, "API anahtarı boş olamaz."
 
+        available = cls.list_models(key, timeout_sec=timeout_sec)
         models_to_try = [model_name]
-        if model_name != "gemini-2.0-flash":
-            models_to_try.append("gemini-2.0-flash")
-        if "gemini-1.5-flash" not in models_to_try:
-            models_to_try.append("gemini-1.5-flash")
+        for av in available:
+            if av not in models_to_try:
+                models_to_try.append(av)
 
         last_error = ""
         for m in models_to_try:
