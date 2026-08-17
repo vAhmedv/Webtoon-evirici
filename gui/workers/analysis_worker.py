@@ -37,7 +37,7 @@ class AnalysisWorker(QThread):
     """
 
     progress = Signal(object)  # ProgressEvent
-    result = Signal(object)    # AnalysisResult
+    result = Signal(object)    # ProductionPipelineResult
     error = Signal(str)        # error message
     cancelled = Signal()
 
@@ -130,9 +130,6 @@ class AnalysisWorker(QThread):
             tb = traceback.format_exc()
             self.error.emit(f"{type(exc).__name__}: {repr(exc)}\n{tb}")
         finally:
-            # Idempotent provider cleanup is intentionally centralized here as
-            # a failure/cancellation backstop. Managed llama providers terminate
-            # only processes they own.
             for active_provider in reversed(providers):
                 try:
                     active_provider.unload()

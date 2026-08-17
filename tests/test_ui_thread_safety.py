@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import os
 import threading
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -12,9 +14,9 @@ from PySide6.QtCore import QThread
 from PySide6.QtGui import QTextCursor
 from PySide6.QtWidgets import QApplication
 
-from ui.widgets.log_panel import LogPanel, QtLogEmitter
-from ui.workers.analysis_worker import AnalysisWorker
-from ui.main_window import MainWindow
+from gui.components.log_panel import LogPanel, QtLogEmitter
+from gui.workers.analysis_worker import AnalysisWorker
+from gui.main_window import MainWindow
 from application.chapter_analyzer import ChapterAnalyzer
 from core.config import Config
 
@@ -25,7 +27,6 @@ def qapp():
     if app is None:
         app = QApplication([])
     yield app
-    app.quit()
 
 
 def test_qt_log_emitter_signal_is_queued(qapp) -> None:
@@ -124,7 +125,6 @@ def test_worker_emits_many_logs_without_crash(qapp) -> None:
 
 def test_worker_provider_lifecycle_in_separate_thread(qapp) -> None:
     """Worker QThread içinde provider lifecycle'ı gerçekleştirir."""
-    from unittest.mock import MagicMock, patch
     from providers.detector.registry import get_registry
 
     captured = {}
@@ -160,9 +160,7 @@ def test_worker_provider_lifecycle_in_separate_thread(qapp) -> None:
         worker.wait(5000)
 
     gui_tid = threading.get_ident()
-    # All lifecycle methods should be in the same (worker) thread
     assert captured["create_tid"] == captured["load_tid"] == captured["detect_tid"] == captured["unload_tid"]
-    # And different from GUI thread
     assert captured["create_tid"] != gui_tid
 
 
@@ -176,7 +174,6 @@ def test_log_panel_cleanup_removes_handler() -> None:
     panel.cleanup()
     assert panel._handler_id not in logger._core.handlers
 
-    # Yeni LogPanel aynı handler ID'sini kullanmamalı.
     panel2 = LogPanel()
     assert panel2._handler_id not in logger._core.handlers or panel2._handler_id != panel._handler_id
     panel2.cleanup()
@@ -193,7 +190,7 @@ def test_log_panel_no_duplicate_handlers_on_reuse() -> None:
 
 
 def test_worker_accepts_detector_name() -> None:
-    """AnalysisWorker artık detector_name string alır."""
+    """AnalysisWorker detector_name string kabul eder."""
     worker = AnalysisWorker(
         chapter_path="/tmp",
         output_path="/tmp/out",
@@ -204,48 +201,22 @@ def test_worker_accepts_detector_name() -> None:
     assert worker.isRunning() is False
 
 
-def test_worker_creates_provider_in_run(qapp) -> None:
-    """Worker.run() içinde provider worker thread'de oluşturulur."""
-    from loguru import logger
-    from providers.detector.registry import get_registry
-
-    creation_thread_ids = []
-
-    original_create = get_registry().create
-    def patched_create(name: str):
-        creation_thread_ids.append(threading.get_ident())
-        return original_create(name)
-
-    get_registry().create = patched_create  # type: ignore[method-assign]
-
-    worker = AnalysisWorker(
-        chapter_path="/tmp",
-        output_path="/tmp/out",
-        detector_name="DummyDetector",
-        config=Config(),
-    )
-
-    # Worker'ın run metodunu test etmek için gerçek chapter gerekir.
-    # Burada sadece constructor'ın detector_name kabul ettigini dogruluyoruz.
-    # Full integration test icin mini chapter olusturulabilir.
-    assert worker._detector_name == "DummyDetector"
-
-    get_registry().create = original_create  # type: ignore[method-assign]
-
-
-def test_main_window_passes_detector_name(qapp) -> None:
-    """MainWindow artık worker'a detector_name string gonderir."""
-    from unittest.mock import patch
-
+def test_main_window_starts_worker(qapp, tmp_path) -> None:
+    """MainWindow run pipeline worker başlatır."""
     window = MainWindow()
-    window.detector_combo.setCurrentText("DummyDetector")
-    window.chapter_edit.setText("/tmp")
-    window.output_edit.setText("/tmp/out")
+    window._current_chapter_dir = tmp_path
+    mock_page = MagicMock()
+    mock_page.index = 0
+    mock_page.width = 800
+    mock_page.height = 1200
+    mock_page.path = tmp_path / "page_001.png"
+    window._pages = [mock_page]
 
-    # Worker thread'in baslamasini engelle, sadece constructor cagrisini dogrulamak icin.
-    with patch.object(QThread, "start", lambda self: None):
-        window._start_analysis()
+    with patch.object(QThread, "start", lambda self: None), \
+         patch("core.models.manager.ModelManager.get_missing_models", return_value=[]), \
+         patch("PySide6.QtWidgets.QMessageBox.information"):
+        window._on_run_pipeline_clicked()
 
     assert window._worker is not None
-    assert window._worker._detector_name == "DummyDetector"
+    assert window._worker.chapter_path == tmp_path
     window.close()

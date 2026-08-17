@@ -1,27 +1,26 @@
-"""Log paneli widget'ı."""
+"""Log panel and Qt log emitter for thread-safe UI log handling."""
 
 from __future__ import annotations
 
-import logging
 import threading
 from typing import Optional
 
-from PySide6.QtCore import QObject, Signal, Qt
+from PySide6.QtCore import QObject, Qt, Signal
 from PySide6.QtGui import QTextCursor
-from PySide6.QtWidgets import QTextEdit, QVBoxLayout, QPushButton, QWidget
-
+from PySide6.QtWidgets import QPushButton, QTextEdit, QVBoxLayout, QWidget
 from loguru import logger
 
 
 class QtLogEmitter(QObject):
-    """loguru mesajlarını GUI thread'ine iletmek için Qt sinyal emiteri."""
+    """Qt signal emitter to forward loguru messages safely to the GUI thread."""
+
     message = Signal(str)
 
 
 class LogPanel(QWidget):
-    """Scrollable log paneli."""
+    """Scrollable thread-safe log panel widget."""
 
-    def __init__(self, parent: Optional[object] = None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self._text_edit = QTextEdit(self)
         self._text_edit.setReadOnly(True)
@@ -42,7 +41,7 @@ class LogPanel(QWidget):
         self._emitter.message.connect(self._append_log)
 
     def _emit_log(self, message: str) -> None:
-        """loguru sink callback — thread-safe sinyal emit."""
+        """loguru sink callback — thread-safe signal emit."""
         if getattr(self, "_emitting", False):
             return
         self._emitting = True
@@ -53,7 +52,7 @@ class LogPanel(QWidget):
             self._emitting = False
 
     def _append_log(self, message: str) -> None:
-        """GUI thread'de QTextEdit'i günceller."""
+        """Appends log text in GUI thread."""
         if getattr(self, "_appending", False):
             return
         self._appending = True
@@ -67,7 +66,7 @@ class LogPanel(QWidget):
             self._appending = False
 
     def cleanup(self) -> None:
-        """Loguru handler'ını kaldırır ve sinyal bağlantısını temizler."""
+        """Disconnects signals and removes loguru handler."""
         try:
             self._emitter.message.disconnect(self._append_log)
         except RuntimeError:

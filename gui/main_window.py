@@ -33,7 +33,7 @@ from gui.components.left_sidebar import LeftSidebar
 from gui.components.webtoon_canvas import WebtoonCanvas
 from gui.components.right_inspector import RightInspector
 from gui.components.telemetry_bar import TelemetryStatusBar
-from ui.workers.analysis_worker import AnalysisWorker
+from gui.workers.analysis_worker import AnalysisWorker
 
 
 class MainWindow(QMainWindow):

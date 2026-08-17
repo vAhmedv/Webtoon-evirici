@@ -1,4 +1,4 @@
-"""UI smoke testleri."""
+"""UI smoke testleri for modern GUI."""
 
 from __future__ import annotations
 
@@ -9,8 +9,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 import pytest
 from PySide6.QtWidgets import QApplication
 
-from ui.main_window import MainWindow
-from ui.workers.analysis_worker import AnalysisWorker
+from gui.main_window import MainWindow
+from gui.workers.analysis_worker import AnalysisWorker
 from core.config import Config
 
 
@@ -20,22 +20,25 @@ def qapp():
     if app is None:
         app = QApplication([])
     yield app
-    app.quit()
 
 
 def test_main_window_instantiates(qapp) -> None:
     """MainWindow örneklenebilir."""
     window = MainWindow()
     assert window is not None
-    assert window.windowTitle() == "Webtoon Çevirici"
+    assert "Webtoon" in window.windowTitle()
+    assert window.canvas is not None
+    assert window.top_bar is not None
+    assert window.telemetry_bar is not None
     window.close()
 
 
 def test_initial_button_states(qapp) -> None:
     """Başlangıçta buton durumları doğru."""
     window = MainWindow()
-    assert window.analyze_btn.isEnabled() is True
-    assert window.cancel_btn.isEnabled() is False
+    assert window.top_bar.run_btn.isEnabled() is True
+    assert window.top_bar.open_btn.isEnabled() is True
+    assert window.top_bar.cancel_btn.isEnabled() is False
     window.close()
 
 
