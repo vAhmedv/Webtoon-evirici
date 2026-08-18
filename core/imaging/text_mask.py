@@ -127,6 +127,7 @@ class TextMaskBuilder:
         for region in regions:
             lines = self._valid_polygons(region.metadata.get("line_polygons"))
             segments = self._valid_polygons(region.metadata.get("segmentation_polygons"))
+            has_poly = False
             for polygon in lines or segments:
                 if not polygon or len(polygon) < 3:
                     continue
@@ -135,6 +136,7 @@ class TextMaskBuilder:
                     continue
                 pts = np.ascontiguousarray(pts)
                 cv2.fillPoly(raw, [pts], 255)
+                has_poly = True
             for polygon in segments:
                 if not polygon or len(polygon) < 3:
                     continue
@@ -143,6 +145,11 @@ class TextMaskBuilder:
                     continue
                 pts = np.ascontiguousarray(pts)
                 cv2.fillPoly(segmentation, [pts], 255)
+            if not has_poly:
+                rb = region.global_bbox
+                rx1, ry1 = max(0, rb.x1 - x1), max(0, rb.y1 - y1)
+                rx2, ry2 = min(source.shape[1], rb.x2 - x1), min(source.shape[0], rb.y2 - y1)
+                cv2.rectangle(raw, (rx1, ry1), (rx2, ry2), 255, -1)
 
         bubble = self._extract_bubble(source, raw)
         protected = self._protected_structures(source, raw, bubble)
@@ -210,22 +217,7 @@ class TextMaskBuilder:
     def _protected_structures(source: np.ndarray, raw: np.ndarray, bubble: np.ndarray | None) -> np.ndarray:
         import cv2
 
-        gray = cv2.cvtColor(source, cv2.COLOR_RGB2GRAY)
-        edges = cv2.Canny(gray, 60, 150)
-        h, w = raw.shape
         protected = np.zeros_like(raw)
-        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=35,
-                                minLineLength=max(24, int(max(h, w) * .32)), maxLineGap=3)
-        if lines is not None:
-            for x1, y1, x2, y2 in lines[:, 0]:
-                length = float(np.hypot(x2 - x1, y2 - y1))
-                axis_aligned = abs(x2 - x1) <= length * .12 or abs(y2 - y1) <= length * .12
-                if axis_aligned:
-                    line_mask = np.zeros_like(raw)
-                    cv2.line(line_mask, (int(x1), int(y1)), (int(x2), int(y2)), 255, 3)
-                    overlap = np.count_nonzero((line_mask > 0) & (raw > 0)) / max(1, np.count_nonzero(line_mask))
-                    if overlap <= .08:
-                        protected = cv2.bitwise_or(protected, line_mask)
         if bubble is not None:
             boundary = cv2.subtract(cv2.dilate(bubble, np.ones((5, 5), np.uint8)),
                                     cv2.erode(bubble, np.ones((5, 5), np.uint8)))
@@ -296,7 +288,7 @@ class TextMaskBuilder:
             merged = merge_xor_components(candidates, pred_crop)
             final[y1:y2, x1:x2] = cv2.bitwise_or(final[y1:y2, x1:x2], merged)
         text_size = float(np.median(heights)) if heights else 12.0
-        radius = int(np.clip(round(text_size * .08), 2, 4))
+        radius = int(np.clip(round(text_size * .14), 3, 6))
         # Bounded recovery: the XOR-merge target is seeded from the (often
         # partial) segmentation, so valid glyph pixels that lie inside the raw
         # CTD envelope but outside the partial segmentation can be rejected.

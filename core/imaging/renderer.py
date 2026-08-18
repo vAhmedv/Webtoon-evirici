@@ -76,12 +76,14 @@ class TextRenderer:
             x1, y1, x2, y2 = bbox.x1, bbox.y1, bbox.x2, bbox.y2
             box_w = max(1, x2 - x1)
             box_h = max(1, y2 - y1)
+            cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
 
-            # Responsive padding
-            pad_x = max(2, int(box_w * 0.04))
-            pad_y = max(2, int(box_h * 0.04))
-            avail_w = max(12, box_w - 2 * pad_x)
-            avail_h = max(12, box_h - 2 * pad_y)
+            # Generous bubble expansion: CTD text boxes are tightly cropped around English words.
+            # Expanding the available area outwards allows Turkish text to fill speech bubbles comfortably.
+            exp_x = max(6, int(box_w * 0.18))
+            exp_y = max(6, int(box_h * 0.18))
+            avail_w = max(28, box_w + 2 * exp_x)
+            avail_h = max(28, box_h + 2 * exp_y)
 
             # Dynamic font fitting for block
             member_cnt = len(getattr(block, "members", [1]))
@@ -94,20 +96,23 @@ class TextRenderer:
                 continue
 
             total_text_h = len(lines) * line_height
-            start_y = y1 + pad_y + max(0, (avail_h - total_text_h) // 2)
+            start_y = cy - (total_text_h // 2)
+
+            font_size = getattr(font, "size", 16)
+            stroke_w = max(2, min(4, int(font_size * 0.08)))
 
             for i, line in enumerate(lines):
                 line_y = start_y + i * line_height
                 bbox_line = font.getbbox(line) if hasattr(font, "getbbox") else (0, 0, font.getsize(line)[0], font.getsize(line)[1])
                 lw = bbox_line[2] - bbox_line[0]
-                line_x = x1 + pad_x + max(0, (avail_w - lw) // 2)
+                line_x = cx - (lw // 2)
 
                 draw.text(
                     (line_x, line_y),
                     line,
                     font=font,
                     fill=(0, 0, 0),
-                    stroke_width=2,
+                    stroke_width=stroke_w,
                     stroke_fill=(255, 255, 255),
                 )
 
@@ -179,17 +184,25 @@ class TextRenderer:
     ) -> tuple[ImageFont.FreeTypeFont | ImageFont.ImageFont, list[str], int, bool]:
         """Find optimal font size and word wrapping for a TextBlock using binary search.
         
-        Dynamically scales font size to fill 65% - 85% of bubble dimensions without overflow.
+        Dynamically scales font size to fill 70% - 90% of bubble dimensions without overflow.
         """
         clean_text = text.strip()
         words = clean_text.split()
         if not words:
-            font = _get_font(12)
-            return font, [""], 15, False
+            font = _get_font(14)
+            return font, [""], 16, False
 
         # Maximum and minimum font size constraints
-        min_size = 11
-        max_size = min(72, max(min_size, int(max_h * 0.85), int(max_w * 0.90)))
+        word_count = len(words)
+        if word_count <= 4:
+            min_size = 16
+            max_size = min(48, max(min_size, int(max_h * 0.75), int(max_w * 0.75)))
+        elif word_count <= 10:
+            min_size = 14
+            max_size = min(36, max(min_size, int(max_h * 0.80), int(max_w * 0.80)))
+        else:
+            min_size = 12
+            max_size = min(28, max(min_size, int(max_h * 0.85), int(max_w * 0.85)))
 
         # Binary search for optimal font size that fits comfortably
         low = min_size
@@ -197,7 +210,7 @@ class TextRenderer:
         best_font = _get_font(min_size)
         best_lines = self._wrap_words(words, best_font, max_w, break_long_words=False)
         dummy_bbox = best_font.getbbox("Aygjpq") if hasattr(best_font, "getbbox") else (0, 0, 10, min_size)
-        best_line_h = max(12, int((dummy_bbox[3] - dummy_bbox[1]) * 1.20))
+        best_line_h = max(14, int((dummy_bbox[3] - dummy_bbox[1]) * 1.12))
         found = False
 
         while low <= high:
@@ -205,7 +218,7 @@ class TextRenderer:
             f = _get_font(mid)
             lines = self._wrap_words(words, f, max_w, break_long_words=False)
             d_box = f.getbbox("Aygjpq") if hasattr(f, "getbbox") else (0, 0, 10, mid)
-            lh = max(12, int((d_box[3] - d_box[1]) * 1.20))
+            lh = max(12, int((d_box[3] - d_box[1]) * 1.12))
             th = len(lines) * lh
             max_lw = max((self._line_width(line, f) for line in lines), default=0)
 
@@ -221,12 +234,12 @@ class TextRenderer:
         if found:
             return best_font, best_lines, best_line_h, False
 
-        # Fallback with word breaking down to minimum size 10
-        for size in range(min_size, 9, -1):
+        # Fallback with word breaking down to minimum size 11
+        for size in range(min_size, 10, -1):
             f = _get_font(size)
             lines = self._wrap_words(words, f, max_w, break_long_words=True)
             d_box = f.getbbox("Aygjpq") if hasattr(f, "getbbox") else (0, 0, 10, size)
-            lh = max(10, int((d_box[3] - d_box[1]) * 1.20))
+            lh = max(11, int((d_box[3] - d_box[1]) * 1.12))
             th = len(lines) * lh
             max_lw = max((self._line_width(line, f) for line in lines), default=0)
 
@@ -234,10 +247,10 @@ class TextRenderer:
                 return f, lines, lh, False
 
         # Severe overflow fallback
-        f_min = _get_font(10)
+        f_min = _get_font(11)
         lines_min = self._wrap_words(words, f_min, max_w, break_long_words=True)
-        d_box = f_min.getbbox("Aygjpq") if hasattr(f_min, "getbbox") else (0, 0, 10, 10)
-        lh_min = max(10, int((d_box[3] - d_box[1]) * 1.20))
+        d_box = f_min.getbbox("Aygjpq") if hasattr(f_min, "getbbox") else (0, 0, 10, 11)
+        lh_min = max(11, int((d_box[3] - d_box[1]) * 1.12))
         th_min = len(lines_min) * lh_min
         is_overflow = th_min > max_h or any(self._line_width(l, f_min) > max_w for l in lines_min)
 
