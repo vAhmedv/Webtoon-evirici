@@ -84,7 +84,9 @@ class Inpainter:
                 continue
             can_flat, _ = self._can_use_flat_fill(mask.source, mask.refined, mask.bubble_interior)
             if not can_flat and not mask.is_uniform_background:
-                lama_jobs.append((idx, mask.source, mask.refined))
+                import cv2
+                lama_mask = cv2.dilate(mask.refined, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+                lama_jobs.append((idx, mask.source, lama_mask))
 
         precomputed_crops: dict[int, np.ndarray] = {}
         if lama_jobs:
@@ -142,7 +144,9 @@ class Inpainter:
             inpainted_crop = precomputed_crop
             method = "lama_large"
         else:
-            inpainted_crop = self.lama.inpaint(text_mask.source, text_mask.refined)
+            import cv2
+            lama_mask = cv2.dilate(text_mask.refined, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+            inpainted_crop = self.lama.inpaint(text_mask.source, lama_mask)
             method = "lama_large"
 
         residual_expansion_passes = 0
@@ -168,7 +172,9 @@ class Inpainter:
                 inpainted_crop = text_mask.source.copy()
                 inpainted_crop[refined] = np.asarray(text_mask.background_color, dtype=np.uint8)
             else:
-                inpainted_crop = self.lama.inpaint(text_mask.source, expanded)
+                import cv2
+                lama_expanded = cv2.dilate(expanded, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+                inpainted_crop = self.lama.inpaint(text_mask.source, lama_expanded)
         review = self._has_boundary_residual(text_mask, inpainted_crop)
         self.last_text_mask = text_mask
         if review and debug_name.startswith("block_"):

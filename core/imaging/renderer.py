@@ -16,6 +16,8 @@ from PIL import Image, ImageDraw, ImageFont
 from core.detection import Region, RegionStatus, RegionType
 
 
+FONTS_DIR = Path(__file__).resolve().parents[2] / "assets" / "fonts"
+
 FONT_CANDIDATES = [
     r"C:\Windows\Fonts\comicbd.ttf",
     r"C:\Windows\Fonts\comic.ttf",
@@ -29,7 +31,16 @@ FONT_CANDIDATES = [
 
 @lru_cache(maxsize=128)
 def _get_font(font_size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    """Load system font with requested size with in-memory LRU caching."""
+    """Load comic/system font with requested size with in-memory LRU caching."""
+    # 1. First priority: Check local custom comic fonts in assets/fonts/
+    if FONTS_DIR.exists():
+        for custom_font in sorted(FONTS_DIR.glob("*.ttf")):
+            try:
+                return ImageFont.truetype(str(custom_font), size=font_size)
+            except Exception:
+                continue
+
+    # 2. Second priority: Check system comic and display fonts
     for font_path in FONT_CANDIDATES:
         if os.path.exists(font_path):
             try:

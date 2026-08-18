@@ -175,6 +175,16 @@ def classify_regions(
 
         # 1e. Hikaye Metni (STORY_TEXT) vs UNKNOWN Değerlendirmesi
         if r.type in (RegionType.DIALOGUE, RegionType.NARRATION):
+            if _is_stylized_art_letter_or_logo(r, norm_txt):
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.SFX,
+                        status=RegionStatus.SKIP,
+                        reason="stylized_art_logo_skip",
+                    )
+                )
+                continue
             classified_regions.append(r)
         elif r.type == RegionType.UNKNOWN:
             # UNKNOWN için içerik ve alfabe kontrolü
@@ -342,6 +352,38 @@ def _is_multi_signal_non_text_noise(region: Region, norm_txt: str) -> bool:
     )
 
     return bool(is_primary_empty and is_verifier_weak_or_hallucinated)
+
+
+def _is_stylized_art_letter_or_logo(region: Region, norm_txt: str) -> bool:
+    """Detects stylized art letters, chapter title logos or giant non-dialogue art glyphs."""
+    if _is_dialogue_exclamation(norm_txt):
+        return False
+    if norm_txt.isdigit():
+        return False
+    if region.detection_confidence >= 0.85 and region.type == RegionType.DIALOGUE:
+        return False
+
+    VALID_SHORT_WORDS = {
+        "I", "A", "OH", "AH", "NO", "OK", "MY", "HE", "WE", "SO", "GO", "DO", "TO",
+        "IT", "IS", "IN", "ON", "AT", "UP", "ME", "US", "BY", "HI", "HA", "EH", "HM", "UH", "UM"
+    }
+    w = region.global_bbox.width
+    h = region.global_bbox.height
+    area = w * h
+
+    # 1. Giant title logo / isolated single art letter (e.g. "Z", "F", "A" in "ZERO FANTASY")
+    if len(norm_txt) == 1 and norm_txt not in {"I", "A"} and (w >= 40 or h >= 40 or area >= 1600):
+        return True
+
+    # 2. Short 2-letter non-word art crop with low confidence or huge box
+    if len(norm_txt) <= 2 and norm_txt not in VALID_SHORT_WORDS and (area >= 4000 or region.ocr_confidence < 0.60):
+        return True
+
+    # 3. Known title/brand art words when large
+    if norm_txt in {"ZERO", "FANTASY", "ONLINE", "PROLOGUE"} and (w >= 180 or area >= 12000):
+        return True
+
+    return False
 
 
 def _replace_region_status(
