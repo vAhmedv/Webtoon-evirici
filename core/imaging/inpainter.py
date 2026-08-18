@@ -261,6 +261,8 @@ class Inpainter:
         src_float = source.astype(np.float32)
 
         blended = np.clip(fill_arr * alpha + src_float * (1.0 - alpha), 0, 255).astype(np.uint8)
+        # Inside refined mask area, guarantee 100% pure flat fill
+        blended[refined] = np.asarray(fill_color, dtype=np.uint8)
         return blended
 
     @staticmethod
