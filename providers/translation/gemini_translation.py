@@ -26,7 +26,7 @@ from providers.translation.base import (
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_GEMINI_MODEL = "gemini-1.5-flash"
+DEFAULT_GEMINI_MODEL = "gemini-flash-latest"
 GEMINI_ENDPOINT_TEMPLATE = (
     "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
 )
@@ -184,51 +184,74 @@ class GeminiTranslationProvider(TranslationProvider):
             },
         }
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={self.api_key}"
-        headers = {
-            "Content-Type": "application/json",
-            "x-goog-api-key": self.api_key,
-        }
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(request_body).encode("utf-8"),
-            headers=headers,
-            method="POST",
-        )
+        # Build resilient fallback model list starting with current model
+        candidate_models = [self.model_name]
+        for m_cand in [
+            "gemini-3.6-flash",
+            "gemini-flash-latest",
+            "gemini-3.1-flash-lite",
+            "gemini-3.5-flash",
+            "gemini-3.7-flash",
+            "gemini-3.5-flash-lite",
+        ]:
+            if m_cand not in candidate_models:
+                candidate_models.append(m_cand)
 
-        t_start = time.perf_counter()
         raw_response_text = ""
         parsed_translations: dict[int, str] = {}
         error_msg: str | None = None
 
-        try:
-            with urllib.request.urlopen(req, timeout=self.timeout_sec) as resp:
-                response_data = json.loads(resp.read().decode("utf-8"))
-                self.metrics.total_calls += 1
-                self.metrics.total_latency_sec += time.perf_counter() - t_start
+        for model_candidate in candidate_models:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_candidate}:generateContent?key={self.api_key}"
+            headers = {
+                "Content-Type": "application/json",
+                "x-goog-api-key": self.api_key,
+            }
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(request_body).encode("utf-8"),
+                headers=headers,
+                method="POST",
+            )
 
-                candidates = response_data.get("candidates", [])
-                if candidates:
-                    parts = candidates[0].get("content", {}).get("parts", [])
-                    if parts:
-                        raw_response_text = parts[0].get("text", "")
-                        parsed_translations = self._parse_json_translations(raw_response_text)
+            t_start = time.perf_counter()
+            try:
+                with urllib.request.urlopen(req, timeout=self.timeout_sec) as resp:
+                    response_data = json.loads(resp.read().decode("utf-8"))
+                    self.metrics.total_calls += 1
+                    self.metrics.total_latency_sec += time.perf_counter() - t_start
 
-        except urllib.error.HTTPError as http_err:
-            self.metrics.failed_calls += 1
-            error_body = http_err.read().decode("utf-8", errors="replace")
-            logger.error("Gemini API HTTP Error %s: %s", http_err.code, error_body)
-            error_msg = f"HTTP {http_err.code}: {error_body}"
-            # Fallback to secondary model if 2.5 is unavailable or quota limit
-            if self.model_name != "gemini-1.5-flash" and http_err.code in (404, 400):
-                logger.info("Falling back to gemini-1.5-flash...")
-                self.model_name = "gemini-1.5-flash"
-                return self._translate_chunk(chunk, parent_input)
+                    candidates = response_data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts:
+                            raw_response_text = parts[0].get("text", "")
+                            parsed_translations = self._parse_json_translations(raw_response_text)
 
-        except Exception as exc:
-            self.metrics.failed_calls += 1
-            logger.error("Gemini API request failed: %s", exc)
-            error_msg = str(exc)
+                    if parsed_translations:
+                        # Successfully translated! Update active model to this working candidate
+                        if self.model_name != model_candidate:
+                            logger.info("Successfully translated using fallback model: %s", model_candidate)
+                            self.model_name = model_candidate
+                        break
+
+            except urllib.error.HTTPError as http_err:
+                self.metrics.failed_calls += 1
+                error_body = http_err.read().decode("utf-8", errors="replace")
+                logger.warning(
+                    "Gemini API model %s HTTP Error %s: %s (switching to next fallback model...)",
+                    model_candidate,
+                    http_err.code,
+                    error_body[:120],
+                )
+                error_msg = f"HTTP {http_err.code}: {error_body[:100]}"
+                time.sleep(0.5)
+
+            except Exception as exc:
+                self.metrics.failed_calls += 1
+                logger.warning("Gemini API model %s failed: %s", model_candidate, exc)
+                error_msg = str(exc)
+                time.sleep(0.5)
 
         # Build output items
         output_items: list[TranslationOutputItem] = []
@@ -304,7 +327,7 @@ class GeminiTranslationProvider(TranslationProvider):
         """Fetches the list of active models supporting content generation for this API key."""
         key = (api_key or "").strip()
         if not key:
-            return ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp"]
+            return ["gemini-flash-latest", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3.7-flash"]
 
         url = f"https://generativelanguage.googleapis.com/v1beta/models?key={key}"
         headers = {
@@ -324,15 +347,19 @@ class GeminiTranslationProvider(TranslationProvider):
                         if name and not name.startswith("embedding") and not name.startswith("aqa"):
                             result.append(name)
 
-                def sort_key(name: str) -> tuple[int, str]:
+                def sort_key(name: str) -> tuple[int, int, str]:
                     is_flash = 0 if "flash" in name.lower() else 1
-                    return (is_flash, name)
+                    is_latest = 0 if "latest" in name.lower() else 1
+                    return (is_flash, is_latest, name)
 
                 result.sort(key=sort_key)
-                return result if result else ["gemini-1.5-flash", "gemini-1.5-pro"]
+                if "gemini-flash-latest" in result:
+                    result.remove("gemini-flash-latest")
+                    result.insert(0, "gemini-flash-latest")
+                return result if result else ["gemini-flash-latest", "gemini-3.6-flash", "gemini-3.1-flash-lite"]
         except Exception as e:
             logger.warning("Failed to fetch available Gemini models: %s", e)
-            return ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp"]
+            return ["gemini-flash-latest", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite"]
 
     @classmethod
     def verify_connection(

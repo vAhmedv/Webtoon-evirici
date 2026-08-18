@@ -138,7 +138,14 @@ class BatchSettingsDialog(QDialog):
         status_row.addWidget(self.lbl_gemini_status, 1)
 
         self.combo_model = QComboBox(self)
-        self.combo_model.addItems(["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"])
+        self.combo_model.addItems([
+            "gemini-flash-latest",
+            "gemini-3.6-flash",
+            "gemini-3.5-flash",
+            "gemini-3.1-flash-lite",
+            "gemini-3.7-flash",
+            "gemini-pro-latest",
+        ])
         status_row.addWidget(self.combo_model)
 
         gemini_layout.addLayout(status_row)

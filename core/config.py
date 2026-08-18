@@ -66,7 +66,7 @@ class TranslatorConfig:
     server_url: str | None = None
     fallback_provider: str | None = None
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-flash-latest"
 
 
 @dataclass(frozen=True)
@@ -118,6 +118,11 @@ def load_config(path: str | Path | None = None) -> Config:
     trans_raw = raw.get("translator", {})
     inp_raw = raw.get("inpainter", {})
 
+    # Auto-upgrade deprecated Gemini model names to the active 2026 LTS alias
+    deprecated_models = {"gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash-lite"}
+    if trans_raw.get("gemini_model") in deprecated_models or not trans_raw.get("gemini_model"):
+        trans_raw["gemini_model"] = "gemini-flash-latest"
+
     return Config(
         window_height=raw.get("window_height", 1024),
         window_overlap=raw.get("window_overlap", 256),
@@ -136,7 +141,7 @@ def load_config(path: str | Path | None = None) -> Config:
 
 def update_gemini_api_key(
     api_key: str,
-    model_name: str = "gemini-2.0-flash",
+    model_name: str = "gemini-flash-latest",
     path: str | Path | None = None,
 ) -> None:
     """Updates the Gemini API key and model in config.yaml and the environment."""

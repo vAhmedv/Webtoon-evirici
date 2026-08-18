@@ -17,10 +17,10 @@ from providers.translation.gemini_translation import (
 
 
 def test_gemini_provider_init():
-    provider = GeminiTranslationProvider(api_key="test-key-123", model_name="gemini-2.5-flash")
+    provider = GeminiTranslationProvider(api_key="test-key-123", model_name="gemini-flash-latest")
     assert provider.is_loaded is True
-    assert provider.name == "Gemini (gemini-2.5-flash)"
-    assert provider.version == "2.5"
+    assert provider.name == "Gemini (gemini-flash-latest)"
+    assert provider.version == "2.0"
 
 
 def test_gemini_provider_missing_key_raises():
@@ -133,11 +133,11 @@ def test_gemini_verify_connection_success():
         url = req.full_url if hasattr(req, "full_url") else str(req)
         if "generateContent" in url:
             return io.BytesIO(json.dumps(mock_data).encode("utf-8"))
-        models_data = {"models": [{"name": "models/gemini-1.5-flash", "supportedGenerationMethods": ["generateContent"]}]}
+        models_data = {"models": [{"name": "models/gemini-flash-latest", "supportedGenerationMethods": ["generateContent"]}]}
         return io.BytesIO(json.dumps(models_data).encode("utf-8"))
 
     with patch("urllib.request.urlopen", side_effect=mock_urlopen):
-        ok, msg = GeminiTranslationProvider.verify_connection(api_key="valid-key", model_name="gemini-1.5-flash")
+        ok, msg = GeminiTranslationProvider.verify_connection(api_key="valid-key", model_name="gemini-flash-latest")
         assert ok is True
         assert "Bağlantı Başarılı" in msg
         assert "Merhaba" in msg
