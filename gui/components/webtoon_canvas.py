@@ -209,15 +209,26 @@ class SplitPageGraphicsItem(QGraphicsItem):
                     painter.drawPixmap(0, 0, target_pix)
                     painter.restore()
 
-            # 3. Crisp Split Divider Line
+            # 3. Crisp Split Divider Line & Floating Handle
             painter.save()
             shadow_pen = QPen(QColor(0, 0, 0, 160), 3.0, Qt.SolidLine)
             painter.setPen(shadow_pen)
             painter.drawLine(QPointF(split_pos, 0), QPointF(split_pos, h))
 
-            split_pen = QPen(QColor(255, 255, 255, 230), 1.5, Qt.SolidLine)
+            split_pen = QPen(QColor(56, 189, 248, 240), 2.0, Qt.SolidLine)  # Cyan blue accent
             painter.setPen(split_pen)
             painter.drawLine(QPointF(split_pos, 0), QPointF(split_pos, h))
+
+            # Floating Handle circle at mid height
+            handle_y = h * 0.5
+            painter.setBrush(QBrush(QColor(15, 23, 42)))
+            painter.setPen(QPen(QColor(56, 189, 248), 2.0))
+            painter.drawEllipse(QPointF(split_pos, handle_y), 13, 13)
+
+            painter.setPen(QColor(255, 255, 255))
+            handle_font = QFont("Arial", 8, QFont.Bold)
+            painter.setFont(handle_font)
+            painter.drawText(QRectF(split_pos - 12, handle_y - 12, 24, 24), Qt.AlignCenter, "⬌")
             painter.restore()
 
 
@@ -524,11 +535,12 @@ class WebtoonCanvas(QWidget):
             elif event.type() == QMouseEvent.MouseMove:
                 scene_pos = self.view.mapToScene(event.pos())
                 if self._is_dragging_split:
-                    self._split_x = max(20.0, min(float(scene_pos.x()), 780.0))
+                    max_w = max((p.width for p in self._pages), default=800)
+                    self._split_x = max(10.0, min(float(scene_pos.x()), max_w - 10.0))
                     for item in self._page_items:
                         item.set_split_x(self._split_x)
                     return True
-                elif abs(scene_pos.x() - self._split_x) < 20:
+                elif abs(scene_pos.x() - self._split_x) < 24:
                     self.view.viewport().setCursor(Qt.SizeHorCursor)
                 else:
                     if self.view.dragMode() == QGraphicsView.ScrollHandDrag:

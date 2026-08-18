@@ -332,6 +332,8 @@ class MainWindow(QMainWindow):
             self._regions = list(result.regions)
             rendered_paths = getattr(result, "exported_page_paths", getattr(result, "pages", []))
             self.canvas.load_chapter_pages(self._pages, self._regions, rendered_pages=rendered_paths)
+            if rendered_paths:
+                self.canvas.set_view_mode("split")
             self._select_region_by_index(0)
 
         QMessageBox.information(self, "Pipeline Complete", f"Chapter translation finished in {result.elapsed_time:.1f}s.")
