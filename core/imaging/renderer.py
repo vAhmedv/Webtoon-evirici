@@ -11,7 +11,7 @@ import math
 import os
 from pathlib import Path
 from typing import Any, Sequence
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageStat
 
 from core.detection import Region, RegionStatus, RegionType
 
@@ -113,6 +113,24 @@ class TextRenderer:
             font_size = getattr(font, "size", 16)
             stroke_w = max(2, min(4, int(font_size * 0.08)))
 
+            # Sample background luminance at center of bubble to guarantee crisp contrast
+            cx_clamped = max(0, min(result.width - 1, cx))
+            cy_clamped = max(0, min(result.height - 1, cy))
+            x_s1 = max(0, cx_clamped - 8)
+            y_s1 = max(0, cy_clamped - 8)
+            x_s2 = min(result.width, cx_clamped + 8)
+            y_s2 = min(result.height, cy_clamped + 8)
+            crop = result.crop((x_s1, y_s1, x_s2, y_s2))
+            stat = ImageStat.Stat(crop)
+            avg_lum = float(sum(stat.mean[:3]) / max(1, len(stat.mean[:3])))
+
+            if avg_lum < 115:  # Dark / Black speech bubble or narration box
+                text_color = (255, 255, 255)  # Crisp white text
+                stroke_color = (0, 0, 0)      # Black outline
+            else:              # Light / White speech bubble
+                text_color = (0, 0, 0)        # Crisp black text
+                stroke_color = (255, 255, 255)  # White outline
+
             for i, line in enumerate(lines):
                 line_y = start_y + i * line_height
                 bbox_line = font.getbbox(line) if hasattr(font, "getbbox") else (0, 0, font.getsize(line)[0], font.getsize(line)[1])
@@ -123,9 +141,9 @@ class TextRenderer:
                     (line_x, line_y),
                     line,
                     font=font,
-                    fill=(0, 0, 0),
+                    fill=text_color,
                     stroke_width=stroke_w,
-                    stroke_fill=(255, 255, 255),
+                    stroke_fill=stroke_color,
                 )
 
             rendered_count += 1
@@ -160,6 +178,7 @@ class TextRenderer:
             x1, y1, x2, y2 = bbox.x1, bbox.y1, bbox.x2, bbox.y2
             box_w = max(1, x2 - x1)
             box_h = max(1, y2 - y1)
+            cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
 
             # Padding
             pad_x = max(2, int(box_w * 0.08))
@@ -173,9 +192,26 @@ class TextRenderer:
             total_text_h = len(lines) * line_height
             start_y = y1 + pad_y + max(0, (avail_h - total_text_h) // 2)
 
+            # Sample background luminance for contrast
+            cx_clamped = max(0, min(result.width - 1, cx))
+            cy_clamped = max(0, min(result.height - 1, cy))
+            x_s1 = max(0, cx_clamped - 6)
+            y_s1 = max(0, cy_clamped - 6)
+            x_s2 = min(result.width, cx_clamped + 6)
+            y_s2 = min(result.height, cy_clamped + 6)
+            crop = result.crop((x_s1, y_s1, x_s2, y_s2))
+            stat = ImageStat.Stat(crop)
+            avg_lum = float(sum(stat.mean[:3]) / max(1, len(stat.mean[:3])))
+
+            if avg_lum < 115:
+                text_color = (255, 255, 255)
+                stroke_color = (0, 0, 0)
+            else:
+                text_color = (0, 0, 0)
+                stroke_color = (255, 255, 255)
+
             for i, line in enumerate(lines):
                 line_y = start_y + i * line_height
-                # Get text width
                 bbox_line = font.getbbox(line) if hasattr(font, "getbbox") else (0, 0, font.getsize(line)[0], font.getsize(line)[1])
                 lw = bbox_line[2] - bbox_line[0]
                 line_x = x1 + pad_x + max(0, (avail_w - lw) // 2)
@@ -184,12 +220,60 @@ class TextRenderer:
                     (line_x, line_y),
                     line,
                     font=font,
-                    fill=(0, 0, 0),
+                    fill=text_color,
                     stroke_width=2,
-                    stroke_fill=(255, 255, 255),
+                    stroke_fill=stroke_color,
                 )
 
         return result
+
+    @staticmethod
+    def _clean_words(text: str) -> list[str]:
+        """Splits text into words ensuring trailing punctuation is bonded to previous word."""
+        raw_tokens = text.strip().split()
+        if not raw_tokens:
+            return []
+        cleaned: list[str] = []
+        for token in raw_tokens:
+            if cleaned and all(c in ".?!,:;…-—~" for c in token):
+                cleaned[-1] = cleaned[-1] + token
+            else:
+                cleaned.append(token)
+        return cleaned
+
+    def _break_long_word(
+        self,
+        word: str,
+        font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+        max_w: int,
+    ) -> list[str]:
+        """Splits a single long word with hyphenation (-) if it exceeds available width."""
+        if self._line_width(word, font) <= max_w:
+            return [word]
+
+        core_word = word
+        suffix = ""
+        while core_word and core_word[-1] in ".?!,:;…-—~":
+            suffix = core_word[-1] + suffix
+            core_word = core_word[:-1]
+
+        if not core_word:
+            return [word]
+
+        chunks: list[str] = []
+        current = ""
+        for char in core_word:
+            cand = current + char
+            if current and self._line_width(cand + "-", font) > max_w:
+                chunks.append(current + "-")
+                current = char
+            else:
+                current = cand
+        if current:
+            chunks.append(current + suffix)
+        elif suffix and chunks:
+            chunks[-1] = chunks[-1] + suffix
+        return chunks or [word]
 
     def _fit_block_text(
         self, text: str, max_w: int, max_h: int, member_count: int = 1
@@ -199,8 +283,7 @@ class TextRenderer:
         Dynamically scales font size and applies Elliptical Diamond Lettering to fill 70% - 90%
         of speech bubble dimensions comfortably without overflow.
         """
-        clean_text = text.strip()
-        words = clean_text.split()
+        words = self._clean_words(text)
         if not words:
             font = _get_font(14)
             return font, [""], 16, False
@@ -296,20 +379,11 @@ class TextRenderer:
         if not words:
             return [""]
 
-        # Pre-break any individual word that is wider than 85% of max_w
+        # Pre-break any individual word that is wider than 85% of max_w with hyphenation
         expanded_words: list[str] = []
         for word in words:
             if break_long_words and self._line_width(word, font) > int(max_w * 0.85):
-                chunk = ""
-                for char in word:
-                    candidate = chunk + char
-                    if chunk and self._line_width(candidate, font) > int(max_w * 0.85):
-                        expanded_words.append(chunk)
-                        chunk = char
-                    else:
-                        chunk = candidate
-                if chunk:
-                    expanded_words.append(chunk)
+                expanded_words.extend(self._break_long_word(word, font, int(max_w * 0.85)))
             else:
                 expanded_words.append(word)
 
@@ -371,8 +445,7 @@ class TextRenderer:
         self, text: str, max_w: int, max_h: int
     ) -> tuple[ImageFont.FreeTypeFont | ImageFont.ImageFont, list[str], int]:
         """Find optimal font size and word wrapping that fits max_w and max_h using binary search."""
-        clean_text = text.strip()
-        words = clean_text.split()
+        words = self._clean_words(text)
         if not words:
             font = _get_font(12)
             return font, [""], 15
@@ -424,16 +497,7 @@ class TextRenderer:
         expanded_words: list[str] = []
         for word in words:
             if break_long_words and self._line_width(word, font) > max_w:
-                chunk = ""
-                for char in word:
-                    candidate = chunk + char
-                    if chunk and self._line_width(candidate, font) > max_w:
-                        expanded_words.append(chunk)
-                        chunk = char
-                    else:
-                        chunk = candidate
-                if chunk:
-                    expanded_words.append(chunk)
+                expanded_words.extend(self._break_long_word(word, font, max_w))
             else:
                 expanded_words.append(word)
 
