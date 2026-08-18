@@ -197,8 +197,8 @@ class Inpainter:
         image_crop: np.ndarray,
         mask_crop: np.ndarray,
         bubble_interior: np.ndarray | None = None,
-        max_std_threshold: float = 6.0,
-        overall_std_threshold: float = 5.5,
+        max_std_threshold: float = 14.0,
+        overall_std_threshold: float = 12.0,
     ) -> tuple[bool, tuple[int, int, int]]:
         """Maskenin etrafındaki pikselleri analiz ederek düz renkli konuşma balonu kontrolü yapar."""
         import cv2
@@ -208,8 +208,8 @@ class Inpainter:
 
         mask = (mask_crop > 0).astype(np.uint8)
 
-        # Maske çevresindeki 2-7px halka piksellerini belirle
-        d_outer = cv2.dilate(mask, np.ones((7, 7), np.uint8))
+        # Maske çevresindeki 2-8px halka piksellerini belirle
+        d_outer = cv2.dilate(mask, np.ones((9, 9), np.uint8))
         d_inner = cv2.dilate(mask, np.ones((2, 2), np.uint8))
         ring = (d_outer > 0) & (d_inner == 0)
 
