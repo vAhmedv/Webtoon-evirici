@@ -132,3 +132,11 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - P002 logo: **"Zero FANTASY" artı tamamen sağlam**, üstünde Türkçe kırıntı/leke yok. Çift-render (`DÜNYANIN`×2/`THE`) yok, tek temiz basım. `-ONLINE-` → `ÇEVRİMİÇİ` başlık altına lokalize basıldı (art bozulmadan — kabul).
 - P003/P024 kalan izler YENİDEN TEŞHİS: render'daki `I` ve `iz"bırakmak` izleri çeviri değil, **eksik inpaint temizliği** (bölge çevirilerinde o metinler yok). Yani Faz 4'ün kapsamı netleşti: maske kapsamı + inpaint-sonrası glif kalıntı denetimi (temizlenen kutuda OCR harf bulursa REVIEW).
 - P024: watermark rozeti (`ASMOTOON.COM`) sağlam; `Bu sefer/Bunu yapıyorum` kısmi çakışması sürüyor (IoU 0.6 eşiğinin altı — eşik/apartman değil, grouping işi).
+
+## FAZ 3 DOĞRULAMA TURU (2026-09-12)
+
+- Mekanizma: `TranslationInput.glossary` → sentinel koruması + Türkçe morfoloji-restore zaten vardı; üretim boş geçiyordu. Şimdi bölüm-terim kilidi besliyor (`chapter_glossary.py` + `glossary.json`).
+- Kilit disiplini (anti-overfit): TAM-BÜYÜK + morfolojik filtre (çoğul-S/-ING/-ED/kısaltma yok) + bölüm-sözlüğü (küçük hali geçen sıradan sözcük yok) + NEVER_LOCK çekirdeği + hedef-validasyonu. Alıntılı/özel adlar kilitsiz `observed_terms`.
+- Kritik ders: bağımsız çözüm yanlış anlamı kilitleyebilir (`GUILD`→spor `LİG`, oysa bağlam `LONCA`). Çare: **tutarlılık kapanışı** — kilit, en kısa ≤2 geçiş cümlesinde çekimli yüzey olarak geçmiyorsa REDDEDİLİR (modelin kendi bağlamı bekçi). Ayrıca `translate_batch` içinde gizli `TranslationItem` import hatası bulundu ve düzeltildi (o yol üretimde hiç çağrılmamıştı).
+- Mini-kanıt (5 sayfa, 97 sn): `ASMOTOON` echo-kilidi (kredi korunur); `CRAFTER` kilidi REDDEDİLDİ çünkü bağımsız `ÜRETİCİ` cümlelerde yoktu — cümleler zaten tutarlı `USTA` idi. Kapanış regresyonu engelledi, mekanizma doğru çalıştı.
+- Altyapı: `scripts/fast_verify_mini.py` (5 sayfa ~97 sn vs tam audit ~261 sn) + arka-plan koşu deseni (`Start-Process` + log + poll) — uzun komutlar artık engellemiyor.
