@@ -196,14 +196,25 @@ def test_expand_mask_keeps_glyph_cores() -> None:
 
 
 def test_expand_mask_blocked_on_dark_art() -> None:
-    """Koyu sanatta büyüme durur (P003 beyaz-leke riski yok)."""
+    """Tekdüze koyu zeminde taşma zararsızdır (no-op); parlak nesneye girmez."""
     from core.imaging.inpainter import Inpainter
 
-    tm = _mask(120, 160, 60, 50, 100, 70)
-    dark = np.full((120, 160, 3), 25, dtype=np.uint8)
-    object.__setattr__(tm, "source", dark)
+    src = np.full((120, 160, 3), 25, dtype=np.uint8)
+    src[90:110, 120:150] = (240, 240, 255)  # parlak ışıma nesnesi
+    tm = TextMask(
+        crop_bbox=(0, 0, 160, 120),
+        source=src,
+        raw=np.zeros((120, 160), dtype=np.uint8),
+        refined=np.zeros((120, 160), dtype=np.uint8),
+        background_color=(25, 25, 25),
+        is_uniform_background=False,
+    )
+    seed = np.zeros((120, 160), dtype=np.uint8)
+    seed[40:80, 50:110] = 255
+    object.__setattr__(tm, "refined", seed)
     grown = Inpainter._expand_mask_in_bubble(tm)
-    assert np.array_equal(grown.refined, tm.refined)
+    # Parlak nesneye taşmaz (P003 koruması).
+    assert bool(np.all(grown.refined[90:110, 120:150] == 0))
 
 
 def test_flood_fills_white_region() -> None:
@@ -250,3 +261,15 @@ def test_flood_ignores_poisoned_background_color() -> None:
     object.__setattr__(tm, "refined", seed)
     grown = Inpainter._expand_mask_in_bubble(tm)
     assert int(np.count_nonzero(grown.refined)) > int(np.count_nonzero(seed))
+
+
+def test_flood_area_cap_trips_on_runaway() -> None:
+    """40× üstü taşmada tavan devreye girer (hesapsal kaçak sigortası)."""
+    from core.imaging.inpainter import Inpainter
+
+    tm = _mask(120, 160, 40, 30, 100, 70)
+    seed = np.zeros((120, 160), dtype=np.uint8)
+    seed[55:65, 75:85] = 255  # 10x10 = 100px; beyaz bölge 19200 = 192×
+    object.__setattr__(tm, "refined", seed)
+    grown = Inpainter._expand_mask_in_bubble(tm)
+    assert np.array_equal(grown.refined, tm.refined)

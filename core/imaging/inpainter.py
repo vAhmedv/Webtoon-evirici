@@ -69,7 +69,9 @@ def _is_second_chance_block(block: Any) -> bool:
 
 # İkinci-şans maske taşması fasesi sabitleri.
 SECOND_CHANCE_BG_TOLERANCE = 28
-SECOND_CHANCE_MAX_AREA_RATIO = 12
+# Alan tavanı (koyu glifler grown'a giremez → komşu metin silinemez;
+# tavan yalnız hesapsal kaçak içindir, beyaz-beyaza boyama zaten no-op'tur).
+SECOND_CHANCE_MAX_AREA_RATIO = 40
 
 
 class Inpainter:
@@ -419,13 +421,20 @@ class Inpainter:
         if not np.any(refined):
             return mask
         src = np.ascontiguousarray(mask.source).astype(np.int16)
-        # Zemin rengi YAKIN-ALAN medyanıdır (maske çevresi 7px halka):
-        # uzak-art ortalaması iki-modlu dağılımda griye kayar ve hiçbir
-        # renkle eşleşmez; yakın-alan glifin gerçek zeminini verir.
+        # Zemin rengi MESAFE-HALKASINDAN kestirilir: maskeye 7-25px uzaklıktaki
+        # piksel medyanı. Yakın-alan (≤7px) glif-ağırlıklı, uzak-alan iki-modlu
+        # olur; halka gerçek çevreyi verir. Örneklem <24px ise maske rengine düş.
         # (Maske background_color'ı balonsuz kutularda glif piksellerinden
         # zehirlenebilir.)
-        near_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
-        halo = (cv2.dilate(refined.astype(np.uint8), near_kernel) > 0) & (~refined)
+        inner = cv2.dilate(
+            refined.astype(np.uint8),
+            cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7)),
+        )
+        outer = cv2.dilate(
+            refined.astype(np.uint8),
+            cv2.getStructuringElement(cv2.MORPH_RECT, (25, 25)),
+        )
+        halo = (outer > 0) & (inner == 0)
         if int(np.count_nonzero(halo)) >= 24:
             bg = np.median(src[halo].reshape(-1, 3).astype(np.float32), axis=0)
         else:
