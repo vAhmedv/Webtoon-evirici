@@ -555,11 +555,38 @@ class ChapterAnalyzer:
             _progress("Loading Translation Model (Hy-MT2)")
             try:
                 translator.load()
+                # Faz 3: bölüm-içi terim kilidi. Tekrar eden ayırt edici
+                # terimler bir kez çevrilip glossary'e kilitlenir; provider
+                # sentinel korumasıyla her blokta aynı karşılığı basar.
+                # Hata = boş glossary ile eski davranış (üretim asla kırılmaz).
+                glossary_list: list[str] = []
+                try:
+                    from core.translation.chapter_glossary import (
+                        extract_observed_terms,
+                        extract_repeated_terms,
+                        glossary_entries,
+                        resolve_chapter_glossary,
+                        write_glossary_json,
+                    )
+
+                    _term_texts = [eligible_block_text[b.id] for b in translation_eligible_blocks]
+                    _term_ids = [b.id for b in translation_eligible_blocks]
+                    _terms = extract_repeated_terms(_term_texts, _term_ids)
+                    _mapping = resolve_chapter_glossary(translator, _terms)
+                    glossary_list = glossary_entries(_mapping)
+                    write_glossary_json(
+                        Path(output_path) / "analysis" / "glossary.json",
+                        _mapping,
+                        _terms,
+                        extract_observed_terms(_term_texts, _term_ids),
+                    )
+                except Exception as exc:
+                    logger.warning(f"Terim kilidi atlandı, boş glossary: {exc}")
                 items = [
                     TranslationItem(region_id=b.id, source=eligible_block_text[b.id])
                     for b in translation_eligible_blocks
                 ]
-                trans_inp = TranslationInput(items=items)
+                trans_inp = TranslationInput(items=items, glossary=glossary_list)
                 trans_out = translator.translate(trans_inp)
 
                 out_map = {item.region_id: item.translation for item in trans_out.results if item.translation}
