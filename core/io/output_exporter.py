@@ -33,15 +33,49 @@ def export_chapter_pages(
     """
     output_dir = Path(output_dir).resolve()
 
-    # Phase 3 Source Safety Guard: Assert no output file matches any source file
+    # Phase 3 Source Safety Guard: output dizini kaynak dosyalarla çakışmamalı.
+    # Üç yasak durum: aynı yol, kaynak dosya output içinde, output kaynak
+    # dizini içinde. `and/or` öncelik hatasına düşmemek için her koşul ayrı.
     source_paths = [p.path.resolve() for p in pages]
     for sp in source_paths:
-        if output_dir == sp or output_dir in sp.parents or sp in output_dir.parents and sp.name == (output_dir / sp.name).name:
-            if output_dir == sp or (output_dir / sp.name).resolve() == sp:
+        if output_dir == sp:
+            raise ValueError(
+                f"SOURCE OVERWRITE GUARD TRIGGERED: Output path '{output_dir}' "
+                f"conflicts with source image path '{sp}'!"
+            )
+        try:
+            if sp.is_relative_to(output_dir):
                 raise ValueError(
-                    f"SOURCE OVERWRITE GUARD TRIGGERED: Output path '{output_dir / sp.name}' "
-                    f"conflicts with source image path '{sp}'!"
+                    f"SOURCE OVERWRITE GUARD TRIGGERED: Source '{sp}' is inside "
+                    f"output '{output_dir}'. Output must be outside the source tree!"
                 )
+        except AttributeError:
+            # Python <3.9 fallback
+            try:
+                sp.relative_to(output_dir)
+                raise ValueError(
+                    f"SOURCE OVERWRITE GUARD TRIGGERED: Source '{sp}' is inside "
+                    f"output '{output_dir}'!"
+                )
+            except ValueError as e:
+                if "TRIGGERED" in str(e):
+                    raise
+        try:
+            if output_dir.is_relative_to(sp.parent):
+                raise ValueError(
+                    f"SOURCE OVERWRITE GUARD TRIGGERED: Output '{output_dir}' is inside "
+                    f"source directory '{sp.parent}'. Output must be outside the source tree!"
+                )
+        except AttributeError:
+            try:
+                output_dir.relative_to(sp.parent)
+                raise ValueError(
+                    f"SOURCE OVERWRITE GUARD TRIGGERED: Output '{output_dir}' is inside "
+                    f"source directory '{sp.parent}'!"
+                )
+            except ValueError as e:
+                if "TRIGGERED" in str(e):
+                    raise
 
     pages_output_dir = output_dir / "pages"
     pages_output_dir.mkdir(parents=True, exist_ok=True)
