@@ -147,6 +147,13 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - Çözüm: masked-diff oylaması — geçiş cümleleri maskeli/maskesiz çevrilir, fark aralıkları gövde-ailesine kümelenir (≥5 harf ortak önek), ≥%50 + ≥2 uzlaşıda en kısa üye kilitlenir. Maliyet tavanlı (terim başına ≤8 geçiş, ≤5 terim).
 - Reddedilen tasarım (kanıtlı): anlam-ipucu promptu Hy-MT2'de çalışmadı (talimatı çevirmeye kalktı) — silindi.
 
+## FAZ 4 (2026-09-12, mini-kanıtlı)
+
+- Kapsam: göreli LaMa çekirdeği (3× sabit 7x7 → maske-boyu işlevi), maske-içi hayalet denetimi (LaMa/ortanca yolu), dolgu/zemin uyuşmazlığı (balonsuz beyaz-leke → REVIEW). Üçü de sentetik testli (8 test), LSP kapısı temiz.
+- Mini-kanıt: denetimler 1 blokta REVIEW üretti (sel yok); logo/balonlar temiz.
+- Ek bulgu (aynı tur): P009 çift-basma guard'ı atlatmış — kök neden kopya-tespit eşiği (IoU 0.468 < 0.5) + render eşiği (0.6). Çözüm: IoU 0.4 + kaynak-altküme kuralı (IoU>0.2). P009 görsel doğrulandı: tek temiz basım.
+- Bilinen küçük izler: yalnız `!` artığı, `var..!` çift noktalama (çevirmen tarafı, Faz 5/6 backlogu).
+
 ## FAZ 3-HASAT (2026-09-12, mini-kanıtlı)
 
 - Kök neden bulundu: parti-bağlam deterministik değil — aynı cümle farklı partide farklı çevriliyor. Maskeli yeniden-çeviri o yüzden çöp üretti. Çare: 1. tur TR'lerde yüzey oylaması (ek parti yok) + kilitlenen terim geçen bloklara 2. tur.
