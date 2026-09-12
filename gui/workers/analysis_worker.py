@@ -13,11 +13,13 @@ from PySide6.QtCore import QThread, Signal
 from application.cancellation import CancellationToken, CancelledError
 from application.chapter_analyzer import ChapterAnalyzer, ProductionPipelineResult
 from application.progress import ProgressEvent
-from core.config import Config
+from core.config import Config, validate_config
 from loguru import logger
 from providers.detector.registry import get_registry
 from providers.ocr.paddleocr import PaddleOCRProvider
 from providers.ocr.paddleocr_vl import PaddleOCRVLOcrProvider
+from providers.ocr.registry import get_ocr_registry, resolve_ocr_provider_name
+from providers.translation.base import TranslationProvider
 from providers.translation.gemini_translation import GeminiTranslationProvider
 from providers.translation.hy_mt2_gguf_translation import HyMT2GGUFTranslationProvider
 from providers.translation.hy_mt2_gguf_translation import (
@@ -25,6 +27,49 @@ from providers.translation.hy_mt2_gguf_translation import (
     DEFAULT_LLAMA_SERVER_PATH as DEFAULT_HY_LLAMA_SERVER_PATH,
     DEFAULT_HY_MT2_SERVER_URL,
 )
+
+
+def _create_primary_ocr(config: Config, ocr_name_override: str | None = None):
+    """Config + override'e göre primary OCR kur; registry'yi bypass etme.
+
+    Öncelik: explicit ocr_name > config.ocr.provider > primary_model default.
+    PaddleOCR ailesi için config.ocr.primary_model model adı olarak geçirilir.
+    """
+    from providers.ocr.base import OCRProvider
+
+    requested = ocr_name_override or config.ocr.provider
+    canonical = resolve_ocr_provider_name(requested) if requested else None
+
+    if canonical in (None, "PaddleOCR-PP-OCRv6"):
+        # Varsayılan yol: model adıyla direkt kur (registry factory argsız).
+        return PaddleOCRProvider(config.ocr.primary_model or "PP-OCRv6_medium_rec")
+    try:
+        provider: OCRProvider = get_ocr_registry().create(canonical)
+        # Registry PaddleOCR'u default modelle kurar; config farklı model
+        # istiyorsa model adını üzerine yaz.
+        if isinstance(provider, PaddleOCRProvider) and config.ocr.primary_model:
+            provider._model_name = config.ocr.primary_model
+        logger.info(f"Using primary OCR from registry: {canonical}")
+        return provider
+    except KeyError:
+        logger.warning(
+            f"Unknown primary OCR {requested!r}, falling back to "
+            f"PaddleOCRProvider({config.ocr.primary_model})"
+        )
+        return PaddleOCRProvider(config.ocr.primary_model or "PP-OCRv6_medium_rec")
+
+
+def _create_verifier_ocr(config: Config):
+    """Verifier OCR kur; bilinmeyen isimde safe fallback."""
+    requested = config.ocr.verifier_provider or "PaddleOCR-VL-1.6"
+    canonical = resolve_ocr_provider_name(requested) or "PaddleOCR-VL-1.6"
+    try:
+        verifier = get_ocr_registry().create(canonical)
+        logger.info(f"Using verifier OCR from registry: {canonical}")
+        return verifier
+    except KeyError:
+        logger.warning(f"Unknown verifier OCR {requested!r}, using PaddleOCRVLOcrProvider")
+        return PaddleOCRVLOcrProvider()
 
 
 class AnalysisWorker(QThread):
@@ -79,8 +124,17 @@ class AnalysisWorker(QThread):
 
         providers: list[Any] = []
         try:
-            logger.debug(f"[THREAD] Creating detector '{self._detector_name}' in worker thread")
-            provider = get_registry().create(self._detector_name)
+            problems = validate_config(self.config)
+            if problems:
+                logger.warning(f"[THREAD] Config issues: {problems}")
+
+            detector_name = self._detector_name or self.config.detector.provider
+            logger.debug(f"[THREAD] Creating detector '{detector_name}' in worker thread")
+            try:
+                provider = get_registry().create(detector_name)
+            except KeyError as e:
+                available = ", ".join(sorted(get_registry().list_providers())) or "<none>"
+                raise RuntimeError(f"{e}. Available detectors: {available}") from e
             logger.debug(f"[THREAD] Provider created: {type(provider).__name__}")
 
             if hasattr(provider, "confidence_threshold"):
@@ -89,13 +143,14 @@ class AnalysisWorker(QThread):
                     f"[THREAD] Provider confidence set to {self.config.min_confidence}"
                 )
 
-            primary = PaddleOCRProvider(self.config.ocr.primary_model)
-            verifier = PaddleOCRVLOcrProvider()
+            primary = _create_primary_ocr(self.config, self._ocr_name)
+            verifier = _create_verifier_ocr(self.config)
             gemini_key = (
                 self.config.translator.gemini_api_key
                 or os.environ.get("GEMINI_API_KEY")
                 or os.environ.get("GOOGLE_API_KEY")
             )
+            translator: TranslationProvider
             if gemini_key:
                 logger.info("Using Google Gemini API Translation Provider (%s)", self.config.translator.gemini_model)
                 translator = GeminiTranslationProvider(

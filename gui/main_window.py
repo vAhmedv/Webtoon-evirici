@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Any, Optional, Sequence
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
@@ -277,8 +277,9 @@ class MainWindow(QMainWindow):
         self._worker = AnalysisWorker(
             chapter_path=self._current_chapter_dir,
             output_path=out_dir,
-            detector_name="ComicTextDetector",
+            detector_name=self.config.detector.provider,
             config=self.config,
+            ocr_name=self.config.ocr.provider,
             parent=self,
         )
         self._worker.progress.connect(self._on_worker_progress)
