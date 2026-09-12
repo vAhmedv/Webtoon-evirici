@@ -168,6 +168,13 @@ def test_resolve_failure_returns_empty() -> None:
     assert mapping == {}
 
 
+def test_broken_targets_rejected() -> None:
+    stub = _StubTranslator({"A": "", "B": "x", "C": "bu bir açıklama cümlesi olarak döndü", "D": "?!...", "E": "Zanaatkar"})
+    terms = [ChapterTerm(k, 5) for k in "ABCDE"]
+    mapping = resolve_chapter_glossary(stub, terms)
+    assert mapping == {"E": "Zanaatkar"}
+
+
 def test_resolve_empty_terms_no_call() -> None:
     stub = _StubTranslator()
     assert resolve_chapter_glossary(stub, []) == {}

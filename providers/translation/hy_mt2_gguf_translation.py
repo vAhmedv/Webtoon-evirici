@@ -26,6 +26,7 @@ import urllib.request
 from core.translation.protection import restore_protected_translation
 from providers.translation.base import (
     TranslationInput,
+    TranslationItem,
     TranslationOutput,
     TranslationOutputItem,
 )

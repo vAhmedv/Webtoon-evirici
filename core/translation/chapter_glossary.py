@@ -194,6 +194,23 @@ def extract_observed_terms(
     return repeated
 
 
+def _is_usable_target(target: str) -> bool:
+    """Bağımsız terim çevirisi kilitlenebilir mi?
+
+    Tekil terim bağlamsız çevrildiği için model bazen budar (`LONCA`→`L`),
+    açıklar (cümle döndürür) veya boş bırakır. Bozuk kilit üretimden
+    beterdir — şüpheli hedef reddedilir (o terim kilitsiz kalır).
+    """
+    t = (target or "").strip()
+    if len(t) < 2:
+        return False
+    if not re.search(r"\w", t, re.UNICODE):
+        return False
+    if len(t.split()) > 4:
+        return False
+    return True
+
+
 def resolve_chapter_glossary(
     translator: TermTranslator,
     terms: Sequence[ChapterTerm],
@@ -201,7 +218,7 @@ def resolve_chapter_glossary(
 ) -> dict[str, str]:
     """Benzersiz terimleri tek toplu çağrıda çevirip kilitler.
 
-    Boş/başarısız çeviriler atlanır (kilit yok = eski davranış).
+    Boş/bozuk/hedef çeviriler atlanır (kilit yok = eski davranış).
     """
     chosen = list(terms)[:max(0, max_terms)]
     if not chosen:
@@ -214,8 +231,12 @@ def resolve_chapter_glossary(
     mapping: dict[str, str] = {}
     for term, target in zip(chosen, rendered):
         target = (target or "").strip()
-        if target:
+        if _is_usable_target(target):
             mapping[term.term] = target
+        else:
+            logger.warning(
+                f"Terim kilidi reddedildi ({term.term}): bozuk hedef {target!r}"
+            )
     logger.info(f"Terim kilidi: {len(mapping)}/{len(chosen)} terim kilitlendi.")
     return mapping
 
