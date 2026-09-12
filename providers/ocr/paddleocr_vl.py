@@ -4,12 +4,10 @@ PaddlePaddle/PaddleOCR-VL-1.6 modelini native Transformers ile kullanır.
 Resmî PaddleOCR-VL-1.6 Transformers element-OCR yöntemini kaynak alır;
 ``OCR:`` görevini kullanır.
 
-Model:
-- BF16
-- cuda:0
-- quantization yok
-- CPU offload yok
-- device_map="auto" yok
+Cihaz/dtype politikası:
+- CUDA + bf16 destekliyse BF16, eski CUDA'da FP16, CPU'da FP32.
+- Sabit ``cuda:0`` yok; mevcut CUDA cihazı kullanılır.
+- quantization / CPU offload / device_map yok (bilinçli).
 
 Mevcut PyTorch/Transformers ortamını bozmaz (dependency downgrade yapılmaz).
 """
@@ -18,6 +16,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
+from typing import Any, Sequence
 
 from loguru import logger
 
@@ -28,6 +27,20 @@ from providers.ocr.base import OCRLine, OCRProvider, OCRResult
 MODEL_ID = "PaddlePaddle/PaddleOCR-VL-1.6"
 TASK_PROMPT = "OCR:"
 MAX_NEW_TOKENS = 128
+
+
+def _select_torch_dtype(device: str):
+    """Cihaza göre güvenli dtype seç (CPU'da bf16 patlar, eski GPU'da da)."""
+    import torch
+
+    if device == "cuda":
+        try:
+            if torch.cuda.is_available() and torch.cuda.is_bf16_supported():
+                return torch.bfloat16
+        except Exception:
+            pass
+        return torch.float16
+    return torch.float32
 
 
 class PaddleOCRVLOcrProvider(OCRProvider):
@@ -76,17 +89,19 @@ class PaddleOCRVLOcrProvider(OCRProvider):
             ) from e
 
         self._device = "cuda" if torch.cuda.is_available() else "cpu"
+        dtype = _select_torch_dtype(self._device)
         logger.info(
-            f"Loading PaddleOCR-VL-1.6 on {self._device}: {self._model_id}"
+            f"Loading PaddleOCR-VL-1.6 on {self._device} (dtype={dtype}): {self._model_id}"
         )
 
         self._processor = AutoProcessor.from_pretrained(self._model_id)
-        self._model = AutoModelForImageTextToText.from_pretrained(
+        model = AutoModelForImageTextToText.from_pretrained(
             self._model_id,
-            torch_dtype=torch.bfloat16,
+            torch_dtype=dtype,
         )
-        self._model = self._model.to("cuda:0" if self._device == "cuda" else self._device)
-        self._model.eval()
+        model = model.to(self._device)
+        model.eval()
+        self._model = model
         self._loaded = True
         logger.info("PaddleOCR-VL-1.6 loaded successfully")
 
@@ -167,12 +182,23 @@ class PaddleOCRVLOcrProvider(OCRProvider):
             size["shortest_edge"] = size.get("shortest_edge", 112896)
             size["longest_edge"] = 1280 * 28 * 28
 
-            inputs = self._processor(
-                text=texts_input,
-                images=images_input,
-                padding=True,
-                return_tensors="pt",
-            )
+            # Single yolla aynı çözünürlük: processor_kwargs ile size geçir.
+            # Eski transformers sürümlerinde desteklenmezse yalın çağrıya düş.
+            try:
+                inputs = self._processor(
+                    text=texts_input,
+                    images=images_input,
+                    padding=True,
+                    return_tensors="pt",
+                    images_kwargs={"size": size},
+                )
+            except TypeError:
+                inputs = self._processor(
+                    text=texts_input,
+                    images=images_input,
+                    padding=True,
+                    return_tensors="pt",
+                )
             if hasattr(inputs, "to"):
                 inputs = inputs.to(self._model.device)
             elif isinstance(inputs, dict):
@@ -215,7 +241,7 @@ class PaddleOCRVLOcrProvider(OCRProvider):
 
         if not hasattr(self, "_batcher") or self._batcher is None:
             from core.system.adaptive_batcher import ElasticAdaptiveBatcher
-            self._batcher = ElasticAdaptiveBatcher(default_batch_size=batch_size, min_batch_size=1, vram_ceiling=0.95)
+            self._batcher = ElasticAdaptiveBatcher(default_batch_size=batch_size, min_batch_size=1, vram_ceiling=0.85)
 
         return self._batcher.execute(pairs, _forward_chunk, batch_size=batch_size)
 

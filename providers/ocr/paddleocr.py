@@ -18,7 +18,9 @@ Model kaynakları / lisans: Apache-2.0 (PaddlePaddle/PaddleOCR).
 
 from __future__ import annotations
 
+import threading
 from pathlib import Path
+from typing import Any, Sequence
 
 from loguru import logger
 
@@ -39,6 +41,9 @@ class PaddleOCRProvider(OCRProvider):
         self._loaded = False
         self._engine = None
         self._device = "cpu"
+        # PaddleOCR/ONNX engine thread-safe garantisi vermez; batch
+        # paralel çağrıları bu lock ile serialize edilir.
+        self._lock = threading.Lock()
 
     @property
     def name(self) -> str:
@@ -113,7 +118,7 @@ class PaddleOCRProvider(OCRProvider):
         self,
         images: Sequence[Any],
         region_bboxes: Sequence[BBox | None] | None = None,
-        max_workers: int = 10,
+        max_workers: int = 1,
     ) -> Sequence[OCRResult]:
         if not self._loaded:
             raise RuntimeError("PaddleOCR not loaded; call load() first")
@@ -122,10 +127,16 @@ class PaddleOCRProvider(OCRProvider):
         bboxes = region_bboxes if region_bboxes is not None else [None] * len(images)
         if len(images) == 1:
             return [self.recognize(images[0], bboxes[0])]
+        # Engine paylaşımı thread-safe olmadığı için paralel çağrılar
+        # recognize() içindeki lock ile serialize edilir. Varsayılan
+        # max_workers=1 güvenlidir; >1 yalnızca throughput denemesi içindir.
+        workers = max(1, int(max_workers)) if max_workers else 1
+        if workers == 1:
+            return [self.recognize(img, bbox) for img, bbox in zip(images, bboxes)]
 
         import concurrent.futures
         results: list[OCRResult] = [None] * len(images)  # type: ignore
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
             futures = {
                 pool.submit(self.recognize, img, bbox): idx
                 for idx, (img, bbox) in enumerate(zip(images, bboxes))
@@ -151,7 +162,9 @@ class PaddleOCRProvider(OCRProvider):
         else:
             img_array = image
 
-        results = self._engine.predict(img_array)
+        # Paylaşılan engine'e paralel erişimi serialize et.
+        with self._lock:
+            results = self._engine.predict(img_array)
         lines = []
         texts: list[str] = []
         total_conf = 0.0

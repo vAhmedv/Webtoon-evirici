@@ -109,6 +109,26 @@ def _get_jpeg_dimensions(f: BinaryIO, initial_data: bytes) -> Optional[Tuple[int
     return None
 
 
+def _exif_needs_swap(file_path: Path) -> bool:
+    """EXIF orientation 5-8 ise (90/270°) genişlik/yükseklik takas gerekir.
+
+    Piksel decode etmez; yalnızca EXIF tag okur. Okunamazsa False.
+    """
+    try:
+        with Image.open(file_path) as img:
+            exif = None
+            try:
+                exif = img.getexif()
+            except Exception:
+                return False
+            if not exif:
+                return False
+            orientation = exif.get(274, 1)  # 0x0112
+            return orientation in (5, 6, 7, 8)
+    except Exception:
+        return False
+
+
 def get_image_dimensions(file_path: Path | str) -> Tuple[int, int]:
     """Görüntü piksellerini çözmeden dosya başlığından (width, height) döndürür.
 
@@ -130,30 +150,38 @@ def get_image_dimensions(file_path: Path | str) -> Tuple[int, int]:
         raise FileNotFoundError(f"Görüntü dosyası bulunamadı: {file_path}")
 
     # 1. Hızlı binary header okuma
+    header_dims: Optional[Tuple[int, int]] = None
+    is_jpeg = False
     try:
         with open(path, "rb") as f:
             header_sample = f.read(128)
             if len(header_sample) >= 16:
                 if header_sample.startswith(b"\x89PNG\r\n\x1a\n"):
-                    dims = _get_png_dimensions(f, header_sample)
-                    if dims is not None:
-                        return dims
+                    header_dims = _get_png_dimensions(f, header_sample)
 
                 elif header_sample.startswith(b"RIFF") and b"WEBP" in header_sample[:16]:
-                    dims = _get_webp_dimensions(f, header_sample)
-                    if dims is not None:
-                        return dims
+                    header_dims = _get_webp_dimensions(f, header_sample)
 
                 elif header_sample.startswith(b"\xff\xd8"):
-                    dims = _get_jpeg_dimensions(f, header_sample)
-                    if dims is not None:
-                        return dims
+                    header_dims = _get_jpeg_dimensions(f, header_sample)
+                    is_jpeg = header_dims is not None
     except Exception as e:
         logger.debug(f"Hızlı binary başlık okuma başarısız ({path.name}): {e}, PIL fallback deneniyor.")
 
-    # 2. Güvenli Fallback (PIL.Image.open - sadece başlık okur, piksel çözmez)
+    if header_dims is not None:
+        w, h = header_dims
+        # Yalnızca JPEG'de EXIF orientation boyutları ters çevirir (telefon
+        # çekimleri). PNG/WebP'de ek PIL açma maliyeti yapma (<5ms bütçesi).
+        if is_jpeg and _exif_needs_swap(path):
+            return h, w
+        return w, h
+
+    # 2. Güvenli Fallback (PIL.Image.open + exif_transpose; piksel çözmez sayılır)
     try:
-        with Image.open(path) as img:
-            return img.size
+        from PIL import ImageOps
+
+        with Image.open(path) as src:
+            transposed = ImageOps.exif_transpose(src)
+            return transposed.size
     except Exception as e:
         raise ValueError(f"Görüntü boyutları okunamadı: {file_path} — {e}") from e

@@ -17,6 +17,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from difflib import SequenceMatcher
+from typing import Any
 
 from core.ocr_normalizer import normalize_ocr_text
 from providers.ocr.base import OCRResult

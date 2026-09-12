@@ -83,13 +83,58 @@ class RegionCropper:
         coords: GlobalCoordinateSystem,
         padding: int = 20,
         device: str = "cuda",
+        upscale_enabled: bool = True,
+        upscale_target_h: int = 36,
     ) -> None:
         self._pages = list(pages)
         self._coords = coords
         self._padding = padding
         self._device = device
+        self._upscale_enabled = upscale_enabled
+        self._upscale_target_h = max(1, int(upscale_target_h))
         self._page_by_index: dict[int, Page] = {p.index: p for p in self._pages}
         self._gpu_page_cache: dict[int, Any] = {}
+        self._orientation_cache: dict[int, int] = {}
+
+    def _page_orientation(self, page: Page) -> int:
+        if page.index in self._orientation_cache:
+            return self._orientation_cache[page.index]
+        orientation = 1
+        try:
+            with Image.open(page.path) as img:
+                try:
+                    exif = img.getexif()
+                    if exif:
+                        orientation = int(exif.get(274, 1))
+                except Exception:
+                    orientation = 1
+        except Exception:
+            orientation = 1
+        self._orientation_cache[page.index] = orientation
+        return orientation
+
+    @staticmethod
+    def _apply_orientation_to_array(arr, orientation: int):
+        """EXIF orientation'ı numpy RGB dizisine uygula (cv2 EXIF yok sayar)."""
+        import numpy as np
+
+        if orientation == 1:
+            return arr
+        if orientation == 2:
+            return np.fliplr(arr)
+        if orientation == 3:
+            return np.rot90(arr, 2)
+        if orientation == 4:
+            return np.flipud(arr)
+        if orientation == 5:
+            return np.rot90(np.fliplr(arr), 1)
+        if orientation == 6:
+            return np.rot90(arr, 3)
+        if orientation == 7:
+            return np.rot90(np.fliplr(arr), 3)
+        if orientation == 8:
+            return np.rot90(arr, 1)
+        return arr
 
     def get_page_tensor(self, page: Page, device: str | None = None) -> Any:
         """Sayfayı doğrudan GPU VRAM'e torch.Tensor [3, H, W] olarak yükler ve önbellekler."""
@@ -104,13 +149,19 @@ class RegionCropper:
         import numpy as np
         import cv2
 
-        # Fast direct reading with OpenCV
+        # Fast direct reading with OpenCV (EXIF yok sayılır → manuel uygula)
         img_bgr = cv2.imdecode(np.fromfile(str(page.path), dtype=np.uint8), cv2.IMREAD_COLOR)
         if img_bgr is None:
+            from PIL import ImageOps
+
             with Image.open(page.path) as img:
+                img = ImageOps.exif_transpose(img)
                 arr = np.array(img.convert("RGB"))
         else:
             arr = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+            orientation = self._page_orientation(page)
+            if orientation != 1:
+                arr = self._apply_orientation_to_array(arr, orientation)
 
         tensor = torch.from_numpy(arr).permute(2, 0, 1).contiguous().to(target_dev)
         self._gpu_page_cache[page.index] = tensor
@@ -142,10 +193,12 @@ class RegionCropper:
         else:
             pad_x = pad_y = self._padding
 
+        max_w_all = max((p.width for p in self._pages), default=bbox.x2 + pad_x)
+        total_h_all = self._coords.total_height or (bbox.y2 + pad_y)
         x1 = max(0, bbox.x1 - pad_x)
         y1 = max(0, bbox.y1 - pad_y)
-        x2 = bbox.x2 + pad_x
-        y2 = bbox.y2 + pad_y
+        x2 = min(bbox.x2 + pad_x, max_w_all)
+        y2 = min(bbox.y2 + pad_y, total_h_all)
 
         relevant_pages = self._coords.pages_in_range(y1, y2)
         if not relevant_pages:
@@ -190,13 +243,14 @@ class RegionCropper:
         else:
             combined_tensor = torch.cat(crops, dim=1)
 
-        # Küçük metin için GPU üzerinde doğrudan ölçekleme (height < 36px)
+        # Küçük metin için GPU üzerinde doğrudan ölçekleme (config hedefi)
         ch, cw = combined_tensor.shape[1], combined_tensor.shape[2]
-        if ch < 36 and ch > 0 and cw > 0:
-            scale = 36.0 / ch
+        target_h = self._upscale_target_h
+        if self._upscale_enabled and ch < target_h and ch > 0 and cw > 0:
+            scale = target_h / ch
             new_w = max(1, int(cw * scale))
             float_t = combined_tensor.unsqueeze(0).float()
-            resized = torch.nn.functional.interpolate(float_t, size=(36, new_w), mode="bilinear", align_corners=False)
+            resized = torch.nn.functional.interpolate(float_t, size=(target_h, new_w), mode="bilinear", align_corners=False)
             combined_tensor = resized.squeeze(0).clamp(0, 255).byte()
 
         # Global polygon → crop-local polygon
@@ -232,6 +286,8 @@ class RegionCropper:
 
     def _crop_region_cpu(self, region: Region, adaptive_padding: bool = False) -> RegionCrop:
         """Standart CPU PIL tabanlı kırpma fallback mekanizması."""
+        from PIL import ImageOps
+
         bbox = region.global_bbox
         if adaptive_padding:
             pad_x = max(4, min(16, int(bbox.width * 0.06)))
@@ -239,10 +295,12 @@ class RegionCropper:
         else:
             pad_x = pad_y = self._padding
 
+        max_w_all = max((p.width for p in self._pages), default=bbox.x2 + pad_x)
+        total_h_all = self._coords.total_height or (bbox.y2 + pad_y)
         x1 = max(0, bbox.x1 - pad_x)
         y1 = max(0, bbox.y1 - pad_y)
-        x2 = bbox.x2 + pad_x
-        y2 = bbox.y2 + pad_y
+        x2 = min(bbox.x2 + pad_x, max_w_all)
+        y2 = min(bbox.y2 + pad_y, total_h_all)
 
         relevant_pages = self._coords.pages_in_range(y1, y2)
         if not relevant_pages:
@@ -263,8 +321,9 @@ class RegionCropper:
             if local_end <= local_start:
                 continue
 
-            with Image.open(page.path) as img:
-                crop = img.crop((x1, local_start, x2, local_end))
+            with Image.open(page.path) as src:
+                oriented = ImageOps.exif_transpose(src)
+                crop = oriented.crop((x1, local_start, x2, local_end))
                 crops.append(crop.copy())
                 page_indices.append(page.index)
 
@@ -282,10 +341,11 @@ class RegionCropper:
             combined.paste(crop, (0, y_offset))
             y_offset += crop.height
 
-        if combined.height < 36 and combined.height > 0:
-            scale = 36.0 / combined.height
+        if self._upscale_enabled and combined.height < self._upscale_target_h and combined.height > 0:
+            scale = self._upscale_target_h / combined.height
             new_w = max(1, int(combined.width * scale))
-            combined = combined.resize((new_w, 36), Image.Resampling.LANCZOS)
+            # GPU yoluyla tutarlı interpolasyon (LANCZOS drift yapıyordu)
+            combined = combined.resize((new_w, self._upscale_target_h), Image.Resampling.BILINEAR)
 
         local_polygon = None
         polygon = region.metadata.get("polygon") if isinstance(region.metadata, dict) else None

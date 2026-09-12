@@ -19,6 +19,17 @@ from providers.ocr.base import OCRProvider
 class OCRRegistry:
     """OCR provider kayıt defteri."""
 
+    # Eski config.yaml'larda registry anahtarı yerine model adı yazılmıştı
+    # (örn. "PaddleOCR-PP-OCRv6_medium_rec"). Sessiz yanlış davranış yerine
+    # kanonik isme çevir.
+    LEGACY_ALIASES: dict[str, str] = {
+        "PaddleOCR-PP-OCRv6_medium_rec": "PaddleOCR-PP-OCRv6",
+        "PaddleOCR-PP-OCRv6-server": "PaddleOCR-PP-OCRv6",
+        "en_PP-OCRv5_mobile_rec": "PaddleOCR English v5",
+        "PaddleOCR-VL-1.5": "PaddleOCR-VL-1.6",
+        "PaddleOCR-VL": "PaddleOCR-VL-1.6",
+    }
+
     def __init__(self) -> None:
         self._providers: dict[str, Callable[[], OCRProvider]] = {}
         self._status: dict[str, str] = {}
@@ -51,6 +62,14 @@ class OCRRegistry:
         self._providers[name] = factory
         self._status[name] = status
 
+    def resolve_name(self, name: str | None) -> str | None:
+        """Legacy/alternatif OCR ismini kanonik registry anahtarına çevir."""
+        if not name:
+            return name
+        if name in self._providers:
+            return name
+        return self.LEGACY_ALIASES.get(name, name)
+
     def list_providers(self) -> list[str]:
         return list(self._providers.keys())
 
@@ -58,9 +77,14 @@ class OCRRegistry:
         return self._status.get(name, "unknown")
 
     def create(self, name: str) -> OCRProvider:
-        if name not in self._providers:
-            raise KeyError(f"Unknown OCR provider: {name}")
-        return self._providers[name]()
+        canonical = self.resolve_name(name)
+        if canonical not in self._providers:
+            available = ", ".join(sorted(self._providers)) or "<none>"
+            raise KeyError(
+                f"Unknown OCR provider: {name!r} (resolved: {canonical!r}). "
+                f"Available: {available}"
+            )
+        return self._providers[canonical]()
 
 
 _registry = OCRRegistry()
@@ -68,3 +92,8 @@ _registry = OCRRegistry()
 
 def get_ocr_registry() -> OCRRegistry:
     return _registry
+
+
+def resolve_ocr_provider_name(name: str | None) -> str | None:
+    """Modül seviyesi kolaylaştırıcı: legacy ismi kanoniğe çevir."""
+    return _registry.resolve_name(name)
