@@ -198,3 +198,17 @@ def test_expand_mask_blocked_on_dark_art() -> None:
     object.__setattr__(tm, "source", dark)
     grown = Inpainter._expand_mask_in_bubble(tm)
     assert np.array_equal(grown.refined, tm.refined)
+
+
+def test_span_pad_for_text_scales() -> None:
+    """Glif açıklığı kestirimi: DAMMIT (6×0.6×110) kutudan taşar."""
+    from core.imaging.inpainter import _span_pad_for_text
+
+    pad_x, pad_y = _span_pad_for_text("DAMMIT", 180, 110)
+    assert pad_x >= 100  # (6*0.6*110-180)/2 + 8 ≈ 116
+    assert pad_y >= 3
+    small_x, _ = _span_pad_for_text("Hi", 200, 40)
+    assert small_x < pad_x
+    cjk_x, _ = _span_pad_for_text("漢字テスト", 100, 40)
+    latin_x, _ = _span_pad_for_text("abcdef", 100, 40)
+    assert cjk_x > latin_x

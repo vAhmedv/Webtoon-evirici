@@ -68,9 +68,28 @@ def _is_second_chance_block(block: Any) -> bool:
 
 
 # İkinci-şans kutusu görece büyütme (düşük güven ↔ kısmi kutu korelasyonu).
-# Her eksende maske boyutunun oranı (DAMMIT: 180px kutu, ~300px glif).
+# Her eksende maske boyutunun oranı + OCR metninden kestirilen glif açıklığı
+# (DAMMIT: 180px kutu, ~300px glif). Tipografi temeli: latin kapitel ~0.6×
+# satır yüksekliği, CJK ~1.0×. Fazla tahmin ZARARSIZDIR (renk-kısıtı korur).
 SECOND_CHANCE_PAD_RATIO = 0.35
-SECOND_CHANCE_KERNEL_MAX = 121
+SECOND_CHANCE_KERNEL_MAX = 161
+SECOND_CHANCE_LATIN_ADVANCE = 0.6
+SECOND_CHANCE_CJK_ADVANCE = 1.0
+
+
+def _span_pad_for_text(text: str, box_w: int, box_h: int) -> tuple[int, int]:
+    """Tahmini glif açıklığından eksen padleri (piksel)."""
+    import re as _re
+
+    nospace = _re.sub(r"\s+", "", text or "")
+    cjk = bool(_re.search(r"[\u3040-\u30ff\u4e00-\u9fff\uac00-\ud7af]", nospace))
+    factor = SECOND_CHANCE_CJK_ADVANCE if cjk else SECOND_CHANCE_LATIN_ADVANCE
+    est_span = max(1, len(nospace)) * factor * max(1, box_h)
+    base_x = max(3, int(box_w * SECOND_CHANCE_PAD_RATIO))
+    base_y = max(3, int(box_h * SECOND_CHANCE_PAD_RATIO))
+    need_x = max(0, int((est_span - box_w) / 2) + 8)
+    pad_x = max(base_x, min(int(box_w * 1.5), need_x))
+    return pad_x, base_y
 
 
 class Inpainter:
@@ -109,7 +128,7 @@ class Inpainter:
         # 1. Build text masks for all eligible blocks
         prepared: list[tuple[Any, TextMask, str]] = []
         for block in text_blocks:
-            members = tuple(getattr(block, "members", ()))
+            members: tuple[Any, ...] = tuple(getattr(block, "members", ()))
             if not members or any(not _is_story_text(r) for r in members):
                 continue
             eligible = members
@@ -117,7 +136,10 @@ class Inpainter:
             # İkinci-şans kutuları kısmi olur (düşük güven ↔ eksik geometri);
             # maske balon içinde görece genişletilir (sanat korunur).
             if _is_second_chance_block(block):
-                mask = self._expand_mask_in_bubble(mask)
+                _member_text = " ".join(
+                    (getattr(m, "text", "") or "") for m in eligible
+                )
+                mask = self._expand_mask_in_bubble(mask, _member_text)
             block_id = int(getattr(block, "id", -1))
             if np.any(mask.refined):
                 self.processed_block_ids.add(block_id)
@@ -399,7 +421,7 @@ class Inpainter:
         return int(np.max(areas)) if areas.size else 0
 
     @staticmethod
-    def _expand_mask_in_bubble(mask: TextMask) -> TextMask:
+    def _expand_mask_in_bubble(mask: TextMask, member_text: str = "") -> TextMask:
         """İkinci-şans maskesini renk-kısıtlı görece genişletir.
 
         Büyüme SADECE zemin rengine benzeyen piksellere akar (kanal başına
@@ -413,8 +435,13 @@ class Inpainter:
         if not np.any(refined):
             return mask
         ys, xs = np.nonzero(refined)
-        pad_y = max(3, int((ys.max() - ys.min() + 1) * SECOND_CHANCE_PAD_RATIO))
-        pad_x = max(3, int((xs.max() - xs.min() + 1) * SECOND_CHANCE_PAD_RATIO))
+        span_pad_x, span_pad_y = _span_pad_for_text(
+            member_text,
+            int(xs.max() - xs.min() + 1),
+            int(ys.max() - ys.min() + 1),
+        )
+        pad_y = span_pad_y
+        pad_x = span_pad_x
         kernel = cv2.getStructuringElement(
             cv2.MORPH_ELLIPSE,
             (
