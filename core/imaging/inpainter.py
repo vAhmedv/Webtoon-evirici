@@ -67,29 +67,9 @@ def _is_second_chance_block(block: Any) -> bool:
     return True
 
 
-# İkinci-şans kutusu görece büyütme (düşük güven ↔ kısmi kutu korelasyonu).
-# Her eksende maske boyutunun oranı + OCR metninden kestirilen glif açıklığı
-# (DAMMIT: 180px kutu, ~300px glif). Tipografi temeli: latin kapitel ~0.6×
-# satır yüksekliği, CJK ~1.0×. Fazla tahmin ZARARSIZDIR (renk-kısıtı korur).
-SECOND_CHANCE_PAD_RATIO = 0.35
-SECOND_CHANCE_KERNEL_MAX = 161
-SECOND_CHANCE_LATIN_ADVANCE = 0.6
-SECOND_CHANCE_CJK_ADVANCE = 1.0
-
-
-def _span_pad_for_text(text: str, box_w: int, box_h: int) -> tuple[int, int]:
-    """Tahmini glif açıklığından eksen padleri (piksel)."""
-    import re as _re
-
-    nospace = _re.sub(r"\s+", "", text or "")
-    cjk = bool(_re.search(r"[\u3040-\u30ff\u4e00-\u9fff\uac00-\ud7af]", nospace))
-    factor = SECOND_CHANCE_CJK_ADVANCE if cjk else SECOND_CHANCE_LATIN_ADVANCE
-    est_span = max(1, len(nospace)) * factor * max(1, box_h)
-    base_x = max(3, int(box_w * SECOND_CHANCE_PAD_RATIO))
-    base_y = max(3, int(box_h * SECOND_CHANCE_PAD_RATIO))
-    need_x = max(0, int((est_span - box_w) / 2) + 8)
-    pad_x = max(base_x, min(int(box_w * 1.5), need_x))
-    return pad_x, base_y
+# İkinci-şans maske taşması fasesi sabitleri.
+SECOND_CHANCE_BG_TOLERANCE = 28
+SECOND_CHANCE_MAX_AREA_RATIO = 12
 
 
 class Inpainter:
@@ -422,42 +402,44 @@ class Inpainter:
 
     @staticmethod
     def _expand_mask_in_bubble(mask: TextMask, member_text: str = "") -> TextMask:
-        """İkinci-şans maskesini renk-kısıtlı görece genişletir.
+        """Maskeyi zemin-bitişik bölgeye taşır (flood-fill).
 
-        Büyüme SADECE zemin rengine benzeyen piksellere akar (kanal başına
-        <28 sapma): beyaz balonda glyph artığını kapsar, siyah zeminde durur
-        (P003 beyaz-leke riski yok). Balon varsa ek sınır olarak uygulanır.
-        Genel: renk-bağıl, boyut-bağımsız.
+        Kısmi kutunun glifleri maske dışındadır ve çoğu siyahtır:
+        renk-kısıtlı geometrik büyüme onlara ASLA ulaşamaz (siyah piksel
+        zemin-rengi değildir). Bunun yerine tohumdan zemin-rengi üzerinden
+        taşma yapılır: beyaz balonun tamamı kapsanır, siyah zemin/sivri
+        uçlarda durur. Glif çekirdekleri HER HALDE korunur (`| refined`).
+        Alan tavanı (12×) komşu balona taşmayı keser.
+        Genel: renk-bağıl, metin-bağımsız (member_text yedekte durur).
         """
         import cv2
 
+        del member_text
         refined = (np.asarray(mask.refined) > 0)
         if not np.any(refined):
             return mask
-        ys, xs = np.nonzero(refined)
-        span_pad_x, span_pad_y = _span_pad_for_text(
-            member_text,
-            int(xs.max() - xs.min() + 1),
-            int(ys.max() - ys.min() + 1),
-        )
-        pad_y = span_pad_y
-        pad_x = span_pad_x
-        kernel = cv2.getStructuringElement(
-            cv2.MORPH_ELLIPSE,
-            (
-                min(SECOND_CHANCE_KERNEL_MAX, pad_x * 2 + 1),
-                min(SECOND_CHANCE_KERNEL_MAX, pad_y * 2 + 1),
-            ),
-        )
-        grown = (cv2.dilate(refined.astype(np.uint8), kernel) > 0)
         src = np.ascontiguousarray(mask.source).astype(np.int16)
         bg = np.asarray(mask.background_color, dtype=np.int16).reshape(1, 1, 3)
-        bg_like = np.max(np.abs(src - bg), axis=-1) < 28
-        # Orijinal kapsama korunur (glif çekirdekleri zemin-rengi değildir!);
-        # SADECE yeni eklenen bant zemin-rengine koşulludur.
-        grown &= (bg_like | refined)
+        bg_like = np.max(np.abs(src - bg), axis=-1) < SECOND_CHANCE_BG_TOLERANCE
+        seed_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        seeds = (cv2.dilate(refined.astype(np.uint8), seed_kernel) > 0) & bg_like
+        if not np.any(seeds):
+            return mask
+        count, labels = cv2.connectedComponents(bg_like.astype(np.uint8))
+        if count <= 1:
+            return mask
+        seed_labels = set(np.unique(labels[seeds]))
+        seed_labels.discard(0)
+        if not seed_labels:
+            return mask
+        region = np.isin(labels, list(seed_labels))
+        refined_area = int(np.count_nonzero(refined))
+        if int(np.count_nonzero(region)) > SECOND_CHANCE_MAX_AREA_RATIO * max(1, refined_area):
+            return mask
+        grown = region | refined
         if mask.bubble_interior is not None and np.any(mask.bubble_interior):
             grown &= (np.asarray(mask.bubble_interior) > 0)
+            grown |= refined
         if not np.any(grown):
             return mask
         return replace(mask, refined=(grown.astype(np.uint8) * 255))

@@ -152,9 +152,12 @@ def test_is_second_chance_block() -> None:
 def test_expand_mask_in_bubble_grows_bounded() -> None:
     from core.imaging.inpainter import Inpainter
 
-    tm = _mask(120, 160, 60, 50, 100, 70)  # 40x20 maske
+    tm = _mask(120, 160, 40, 30, 100, 70)
+    seed = np.zeros((120, 160), dtype=np.uint8)
+    seed[40:80, 50:110] = 255  # 60x40 = 2400px tohum
+    object.__setattr__(tm, "refined", seed)
     bubble = np.zeros((120, 160), dtype=np.uint8)
-    bubble[10:110, 20:140] = 255  # geniş balon
+    bubble[20:100, 30:130] = 255  # 100x80 balon
     object.__setattr__(tm, "bubble_interior", bubble)
     before = int(np.count_nonzero(tm.refined))
     grown = Inpainter._expand_mask_in_bubble(tm)
@@ -168,7 +171,10 @@ def test_expand_mask_without_bubble_grows_on_bg_color() -> None:
     """Balon yoksa bile zemin-rengi alanda büyür (DAMMIT vakası)."""
     from core.imaging.inpainter import Inpainter
 
-    tm = _mask(120, 160, 60, 50, 100, 70)
+    tm = _mask(120, 160, 40, 30, 100, 70)
+    seed = np.zeros((120, 160), dtype=np.uint8)
+    seed[40:80, 50:110] = 255
+    object.__setattr__(tm, "refined", seed)
     before = int(np.count_nonzero(tm.refined))
     grown = Inpainter._expand_mask_in_bubble(tm)
     assert int(np.count_nonzero(grown.refined)) > before
@@ -200,15 +206,36 @@ def test_expand_mask_blocked_on_dark_art() -> None:
     assert np.array_equal(grown.refined, tm.refined)
 
 
-def test_span_pad_for_text_scales() -> None:
-    """Glif açıklığı kestirimi: DAMMIT (6×0.6×110) kutudan taşar."""
-    from core.imaging.inpainter import _span_pad_for_text
+def test_flood_fills_white_region() -> None:
+    """Tohumdan beyaz-bitişik bölgenin tamamı kapsanır."""
+    from core.imaging.inpainter import Inpainter
 
-    pad_x, pad_y = _span_pad_for_text("DAMMIT", 180, 110)
-    assert pad_x >= 100  # (6*0.6*110-180)/2 + 8 ≈ 116
-    assert pad_y >= 3
-    small_x, _ = _span_pad_for_text("Hi", 200, 40)
-    assert small_x < pad_x
-    cjk_x, _ = _span_pad_for_text("漢字テスト", 100, 40)
-    latin_x, _ = _span_pad_for_text("abcdef", 100, 40)
-    assert cjk_x > latin_x
+    src = np.full((120, 160, 3), 255, dtype=np.uint8)
+    src[:, :20] = (10, 10, 10)  # solda koyu sanat şeridi
+    src[50:60, 60:100] = (0, 0, 0)  # tohum içi glif çekirdeği
+    tm = TextMask(
+        crop_bbox=(0, 0, 160, 120),
+        source=src,
+        raw=np.zeros((120, 160), dtype=np.uint8),
+        refined=np.zeros((120, 160), dtype=np.uint8),
+        background_color=(255, 255, 255),
+        is_uniform_background=False,
+    )
+    seed = np.zeros((120, 160), dtype=np.uint8)
+    seed[40:80, 50:110] = 255
+    object.__setattr__(tm, "refined", seed)
+    grown = Inpainter._expand_mask_in_bubble(tm)
+    assert int(np.count_nonzero(grown.refined)) > 5000
+    # Koyu şeride taşmaz.
+    assert bool(np.all(grown.refined[:, :20] == 0))
+    # Glif çekirdeği korunur.
+    assert bool(np.all(grown.refined[50:60, 60:100] > 0))
+
+
+def test_flood_area_cap_trips_on_blank() -> None:
+    """Tamamen beyaz crop'ta tavan devreye girer (komşu balon koruması)."""
+    from core.imaging.inpainter import Inpainter
+
+    tm = _mask(120, 160, 60, 50, 100, 70)
+    grown = Inpainter._expand_mask_in_bubble(tm)
+    assert np.array_equal(grown.refined, tm.refined)
