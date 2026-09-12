@@ -155,3 +155,37 @@ def test_punctuation_only_text_skipped() -> None:
     block = _block(1, 50, 50, 350, 120)
     _, rendered, _ = renderer.render_blocks(_canvas(), [(block, "…?!")])
     assert rendered == 0
+
+
+def _sourced_block(
+    block_id: int, x1: int, y1: int, x2: int, y2: int, source: str
+) -> TextBlock:
+    block = _block(block_id, x1, y1, x2, y2)
+    object.__setattr__(block, "source_text", source)
+    return block
+
+
+def test_substring_duplicate_renders_once() -> None:
+    """P009 vakası: aynı cümlenin iki kutusu (IoU~0.24, alt-küme) tek basılır."""
+    renderer = TextRenderer()
+    frag = _sourced_block(
+        14, 0, 0, 400, 200, "WHICH MEANS THE QUEST TO FIGHT"
+    )
+    full = _sourced_block(
+        15, 180, 60, 580, 260,
+        "WHICH MEANS THE QUEST TO FIGHT THE DEMON KING'S ARMY IS REAL",
+    )
+    _, rendered, _ = renderer.render_blocks(
+        _canvas(),
+        [(frag, "Yani şeytanla savaşma görevi..."), (full, "Yani şeytan kralının ordusuyla savaşma görevi gerçekten var..!")],
+    )
+    assert rendered == 1
+
+
+def test_repeated_sentence_separate_bubbles_both_render() -> None:
+    """Meşru tekrar (ayrı balonlar, çakışma yok) iki kez basılır."""
+    renderer = TextRenderer()
+    a = _sourced_block(1, 50, 50, 350, 120, "RUN!")
+    b = _sourced_block(2, 50, 200, 350, 270, "RUN!")
+    _, rendered, _ = renderer.render_blocks(_canvas(), [(a, "KAÇ!"), (b, "KAÇ!")])
+    assert rendered == 2

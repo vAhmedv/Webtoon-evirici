@@ -20,7 +20,10 @@ from core.detection import BBox, Region, RegionStatus, RegionType
 
 # Faz 2 render guard eşikleri (genel; hiçbir sayfa/bölüme özel değer yok).
 # OVERLAP_IOU_THRESHOLD: aynı yere çift basımı yakalar (kopya tespit kaçakları).
-OVERLAP_IOU_THRESHOLD = 0.6
+# SUBSTRING kuralı: biri diğerinin alt-kümesi olan kaynak metin + kısmi
+# çakışma = aynı cümlenin iki tespiti (P009: IoU 0.47 eşiği aşamamıştı).
+OVERLAP_IOU_THRESHOLD = 0.4
+SUBSTRING_IOU_THRESHOLD = 0.2
 # Çift-tırnak benzeri karakterler: tek sayıda kaldıklarında sahipsiz artıktır.
 # ASCII kesme işareti (') HARİÇ — Türkçe tamlamalarda meşrudur ("VRMMO'su").
 _DOUBLE_QUOTE_CHARS = ('"', '"', '"', ''', ''')
@@ -55,22 +58,40 @@ def _group_overlapping(
     entries: list[tuple[Any, str, BBox]],
     iou_threshold: float = OVERLAP_IOU_THRESHOLD,
 ) -> list[list[tuple[Any, str, BBox]]]:
-    """IoU eşiğini aşan kutuları aynı gruba alır (açgözlü, geçişli).
+    """Çakışan kutuları aynı gruba alır (açgözlü, geçişli).
 
+    Grup ölçütü: IoU eşiği VEYA (kaynak-altküme + düşük IoU). İkincisi
+    kopya-tespit kaçağını yakalar: aynı cümlenin iki kutusu.
     Her gruptan yalnız en uzun metinli girdi render edilir; üst üste binmiş
     balonlar hiçbir dilde aynı anda okunamaz, çift basım her zaman kusurdur.
     """
+    sources = [
+        _normalize_render_text(getattr(b, "source_text", "") or "")
+        for b, _, _ in entries
+    ]
+
+    def _linked(i: int, j: int, iou: float) -> bool:
+        if iou > iou_threshold:
+            return True
+        if iou > SUBSTRING_IOU_THRESHOLD and sources[i] and sources[j]:
+            if sources[i] in sources[j] or sources[j] in sources[i]:
+                return True
+        return False
+
     groups: list[list[tuple[Any, str, BBox]]] = []
-    for entry in entries:
+    group_members: list[list[int]] = []
+    for idx, entry in enumerate(entries):
         _, _, bbox = entry
         placed = False
-        for group in groups:
-            if any(bbox.iou(g_bbox) > iou_threshold for _, _, g_bbox in group):
+        for group, members in zip(groups, group_members):
+            if any(_linked(idx, m, bbox.iou(entries[m][2])) for m in members):
                 group.append(entry)
+                members.append(idx)
                 placed = True
                 break
         if not placed:
             groups.append([entry])
+            group_members.append([idx])
     return groups
 
 
