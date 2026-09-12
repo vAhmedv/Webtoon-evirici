@@ -35,6 +35,12 @@ review_output/
 
 # Logs
 *.log
+logs/
+
+# Not: benchmark/ kaynak koddur, test_data/ test fixture'ıdır — ignore edilmez.
+# Üretim çıktıları yukarıda zaten kapsamlı (output*/, e2e_output/, audit_output/ vb.).
+# Not: assets/fonts/*.ttf bilerek track edilir (Türkçe glyph fallback);
+# yukarıdaki model filtreleri (*.gguf/*.ckpt/*.onnx) fontları etkilemez.
 
 # Windows
 Thumbs.db

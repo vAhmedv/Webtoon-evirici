@@ -1,4 +1,11 @@
-# Webtoon Çevirici — Phase 0 & Phase 1 Planı
+# Webtoon Çevirici — Phase 0 & Phase 1 Planı (SUPERSEDED)
+
+> **Not (2026-09):** Bu doküman projenin ilk iki fazının tarihsel planıdır ve
+> güncelliğini yitirmiştir. Proje artık production pipeline + GUI aşamasındadır
+> (bkz. `README.md`: ChapterAnalyzer, provider registry'leri, Hy-MT2/LaMa/Qwen).
+> Yeni işler için `README.md` tek kaynaktır; burası yalnızca arşiv amaçlı durur.
+> Tarihsel ifade düzeltmesi: "hiçbir AI modeli kurulmaz" Phase 0/1'e aitti;
+> window varsayılanları artık 5000/1000 değil `1024/256` (`config.yaml`).
 
 ## Genel Bakış
 
