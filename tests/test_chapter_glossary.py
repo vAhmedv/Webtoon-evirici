@@ -175,6 +175,50 @@ def test_broken_targets_rejected() -> None:
     assert mapping == {"E": "Zanaatkar"}
 
 
+def test_consistency_closure_locks_matching_sense() -> None:
+    """Bağımsız hedef geçiş cümlelerinde geçiyorsa kilitlenir."""
+
+    class _CtxStub(_StubTranslator):
+        def translate_batch(self, texts: list[str]) -> list[str]:
+            self.calls.append(list(texts))
+            out = []
+            for t in texts:
+                if t == "CRAFTER":
+                    out.append("Üretici")
+                elif "CRAFTER" in t:
+                    out.append("Ben bir Üreticiyim")
+                else:
+                    out.append(f"TR-{t}")
+            return out
+
+    terms = [ChapterTerm("CRAFTER", 3, [1, 2])]
+    texts = ["CRAFTER", "I AM A CRAFTER BY TRADE"]
+    mapping = resolve_chapter_glossary(_CtxStub(), terms, texts=texts, block_ids=[1, 2])
+    assert mapping == {"CRAFTER": "Üretici"}
+
+
+def test_consistency_closure_rejects_mismatch() -> None:
+    """Bağımsız hedef cümlelerde yoksa kilit yok (GUILD/LİG vs Lonca)."""
+
+    class _CtxStub(_StubTranslator):
+        def translate_batch(self, texts: list[str]) -> list[str]:
+            self.calls.append(list(texts))
+            out = []
+            for t in texts:
+                if t == "GUILD":
+                    out.append("Lig")
+                elif "GUILD" in t:
+                    out.append("Ünlü bir loncadan geliyorum")
+                else:
+                    out.append(f"TR-{t}")
+            return out
+
+    terms = [ChapterTerm("GUILD", 3, [1, 2])]
+    texts = ["GUILD", "ARE YOU FROM SOME FAMOUS GUILD"]
+    mapping = resolve_chapter_glossary(_CtxStub(), terms, texts=texts, block_ids=[1, 2])
+    assert mapping == {}
+
+
 def test_resolve_empty_terms_no_call() -> None:
     stub = _StubTranslator()
     assert resolve_chapter_glossary(stub, []) == {}

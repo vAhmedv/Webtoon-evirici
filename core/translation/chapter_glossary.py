@@ -215,11 +215,20 @@ def resolve_chapter_glossary(
     translator: TermTranslator,
     terms: Sequence[ChapterTerm],
     max_terms: int = MAX_LOCKED_TERMS_DEFAULT,
+    texts: Sequence[str] | None = None,
+    block_ids: Sequence[int] | None = None,
 ) -> dict[str, str]:
-    """Benzersiz terimleri tek toplu çağrıda çevirip kilitler.
+    """Benzersiz terimleri çözüp tutarlılık kapanışıyla kilitler.
 
-    Boş/bozuk/hedef çeviriler atlanır (kilit yok = eski davranış).
+    1. Adım (ucuz): her terim tek başına çevrilir.
+    2. Adım (doğrulama): `texts` verildiyse her adayın en kısa ≤2
+       geçiş cümlesi çevrilir; bağımsız hedef bu cümlelerde çekimli
+       haliyle geçmiyorsa anlam uyuşmazlığı vardır ve kilit REDDEDİLİR
+       (`GUILD`→`LİG` cümlelerde `LONCA` ise kilit yok = eski davranış).
+    Modelin kendi bağlamsal tutarlılığı kapı bekçisidir; harici bilgi yok.
     """
+    from core.translation.protection import ProtectedTermMeta, _target_surface_forms
+
     chosen = list(terms)[:max(0, max_terms)]
     if not chosen:
         return {}
@@ -228,14 +237,67 @@ def resolve_chapter_glossary(
     except Exception as exc:
         logger.warning(f"Terim kilidi çözümlemesi başarısız, glossary boş: {exc}")
         return {}
-    mapping: dict[str, str] = {}
+    standalone: dict[str, str] = {}
     for term, target in zip(chosen, rendered):
         target = (target or "").strip()
         if _is_usable_target(target):
-            mapping[term.term] = target
+            standalone[term.term] = target
         else:
             logger.warning(
                 f"Terim kilidi reddedildi ({term.term}): bozuk hedef {target!r}"
+            )
+    if texts is None or block_ids is None:
+        logger.info(f"Terim kilidi: {len(standalone)}/{len(chosen)} (doğrulamasız).")
+        return standalone
+
+    # Tutarlılık kapanışı: en kısa ≤2 geçiş cümlesini çevir, yüzey ara.
+    samples: list[str] = []
+    sample_owner: list[str] = []
+    by_id = dict(zip(block_ids, texts))
+    for term in chosen:
+        if term.term not in standalone:
+            continue
+        own = sorted(
+            ((len(by_id.get(b, "")), b) for b in term.block_ids if by_id.get(b)),
+            key=lambda p: p[0],
+        )
+        for _, bid in own[:2]:
+            samples.append(by_id[bid])
+            sample_owner.append(term.term)
+    sample_tr: dict[str, list[str]] = {}
+    if samples:
+        try:
+            rendered_samples = translator.translate_batch(samples)
+        except Exception as exc:
+            logger.warning(f"Terim doğrulama çevirisi başarısız: {exc}")
+            rendered_samples = []
+        for owner, tr in zip(sample_owner, rendered_samples):
+            sample_tr.setdefault(owner, []).append(tr or "")
+
+    mapping: dict[str, str] = {}
+    for term, target in standalone.items():
+        checks = sample_tr.get(term, [])
+        if not checks:
+            mapping[term] = target
+            continue
+        meta = ProtectedTermMeta(
+            sentinel="", source_original=term, target_base=target,
+            is_approved=True, proper_name=False,
+        )
+        surfaces = _target_surface_forms(meta)
+        ok = [
+            any(
+                re.search(r"(?<!\w)" + re.escape(s) + r"(?!\w)", tr, re.IGNORECASE)
+                for s in surfaces
+            )
+            for tr in checks
+        ]
+        if all(ok):
+            mapping[term] = target
+        else:
+            logger.warning(
+                f"Terim kilidi reddedildi ({term}): bağımsız hedef {target!r} "
+                f"geçiş cümlelerinde yok (anlam uyuşmazlığı)."
             )
     logger.info(f"Terim kilidi: {len(mapping)}/{len(chosen)} terim kilitlendi.")
     return mapping

@@ -572,7 +572,9 @@ class ChapterAnalyzer:
                     _term_texts = [eligible_block_text[b.id] for b in translation_eligible_blocks]
                     _term_ids = [b.id for b in translation_eligible_blocks]
                     _terms = extract_repeated_terms(_term_texts, _term_ids)
-                    _mapping = resolve_chapter_glossary(translator, _terms)
+                    _mapping = resolve_chapter_glossary(
+                        translator, _terms, texts=_term_texts, block_ids=_term_ids
+                    )
                     glossary_list = glossary_entries(_mapping)
                     write_glossary_json(
                         Path(output_path) / "analysis" / "glossary.json",
