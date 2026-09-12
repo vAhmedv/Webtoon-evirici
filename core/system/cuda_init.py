@@ -73,22 +73,38 @@ def find_cuda_dll_directories() -> List[str]:
     return sorted(list(found_dirs))
 
 
-def _ensure_ort_capi_dlls(dll_dirs: List[str]) -> None:
+def _find_site_packages_for(path: Path) -> Path | None:
+    """Verilen yolun altındaki site-packages/dist-packages kökünü bul."""
+    resolved = path.resolve()
+    for parent in [resolved, *resolved.parents]:
+        name = parent.name.lower()
+        if name in ("site-packages", "dist-packages"):
+            return parent
+    return None
+
+
+def _ensure_ort_capi_dlls(dll_dirs: List[str], allow_copy: bool = False) -> None:
     """Eğer Windows dinamik yükleyicisi DLL'leri yine de çözümleyemezse,
     eksik olan kritik CUDA/cuDNN DLL'lerini onnxruntime/capi dizinine bağlar/kopyalar.
+
+    Varsayılan kapalıdır (venv mutasyonu yapmaz); yalnızca
+    ``WEBTOON_ALLOW_ORT_DLL_COPY=1`` veya ``allow_copy=True`` ile opt-in.
     """
     if sys.platform != "win32":
         return
+    if not allow_copy and os.environ.get("WEBTOON_ALLOW_ORT_DLL_COPY", "0") != "1":
+        logger.debug("ORT capi DLL copy skipped (opt-in required).")
+        return
 
-    # onnxruntime/capi dizinini bul
+    # onnxruntime/capi dizinini bul (kırılgan parents[2] yerine site-packages çöz)
     ort_capi_dir: Path | None = None
     for d in dll_dirs:
-        # parent site-packages'ı kontrol et
-        parent_sp = Path(d).resolve().parents[2]  # nvidia/pkg/bin -> site-packages
-        cand = parent_sp / "onnxruntime" / "capi"
-        if cand.is_dir():
-            ort_capi_dir = cand
-            break
+        sp = _find_site_packages_for(Path(d))
+        if sp is not None:
+            cand = sp / "onnxruntime" / "capi"
+            if cand.is_dir():
+                ort_capi_dir = cand
+                break
 
     if ort_capi_dir is None:
         for p in sys.path:
