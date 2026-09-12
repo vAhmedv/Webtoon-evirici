@@ -5,12 +5,13 @@ from core.translation.chapter_glossary import (
     _cluster_key,
     _diff_spans,
     _mask_term_occurrences,
+    _standalone_matches_family,
     extract_observed_terms,
     extract_repeated_terms,
     glossary_entries,
     resolve_chapter_glossary,
     vote_rejected_terms,
-    vote_term_rendering,
+    vote_winning_family,
     write_glossary_json,
 )
 
@@ -162,21 +163,21 @@ def test_title_case_long_words_observed_not_locked() -> None:
 def test_resolve_single_batch_call_and_empty_safe() -> None:
     stub = _StubTranslator({"CRAFTER": "Zanaatkar"})
     terms = [ChapterTerm("CRAFTER", 5, [1, 2]), ChapterTerm("GUILD", 3, [2])]
-    mapping = resolve_chapter_glossary(stub, terms)
+    mapping, _methods = resolve_chapter_glossary(stub, terms)
     assert mapping == {"CRAFTER": "Zanaatkar", "GUILD": "TR-GUILD"}
     assert len(stub.calls) == 1
     assert stub.calls[0] == ["CRAFTER", "GUILD"]
 
 
 def test_resolve_failure_returns_empty() -> None:
-    mapping = resolve_chapter_glossary(_StubTranslator(fail=True), [ChapterTerm("X", 9)])
+    mapping, _methods = resolve_chapter_glossary(_StubTranslator(fail=True), [ChapterTerm("X", 9)])
     assert mapping == {}
 
 
 def test_broken_targets_rejected() -> None:
     stub = _StubTranslator({"A": "", "B": "x", "C": "bu bir açıklama cümlesi olarak döndü", "D": "?!...", "E": "Zanaatkar"})
     terms = [ChapterTerm(k, 5) for k in "ABCDE"]
-    mapping = resolve_chapter_glossary(stub, terms)
+    mapping, _methods = resolve_chapter_glossary(stub, terms)
     assert mapping == {"E": "Zanaatkar"}
 
 
@@ -198,7 +199,7 @@ def test_consistency_closure_locks_matching_sense() -> None:
 
     terms = [ChapterTerm("CRAFTER", 3, [1, 2])]
     texts = ["CRAFTER", "I AM A CRAFTER BY TRADE"]
-    mapping = resolve_chapter_glossary(_CtxStub(), terms, texts=texts, block_ids=[1, 2])
+    mapping, _methods = resolve_chapter_glossary(_CtxStub(), terms, texts=texts, block_ids=[1, 2])
     assert mapping == {"CRAFTER": "Üretici"}
 
 
@@ -220,13 +221,13 @@ def test_consistency_closure_rejects_mismatch() -> None:
 
     terms = [ChapterTerm("GUILD", 3, [1, 2])]
     texts = ["GUILD", "ARE YOU FROM SOME FAMOUS GUILD"]
-    mapping = resolve_chapter_glossary(_CtxStub(), terms, texts=texts, block_ids=[1, 2])
+    mapping, _methods = resolve_chapter_glossary(_CtxStub(), terms, texts=texts, block_ids=[1, 2])
     assert mapping == {}
 
 
 def test_resolve_empty_terms_no_call() -> None:
     stub = _StubTranslator()
-    assert resolve_chapter_glossary(stub, []) == {}
+    assert resolve_chapter_glossary(stub, []) == ({}, {})
     assert stub.calls == []
 
 
@@ -296,23 +297,32 @@ class _VoteStub:
         return out
 
 
-def test_vote_term_rendering_majority() -> None:
+def test_standalone_matches_family() -> None:
+    assert _standalone_matches_family("Dünya", ["dünyada", "dünyasında"])
+    assert _standalone_matches_family("Üretici", ["Üreticiyim", "Üretici"])
+    assert not _standalone_matches_family("Üretici", ["CRAFTER", "crafter"])
+    assert not _standalone_matches_family("Lig", ["lonca", "loncadan"])
+    assert not _standalone_matches_family("", ["x"])
+
+
+def test_vote_winning_family_majority() -> None:
     stub = _VoteStub()
-    canonical = vote_term_rendering(
+    family = vote_winning_family(
         stub, "CRAFTER", ["I AM A CRAFTER", "THE CRAFTER CAME", "ASK THE CRAFTER"]
     )
-    assert canonical == "Üretici"
+    assert len(family) == 3
+    assert _standalone_matches_family("Üretici", family)
     assert len(stub.calls) == 2  # dolu + maskeli
 
 
-def test_vote_term_rendering_no_consensus() -> None:
+def test_vote_winning_family_no_consensus() -> None:
     class _NoiseStub:
         def translate_batch(self, texts: list[str]) -> list[str]:
             return [f"YANIT {i} FARKLI KELİMELER" for i, _ in enumerate(texts)]
 
     assert (
-        vote_term_rendering(_NoiseStub(), "XQZT", ["A XQZT B", "C XQZT D", "E XQZT F"])
-        is None
+        vote_winning_family(_NoiseStub(), "XQZT", ["A XQZT B", "C XQZT D", "E XQZT F"])
+        == []
     )
 
 
@@ -329,5 +339,21 @@ def test_vote_rejected_terms_skips_locked_and_rare() -> None:
         {"LOCKED": "Kilitli"},
         ["I AM A CRAFTER", "THE CRAFTER CAME", "ASK THE CRAFTER", "x", "y"],
         [1, 2, 3, 4, 5],
+        standalone={"CRAFTER": "Üretici"},
     )
     assert winners == {"CRAFTER": "Üretici"}
+
+
+def test_vote_rejected_mismatch_no_lock() -> None:
+    """Aile bağımsız hedefle uyuşmazsa kilit yok (yankı-ailesi)."""
+    stub = _VoteStub()
+    terms = [ChapterTerm("CRAFTER", 5, [1, 2, 3])]
+    winners = vote_rejected_terms(
+        stub,
+        terms,
+        {},
+        ["CRAFTER", "CRAFTER.", "CRAFTER!"],
+        [1, 2, 3],
+        standalone={"CRAFTER": "Üretici"},
+    )
+    assert winners == {}

@@ -566,26 +566,15 @@ class ChapterAnalyzer:
                         extract_repeated_terms,
                         glossary_entries,
                         resolve_chapter_glossary,
-                        vote_rejected_terms,
                         write_glossary_json,
                     )
 
                     _term_texts = [eligible_block_text[b.id] for b in translation_eligible_blocks]
                     _term_ids = [b.id for b in translation_eligible_blocks]
                     _terms = extract_repeated_terms(_term_texts, _term_ids)
-                    _mapping = resolve_chapter_glossary(
+                    _mapping, _methods = resolve_chapter_glossary(
                         translator, _terms, texts=_term_texts, block_ids=_term_ids
                     )
-                    _methods = {src.upper(): "standalone" for src in _mapping}
-                    # Oy-birliği: kapanışta reddedilen sık terimler için
-                    # modelin kendi bağlamsal çoğunluğu aranır.
-                    _voted = vote_rejected_terms(
-                        translator, _terms, _mapping, _term_texts, _term_ids
-                    )
-                    for _src, _tgt in _voted.items():
-                        if _src not in _mapping:
-                            _mapping[_src] = _tgt
-                            _methods[_src.upper()] = "vote"
                     glossary_list = glossary_entries(_mapping)
                     write_glossary_json(
                         Path(output_path) / "analysis" / "glossary.json",
