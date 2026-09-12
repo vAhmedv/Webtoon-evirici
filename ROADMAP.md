@@ -146,3 +146,9 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - Sorun: tutarlılık kapanışı `CRAFTER`ı kilitleyemedi (bağımsız `ÜRETİCİ` cümlelerde yoktu) ama cümleler kendi arasında tutarlıydı (`USTA` ailesi) — kapanış fazla katıydı.
 - Çözüm: masked-diff oylaması — geçiş cümleleri maskeli/maskesiz çevrilir, fark aralıkları gövde-ailesine kümelenir (≥5 harf ortak önek), ≥%50 + ≥2 uzlaşıda en kısa üye kilitlenir. Maliyet tavanlı (terim başına ≤8 geçiş, ≤5 terim).
 - Reddedilen tasarım (kanıtlı): anlam-ipucu promptu Hy-MT2'de çalışmadı (talimatı çevirmeye kalktı) — silindi.
+
+## FAZ 3-HASAT (2026-09-12, mini-kanıtlı)
+
+- Kök neden bulundu: parti-bağlam deterministik değil — aynı cümle farklı partide farklı çevriliyor. Maskeli yeniden-çeviri o yüzden çöp üretti. Çare: 1. tur TR'lerde yüzey oylaması (ek parti yok) + kilitlenen terim geçen bloklara 2. tur.
+- Mini-kanıt: `CRAFTER`→`USTA` (hasat) — 4 blokta tek aile (`USTA/USTA/USTA/USTAlar`); `WORLD`→`DÜNYA`, `LEVEL`→`SEVİYE` hasat kilitli. Yankı-ailesi dondurma yasağı + `kara/karar` ayrımı testli.
+- Bilinen küçük izler (Faz 3 cila backlogu): taban-büyük-harf artığı (`DÜNYAda`/`DÜNYAinde` — ek doğru, kasa ham), nadir çift-çoğul (`USTAlar"’ler` — model sentinel sonrasına ek yapıştırmış).
