@@ -1,0 +1,10 @@
+# Opsiyonel: OCR bağımlılıkları
+# Kurulum: pip install -r requirements-ocr.txt
+# NOT: PaddleOCR kurulumu PyTorch ortamını etkileyebilir; önce yedek alın.
+# PP-OCRv6 / en_PP-OCRv5 adayı için:
+paddleocr>=3.0
+# Hızlı ONNX alternatifi için:
+rapidocr-onnxruntime>=1.3
+# PaddleOCR-VL-1.6 (Transformers native) için:
+transformers>=4.40
+accelerate>=0.30

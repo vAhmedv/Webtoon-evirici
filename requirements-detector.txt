@@ -1,0 +1,8 @@
+# Opsiyonel: Detector bağımlılıkları (üretim detector'ları için)
+# Kurulum: pip install -r requirements-detector.txt
+# NOT: .venv'i bozmamak için yalnızca ihtiyaç varsa kurun.
+ultralytics>=8.0
+onnxruntime-gpu>=1.18
+opencv-contrib-python==4.10.0.84
+pyclipper>=1.3
+shapely>=2.0
