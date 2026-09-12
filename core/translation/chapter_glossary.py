@@ -211,13 +211,35 @@ def _is_usable_target(target: str) -> bool:
     return True
 
 
+def _surface_hits_in_texts(target: str, trs: Sequence[str]) -> list[str | None]:
+    """Her TR için bağımsız hedefin eşleşen yüzeyini (veya None) döndürür."""
+    from core.translation.protection import ProtectedTermMeta, _target_surface_forms
+
+    meta = ProtectedTermMeta(
+        sentinel="", source_original="", target_base=target,
+        is_approved=True, proper_name=False,
+    )
+    surfaces = _target_surface_forms(meta)
+    return [
+        next(
+            (
+                s
+                for s in surfaces
+                if re.search(r"(?<!\w)" + re.escape(s) + r"(?!\w)", tr, re.IGNORECASE)
+            ),
+            None,
+        )
+        for tr in (trs or [])
+    ]
+
+
 def resolve_chapter_glossary(
     translator: TermTranslator,
     terms: Sequence[ChapterTerm],
     max_terms: int = MAX_LOCKED_TERMS_DEFAULT,
     texts: Sequence[str] | None = None,
     block_ids: Sequence[int] | None = None,
-) -> tuple[dict[str, str], dict[str, str]]:
+) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
     """Benzersiz terimleri çözüp tutarlılık kapanışıyla kilitler.
 
     1. Adım (ucuz): her terim tek başına çevrilir.
@@ -225,21 +247,23 @@ def resolve_chapter_glossary(
        geçiş cümlesi çevrilir; bağımsız hedef bu cümlelerde çekimli
        haliyle geçmiyorsa anlam uyuşmazlığı vardır ve kilit REDDEDİLİR
        (`GUILD`→`LİG` cümlelerde `LONCA` ise kilit yok = eski davranış).
+       Reddedilenler döndürülür — ana-geçiş sonrası hasat (`harvest_…`)
+       için girdi olurlar.
     Modelin kendi bağlamsal tutarlılığı kapı bekçisidir; harici bilgi yok.
 
-    Dönüş: (mapping, methods). methods kilit yöntemini verir
-    (`standalone` / `vote`) — `glossary.json` denetimi için.
+    Dönüş: (mapping, methods, rejected). methods kilit yöntemini verir
+    (`standalone`) — `glossary.json` denetimi için.
     """
     from core.translation.protection import ProtectedTermMeta, _target_surface_forms
 
     chosen = list(terms)[:max(0, max_terms)]
     if not chosen:
-        return {}, {}
+        return {}, {}, {}
     try:
         rendered = translator.translate_batch([t.term for t in chosen])
     except Exception as exc:
         logger.warning(f"Terim kilidi çözümlemesi başarısız, glossary boş: {exc}")
-        return {}, {}
+        return {}, {}, {}
     standalone: dict[str, str] = {}
     for term, target in zip(chosen, rendered):
         target = (target or "").strip()
@@ -251,7 +275,7 @@ def resolve_chapter_glossary(
             )
     if texts is None or block_ids is None:
         logger.info(f"Terim kilidi: {len(standalone)}/{len(chosen)} (doğrulamasız).")
-        return standalone, {s.upper(): "standalone" for s in standalone}
+        return standalone, {s.upper(): "standalone" for s in standalone}, {}
 
     # Tutarlılık kapanışı: en kısa ≤2 geçiş cümlesini çevir, yüzey ara.
     samples: list[str] = []
@@ -284,22 +308,7 @@ def resolve_chapter_glossary(
         if not checks:
             mapping[term] = target
             continue
-        meta = ProtectedTermMeta(
-            sentinel="", source_original=term, target_base=target,
-            is_approved=True, proper_name=False,
-        )
-        surfaces = _target_surface_forms(meta)
-        hits = [
-            next(
-                (
-                    s
-                    for s in surfaces
-                    if re.search(r"(?<!\w)" + re.escape(s) + r"(?!\w)", tr, re.IGNORECASE)
-                ),
-                None,
-            )
-            for tr in checks
-        ]
+        hits = _surface_hits_in_texts(target, checks)
         if all(h is not None for h in hits):
             mapping[term] = target
         else:
@@ -309,26 +318,9 @@ def resolve_chapter_glossary(
                 f"geçiş cümlelerinde yok (anlam uyuşmazlığı). "
                 f"örnekler={[ (h, (tr or '')[:40]) for h, tr in zip(hits, checks) ]}"
             )
-    # Oy-birliği ikinci şans: reddedilen sık terimlerde modelin kendi
-    # bağlamsal çoğunluğu bağımsız hedefle uyuşuyorsa kilitle.
-    voted: dict[str, str] = {}
-    if rejected:
-        by_term = {t.term: t for t in chosen}
-        voted = vote_rejected_terms(
-            translator,
-            [by_term[t] for t in rejected if t in by_term],
-            mapping,
-            list(texts),
-            list(block_ids),
-            standalone=rejected,
-        )
-        for _src, _tgt in voted.items():
-            mapping[_src] = _tgt
     methods = {s.upper(): "standalone" for s in mapping}
-    for _src in voted:
-        methods[_src.upper()] = "vote"
     logger.info(f"Terim kilidi: {len(mapping)}/{len(chosen)} terim kilitlendi.")
-    return mapping, methods
+    return mapping, methods, rejected
 
 
 def glossary_entries(mapping: dict[str, str]) -> list[str]:
@@ -336,156 +328,62 @@ def glossary_entries(mapping: dict[str, str]) -> list[str]:
     return [f"{src}->{tgt}" for src, tgt in mapping.items() if src and tgt]
 
 
-# Oy-birliği oylaması eşikleri (genel; bölüm/terim ezberi yok).
-VOTE_MIN_COUNT_DEFAULT = 3
-VOTE_MAX_TERMS_DEFAULT = 5
-VOTE_MAX_OCCURRENCES_PER_TERM = 8
-VOTE_MASK_TOKEN = "___"
-VOTE_MAJORITY_RATIO = 0.5
-
-
-def _mask_term_occurrences(text: str, term: str) -> str:
-    """Terim geçişlerini `___` ile maskeler (büyük/küçük duyarsız, kelime sınırı)."""
-    return re.sub(
-        r"(?<![A-Za-z])" + re.escape(term) + r"(?![A-Za-z])",
-        VOTE_MASK_TOKEN,
-        text,
-        flags=re.IGNORECASE,
-    )
-
-
-def _diff_spans(full_tr: str, masked_tr: str) -> list[str]:
-    """Maskeli çeviride kaybolan aralıklar = terimin o cümledeki karşılığı.
-
-    Model cümleyi yeniden kurarsa diff gürültü üretir; oylama aşaması
-    uzlaşmayan gürültüyü eler (çoğunluk yoksa kilit yok).
-    """
-    from difflib import SequenceMatcher
-
-    full_toks = re.findall(r"\S+", full_tr or "")
-    masked_toks = re.findall(r"\S+", masked_tr or "")
-    if not full_toks or not masked_toks:
-        return []
-    spans: list[str] = []
-    for tag, i1, i2, _j1, _j2 in SequenceMatcher(
-        None, full_toks, masked_toks, autojunk=False
-    ).get_opcodes():
-        if tag in ("delete", "replace"):
-            chunk = " ".join(full_toks[i1:i2]).strip(" \t\"'“”‘’.,!?;:()")
-            if (
-                chunk
-                and len(chunk.split()) <= 4
-                and len(chunk) <= 40
-                and re.search(r"\w", chunk, re.UNICODE)
-            ):
-                spans.append(chunk)
-    return spans
+HARVEST_MIN_HITS_DEFAULT = 2
+HARVEST_MIN_RATIO_DEFAULT = 0.5
 
 
 def _family_norm(span: str) -> str:
-    """Aile karşılaştırma anahtarı: küçük harf, alfanümerik."""
+    """Yüzey karşılaştırma anahtarı: küçük harf, alfanümerik."""
     return re.sub(r"[^\w]", "", span.casefold())
 
 
-def _standalone_matches_family(standalone: str, family: list[str]) -> bool:
-    """Bağımsız hedef ailenin üyesi mi (önek toleranslı, test yardımcısı)?"""
-    norm = _family_norm(standalone)
-    if not norm:
-        return False
-    return any(m == norm or m.startswith(norm) for m in (_family_norm(s) for s in family))
+def harvest_confirmed_locks(
+    rejected: dict[str, str],
+    terms: Sequence[ChapterTerm],
+    block_translations: dict[int, str],
+    min_hits: int = 2,
+    min_ratio: float = 0.5,
+) -> dict[str, str]:
+    """Reddedilen terimler için ana-geçiş çevirilerinde yüzey oylaması.
 
-
-def vote_surface_hits(standalone: str, candidates: Sequence[str]) -> list[str]:
-    """Adaylardan bağımsız hedefin çekimli yüzeylerine uyanları döndürür.
-
-    Önek-kümeleme yerine morfoloji motoru kullanılır: `usta/ustalar`
-    aynı sözcük (`USTA` yüzeyleri), `kara/karar` farklı sözcüklerdir.
+    Maskeli yeniden-çeviri YOK (parti-bağlam deterministik değil — aynı
+    cümle farklı partide farklı çevriliyor). Bunun yerine 1. tur TR'lerde
+    bağımsız hedefin çekimli yüzeyleri aranır: model zaten tutarlıysa kilit,
+    değilse kilit yok. Ek LLM maliyeti sıfır, deterministik.
     """
     from core.translation.protection import ProtectedTermMeta, _target_surface_forms
 
-    meta = ProtectedTermMeta(
-        sentinel="", source_original="", target_base=standalone,
-        is_approved=True, proper_name=False,
-    )
-    surfaces = {_family_norm(s) for s in _target_surface_forms(meta)}
-    return [c for c in candidates if _family_norm(c) in surfaces]
-
-
-def collect_vote_candidates(
-    translator: TermTranslator,
-    term: str,
-    occurrence_texts: Sequence[str],
-) -> list[str]:
-    """Maskeli/maskesiz çiftlerin fark aralıkları (ham adaylar)."""
-    sources = [t for t in occurrence_texts if t and t.strip()]
-    if not sources:
-        return []
-    masked = [_mask_term_occurrences(t, term) for t in sources]
-    try:
-        tr_full = translator.translate_batch(list(sources))
-        tr_masked = translator.translate_batch(masked)
-    except Exception as exc:
-        logger.warning(f"Oylama çevirisi başarısız ({term}): {exc}")
-        return []
-    candidates: list[str] = []
-    for full, mask in zip(tr_full, tr_masked):
-        candidates.extend(_diff_spans(full or "", mask or ""))
-    return candidates
-
-
-def vote_rejected_terms(
-    translator: TermTranslator,
-    terms: Sequence[ChapterTerm],
-    locked: dict[str, str],
-    texts: Sequence[str],
-    block_ids: Sequence[int],
-    min_count: int = VOTE_MIN_COUNT_DEFAULT,
-    max_terms: int = VOTE_MAX_TERMS_DEFAULT,
-    standalone: dict[str, str] | None = None,
-) -> dict[str, str]:
-    """Tutarlılık kapanışında reddedilen terimler için oy-birliği kilidi.
-
-    Kilit hedefi HER ZAMAN bağımsız çözümdür (taban biçim, morfoloji-güvenli);
-    oylama yalnızca ailenin bağımsız hedefle uyuştuğunu doğrular. Uyuşmazsa
-    (yankı-ailesi, yanlış anlam) kilit yok — eski davranış korunur.
-    Yalnız `min_count` üzeri ve kilitsiz terimler (tavanlı).
-    """
-    by_id = dict(zip(block_ids, texts))
-    solo = standalone or {}
+    by_id = {t.term: t for t in terms}
     winners: dict[str, str] = {}
-    considered = 0
-    for term in terms:
-        if term.term in locked or term.count < min_count:
-            if term.term not in locked and term.count >= MIN_OCCURRENCES_DEFAULT:
-                logger.info(f"Oylama atlandı (eşik altı): {term.term} x{term.count}")
+    for term, target in rejected.items():
+        info = by_id.get(term)
+        if info is None:
             continue
-        if considered >= max_terms:
-            break
-        considered += 1
-        occ = [
-            by_id[bid]
-            for bid in term.block_ids
-            if by_id.get(bid)
-            and re.search(
-                r"(?<![A-Za-z])" + re.escape(term.term) + r"(?![A-Za-z])",
-                by_id[bid],
-                re.IGNORECASE,
-            )
-        ][:VOTE_MAX_OCCURRENCES_PER_TERM]
-        if len(occ) < 2:
-            continue
-        candidates = collect_vote_candidates(translator, term.term, occ)
-        base = solo.get(term.term, "")
-        hits = vote_surface_hits(base, candidates) if base else []
-        logger.info(
-            f"Oylama {term.term}: {len(candidates)} aday "
-            f"{[c[:24] for c in candidates[:8]]} -> yüzey uyumu {len(hits)}/{len(candidates)}"
+        meta = ProtectedTermMeta(
+            sentinel="", source_original=term, target_base=target,
+            is_approved=True, proper_name=False,
         )
-        if base and len(hits) >= 2 and len(hits) / max(1, len(candidates)) >= VOTE_MAJORITY_RATIO:
-            winners[term.term] = base
-            logger.info(f"Oylama kilidi: {term.term} -> {base}")
+        surfaces = {_family_norm(s) for s in _target_surface_forms(meta)}
+        trs = [
+            block_translations[bid]
+            for bid in info.block_ids
+            if block_translations.get(bid)
+        ]
+        if not trs:
+            continue
+        hits = sum(
+            1
+            for tr in trs
+            if any(
+                re.search(r"(?<!\w)" + re.escape(s) + r"(?!\w)", tr, re.IGNORECASE)
+                for s in surfaces
+            )
+        )
+        if hits >= min_hits and hits / len(trs) >= min_ratio:
+            winners[term] = target
+            logger.info(f"Hasat kilidi: {term} -> {target} ({hits}/{len(trs)})")
         else:
-            logger.info(f"Oylama kilitsiz bıraktı: {term.term} (uzlaşı yok)")
+            logger.info(f"Hasat kilitsiz bıraktı: {term} ({hits}/{len(trs)})")
     return winners
 
 

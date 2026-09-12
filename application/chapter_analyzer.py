@@ -9,6 +9,7 @@ import gc
 import io
 import json
 import os
+import re
 import time
 from pathlib import Path
 from typing import Any, Callable, Sequence
@@ -560,11 +561,15 @@ class ChapterAnalyzer:
                 # sentinel korumasıyla her blokta aynı karşılığı basar.
                 # Hata = boş glossary ile eski davranış (üretim asla kırılmaz).
                 glossary_list: list[str] = []
+                _harvest_terms: list = []
+                _harvest_rejected: dict[str, str] = {}
+                _harvest_methods: dict[str, str] = {}
                 try:
                     from core.translation.chapter_glossary import (
                         extract_observed_terms,
                         extract_repeated_terms,
                         glossary_entries,
+                        harvest_confirmed_locks,
                         resolve_chapter_glossary,
                         write_glossary_json,
                     )
@@ -572,17 +577,13 @@ class ChapterAnalyzer:
                     _term_texts = [eligible_block_text[b.id] for b in translation_eligible_blocks]
                     _term_ids = [b.id for b in translation_eligible_blocks]
                     _terms = extract_repeated_terms(_term_texts, _term_ids)
-                    _mapping, _methods = resolve_chapter_glossary(
+                    _harvest_terms = _terms
+                    _mapping, _methods, _rejected = resolve_chapter_glossary(
                         translator, _terms, texts=_term_texts, block_ids=_term_ids
                     )
+                    _harvest_rejected = _rejected
+                    _harvest_methods = _methods
                     glossary_list = glossary_entries(_mapping)
-                    write_glossary_json(
-                        Path(output_path) / "analysis" / "glossary.json",
-                        _mapping,
-                        _terms,
-                        extract_observed_terms(_term_texts, _term_ids),
-                        _methods,
-                    )
                 except Exception as exc:
                     logger.warning(f"Terim kilidi atlandı, boş glossary: {exc}")
                 items = [
@@ -593,6 +594,64 @@ class ChapterAnalyzer:
                 trans_out = translator.translate(trans_inp)
 
                 out_map = {item.region_id: item.translation for item in trans_out.results if item.translation}
+
+                # Faz 3 hasat (2. tur): reddedilen terimler 1. tur TR'lerde
+                # yüzey oylamasıyla doğrulanırsa kilitlenir; SADECE kilitli
+                # terim geçen bloklar glossary ile yeniden çevrilir.
+                try:
+                    from core.translation.chapter_glossary import harvest_confirmed_locks as _harvest
+
+                    _new_locks = _harvest(_harvest_rejected, _harvest_terms, out_map)
+                    if _new_locks:
+                        _harvest_methods.update(
+                            {s.upper(): "harvest" for s in _new_locks}
+                        )
+                        _mapping.update(_new_locks)
+                        glossary_list = glossary_entries(_mapping)
+                        _affected = [
+                            b for b in translation_eligible_blocks
+                            if any(
+                                re.search(
+                                    r"(?<![A-Za-z])" + re.escape(_t) + r"(?![A-Za-z])",
+                                    eligible_block_text[b.id],
+                                    re.IGNORECASE,
+                                )
+                                for _t in _new_locks
+                            )
+                        ]
+                        if _affected:
+                            _progress(
+                                f"Re-translating {len(_affected)} term-locked blocks"
+                            )
+                            _re_items = [
+                                TranslationItem(
+                                    region_id=b.id, source=eligible_block_text[b.id]
+                                )
+                                for b in _affected
+                            ]
+                            _re_out = translator.translate(
+                                TranslationInput(items=_re_items, glossary=glossary_list)
+                            )
+                            for _ri in _re_out.results:
+                                if _ri.translation:
+                                    out_map[_ri.region_id] = _ri.translation
+                except Exception as exc:
+                    logger.warning(f"Hasat turu atlandı: {exc}")
+
+                try:
+                    from core.translation.chapter_glossary import (
+                        extract_observed_terms as _obs,
+                    )
+
+                    write_glossary_json(
+                        Path(output_path) / "analysis" / "glossary.json",
+                        _mapping,
+                        _harvest_terms,
+                        _obs(_term_texts, _term_ids),
+                        _harvest_methods,
+                    )
+                except Exception as exc:
+                    logger.warning(f"glossary.json yazılamadı: {exc}")
 
                 for b in translation_eligible_blocks:
                     if b.id in out_map:
