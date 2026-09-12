@@ -419,8 +419,18 @@ class Inpainter:
         if not np.any(refined):
             return mask
         src = np.ascontiguousarray(mask.source).astype(np.int16)
-        bg = np.asarray(mask.background_color, dtype=np.int16).reshape(1, 1, 3)
-        bg_like = np.max(np.abs(src - bg), axis=-1) < SECOND_CHANCE_BG_TOLERANCE
+        # Zemin rengi YAKIN-ALAN medyanıdır (maske çevresi 7px halka):
+        # uzak-art ortalaması iki-modlu dağılımda griye kayar ve hiçbir
+        # renkle eşleşmez; yakın-alan glifin gerçek zeminini verir.
+        # (Maske background_color'ı balonsuz kutularda glif piksellerinden
+        # zehirlenebilir.)
+        near_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
+        halo = (cv2.dilate(refined.astype(np.uint8), near_kernel) > 0) & (~refined)
+        if int(np.count_nonzero(halo)) >= 24:
+            bg = np.median(src[halo].reshape(-1, 3).astype(np.float32), axis=0)
+        else:
+            bg = np.asarray(mask.background_color, dtype=np.float32)
+        bg_like = np.max(np.abs(src - bg.reshape(1, 1, 3)), axis=-1) < SECOND_CHANCE_BG_TOLERANCE
         seed_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
         seeds = (cv2.dilate(refined.astype(np.uint8), seed_kernel) > 0) & bg_like
         if not np.any(seeds):

@@ -232,10 +232,21 @@ def test_flood_fills_white_region() -> None:
     assert bool(np.all(grown.refined[50:60, 60:100] > 0))
 
 
-def test_flood_area_cap_trips_on_blank() -> None:
-    """Tamamen beyaz crop'ta tavan devreye girer (komşu balon koruması)."""
+def test_flood_ignores_poisoned_background_color() -> None:
+    """background_color koyu zehirliyse bile çevre medyanı kazanır (DAMMIT)."""
     from core.imaging.inpainter import Inpainter
 
-    tm = _mask(120, 160, 60, 50, 100, 70)
+    src = np.full((120, 160, 3), 255, dtype=np.uint8)
+    tm = TextMask(
+        crop_bbox=(0, 0, 160, 120),
+        source=src,
+        raw=np.zeros((120, 160), dtype=np.uint8),
+        refined=np.zeros((120, 160), dtype=np.uint8),
+        background_color=(10, 10, 10),  # zehirli: glif pikselinden gelmiş
+        is_uniform_background=False,
+    )
+    seed = np.zeros((120, 160), dtype=np.uint8)
+    seed[40:80, 50:110] = 255
+    object.__setattr__(tm, "refined", seed)
     grown = Inpainter._expand_mask_in_bubble(tm)
-    assert np.array_equal(grown.refined, tm.refined)
+    assert int(np.count_nonzero(grown.refined)) > int(np.count_nonzero(seed))
