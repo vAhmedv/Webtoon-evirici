@@ -38,6 +38,53 @@ class TextBlock:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+def _sort_reading_order(regions: list[Region]) -> list[Region]:
+    if len(regions) <= 1:
+        return list(regions)
+    # Satır toleransı: medyan yükseklik yarısı
+    heights = sorted(r.global_bbox.height for r in regions if r.global_bbox.height > 0)
+    row_tol = max(4, (heights[len(heights) // 2] // 2)) if heights else 8
+    rows: list[list[Region]] = []
+    for r in sorted(regions, key=lambda x: x.global_bbox.y1):
+        placed = False
+        for row in rows:
+            # Satırın ilk üyesiyle dikey örtüşme varsa aynı satır
+            y_overlap = min(r.global_bbox.y2, row[0].global_bbox.y2) - max(r.global_bbox.y1, row[0].global_bbox.y1)
+            if y_overlap >= -row_tol:
+                row.append(r)
+                placed = True
+                break
+        if not placed:
+            rows.append([r])
+    rows.sort(key=lambda row: min(r.global_bbox.y1 for r in row))
+    ordered: list[Region] = []
+    for row in rows:
+        row.sort(key=lambda r: r.global_bbox.x1)
+        ordered.extend(row)
+    return ordered
+
+
+def _assign_page(region: Region, coords: GlobalCoordinateSystem) -> int:
+    """Bölgeyi çoğunluk örtüşmesine göre sayfaya ata (center-point yerine)."""
+    y1, y2 = region.global_bbox.y1, region.global_bbox.y2
+    if y2 <= y1:
+        page_idx, _ = coords.global_to_page((y1 + y2) // 2)
+        return page_idx
+    best_idx = -1
+    best_overlap = -1
+    for page in coords.pages:
+        p_start = page.y_offset
+        p_end = page.y_offset + page.height
+        overlap = min(y2, p_end) - max(y1, p_start)
+        if overlap > best_overlap:
+            best_overlap = overlap
+            best_idx = page.index
+    if best_idx >= 0:
+        return best_idx
+    page_idx, _ = coords.global_to_page((y1 + y2) // 2)
+    return page_idx
+
+
 def _compute_merged_bbox(boxes: Sequence[BBox]) -> BBox:
     """Birden fazla BBox'ı kapsayan birleşik BBox üretir."""
     x1 = min(b.x1 for b in boxes)
@@ -213,21 +260,24 @@ def group_text_blocks(
     if not candidates:
         return []
 
-    # Sayfalara göre grupla
+    # Sayfalara göre grupla (çoğunluk örtüşmesi; sınır-ötesi balon bölünmez)
     page_buckets: dict[int, list[Region]] = {}
     for r in candidates:
-        center_y = (r.global_bbox.y1 + r.global_bbox.y2) // 2
-        page_idx, _ = coords.global_to_page(center_y)
+        try:
+            page_idx = _assign_page(r, coords)
+        except Exception:
+            center_y = (r.global_bbox.y1 + r.global_bbox.y2) // 2
+            try:
+                page_idx, _ = coords.global_to_page(center_y)
+            except Exception:
+                continue
         page_buckets.setdefault(page_idx, []).append(r)
 
     blocks: list[TextBlock] = []
     block_id_counter = 1
 
     for page_idx in sorted(page_buckets.keys()):
-        page_regions = page_buckets[page_idx]
-        
-        # Üstten alta sırala
-        page_regions.sort(key=lambda r: (r.global_bbox.y1, r.global_bbox.x1))
+        page_regions = _sort_reading_order(page_buckets[page_idx])
 
         # Adjacency graph / connected components
         n = len(page_regions)
@@ -267,8 +317,9 @@ def group_text_blocks(
             components.setdefault(root, []).append(page_regions[idx])
 
         for comp_regions in components.values():
-            # Reading order sıralama (İngilizce webtoon: top-to-bottom primary, left-to-right secondary)
-            comp_regions.sort(key=lambda r: (r.global_bbox.y1, r.global_bbox.x1))
+            # Reading order: satır-toleranslı (yan-yana balonda soldan sağa)
+            ordered = _sort_reading_order(list(comp_regions))
+            comp_regions = ordered
 
             member_ids = tuple(r.id for r in comp_regions)
             merged_box = _compute_merged_bbox([r.global_bbox for r in comp_regions])

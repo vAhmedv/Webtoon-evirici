@@ -299,7 +299,13 @@ class ChapterAnalyzer:
 
         if primary_ocr is not None:
             _progress("Loading Primary OCR")
-            cropper = RegionCropper(pages, coords, padding=20)
+            cropper = RegionCropper(
+                pages,
+                coords,
+                padding=cfg.ocr.crop_padding,
+                upscale_enabled=True,
+                upscale_target_h=36,
+            )
             ocr_regions: list[Region] = []
             try:
                 primary_ocr.load()
@@ -489,7 +495,11 @@ class ChapterAnalyzer:
         # 6. Multi-Feature Classification & Generic Watermark Filtering
         from core.detection.classification import classify_regions
         from core.detection.text_block import group_text_blocks, TextBlock
-        from core.detection.translation_eligibility import evaluate_translation_eligibility
+        from core.detection.translation_eligibility import (
+            eligible_members,
+            eligible_source_text,
+            evaluate_translation_eligibility,
+        )
 
         regions = classify_regions(regions, coords)
 
@@ -503,6 +513,16 @@ class ChapterAnalyzer:
             block for block in text_blocks
             if translation_eligibility[block.id].eligible
         ]
+        # Üye-bazlı filtre: kısmi bloklarda yalnızca uygun üyeler çevrilir,
+        # SFX/REVIEW üyeler orijinal haliyle korunur.
+        eligible_member_ids: dict[int, set[int]] = {
+            block.id: {m.id for m in eligible_members(block)}
+            for block in translation_eligible_blocks
+        }
+        eligible_block_text: dict[int, str] = {
+            block.id: eligible_source_text(block) or block.source_text
+            for block in translation_eligible_blocks
+        }
         block_map: dict[int, TextBlock] = {}
         region_to_block: dict[int, int] = {}
         for b in text_blocks:
@@ -536,7 +556,7 @@ class ChapterAnalyzer:
             try:
                 translator.load()
                 items = [
-                    TranslationItem(region_id=b.id, source=b.source_text)
+                    TranslationItem(region_id=b.id, source=eligible_block_text[b.id])
                     for b in translation_eligible_blocks
                 ]
                 trans_inp = TranslationInput(items=items)
@@ -551,7 +571,7 @@ class ChapterAnalyzer:
                 updated_regions: list[Region] = []
                 for r in regions:
                     b_id = region_to_block.get(r.id)
-                    if b_id and b_id in out_map:
+                    if b_id and b_id in out_map and r.id in eligible_member_ids.get(b_id, set()):
                         tr_text = out_map[b_id]
                         meta = dict(r.metadata)
                         if "text_block" in meta:
@@ -902,7 +922,13 @@ class ChapterAnalyzer:
                 ocr_provider = None
 
             if ocr_provider is not None:
-                cropper = RegionCropper(pages, coords, padding=20)
+                cropper = RegionCropper(
+                    pages,
+                    coords,
+                    padding=cfg.ocr.crop_padding,
+                    upscale_enabled=True,
+                    upscale_target_h=36,
+                )
                 ocr_start = time.time()
                 ocr_regions: list[Region] = []
                 for idx, region in enumerate(regions, start=1):

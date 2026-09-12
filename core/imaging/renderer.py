@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 from typing import Any, Sequence
 from PIL import Image, ImageDraw, ImageFont, ImageStat
+from loguru import logger
 
 from core.detection import Region, RegionStatus, RegionType
 
@@ -19,6 +20,7 @@ from core.detection import Region, RegionStatus, RegionType
 FONTS_DIR = Path(__file__).resolve().parents[2] / "assets" / "fonts"
 
 FONT_CANDIDATES = [
+    # Windows
     r"C:\Windows\Fonts\comicbd.ttf",
     r"C:\Windows\Fonts\comic.ttf",
     r"C:\Windows\Fonts\segoeuib.ttf",
@@ -26,6 +28,11 @@ FONT_CANDIDATES = [
     r"C:\Windows\Fonts\segoeui.ttf",
     r"C:\Windows\Fonts\arial.ttf",
     r"C:\Windows\Fonts\tahoma.ttf",
+    # Linux (çoğu distroda DejaVu/Liberation varsayılan gelir)
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
 ]
 
 
@@ -47,6 +54,18 @@ def _get_font(font_size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
                 return ImageFont.truetype(font_path, size=font_size)
             except Exception:
                 continue
+
+    # 3. PIL'in font arama yolundaki DejaVu denemesi (özellikle Linux).
+    for fallback_name in ("DejaVuSans-Bold.ttf", "DejaVuSans.ttf"):
+        try:
+            return ImageFont.truetype(fallback_name, size=font_size)
+        except Exception:
+            continue
+    logger.warning(
+        "No TTF font found (assets/fonts boş ve sistem fontu yok); "
+        "bitmap fallback Türkçe glifleri (ğşçıİ) bozabilir. "
+        "assets/fonts/ altına bir .ttf ekleyin."
+    )
     return ImageFont.load_default()
 
 
@@ -76,15 +95,37 @@ class TextRenderer:
         for block, turkish_text in block_translations:
             if not turkish_text or not turkish_text.strip():
                 continue
-            members = tuple(getattr(block, "members", ()))
-            if not members or any(
-                member.status != RegionStatus.AUTO
-                or member.type in (RegionType.SFX, RegionType.WATERMARK)
-                for member in members
-            ):
+            members: tuple[Any, ...] = tuple(getattr(block, "members", ()) or ())
+            # Üye-bazlı filtre: SFX/REVIEW üyeler atlanır, uygun üyeler render edilir.
+            # (Eski davranış tüm bloğu atlıyordu; Faz 1a ile tutarlı kısmi render.)
+            eligible: tuple[Any, ...] = tuple(
+                m for m in members
+                if m.status == RegionStatus.AUTO
+                and m.type not in (RegionType.SFX, RegionType.WATERMARK)
+            )
+            if members and not eligible:
                 continue
+            render_members = eligible or members
 
-            bbox = block.merged_bbox
+            source_text = getattr(block, "source_text", "") or ""
+            if source_text.strip():
+                ratio = len(turkish_text) / max(1, len(source_text))
+                if ratio > 2.5:
+                    logger.warning(
+                        f"Block {getattr(block, 'id', '?')}: TR/EN oran {ratio:.2f} "
+                        f"(src {len(source_text)} → tr {len(turkish_text)}); taşma riski."
+                    )
+
+            if eligible and len(eligible) < len(members):
+                from core.detection.bbox import BBox as _BBox
+
+                x1 = min(m.global_bbox.x1 for m in eligible)
+                y1 = min(m.global_bbox.y1 for m in eligible)
+                x2 = max(m.global_bbox.x2 for m in eligible)
+                y2 = max(m.global_bbox.y2 for m in eligible)
+                bbox = _BBox(x1=x1, y1=y1, x2=x2, y2=y2)
+            else:
+                bbox = block.merged_bbox
             x1, y1, x2, y2 = bbox.x1, bbox.y1, bbox.x2, bbox.y2
             box_w = max(1, x2 - x1)
             box_h = max(1, y2 - y1)
@@ -288,16 +329,16 @@ class TextRenderer:
             font = _get_font(14)
             return font, [""], 16, False
 
-        # Maximum and minimum font size constraints
+        # Maximum and minimum font size constraints (TR %30 uzun: taban düşük)
         word_count = len(words)
         if word_count <= 4:
-            min_size = 16
+            min_size = 12
             max_size = min(48, max(min_size, int(max_h * 0.75), int(max_w * 0.75)))
         elif word_count <= 10:
-            min_size = 14
+            min_size = 11
             max_size = min(36, max(min_size, int(max_h * 0.80), int(max_w * 0.80)))
         else:
-            min_size = 12
+            min_size = 9
             max_size = min(28, max(min_size, int(max_h * 0.85), int(max_w * 0.85)))
 
         # Binary search for optimal font size that fits comfortably
@@ -336,11 +377,11 @@ class TextRenderer:
         if found:
             return best_font, best_lines, best_line_h, False
 
-        # Fallback with word breaking down to minimum size 11
-        for size in range(min_size, 10, -1):
+        # Fallback with word breaking down to minimum size 9 (TR sığması için)
+        for size in range(min_size, 8, -1):
             f = _get_font(size)
             d_box = f.getbbox("Aygjpq") if hasattr(f, "getbbox") else (0, 0, 10, size)
-            lh = max(11, int((d_box[3] - d_box[1]) * 1.12))
+            lh = max(9, int((d_box[3] - d_box[1]) * 1.12))
             lines = self._wrap_words_elliptical(words, f, max_w, max_h, lh, break_long_words=True)
             if lines is None:
                 lines = self._wrap_words(words, f, max_w, break_long_words=True)
@@ -351,10 +392,10 @@ class TextRenderer:
                 return f, lines, lh, False
 
         # Severe overflow fallback
-        f_min = _get_font(11)
+        f_min = _get_font(9)
         lines_min = self._wrap_words(words, f_min, max_w, break_long_words=True)
-        d_box = f_min.getbbox("Aygjpq") if hasattr(f_min, "getbbox") else (0, 0, 10, 11)
-        lh_min = max(11, int((d_box[3] - d_box[1]) * 1.12))
+        d_box = f_min.getbbox("Aygjpq") if hasattr(f_min, "getbbox") else (0, 0, 10, 9)
+        lh_min = max(9, int((d_box[3] - d_box[1]) * 1.12))
         th_min = len(lines_min) * lh_min
         is_overflow = th_min > max_h or any(self._line_width(l, f_min) > max_w for l in lines_min)
 
