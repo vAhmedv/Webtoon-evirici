@@ -285,19 +285,24 @@ def resolve_chapter_glossary(
             is_approved=True, proper_name=False,
         )
         surfaces = _target_surface_forms(meta)
-        ok = [
-            any(
-                re.search(r"(?<!\w)" + re.escape(s) + r"(?!\w)", tr, re.IGNORECASE)
-                for s in surfaces
+        hits = [
+            next(
+                (
+                    s
+                    for s in surfaces
+                    if re.search(r"(?<!\w)" + re.escape(s) + r"(?!\w)", tr, re.IGNORECASE)
+                ),
+                None,
             )
             for tr in checks
         ]
-        if all(ok):
+        if all(h is not None for h in hits):
             mapping[term] = target
         else:
             logger.warning(
                 f"Terim kilidi reddedildi ({term}): bağımsız hedef {target!r} "
-                f"geçiş cümlelerinde yok (anlam uyuşmazlığı)."
+                f"geçiş cümlelerinde yok (anlam uyuşmazlığı). "
+                f"örnekler={[ (h, (tr or '')[:40]) for h, tr in zip(hits, checks) ]}"
             )
     logger.info(f"Terim kilidi: {len(mapping)}/{len(chosen)} terim kilitlendi.")
     return mapping
@@ -309,7 +314,7 @@ def glossary_entries(mapping: dict[str, str]) -> list[str]:
 
 
 # Oy-birliği oylaması eşikleri (genel; bölüm/terim ezberi yok).
-VOTE_MIN_COUNT_DEFAULT = 4
+VOTE_MIN_COUNT_DEFAULT = 3
 VOTE_MAX_TERMS_DEFAULT = 5
 VOTE_MAX_OCCURRENCES_PER_TERM = 8
 VOTE_MASK_TOKEN = "___"
@@ -404,6 +409,10 @@ def vote_term_rendering(
             clusters.append([cand])
     clusters.sort(key=len, reverse=True)
     best = clusters[0]
+    logger.info(
+        f"Oylama {term}: {len(candidates)} aday {[c[:24] for c in candidates[:8]]} "
+        f"-> en büyük aile {len(best)}/{len(candidates)}"
+    )
     if len(best) < 2 or len(best) / len(candidates) < VOTE_MAJORITY_RATIO:
         return None
     return min(best, key=len)
@@ -428,6 +437,8 @@ def vote_rejected_terms(
     considered = 0
     for term in terms:
         if term.term in locked or term.count < min_count:
+            if term.term not in locked and term.count >= MIN_OCCURRENCES_DEFAULT:
+                logger.info(f"Oylama atlandı (eşik altı): {term.term} x{term.count}")
             continue
         if considered >= max_terms:
             break
