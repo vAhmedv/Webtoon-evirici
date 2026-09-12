@@ -399,15 +399,15 @@ class Inpainter:
 
     @staticmethod
     def _expand_mask_in_bubble(mask: TextMask) -> TextMask:
-        """İkinci-şans maskesini balon içinde görece genişletir.
+        """İkinci-şans maskesini renk-kısıtlı görece genişletir.
 
-        Balon YOKSA aynen döner (sanat yeme riski alınmaz). Balon varsa
-        genişleme balon içiyle sınırlıdır — beyaz balonda güvenli.
+        Büyüme SADECE zemin rengine benzeyen piksellere akar (kanal başına
+        <28 sapma): beyaz balonda glyph artığını kapsar, siyah zeminde durur
+        (P003 beyaz-leke riski yok). Balon varsa ek sınır olarak uygulanır.
+        Genel: renk-bağıl, boyut-bağımsız.
         """
         import cv2
 
-        if mask.bubble_interior is None or not np.any(mask.bubble_interior):
-            return mask
         refined = (np.asarray(mask.refined) > 0)
         if not np.any(refined):
             return mask
@@ -416,39 +416,14 @@ class Inpainter:
             cv2.MORPH_ELLIPSE, (min(SECOND_CHANCE_KERNEL_MAX, pad * 2 + 1),) * 2
         )
         grown = (cv2.dilate(refined.astype(np.uint8), kernel) > 0)
-        grown &= (np.asarray(mask.bubble_interior) > 0)
+        src = np.ascontiguousarray(mask.source).astype(np.int16)
+        bg = np.asarray(mask.background_color, dtype=np.int16).reshape(1, 1, 3)
+        grown &= (np.max(np.abs(src - bg), axis=-1) < 28)
+        if mask.bubble_interior is not None and np.any(mask.bubble_interior):
+            grown &= (np.asarray(mask.bubble_interior) > 0)
         if not np.any(grown):
             return mask
         return replace(mask, refined=(grown.astype(np.uint8) * 255))
-        """Inpaint SONRASI maske içinde kalan en büyük zıt bileşenin alanı.
-
-        Düz-dolguda iç zaten tek renktir (0 döner). LaMa/ortanca yolda
-        kalan glif hayaleti (P003 `I`/tırnak artığı) burada yakalanır.
-        Saf numpy/cv2 — model çağrısı yok.
-        """
-        import cv2
-
-        refined = (np.asarray(refined_mask) > 0)
-        if not np.any(refined):
-            return 0
-        gray = cv2.cvtColor(np.ascontiguousarray(inpainted_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
-        interior = gray[refined]
-        if interior.size == 0:
-            return 0
-        bg = float(np.median(interior))
-        dev = (np.abs(gray - bg) >= GHOST_CONTRAST_THRESHOLD) & refined
-        if int(np.count_nonzero(dev)) < GHOST_MIN_COMPONENT_AREA:
-            return 0
-        # Bileşen-ebat artı toplam-ebat: dağınık zerreler de bayraklanır.
-        total_dev = int(np.count_nonzero(dev))
-        if total_dev >= GHOST_MIN_TOTAL_AREA:
-            return total_dev
-        # Bileşen alanı: stub-gürültüsüz yol (labels argümanı geçilmez).
-        count, labels = cv2.connectedComponents(dev.astype(np.uint8))
-        if count <= 1:
-            return 0
-        areas = np.bincount(labels.ravel())[1:]
-        return int(np.max(areas)) if areas.size else 0
 
     @staticmethod
     def _fill_ring_mismatch(text_mask: TextMask, inpainted_crop: np.ndarray) -> bool:

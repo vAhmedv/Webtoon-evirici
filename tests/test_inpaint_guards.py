@@ -164,9 +164,22 @@ def test_expand_mask_in_bubble_grows_bounded() -> None:
     assert bool(np.all((grown.refined == 0) | (bubble > 0)))
 
 
-def test_expand_mask_without_bubble_unchanged() -> None:
+def test_expand_mask_without_bubble_grows_on_bg_color() -> None:
+    """Balon yoksa bile zemin-rengi alanda büyür (DAMMIT vakası)."""
     from core.imaging.inpainter import Inpainter
 
     tm = _mask(120, 160, 60, 50, 100, 70)
+    before = int(np.count_nonzero(tm.refined))
+    grown = Inpainter._expand_mask_in_bubble(tm)
+    assert int(np.count_nonzero(grown.refined)) > before
+
+
+def test_expand_mask_blocked_on_dark_art() -> None:
+    """Koyu sanatta büyüme durur (P003 beyaz-leke riski yok)."""
+    from core.imaging.inpainter import Inpainter
+
+    tm = _mask(120, 160, 60, 50, 100, 70)
+    dark = np.full((120, 160, 3), 25, dtype=np.uint8)
+    object.__setattr__(tm, "source", dark)
     grown = Inpainter._expand_mask_in_bubble(tm)
     assert np.array_equal(grown.refined, tm.refined)
