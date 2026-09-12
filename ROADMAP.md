@@ -140,3 +140,9 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - Kritik ders: bağımsız çözüm yanlış anlamı kilitleyebilir (`GUILD`→spor `LİG`, oysa bağlam `LONCA`). Çare: **tutarlılık kapanışı** — kilit, en kısa ≤2 geçiş cümlesinde çekimli yüzey olarak geçmiyorsa REDDEDİLİR (modelin kendi bağlamı bekçi). Ayrıca `translate_batch` içinde gizli `TranslationItem` import hatası bulundu ve düzeltildi (o yol üretimde hiç çağrılmamıştı).
 - Mini-kanıt (5 sayfa, 97 sn): `ASMOTOON` echo-kilidi (kredi korunur); `CRAFTER` kilidi REDDEDİLDİ çünkü bağımsız `ÜRETİCİ` cümlelerde yoktu — cümleler zaten tutarlı `USTA` idi. Kapanış regresyonu engelledi, mekanizma doğru çalıştı.
 - Altyapı: `scripts/fast_verify_mini.py` (5 sayfa ~97 sn vs tam audit ~261 sn) + arka-plan koşu deseni (`Start-Process` + log + poll) — uzun komutlar artık engellemiyor.
+
+## FAZ 3-DEVAM: ÇOĞUNLUK-OYU KİLİDİ (2026-09-12)
+
+- Sorun: tutarlılık kapanışı `CRAFTER`ı kilitleyemedi (bağımsız `ÜRETİCİ` cümlelerde yoktu) ama cümleler kendi arasında tutarlıydı (`USTA` ailesi) — kapanış fazla katıydı.
+- Çözüm: masked-diff oylaması — geçiş cümleleri maskeli/maskesiz çevrilir, fark aralıkları gövde-ailesine kümelenir (≥5 harf ortak önek), ≥%50 + ≥2 uzlaşıda en kısa üye kilitlenir. Maliyet tavanlı (terim başına ≤8 geçiş, ≤5 terim).
+- Reddedilen tasarım (kanıtlı): anlam-ipucu promptu Hy-MT2'de çalışmadı (talimatı çevirmeye kalktı) — silindi.
