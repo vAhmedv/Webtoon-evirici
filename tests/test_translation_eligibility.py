@@ -67,3 +67,36 @@ def test_validity_rejected_member_is_not_translation_eligible_even_if_auto() -> 
     )
     assert not decision.eligible
     assert decision.reason == "strong_validity_rejection"
+
+
+def _text_block(text: str) -> TextBlock:
+    member = _member(1, RegionStatus.AUTO)
+    object.__setattr__(member, "text", text)
+    return TextBlock(
+        id=1,
+        member_ids=(member.id,),
+        members=(member,),
+        merged_bbox=member.global_bbox,
+        source_text=text,
+    )
+
+
+def test_lone_english_article_is_fragment() -> None:
+    for frag in ("THE", "A", "AN", "I", "the", "  a  "):
+        decision = evaluate_translation_eligibility(_text_block(frag))
+        assert not decision.eligible, frag
+        assert decision.reason == "fragment", frag
+
+
+def test_punctuation_only_block_has_no_word_content() -> None:
+    for punct in ("?", "...", "…?!", "!!"):
+        decision = evaluate_translation_eligibility(_text_block(punct))
+        assert not decision.eligible, punct
+        assert decision.reason == "no_word_content", punct
+
+
+def test_complete_single_word_utterances_stay_eligible() -> None:
+    # Tam tek-kelimelik ünlemler parça değildir (anti-overfit bekçisi).
+    for word in ("EVET.", "DUR!", "HAYIR", "KOŞ", "I AM HERE", "NE?"):
+        decision = evaluate_translation_eligibility(_text_block(word))
+        assert decision.eligible, word

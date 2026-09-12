@@ -9,12 +9,69 @@ from __future__ import annotations
 from functools import lru_cache
 import math
 import os
+import re
 from pathlib import Path
 from typing import Any, Sequence
 from PIL import Image, ImageDraw, ImageFont, ImageStat
 from loguru import logger
 
-from core.detection import Region, RegionStatus, RegionType
+from core.detection import BBox, Region, RegionStatus, RegionType
+
+
+# Faz 2 render guard eşikleri (genel; hiçbir sayfa/bölüme özel değer yok).
+# OVERLAP_IOU_THRESHOLD: aynı yere çift basımı yakalar (kopya tespit kaçakları).
+OVERLAP_IOU_THRESHOLD = 0.6
+# Çift-tırnak benzeri karakterler: tek sayıda kaldıklarında sahipsiz artıktır.
+# ASCII kesme işareti (') HARİÇ — Türkçe tamlamalarda meşrudur ("VRMMO'su").
+_DOUBLE_QUOTE_CHARS = ('"', '"', '"', ''', ''')
+
+
+def _has_word_content(text: str) -> bool:
+    """Metinde en az bir kelime karakteri var mı (Unicode word class)?"""
+    return re.search(r"\w", text, re.UNICODE) is not None
+
+
+def _clean_orphan_quotes(text: str) -> str:
+    """Dengesiz (tek sayılı) çift-tırnak artıklarını temizler.
+
+    OCR/çeviri kırıntıları sahipsiz `"` bırakabilir (`iz"bırakmak`,
+    `"NE ...?!` + artı). Her tırnak tipinden tek sayıda varsa sonuncusu
+    düşürülür; çiftliler ve ASCII kesme işareti korunur.
+    """
+    for q in _DOUBLE_QUOTE_CHARS:
+        if text.count(q) % 2 == 1:
+            idx = text.rfind(q)
+            text = text[:idx] + text[idx + 1 :]
+            logger.info(f"Renderer: sahipsiz tırnak temizlendi ({q!r}): {text[:60]!r}")
+    return text
+
+
+def _normalize_render_text(text: str) -> str:
+    """Kopya-karşılaştırma için normalize et (küçük harf + tek boşluk)."""
+    return re.sub(r"\s+", " ", text.strip().casefold())
+
+
+def _group_overlapping(
+    entries: list[tuple[Any, str, BBox]],
+    iou_threshold: float = OVERLAP_IOU_THRESHOLD,
+) -> list[list[tuple[Any, str, BBox]]]:
+    """IoU eşiğini aşan kutuları aynı gruba alır (açgözlü, geçişli).
+
+    Her gruptan yalnız en uzun metinli girdi render edilir; üst üste binmiş
+    balonlar hiçbir dilde aynı anda okunamaz, çift basım her zaman kusurdur.
+    """
+    groups: list[list[tuple[Any, str, BBox]]] = []
+    for entry in entries:
+        _, _, bbox = entry
+        placed = False
+        for group in groups:
+            if any(bbox.iou(g_bbox) > iou_threshold for _, _, g_bbox in group):
+                group.append(entry)
+                placed = True
+                break
+        if not placed:
+            groups.append([entry])
+    return groups
 
 
 FONTS_DIR = Path(__file__).resolve().parents[2] / "assets" / "fonts"
@@ -92,9 +149,23 @@ class TextRenderer:
         rendered_count = 0
         overflow_count = 0
 
+        # Faz 2 ön-geçiş: hedef kutuları hesapla, sonra çakışma gruplarında
+        # tekilleştir (aynı yere çift basım engeli). Sıralı tek geçişte geri
+        # alınamayacağı için karar render'dan önce verilir.
+        planned: list[tuple[Any, str, BBox]] = []
+        seen_block_ids: set[Any] = set()
         for block, turkish_text in block_translations:
             if not turkish_text or not turkish_text.strip():
                 continue
+            block_id = getattr(block, "id", None)
+            if block_id is not None:
+                if block_id in seen_block_ids:
+                    logger.warning(
+                        f"Renderer: blok {block_id} iki kez listelenmiş; "
+                        "ikinci basım atlandı."
+                    )
+                    continue
+                seen_block_ids.add(block_id)
             members: tuple[Any, ...] = tuple(getattr(block, "members", ()) or ())
             # Üye-bazlı filtre: SFX/REVIEW üyeler atlanır, uygun üyeler render edilir.
             # (Eski davranış tüm bloğu atlıyordu; Faz 1a ile tutarlı kısmi render.)
@@ -105,8 +176,47 @@ class TextRenderer:
             )
             if members and not eligible:
                 continue
-            render_members = eligible or members
 
+            cleaned = _clean_orphan_quotes(turkish_text.strip())
+            if not _has_word_content(cleaned):
+                logger.debug(
+                    f"Renderer: blok {block_id} kelime içeriği yok "
+                    f"({turkish_text[:30]!r}); atlandı."
+                )
+                continue
+
+            if eligible and len(eligible) < len(members):
+                x1 = min(m.global_bbox.x1 for m in eligible)
+                y1 = min(m.global_bbox.y1 for m in eligible)
+                x2 = max(m.global_bbox.x2 for m in eligible)
+                y2 = max(m.global_bbox.y2 for m in eligible)
+                bbox = BBox(x1=x1, y1=y1, x2=x2, y2=y2)
+            else:
+                bbox = block.merged_bbox
+            planned.append((block, cleaned, bbox))
+
+        winners: list[tuple[Any, str, BBox]] = []
+        for group in _group_overlapping(planned):
+            if len(group) == 1:
+                winners.append(group[0])
+                continue
+            # Aynı metin iki kez tespit edilmiş ya da blok bölünmüş:
+            # en uzun metinliyi bas, gerisini REVIEW izi bırakarak atla.
+            group_sorted = sorted(
+                group, key=lambda e: len(e[1].split()), reverse=True
+            )
+            keep = group_sorted[0]
+            dropped = [getattr(b, "id", "?") for b, _, _ in group_sorted[1:]]
+            logger.warning(
+                f"Renderer: çakışan {len(group)} bloktan en uzun metinli "
+                f"blok {getattr(keep[0], 'id', '?')} basıldı; atlananlar: "
+                f"{dropped} (metin: {keep[1][:60]!r})"
+            )
+            winners.append(keep)
+
+        for block, turkish_text, bbox in winners:
+            # bbox: ön-geçişte hesaplanmış hedef kutu (kısmi bloklarda uygun
+            # üyelerin birleşimi). Burada yeniden hesaplanmaz.
             source_text = getattr(block, "source_text", "") or ""
             if source_text.strip():
                 ratio = len(turkish_text) / max(1, len(source_text))
@@ -116,16 +226,6 @@ class TextRenderer:
                         f"(src {len(source_text)} → tr {len(turkish_text)}); taşma riski."
                     )
 
-            if eligible and len(eligible) < len(members):
-                from core.detection.bbox import BBox as _BBox
-
-                x1 = min(m.global_bbox.x1 for m in eligible)
-                y1 = min(m.global_bbox.y1 for m in eligible)
-                x2 = max(m.global_bbox.x2 for m in eligible)
-                y2 = max(m.global_bbox.y2 for m in eligible)
-                bbox = _BBox(x1=x1, y1=y1, x2=x2, y2=y2)
-            else:
-                bbox = block.merged_bbox
             x1, y1, x2, y2 = bbox.x1, bbox.y1, bbox.x2, bbox.y2
             box_w = max(1, x2 - x1)
             box_h = max(1, y2 - y1)
