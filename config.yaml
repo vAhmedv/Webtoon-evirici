@@ -23,7 +23,7 @@ ocr:
   engine: paddleocr
   min_confidence: 0.5
   primary_model: PP-OCRv6_medium_rec
-  provider: PaddleOCR-PP-OCRv6_medium_rec
+  provider: PaddleOCR-PP-OCRv6
   qwen_mmproj_path: C:\AI\Models\Qwen3.5-9B-GGUF\mmproj-F16.gguf
   qwen_model_path: C:\AI\Models\Qwen3.5-9B-GGUF\Qwen3.5-9B-Q5_K_M.gguf
   qwen_server_path: C:\AI\llama-cpp-cuda\llama-server.exe
@@ -37,7 +37,7 @@ translator:
   enabled: true
   fallback_provider: null
   gemini_api_key: null
-  gemini_model: gemini-2.0-flash
+  gemini_model: gemini-3.5-flash
   llama_executable: C:\AI\llama-cpp-cuda\llama-server.exe
   model_path: C:\AI\Models\HY-MT2-7B-Q8_0.gguf
   provider: hy_mt2_gguf
