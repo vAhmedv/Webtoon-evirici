@@ -2,10 +2,15 @@
 
 from core.translation.chapter_glossary import (
     ChapterTerm,
+    _cluster_key,
+    _diff_spans,
+    _mask_term_occurrences,
     extract_observed_terms,
     extract_repeated_terms,
     glossary_entries,
     resolve_chapter_glossary,
+    vote_rejected_terms,
+    vote_term_rendering,
     write_glossary_json,
 )
 
@@ -243,3 +248,86 @@ def test_write_glossary_json_roundtrip(tmp_path) -> None:
     assert locked["target"] == "Zanaatkar"
     assert locked["occurrences"] == 5
     assert locked["block_ids"] == [11, 22]
+
+
+def test_mask_term_occurrences() -> None:
+    assert _mask_term_occurrences("I AM A CRAFTER TODAY", "CRAFTER") == "I AM A ___ TODAY"
+    assert _mask_term_occurrences("CRAFTERS ARE COMING", "CRAFTER") == "CRAFTERS ARE COMING"
+    assert _mask_term_occurrences("ask the crafter first", "CRAFTER") == "ask the ___ first"
+
+
+def test_diff_spans_finds_rendering() -> None:
+    assert _diff_spans("Ben bir Üreticiyim", "Ben bir ___") == ["Üreticiyim"]
+    assert _diff_spans("Aynı cümle burada", "Aynı cümle burada") == []
+
+
+def test_cluster_key_prefix() -> None:
+    assert _cluster_key("Üreticiyim", "Üretici")
+    assert _cluster_key("zanaatkarlar", "Zanaatkar")
+    assert not _cluster_key("Usta", "Zanaatkar")
+    assert not _cluster_key("Li", "Lonca")
+
+
+class _VoteStub:
+    """Maskeli/maskesiz çiftleri hazır cevaplarla çevirir."""
+
+    FULL = {
+        "I AM A CRAFTER": "Ben bir Üreticiyim",
+        "THE CRAFTER CAME": "Üretici geldi",
+        "ASK THE CRAFTER": "Üreticiye sor",
+    }
+    MASKED = {
+        "I AM A ___": "Ben bir ___",
+        "THE ___ CAME": "___ geldi",
+        "ASK THE ___": "___ sor",
+    }
+
+    def __init__(self) -> None:
+        self.calls: list[list[str]] = []
+
+    def translate_batch(self, texts: list[str]) -> list[str]:
+        self.calls.append(list(texts))
+        out = []
+        for t in texts:
+            if "___" in t:
+                out.append(self.MASKED.get(t, t))
+            else:
+                out.append(self.FULL.get(t, f"TR-{t}"))
+        return out
+
+
+def test_vote_term_rendering_majority() -> None:
+    stub = _VoteStub()
+    canonical = vote_term_rendering(
+        stub, "CRAFTER", ["I AM A CRAFTER", "THE CRAFTER CAME", "ASK THE CRAFTER"]
+    )
+    assert canonical == "Üretici"
+    assert len(stub.calls) == 2  # dolu + maskeli
+
+
+def test_vote_term_rendering_no_consensus() -> None:
+    class _NoiseStub:
+        def translate_batch(self, texts: list[str]) -> list[str]:
+            return [f"YANIT {i} FARKLI KELİMELER" for i, _ in enumerate(texts)]
+
+    assert (
+        vote_term_rendering(_NoiseStub(), "XQZT", ["A XQZT B", "C XQZT D", "E XQZT F"])
+        is None
+    )
+
+
+def test_vote_rejected_terms_skips_locked_and_rare() -> None:
+    stub = _VoteStub()
+    terms = [
+        ChapterTerm("CRAFTER", 5, [1, 2, 3]),
+        ChapterTerm("LOCKED", 9, [4]),
+        ChapterTerm("RARE", 2, [5]),
+    ]
+    winners = vote_rejected_terms(
+        stub,
+        terms,
+        {"LOCKED": "Kilitli"},
+        ["I AM A CRAFTER", "THE CRAFTER CAME", "ASK THE CRAFTER", "x", "y"],
+        [1, 2, 3, 4, 5],
+    )
+    assert winners == {"CRAFTER": "Üretici"}
