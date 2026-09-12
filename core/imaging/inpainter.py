@@ -425,7 +425,10 @@ class Inpainter:
         grown = (cv2.dilate(refined.astype(np.uint8), kernel) > 0)
         src = np.ascontiguousarray(mask.source).astype(np.int16)
         bg = np.asarray(mask.background_color, dtype=np.int16).reshape(1, 1, 3)
-        grown &= (np.max(np.abs(src - bg), axis=-1) < 28)
+        bg_like = np.max(np.abs(src - bg), axis=-1) < 28
+        # Orijinal kapsama korunur (glif çekirdekleri zemin-rengi değildir!);
+        # SADECE yeni eklenen bant zemin-rengine koşulludur.
+        grown &= (bg_like | refined)
         if mask.bubble_interior is not None and np.any(mask.bubble_interior):
             grown &= (np.asarray(mask.bubble_interior) > 0)
         if not np.any(grown):

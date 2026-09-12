@@ -174,6 +174,21 @@ def test_expand_mask_without_bubble_grows_on_bg_color() -> None:
     assert int(np.count_nonzero(grown.refined)) > before
 
 
+def test_expand_mask_keeps_glyph_cores() -> None:
+    """Büyüme glif çekirdeklerini eksiltmez (siyah glif zemin-rengi değil)."""
+    from core.imaging.inpainter import Inpainter
+
+    tm = _mask(120, 160, 40, 30, 120, 90)
+    refined = np.zeros((120, 160), dtype=np.uint8)
+    refined[40:80, 50:110] = 255
+    object.__setattr__(tm, "refined", refined)
+    src = np.full((120, 160, 3), 255, dtype=np.uint8)
+    src[50:70, 60:100] = (0, 0, 0)  # glif çekirdeği
+    object.__setattr__(tm, "source", src)
+    grown = Inpainter._expand_mask_in_bubble(tm)
+    assert bool(np.all(grown.refined[50:70, 60:100] > 0))
+
+
 def test_expand_mask_blocked_on_dark_art() -> None:
     """Koyu sanatta büyüme durur (P003 beyaz-leke riski yok)."""
     from core.imaging.inpainter import Inpainter
