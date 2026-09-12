@@ -211,6 +211,34 @@ def _is_usable_target(target: str) -> bool:
     return True
 
 
+_TR_LOWER_MAP = str.maketrans({"İ": "i", "I": "ı"})
+_TR_UPPER_MAP = {"i": "İ", "ı": "I"}
+
+
+def _tr_titlecase(text: str) -> str:
+    """Türkçe-duyarlı cümle-kası (Unicode `capitalize` İ/ı bozar)."""
+    low = text.translate(_TR_LOWER_MAP).lower()
+    if not low:
+        return low
+    first = _TR_UPPER_MAP.get(low[0], low[0].upper())
+    return first + low[1:]
+
+
+def normalize_lock_target(source: str, target: str) -> str:
+    """Kilit hedefi kasa normalizasyonu (Faz 3 cila).
+
+    Model haykırılan kaynağı haykırarak çevirir (`WORLD`→`DÜNYA`); sentinel
+    tabanı büyük harfle kilitlenirse çekimler de öyle basılır (`DÜNYAda`).
+    Yankı-hedefler (kaynakla aynı) aynen korunur (`ASMOTOON`); gerçekten
+    çevrilenler cümle-kasaya indirilir (`DÜNYA`→`Dünya`) — morfoloji motoru
+    zaten küçük tabandan doğru çeker (`Dünyada`).
+    """
+    t = (target or "").strip()
+    if t.casefold() == (source or "").strip().casefold():
+        return t
+    return _tr_titlecase(t)
+
+
 def _surface_hits_in_texts(target: str, trs: Sequence[str]) -> list[str | None]:
     """Her TR için bağımsız hedefin eşleşen yüzeyini (veya None) döndürür."""
     from core.translation.protection import ProtectedTermMeta, _target_surface_forms
@@ -268,7 +296,7 @@ def resolve_chapter_glossary(
     for term, target in zip(chosen, rendered):
         target = (target or "").strip()
         if _is_usable_target(target):
-            standalone[term.term] = target
+            standalone[term.term] = normalize_lock_target(term.term, target)
         else:
             logger.warning(
                 f"Terim kilidi reddedildi ({term.term}): bozuk hedef {target!r}"

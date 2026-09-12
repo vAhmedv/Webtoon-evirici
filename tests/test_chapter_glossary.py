@@ -156,10 +156,10 @@ def test_title_case_long_words_observed_not_locked() -> None:
 
 
 def test_resolve_single_batch_call_and_empty_safe() -> None:
-    stub = _StubTranslator({"CRAFTER": "Zanaatkar"})
+    stub = _StubTranslator({"CRAFTER": "Zanaatkar", "GUILD": "Lonca"})
     terms = [ChapterTerm("CRAFTER", 5, [1, 2]), ChapterTerm("GUILD", 3, [2])]
     mapping, _methods, _rejected = resolve_chapter_glossary(stub, terms)
-    assert mapping == {"CRAFTER": "Zanaatkar", "GUILD": "TR-GUILD"}
+    assert mapping == {"CRAFTER": "Zanaatkar", "GUILD": "Lonca"}
     assert len(stub.calls) == 1
     assert stub.calls[0] == ["CRAFTER", "GUILD"]
 
@@ -218,6 +218,17 @@ def test_consistency_closure_rejects_mismatch() -> None:
     texts = ["GUILD", "ARE YOU FROM SOME FAMOUS GUILD"]
     mapping, _methods, _rejected = resolve_chapter_glossary(_CtxStub(), terms, texts=texts, block_ids=[1, 2])
     assert mapping == {}
+
+
+def test_normalize_lock_target() -> None:
+    from core.translation.chapter_glossary import normalize_lock_target
+
+    assert normalize_lock_target("WORLD", "DÜNYA") == "Dünya"
+    assert normalize_lock_target("GOBLIN", "GOBLİN") == "Goblin"
+    assert normalize_lock_target("ASMOTOON", "ASMOTOON") == "ASMOTOON"
+    assert normalize_lock_target("Lv", "Lv") == "Lv"
+    assert normalize_lock_target("CRAFTER", "Üretici") == "Üretici"
+    assert normalize_lock_target("FIRE", "ATEŞ") == "Ateş"
 
 
 def test_resolve_empty_terms_no_call() -> None:

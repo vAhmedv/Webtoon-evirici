@@ -24,6 +24,8 @@ LAMA_KERNEL_MAX = 21
 # İç-artık: dolgu renginden bu kadar sapan, bu büyüklükte bileşenler glif artığıdır.
 GHOST_CONTRAST_THRESHOLD = 40.0
 GHOST_MIN_COMPONENT_AREA = 15
+# Dağınık zerre artığı: tekil bileşen eşiğini aşamayan ama toplamda kirleten.
+GHOST_MIN_TOTAL_AREA = 60
 # Dolgu/zemin uyuşmazlığı: balon bulunamadıysa iç-ortanca ile dış-halka
 # ortancası bu kadar ayrışamaz (P003 beyaz-leke vakası).
 FILL_RING_LUMA_GAP = 60.0
@@ -362,6 +364,10 @@ class Inpainter:
         dev = (np.abs(gray - bg) >= GHOST_CONTRAST_THRESHOLD) & refined
         if int(np.count_nonzero(dev)) < GHOST_MIN_COMPONENT_AREA:
             return 0
+        # Bileşen-ebat artı toplam-ebat: dağınık zerreler de bayraklanır.
+        total_dev = int(np.count_nonzero(dev))
+        if total_dev >= GHOST_MIN_TOTAL_AREA:
+            return total_dev
         # Bileşen alanı: stub-gürültüsüz yol (labels argümanı geçilmez).
         count, labels = cv2.connectedComponents(dev.astype(np.uint8))
         if count <= 1:

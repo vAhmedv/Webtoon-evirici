@@ -63,6 +63,18 @@ def test_interior_ghost_ignores_specks() -> None:
     assert Inpainter._interior_ghost_area(crop, mask) == 0
 
 
+def test_interior_ghost_flags_scattered_specks() -> None:
+    """P005 vakası: tekil eşik altı ama toplamda kirleten zerreler."""
+    crop = np.full((60, 100, 3), 255, dtype=np.uint8)
+    rng = np.random.default_rng(7)
+    for _ in range(25):  # 25x 2x2 zerre = 100px toplam
+        y, x = int(rng.integers(12, 45)), int(rng.integers(12, 85))
+        crop[y : y + 2, x : x + 2] = (0, 0, 0)
+    mask = np.zeros((60, 100), dtype=np.uint8)
+    mask[10:50, 10:90] = 255
+    assert Inpainter._interior_ghost_area(crop, mask) >= 60
+
+
 def test_fill_ring_mismatch_white_blob_on_dark() -> None:
     """P003 vakası: balonsuz beyaz dolgu, koyu çevre → REVIEW."""
     h, w = 120, 160
