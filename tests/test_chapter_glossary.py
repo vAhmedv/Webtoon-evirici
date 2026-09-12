@@ -2,16 +2,16 @@
 
 from core.translation.chapter_glossary import (
     ChapterTerm,
-    _cluster_key,
     _diff_spans,
     _mask_term_occurrences,
     _standalone_matches_family,
+    collect_vote_candidates,
     extract_observed_terms,
     extract_repeated_terms,
     glossary_entries,
     resolve_chapter_glossary,
     vote_rejected_terms,
-    vote_winning_family,
+    vote_surface_hits,
     write_glossary_json,
 )
 
@@ -262,11 +262,9 @@ def test_diff_spans_finds_rendering() -> None:
     assert _diff_spans("Aynı cümle burada", "Aynı cümle burada") == []
 
 
-def test_cluster_key_prefix() -> None:
-    assert _cluster_key("Üreticiyim", "Üretici")
-    assert _cluster_key("zanaatkarlar", "Zanaatkar")
-    assert not _cluster_key("Usta", "Zanaatkar")
-    assert not _cluster_key("Li", "Lonca")
+def test_surface_votes_over_prefix() -> None:
+    """kara/karar: önek aynı ama yüzey farklı → kilit yok."""
+    assert vote_surface_hits("KARA", ["kara", "karar", "kara"]) == ["kara", "kara"]
 
 
 class _VoteStub:
@@ -305,13 +303,22 @@ def test_standalone_matches_family() -> None:
     assert not _standalone_matches_family("", ["x"])
 
 
+def test_vote_surface_hits_morphology() -> None:
+    """Yüzey üyeliği: usta/ustalar aynı, kara/karar farklı sözcük."""
+    assert vote_surface_hits("USTA", ["USTA", "ustalar", "usta"]) == ["USTA", "ustalar", "usta"]
+    assert vote_surface_hits("KARA", ["kara", "karar"]) == ["kara"]
+    assert vote_surface_hits("DÜNYA", ["dünyada", "dünyasında"]) == ["dünyada"]
+    assert vote_surface_hits("LİG", ["lonca", "loncadan"]) == []
+    assert vote_surface_hits("Üretici", ["CRAFTER", "crafter"]) == []
+
+
 def test_vote_winning_family_majority() -> None:
     stub = _VoteStub()
-    family = vote_winning_family(
+    candidates = collect_vote_candidates(
         stub, "CRAFTER", ["I AM A CRAFTER", "THE CRAFTER CAME", "ASK THE CRAFTER"]
     )
-    assert len(family) == 3
-    assert _standalone_matches_family("Üretici", family)
+    assert len(candidates) == 3
+    assert vote_surface_hits("Üretici", candidates) == candidates
     assert len(stub.calls) == 2  # dolu + maskeli
 
 
@@ -320,10 +327,10 @@ def test_vote_winning_family_no_consensus() -> None:
         def translate_batch(self, texts: list[str]) -> list[str]:
             return [f"YANIT {i} FARKLI KELİMELER" for i, _ in enumerate(texts)]
 
-    assert (
-        vote_winning_family(_NoiseStub(), "XQZT", ["A XQZT B", "C XQZT D", "E XQZT F"])
-        == []
+    candidates = collect_vote_candidates(
+        _NoiseStub(), "XQZT", ["A XQZT B", "C XQZT D", "E XQZT F"]
     )
+    assert vote_surface_hits("XQZT", candidates) == []
 
 
 def test_vote_rejected_terms_skips_locked_and_rare() -> None:

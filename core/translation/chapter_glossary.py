@@ -341,7 +341,6 @@ VOTE_MIN_COUNT_DEFAULT = 3
 VOTE_MAX_TERMS_DEFAULT = 5
 VOTE_MAX_OCCURRENCES_PER_TERM = 8
 VOTE_MASK_TOKEN = "___"
-VOTE_MIN_PREFIX_LEN = 5
 VOTE_MAJORITY_RATIO = 0.5
 
 
@@ -388,26 +387,36 @@ def _family_norm(span: str) -> str:
     return re.sub(r"[^\w]", "", span.casefold())
 
 
-def _cluster_key(a: str, b: str) -> bool:
-    """İki aday aynı gövde ailesinden mi (≥5 harf ortak önek)?"""
-    a_n, b_n = _family_norm(a), _family_norm(b)
-    n = 0
-    for ca, cb in zip(a_n, b_n):
-        if ca != cb:
-            break
-        n += 1
-    return n >= VOTE_MIN_PREFIX_LEN
+def _standalone_matches_family(standalone: str, family: list[str]) -> bool:
+    """Bağımsız hedef ailenin üyesi mi (önek toleranslı, test yardımcısı)?"""
+    norm = _family_norm(standalone)
+    if not norm:
+        return False
+    return any(m == norm or m.startswith(norm) for m in (_family_norm(s) for s in family))
 
 
-def vote_winning_family(
+def vote_surface_hits(standalone: str, candidates: Sequence[str]) -> list[str]:
+    """Adaylardan bağımsız hedefin çekimli yüzeylerine uyanları döndürür.
+
+    Önek-kümeleme yerine morfoloji motoru kullanılır: `usta/ustalar`
+    aynı sözcük (`USTA` yüzeyleri), `kara/karar` farklı sözcüklerdir.
+    """
+    from core.translation.protection import ProtectedTermMeta, _target_surface_forms
+
+    meta = ProtectedTermMeta(
+        sentinel="", source_original="", target_base=standalone,
+        is_approved=True, proper_name=False,
+    )
+    surfaces = {_family_norm(s) for s in _target_surface_forms(meta)}
+    return [c for c in candidates if _family_norm(c) in surfaces]
+
+
+def collect_vote_candidates(
     translator: TermTranslator,
     term: str,
     occurrence_texts: Sequence[str],
 ) -> list[str]:
-    """Geçiş cümlelerini maskeli/maskesiz çevirip kazanan aileyi döndürür.
-
-    Boş liste = uzlaşı yok. Maliyet: 2 toplu çağrı (dolu + maskeli).
-    """
+    """Maskeli/maskesiz çiftlerin fark aralıkları (ham adaylar)."""
     sources = [t for t in occurrence_texts if t and t.strip()]
     if not sources:
         return []
@@ -421,35 +430,7 @@ def vote_winning_family(
     candidates: list[str] = []
     for full, mask in zip(tr_full, tr_masked):
         candidates.extend(_diff_spans(full or "", mask or ""))
-    if not candidates:
-        return []
-    clusters: list[list[str]] = []
-    for cand in candidates:
-        placed = False
-        for cluster in clusters:
-            if _cluster_key(cand, cluster[0]):
-                cluster.append(cand)
-                placed = True
-                break
-        if not placed:
-            clusters.append([cand])
-    clusters.sort(key=len, reverse=True)
-    best = clusters[0]
-    logger.info(
-        f"Oylama {term}: {len(candidates)} aday {[c[:24] for c in candidates[:8]]} "
-        f"-> en büyük aile {len(best)}/{len(candidates)}"
-    )
-    if len(best) < 2 or len(best) / len(candidates) < VOTE_MAJORITY_RATIO:
-        return []
-    return best
-
-
-def _standalone_matches_family(standalone: str, family: list[str]) -> bool:
-    """Bağımsız hedef ailenin üyesi mi (çekimli yüzey dahil)?"""
-    norm = _family_norm(standalone)
-    if not norm:
-        return False
-    return any(m == norm or m.startswith(norm) for m in (_family_norm(s) for s in family))
+    return candidates
 
 
 def vote_rejected_terms(
@@ -493,9 +474,14 @@ def vote_rejected_terms(
         ][:VOTE_MAX_OCCURRENCES_PER_TERM]
         if len(occ) < 2:
             continue
-        family = vote_winning_family(translator, term.term, occ)
+        candidates = collect_vote_candidates(translator, term.term, occ)
         base = solo.get(term.term, "")
-        if family and base and _standalone_matches_family(base, family):
+        hits = vote_surface_hits(base, candidates) if base else []
+        logger.info(
+            f"Oylama {term.term}: {len(candidates)} aday "
+            f"{[c[:24] for c in candidates[:8]]} -> yüzey uyumu {len(hits)}/{len(candidates)}"
+        )
+        if base and len(hits) >= 2 and len(hits) / max(1, len(candidates)) >= VOTE_MAJORITY_RATIO:
             winners[term.term] = base
             logger.info(f"Oylama kilidi: {term.term} -> {base}")
         else:
