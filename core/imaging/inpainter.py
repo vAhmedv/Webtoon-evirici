@@ -47,6 +47,28 @@ def _luminance(pixel: np.ndarray) -> float:
     return float(np.median(np.dot(rgb, [0.299, 0.587, 0.114])))
 
 
+def _ring_luma_stats(
+    img: np.ndarray, mask: np.ndarray, bubble_interior: np.ndarray | None
+) -> tuple[float, float] | None:
+    """2-8px halka ortanca ışıklık + standart sapma (yoksa None)."""
+    import cv2
+
+    d_outer = cv2.dilate(mask, np.ones((9, 9), np.uint8))
+    d_inner = cv2.dilate(mask, np.ones((2, 2), np.uint8))
+    ring = (d_outer > 0) & (d_inner == 0)
+    if bubble_interior is not None and np.any(bubble_interior):
+        ring &= (bubble_interior > 0)
+    px = img[ring]
+    if len(px) < 16:
+        px = img[mask == 0]
+    if len(px) < 8:
+        return None
+    gray = cv2.cvtColor(
+        np.ascontiguousarray(px.reshape(-1, 1, 3)), cv2.COLOR_RGB2GRAY
+    ).astype(np.float32)
+    return float(np.median(gray)), float(np.std(gray))
+
+
 def _is_story_text(region: Region) -> bool:
     return (
         region.status == RegionStatus.AUTO
@@ -285,6 +307,43 @@ class Inpainter:
             return False, (255, 255, 255)
 
         mask = (mask_crop > 0).astype(np.uint8)
+        img = np.ascontiguousarray(image_crop)
+
+        # Önce iç-ortanca: maske-içi baskın renk tekdüzeyse dolgu odur.
+        # (Büyümüş maskelerin halkası artık sanatta olduğu için halka-medyanı
+        # YANLIŞ renk verirdi — kara-leke vakası.) Baskınlık < %50 ise
+        # dev glif varsayılır, halka mantığına düşülür.
+        interior_px = img[mask > 0].reshape(-1, 3).astype(np.float32)
+        if len(interior_px) >= 16:
+            med = np.median(interior_px, axis=0)
+            dev = np.max(np.abs(interior_px - med), axis=1)
+            if float(np.mean(dev < 20.0)) >= 0.5:
+                median_color = (
+                    int(round(float(med[0]))),
+                    int(round(float(med[1]))),
+                    int(round(float(med[2]))),
+                )
+                # Aşırı durum bekçisi: kapkara iç + bembeyaz tekdüze halka =
+                # dev glif (logo korumasından kaçmış); halka kazanır.
+                # (Koyu balon + parlak ışıma bu bekçiye nadiren takılır:
+                # ışıma gradyanı tekdüze değildir.)
+                # Aşırı durum bekçisi: kapkara iç + bembeyaz tekdüze halka =
+                # dev glif (logo korumasından kaçmış); halka kazanır.
+                # (Koyu balon + parlak ışıma bu bekçiye nadiren takılır:
+                # ışıma gradyanı tekdüze değildir.)
+                ring_probe = _ring_luma_stats(img, mask, bubble_interior)
+                if ring_probe is not None:
+                    r_med, r_std = ring_probe
+                    if (
+                        float(np.dot(med, [0.299, 0.587, 0.114])) < 80.0
+                        and r_med > 200.0
+                        and r_std <= 12.0
+                    ):
+                        pass  # halka mantığına düş
+                    else:
+                        return True, median_color
+                else:
+                    return True, median_color
 
         # Maske çevresindeki 2-8px halka piksellerini belirle
         d_outer = cv2.dilate(mask, np.ones((9, 9), np.uint8))
@@ -461,7 +520,14 @@ class Inpainter:
             grown |= refined
         if not np.any(grown):
             return mask
-        return replace(mask, refined=(grown.astype(np.uint8) * 255))
+        # Taşma zemini maskeye işlenir: dolgu rengi halka yerine BURADAN
+        # doğrulanır (büyümüş maskenin halkası artık sanattadır!).
+        flood_bg = tuple(int(round(v)) for v in bg.reshape(-1))
+        return replace(
+            mask,
+            refined=(grown.astype(np.uint8) * 255),
+            background_color=flood_bg,
+        )
 
     @staticmethod
     def _fill_ring_mismatch(text_mask: TextMask, inpainted_crop: np.ndarray) -> bool:

@@ -40,6 +40,33 @@ def test_can_use_flat_fill_complex_artwork_gradient():
     assert can_fill is False
 
 
+def test_can_use_flat_fill_grown_mask_dark_ring() -> None:
+    """Büyümüş maske: halka sanatta olsa iç-ortanca kazanır (kara-leke)."""
+    image = np.full((100, 100, 3), 255, dtype=np.uint8)
+    image[:, :10] = (10, 10, 10)
+    image[:, -10:] = (10, 10, 10)
+    image[40:60, 40:60] = (0, 0, 0)  # glif azınlığı
+    mask = np.zeros((100, 100), dtype=np.uint8)
+    mask[10:90, 10:90] = 255  # büyümüş maske, halka siyaha değer
+
+    can_fill, color = Inpainter._can_use_flat_fill(image, mask)
+    assert can_fill is True
+    assert color == (255, 255, 255)
+
+
+def test_can_use_flat_fill_giant_glyph_falls_back() -> None:
+    """Maske çoğunluğu glifse iç-ortanca reddedilir, halka mantığı çalışır."""
+    image = np.full((60, 60, 3), 255, dtype=np.uint8)
+    image[10:50, 10:50] = (0, 0, 0)  # %69 glif
+    mask = np.zeros((60, 60), dtype=np.uint8)
+    mask[5:55, 5:55] = 255
+
+    can_fill, color = Inpainter._can_use_flat_fill(image, mask)
+    # Halka beyaz → yine flat beyaz (davranış korunur).
+    assert can_fill is True
+    assert color == (255, 255, 255)
+
+
 def test_apply_flat_fill_with_soft_blend():
     image = np.full((50, 50, 3), 255, dtype=np.uint8)
     # Add black text in the center
