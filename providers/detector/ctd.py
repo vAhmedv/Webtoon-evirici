@@ -132,6 +132,7 @@ class ComicTextDetector(DetectorProvider):
         self._tile_batch_size = tile_batch_size if tile_batch_size is not None else get_batch_config().detector_tile_batch
         self._adaptive_batcher: ElasticAdaptiveBatcher | None = None
         self._conf_thresh = 0.4
+        self._second_chance_margin = 0.1
         self._nms_thresh = 0.35
         self._seg_thresh = 0.3
         self._box_thresh = 0.4
@@ -172,6 +173,24 @@ class ComicTextDetector(DetectorProvider):
     @tile_batch_size.setter
     def tile_batch_size(self, val: int) -> None:
         self._tile_batch_size = max(1, int(val))
+
+    @property
+    def confidence_threshold(self) -> float:
+        """YOLO skor eşiği (varsayılan 0.4; analyzer/config buradan ayarlar)."""
+        return float(self._conf_thresh)
+
+    @confidence_threshold.setter
+    def confidence_threshold(self, value: float) -> None:
+        self._conf_thresh = max(0.0, min(1.0, float(value)))
+
+    @property
+    def second_chance_margin(self) -> float:
+        """Eşik-altı ikinci-şans bandı genişliği (varsayılan 0.1)."""
+        return float(self._second_chance_margin)
+
+    @second_chance_margin.setter
+    def second_chance_margin(self, value: float) -> None:
+        self._second_chance_margin = max(0.0, min(0.5, float(value)))
 
     def set_debug(self, enabled: bool, output_dir: str | Path | None = None) -> None:
         """Debug modunu ayarlar."""
@@ -465,6 +484,8 @@ class ComicTextDetector(DetectorProvider):
                         for line in block.get("lines", [])
                         if not line.get("synthetic", False)
                     ],
+                    # Eşik-altı ikinci-şans kutusu: downstream REVIEW'a düşürür.
+                    "second_chance": bool(block.get("second_chance", False)),
                 }
                 segmentation_polygons = self._compact_segmentation_polygons(seg_mask, (ix1, iy1, ix2, iy2))
                 if segmentation_polygons:
@@ -625,7 +646,11 @@ class ComicTextDetector(DetectorProvider):
         class_scores = blk_output[:, 5:] * blk_output[:, 4:5]
         class_ids = class_scores.argmax(axis=1)
         scores = class_scores.max(axis=1)
-        mask = scores > self._conf_thresh
+        # İkinci-şans bandı: eşik-altı ama yakın kutular elenmez, işaretlenir.
+        # NMS'e düşük tabanla girerler (mevcut kazananları eleyemezler —
+        # baskılama yüksek skordan düşüğe akar); REVIEW'a düşerler.
+        floor = max(0.0, self._conf_thresh - self._second_chance_margin)
+        mask = scores > floor
         blk_output = blk_output[mask]
         class_ids = class_ids[mask]
         scores = scores[mask]
@@ -640,16 +665,20 @@ class ComicTextDetector(DetectorProvider):
         # OpenCV NMSBoxes is class-agnostic, so run it independently per class
         # to match upstream YOLOv5 non_max_suppression semantics.
         kept_indices: list[int] = []
+        kept_second_chance: set[int] = set()
         for class_id in np.unique(class_ids):
             class_indices = np.flatnonzero(class_ids == class_id)
             indices = cv2.dnn.NMSBoxes(
                 boxes_xywh[class_indices].tolist(),
                 scores[class_indices].tolist(),
-                self._conf_thresh,
+                floor,
                 self._nms_thresh,
             )
             if len(indices) > 0:
-                kept_indices.extend(class_indices[np.asarray(indices).reshape(-1)].tolist())
+                for k in class_indices[np.asarray(indices).reshape(-1)].tolist():
+                    kept_indices.append(k)
+                    if float(scores[k]) < self._conf_thresh:
+                        kept_second_chance.add(k)
 
         if not kept_indices:
             return []
@@ -668,16 +697,20 @@ class ComicTextDetector(DetectorProvider):
         boxes[:, [0, 2]] = np.clip(boxes[:, [0, 2]], 0, im_w)
         boxes[:, [1, 3]] = np.clip(boxes[:, [1, 3]], 0, im_h)
 
+        second_flags = [k in kept_second_chance for k in kept_indices]
         result = []
-        for box, score in zip(boxes, scores):
+        for box, score, is_second in zip(boxes, scores, second_flags):
             x1, y1, x2, y2 = box
             if x2 <= x1 or y2 <= y1:
                 continue
-            result.append({
+            entry: dict[str, object] = {
                 "bbox": [float(x1), float(y1), float(x2), float(y2)],
                 "confidence": float(score),
                 "type": "block",
-            })
+            }
+            if is_second:
+                entry["second_chance"] = True
+            result.append(entry)
         return result
 
     def _postprocess_dbnet_lines(self, det_output, im_w, im_h, dw=0, dh=0):

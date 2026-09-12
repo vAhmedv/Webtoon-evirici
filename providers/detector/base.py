@@ -54,3 +54,12 @@ class DetectorProvider(ABC):
     def is_loaded(self) -> bool:
         """Yük durumu."""
         return False
+
+    @property
+    def confidence_threshold(self) -> float:
+        """Tespit skor eşiği (varsayılan 0.5; sağlayıcılar geçersiz kılabilir)."""
+        return float(getattr(self, "_confidence_threshold", 0.5))
+
+    @confidence_threshold.setter
+    def confidence_threshold(self, value: float) -> None:
+        self._confidence_threshold = max(0.0, min(1.0, float(value)))

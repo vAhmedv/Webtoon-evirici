@@ -219,8 +219,10 @@ class ChapterAnalyzer:
         # 4. Detection Stage
         t_det_start = time.perf_counter()
         _progress("Loading detector")
-        if hasattr(detector, "confidence_threshold"):
-            detector.confidence_threshold = conf
+        # Yalnız açıkça yapılandırıldıysa yaz (None = sağlayıcı varsayılanı:
+        # CTD 0.4). Kör `conf` yazımı eşiği sessizce yükseltirdi (regresyon).
+        if cfg.detector.threshold is not None and hasattr(detector, "confidence_threshold"):
+            detector.confidence_threshold = cfg.detector.threshold
 
         all_detections: list[Detection] = []
         try:

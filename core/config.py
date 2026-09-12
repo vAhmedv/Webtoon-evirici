@@ -33,6 +33,9 @@ class DetectorConfig:
     enabled: bool = False
     model: str | None = None
     provider: str = "ComicTextDetector"
+    # Opsiyonel skor eşiği (None = sağlayıcı varsayılanı korunur: CTD 0.4).
+    # Ayarlanırsa analyzer/provider threshold'u buradan yazar.
+    threshold: float | None = None
 
 
 @dataclass(frozen=True)

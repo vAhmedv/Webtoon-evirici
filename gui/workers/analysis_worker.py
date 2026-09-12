@@ -137,10 +137,12 @@ class AnalysisWorker(QThread):
                 raise RuntimeError(f"{e}. Available detectors: {available}") from e
             logger.debug(f"[THREAD] Provider created: {type(provider).__name__}")
 
-            if hasattr(provider, "confidence_threshold"):
-                provider.confidence_threshold = self.config.min_confidence
+            if self.config.detector.threshold is not None and hasattr(
+                provider, "confidence_threshold"
+            ):
+                provider.confidence_threshold = self.config.detector.threshold
                 logger.debug(
-                    f"[THREAD] Provider confidence set to {self.config.min_confidence}"
+                    f"[THREAD] Provider confidence set to {self.config.detector.threshold}"
                 )
 
             primary = _create_primary_ocr(self.config, self._ocr_name)
