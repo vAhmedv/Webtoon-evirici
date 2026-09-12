@@ -185,10 +185,31 @@ def classify_regions(
                     )
                 )
                 continue
+            if _is_logo_like_region(r, norm_txt, coords):
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.WATERMARK,
+                        status=RegionStatus.SKIP,
+                        reason="logo_art_skip",
+                    )
+                )
+                continue
             classified_regions.append(r)
         elif r.type == RegionType.UNKNOWN:
             # UNKNOWN için içerik ve alfabe kontrolü
-            if norm_txt and len(norm_txt) >= 2 and any(c.isalpha() for c in norm_txt):
+            if _is_logo_like_region(r, norm_txt, coords):
+                # Logo/art-yazı UNKNOWN tipinde de gelebilir (P002 vakası);
+                # tip ne olursa olsun art korunur.
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.WATERMARK,
+                        status=RegionStatus.SKIP,
+                        reason="logo_art_skip",
+                    )
+                )
+            elif norm_txt and len(norm_txt) >= 2 and any(c.isalpha() for c in norm_txt):
                 classified_regions.append(r)
             elif not norm_txt or not any(c.isalnum() for c in norm_txt):
                 classified_regions.append(
@@ -355,7 +376,12 @@ def _is_multi_signal_non_text_noise(region: Region, norm_txt: str) -> bool:
 
 
 def _is_stylized_art_letter_or_logo(region: Region, norm_txt: str) -> bool:
-    """Detects stylized art letters, chapter title logos or giant non-dialogue art glyphs."""
+    """Detects stylized art letters or giant non-dialogue art glyphs.
+
+    Not: eski 'bilinen başlık kelimeleri' listesi KALDIRILDI (bölüme özel
+    ezber = overfit). Genel geometrik logo kuralı için
+    `_is_logo_like_region` kullanılır.
+    """
     if _is_dialogue_exclamation(norm_txt):
         return False
     if norm_txt.isdigit():
@@ -379,10 +405,84 @@ def _is_stylized_art_letter_or_logo(region: Region, norm_txt: str) -> bool:
     if len(norm_txt) <= 2 and norm_txt not in VALID_SHORT_WORDS and (area >= 4000 or region.ocr_confidence < 0.60):
         return True
 
-    # 3. Known title/brand art words when large
-    if norm_txt in {"ZERO", "FANTASY", "ONLINE", "PROLOGUE"} and (w >= 180 or area >= 12000):
-        return True
+    return False
 
+
+# Faz 1 logo eşikleri (tamamı sayfa-göreli; mutlak piksel ve kelime listesi yok).
+# Kalibrasyon: Chapter 1 logo parçaları (dev harf, seyrek dizgi) vs diyalog/
+# stat-penceresi dağılımları. Birimler: oran (0-1) ve 1000px² başına alfanümerik.
+_LOGO_TOP_ZONE_REL_Y = 0.15
+_LOGO_MIN_GLYPH_H_PAGE_W = 0.08
+_LOGO_MIN_GLYPH_H_PAGE_W_ANYWHERE = 0.10
+_LOGO_MAX_DENSITY_TOP = 0.6
+_LOGO_MAX_DENSITY_GIANT = 0.3
+_LOGO_MIN_PX_PER_CHAR_TOP = 25.0
+_LOGO_MIN_PX_PER_CHAR_GIANT = 40.0
+
+
+def _logo_geometry(region: Region, coords: GlobalCoordinateSystem) -> tuple[float, float, float, float] | None:
+    """Logo kuralı girdileri: (rel_y, h_page_w, density, px_per_char)."""
+    bbox = region.global_bbox
+    w, h = bbox.width, bbox.height
+    if w <= 0 or h <= 0:
+        return None
+    try:
+        center_y = (bbox.y1 + bbox.y2) // 2
+        page_idx, page_y = coords.global_to_page(center_y)
+        pages = getattr(coords, "pages", ())
+        if page_idx < 0 or page_idx >= len(pages):
+            return None
+        page = pages[page_idx]
+        page_w = float(getattr(page, "width", 0) or 0)
+        page_h = float(getattr(page, "height", 0) or 0)
+        if page_w <= 0 or page_h <= 0:
+            return None
+    except Exception:
+        return None
+    area = w * h
+    alnum = sum(1 for c in (region.text or "") if c.isalnum())
+    density = alnum / max(1, area) * 1000.0
+    return (
+        page_y / page_h,
+        h / page_w,
+        density,
+        h / max(1, alnum),
+    )
+
+
+def _is_logo_like_region(
+    region: Region, norm_txt: str, coords: GlobalCoordinateSystem
+) -> bool:
+    """Genel logo/art-yazı kuralı: seyrek dizgili dev glifler.
+
+    Başlık logoları (ve benzeri art-yazılar) her manhwa'da aynı imzayı verir:
+    kutuya göre çok az karakter, dev harf boyu, sıklıkla sayfa üst bölgesi.
+    Yoğun diyalog/anlatı kutuları ve oyun stat-pencereleri bu imzayı vermez:
+    ilki yoğun dizgili, ikincisi orta boy gliflidir.
+    """
+    if _is_dialogue_exclamation(norm_txt):
+        return False
+    if norm_txt.isdigit():
+        return False
+    geom = _logo_geometry(region, coords)
+    if geom is None:
+        return False
+    rel_y, h_page_w, density, px_per_char = geom
+    # A: sayfa üstü başlık kuşağı + büyük + seyrek + iri glif.
+    if (
+        rel_y < _LOGO_TOP_ZONE_REL_Y
+        and h_page_w > _LOGO_MIN_GLYPH_H_PAGE_W
+        and density < _LOGO_MAX_DENSITY_TOP
+        and px_per_char > _LOGO_MIN_PX_PER_CHAR_TOP
+    ):
+        return True
+    # B: sayfada herhangi bir yerde dev glif + seyrek (stat-penceresi eşiği üstü).
+    if (
+        h_page_w > _LOGO_MIN_GLYPH_H_PAGE_W_ANYWHERE
+        and density < _LOGO_MAX_DENSITY_GIANT
+        and px_per_char > _LOGO_MIN_PX_PER_CHAR_GIANT
+    ):
+        return True
     return False
 
 
