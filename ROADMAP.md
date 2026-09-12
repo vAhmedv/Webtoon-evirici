@@ -124,3 +124,11 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - [x] **Faz 2 tamamı:** renderer ön-geçiş (blok-id dedup, çakışma grubunda en-uzun-metin kazanır + warning, kelimesiz metin atlanır, sahipsiz çift-tırnak temizlenir — ASCII kesme işareti korunur) + eligibility parça-veto (`THE/A/AN/I`, noktalama-only). 19 yeni/güncel test yeşil (`test_renderer_guards.py`, `test_translation_eligibility.py`). Anti-overfit: sentetik fixture, göreli IoU eşiği (0.6), bölüm verisi yok.
 - [x] **Faz 1 tamamı:** geometrik logo kuralı (`_is_logo_like_region`: sayfa-göreli üst-bölge/dev-glif/seyreklik, kalibre eşikler) DIALOGUE/NARRATION + UNKNOWN dallarına bağlandı; ezber kelime listesi (`ZERO/FANTASY/ONLINE/PROLOGUE`) silindi. 7 sentetik test + 55 mevcut test yeşil (regresyon yok). Gerçek veri doğrulaması: P002 logo parçaları 13/14 SKIP, 40 rastgele AUTO'dan 39 untouched; id 83 (`Aw`, dev art-vokalizasyon) da SKIP — logo imzası, false positive değil.
 - [ ] Faz 3 (sıradaki): provider glossary tüketiyor (`inp.glossary` → sentinel), ama üretim `TranslationInput(items)` ile boş geçiyor. İş: bölüm-içi tekrar kilidi + `glossary.json` artefaktı.
+
+## DOĞRULAMA TURU (2026-09-12, güncel kurallar, 266 sn)
+
+- Metrik: 230/74/306 → **226 auto / 52 review / 332 skip** (0 fail, 0 overflow). Review yükü −22: çoğu art-kırıntı REVIEW'dan SKIP'e geçti.
+- `logo_art_skip` 69 region: tamamı dev-seyrek art-crop (52×179'dan 489×466'ya), hiçbiri çevrilmedi (translation None) — hikâye kaybı yok (40 rastgele AUTO kontrolü: 39 untouched).
+- P002 logo: **"Zero FANTASY" artı tamamen sağlam**, üstünde Türkçe kırıntı/leke yok. Çift-render (`DÜNYANIN`×2/`THE`) yok, tek temiz basım. `-ONLINE-` → `ÇEVRİMİÇİ` başlık altına lokalize basıldı (art bozulmadan — kabul).
+- P003/P024 kalan izler YENİDEN TEŞHİS: render'daki `I` ve `iz"bırakmak` izleri çeviri değil, **eksik inpaint temizliği** (bölge çevirilerinde o metinler yok). Yani Faz 4'ün kapsamı netleşti: maske kapsamı + inpaint-sonrası glif kalıntı denetimi (temizlenen kutuda OCR harf bulursa REVIEW).
+- P024: watermark rozeti (`ASMOTOON.COM`) sağlam; `Bu sefer/Bunu yapıyorum` kısmi çakışması sürüyor (IoU 0.6 eşiğinin altı — eşik/apartman değil, grouping işi).
