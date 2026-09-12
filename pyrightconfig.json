@@ -1,0 +1,22 @@
+{
+  // Tek komutluk dil kapısı:  npx pyright -p pyrightconfig.json
+  // Motor: pyright 1.1.414 (npx önbelleği; .venv'e dokunmaz).
+  // Not: PySide6 stub gürültüsü ve cv2 overload'ları önceden mevcuttur;
+  // kapı hükmü değişen dosyalardaki YENİ diagnostic yokluğudur.
+  "venvPath": ".",
+  "venv": ".venv",
+  "typeCheckingMode": "basic",
+  "exclude": [
+    ".venv",
+    "**/__pycache__",
+    "audit_output",
+    "e2e_output",
+    "review_output",
+    "benchmark_output",
+    "output",
+    "output_chapter",
+    "graphify-out",
+    ".cache",
+    "scratch"
+  ]
+}
