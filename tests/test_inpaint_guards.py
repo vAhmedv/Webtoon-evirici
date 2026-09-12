@@ -1,0 +1,104 @@
+"""Faz 4 inpaint guard testleri: tamamı sentetik numpy, model/GPU yok.
+
+Anti-overfit: hiçbir test bölüm/sayfa verisi kullanmaz; eşikler göreli
+oranlardır (çekirdek = maske yüksekliğinin işlevi, kontrast = medyandan sapma).
+"""
+
+import numpy as np
+
+from core.imaging.inpainter import (
+    FILL_RING_LUMA_GAP,
+    GHOST_MIN_COMPONENT_AREA,
+    Inpainter,
+    lama_kernel_for_height,
+)
+from core.imaging.text_mask import TextMask
+
+
+def _mask(h: int, w: int, x1: int, y1: int, x2: int, y2: int) -> TextMask:
+    refined = np.zeros((h, w), dtype=np.uint8)
+    refined[y1:y2, x1:x2] = 255
+    source = np.full((h, w, 3), 255, dtype=np.uint8)
+    return TextMask(
+        crop_bbox=(0, 0, w, h),
+        source=source,
+        raw=refined.copy(),
+        refined=refined,
+        background_color=(255, 255, 255),
+        is_uniform_background=True,
+    )
+
+
+def test_lama_kernel_scales_with_height() -> None:
+    assert lama_kernel_for_height(10) == 3
+    assert lama_kernel_for_height(0) == 3
+    small = lama_kernel_for_height(40)
+    big = lama_kernel_for_height(300)
+    huge = lama_kernel_for_height(5000)
+    assert small % 2 == 1 and big % 2 == 1 and huge % 2 == 1
+    assert 3 <= small < big <= huge <= 21
+    assert huge == 21
+
+
+def test_interior_ghost_clean_uniform() -> None:
+    crop = np.full((60, 100, 3), 255, dtype=np.uint8)
+    mask = np.zeros((60, 100), dtype=np.uint8)
+    mask[10:50, 10:90] = 255
+    assert Inpainter._interior_ghost_area(crop, mask) == 0
+
+
+def test_interior_ghost_flags_glyph_remnant() -> None:
+    crop = np.full((60, 100, 3), 255, dtype=np.uint8)
+    crop[20:40, 30:50] = (0, 0, 0)  # 20x20 = 400px siyah artık
+    mask = np.zeros((60, 100), dtype=np.uint8)
+    mask[10:50, 10:90] = 255
+    assert Inpainter._interior_ghost_area(crop, mask) >= GHOST_MIN_COMPONENT_AREA
+
+
+def test_interior_ghost_ignores_specks() -> None:
+    crop = np.full((60, 100, 3), 255, dtype=np.uint8)
+    crop[20:22, 30:32] = (0, 0, 0)  # 2x2 = 4px < eşik
+    mask = np.zeros((60, 100), dtype=np.uint8)
+    mask[10:50, 10:90] = 255
+    assert Inpainter._interior_ghost_area(crop, mask) == 0
+
+
+def test_fill_ring_mismatch_white_blob_on_dark() -> None:
+    """P003 vakası: balonsuz beyaz dolgu, koyu çevre → REVIEW."""
+    h, w = 120, 160
+    source = np.full((h, w, 3), 25, dtype=np.uint8)  # koyu zemin
+    refined = np.zeros((h, w), dtype=np.uint8)
+    refined[30:90, 40:120] = 255
+    inpainted = source.copy()
+    inpainted[refined > 0] = (245, 245, 245)  # beyaz leke
+    tm = TextMask(
+        crop_bbox=(0, 0, w, h),
+        source=source,
+        raw=refined.copy(),
+        refined=refined,
+        background_color=(245, 245, 245),
+        is_uniform_background=False,
+    )
+    assert Inpainter._fill_ring_mismatch(tm, inpainted) is True
+
+
+def test_fill_ring_mismatch_white_bubble_clean() -> None:
+    """Beyaz balon + beyaz dolgu + açık çevre → temiz."""
+    tm = _mask(120, 160, 40, 30, 120, 90)
+    inpainted = np.full((120, 160, 3), 255, dtype=np.uint8)
+    assert Inpainter._fill_ring_mismatch(tm, inpainted) is False
+
+
+def test_fill_ring_mismatch_bubble_found_skips() -> None:
+    """Balon bulunduysa dolgu balon içindedir — denetim çalışmaz."""
+    tm = _mask(120, 160, 40, 30, 120, 90)
+    bubble = np.zeros((120, 160), dtype=np.uint8)
+    bubble[20:100, 30:130] = 255
+    object.__setattr__(tm, "bubble_interior", bubble)
+    inpainted = np.full((120, 160, 3), 25, dtype=np.uint8)
+    inpainted[30:90, 40:120] = (245, 245, 245)
+    assert Inpainter._fill_ring_mismatch(tm, inpainted) is False
+
+
+def test_fill_ring_gap_constant_sane() -> None:
+    assert 30 <= FILL_RING_LUMA_GAP <= 120

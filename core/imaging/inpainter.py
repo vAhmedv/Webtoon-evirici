@@ -17,6 +17,34 @@ from core.imaging.text_mask import TextMask, TextMaskBuilder
 DEFAULT_LAMA_CHECKPOINT = Path(r"C:\AI\Models\LaMa\lama_large_512px.ckpt")
 
 
+# Faz 4 eşikleri (genel; piksel-sanatı varsayımı yok, hepsi göreli).
+# LaMa maske çekirdeği maske yüksekliğine göre ölçeklenir (sabit 7x7 yerine).
+LAMA_KERNEL_MIN = 3
+LAMA_KERNEL_MAX = 21
+# İç-artık: dolgu renginden bu kadar sapan, bu büyüklükte bileşenler glif artığıdır.
+GHOST_CONTRAST_THRESHOLD = 40.0
+GHOST_MIN_COMPONENT_AREA = 15
+# Dolgu/zemin uyuşmazlığı: balon bulunamadıysa iç-ortanca ile dış-halka
+# ortancası bu kadar ayrışamaz (P003 beyaz-leke vakası).
+FILL_RING_LUMA_GAP = 60.0
+FILL_RING_WIDTH = 6
+
+
+def lama_kernel_for_height(mask_h: int) -> int:
+    """Maske yüksekliğine göre tek-sayı morfolojik çekirdek boyutu.
+
+    Küçük yazıda dar (artık bırakmaz), büyük yazıda geniş (hale yapmaz).
+    Sınırlar: 3..21, her zaman tek sayı.
+    """
+    k = int(round(max(1, mask_h) * 0.06)) * 2 + 1
+    return max(LAMA_KERNEL_MIN, min(LAMA_KERNEL_MAX, k))
+
+
+def _luminance(pixel: np.ndarray) -> float:
+    rgb = np.asarray(pixel, dtype=np.float32).reshape(-1, 3)
+    return float(np.median(np.dot(rgb, [0.299, 0.587, 0.114])))
+
+
 def _is_story_text(region: Region) -> bool:
     return (
         region.status == RegionStatus.AUTO
@@ -85,7 +113,8 @@ class Inpainter:
             can_flat, _ = self._can_use_flat_fill(mask.source, mask.refined, mask.bubble_interior)
             if not can_flat and not mask.is_uniform_background:
                 import cv2
-                lama_mask = cv2.dilate(mask.refined, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+                _kh = lama_kernel_for_height(mask.refined.shape[0])
+                lama_mask = cv2.dilate(mask.refined, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (_kh, _kh)))
                 lama_jobs.append((idx, mask.source, lama_mask))
 
         precomputed_crops: dict[int, np.ndarray] = {}
@@ -145,7 +174,8 @@ class Inpainter:
             method = "lama_large"
         else:
             import cv2
-            lama_mask = cv2.dilate(text_mask.refined, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+            _kh = lama_kernel_for_height(text_mask.refined.shape[0])
+            lama_mask = cv2.dilate(text_mask.refined, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (_kh, _kh)))
             inpainted_crop = self.lama.inpaint(text_mask.source, lama_mask)
             method = "lama_large"
 
@@ -173,9 +203,23 @@ class Inpainter:
                 inpainted_crop[refined] = np.asarray(text_mask.background_color, dtype=np.uint8)
             else:
                 import cv2
-                lama_expanded = cv2.dilate(expanded, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+                _kh = lama_kernel_for_height(expanded.shape[0])
+                lama_expanded = cv2.dilate(expanded, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (_kh, _kh)))
                 inpainted_crop = self.lama.inpaint(text_mask.source, lama_expanded)
         review = self._has_boundary_residual(text_mask, inpainted_crop)
+        # Faz 4a: maske-içi hayalet (LaMa/ortanca artığı).
+        if method != "flat_fill_fast":
+            try:
+                if self._interior_ghost_area(inpainted_crop, text_mask.refined) >= GHOST_MIN_COMPONENT_AREA:
+                    review = True
+            except Exception:
+                pass
+        # Faz 4b: dolgu/zemin uyuşmazlığı (balonsuz beyaz-leke).
+        try:
+            if self._fill_ring_mismatch(text_mask, inpainted_crop):
+                review = True
+        except Exception:
+            pass
         self.last_text_mask = text_mask
         if review and debug_name.startswith("block_"):
             try:
@@ -296,6 +340,57 @@ class Inpainter:
             return text_mask.refined
         tiny = cv2.dilate(candidates, np.ones((3, 3), np.uint8))
         return cv2.bitwise_or(text_mask.refined, tiny)
+
+    @staticmethod
+    def _interior_ghost_area(inpainted_crop: np.ndarray, refined_mask: np.ndarray) -> int:
+        """Inpaint SONRASI maske içinde kalan en büyük zıt bileşenin alanı.
+
+        Düz-dolguda iç zaten tek renktir (0 döner). LaMa/ortanca yolda
+        kalan glif hayaleti (P003 `I`/tırnak artığı) burada yakalanır.
+        Saf numpy/cv2 — model çağrısı yok.
+        """
+        import cv2
+
+        refined = (np.asarray(refined_mask) > 0)
+        if not np.any(refined):
+            return 0
+        gray = cv2.cvtColor(np.ascontiguousarray(inpainted_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
+        interior = gray[refined]
+        if interior.size == 0:
+            return 0
+        bg = float(np.median(interior))
+        dev = (np.abs(gray - bg) >= GHOST_CONTRAST_THRESHOLD) & refined
+        if int(np.count_nonzero(dev)) < GHOST_MIN_COMPONENT_AREA:
+            return 0
+        # Bileşen alanı: stub-gürültüsüz yol (labels argümanı geçilmez).
+        count, labels = cv2.connectedComponents(dev.astype(np.uint8))
+        if count <= 1:
+            return 0
+        areas = np.bincount(labels.ravel())[1:]
+        return int(np.max(areas)) if areas.size else 0
+
+    @staticmethod
+    def _fill_ring_mismatch(text_mask: TextMask, inpainted_crop: np.ndarray) -> bool:
+        """Dolgu rengi çevre sanatla bağdaşmıyorsa True (P003 beyaz-leke).
+
+        Balon bulunduysa dolgu zaten balon içindedir (meşru). Balon YOKSA
+        iç-ortanca ile dış-halka ortancası yakın olmalı; değilse maske
+        sanata taşmış demektir → REVIEW (orijinal korunur).
+        """
+        import cv2
+
+        if text_mask.bubble_found:
+            return False
+        refined = (np.asarray(text_mask.refined) > 0)
+        if int(np.count_nonzero(refined)) < 16:
+            return False
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (FILL_RING_WIDTH, FILL_RING_WIDTH))
+        ring = (cv2.dilate(refined.astype(np.uint8), kernel) > 0) & (~refined)
+        if int(np.count_nonzero(ring)) < 16:
+            return False
+        inner_lum = _luminance(np.ascontiguousarray(inpainted_crop)[refined])
+        ring_lum = _luminance(np.ascontiguousarray(text_mask.source)[ring])
+        return abs(inner_lum - ring_lum) > FILL_RING_LUMA_GAP
 
     @classmethod
     def _has_boundary_residual(cls, text_mask: TextMask, result: np.ndarray) -> bool:
