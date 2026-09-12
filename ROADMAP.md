@@ -115,3 +115,12 @@
 Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesini bekler (render değişikliği terim testini etkiler). Faz 6 her an koşabilir (üretim yolunu değiştirmez).
 
 **İlk komut:** Faz 0.1 + 0.2 (bugün), ardından Faz 2 + Faz 1 paralel.
+
+---
+
+## İLERLEME GÜNLÜĞÜ (2026-09-12)
+
+- [x] **Faz 0 tamamı:** secret hijyeni (`GEMINI_API_KEY` env'de, yaml null; `load_config` env-fallback + `update_gemini_api_key` sır yazmıyor), 10 atomic commit + push, output/ağırlık ignore doğrulandı. 17 dosyaya LSP taraması: değişiklerden yeni diagnostic yok.
+- [x] **Faz 2 tamamı:** renderer ön-geçiş (blok-id dedup, çakışma grubunda en-uzun-metin kazanır + warning, kelimesiz metin atlanır, sahipsiz çift-tırnak temizlenir — ASCII kesme işareti korunur) + eligibility parça-veto (`THE/A/AN/I`, noktalama-only). 19 yeni/güncel test yeşil (`test_renderer_guards.py`, `test_translation_eligibility.py`). Anti-overfit: sentetik fixture, göreli IoU eşiği (0.6), bölüm verisi yok.
+- [x] **Faz 1 tamamı:** geometrik logo kuralı (`_is_logo_like_region`: sayfa-göreli üst-bölge/dev-glif/seyreklik, kalibre eşikler) DIALOGUE/NARRATION + UNKNOWN dallarına bağlandı; ezber kelime listesi (`ZERO/FANTASY/ONLINE/PROLOGUE`) silindi. 7 sentetik test + 55 mevcut test yeşil (regresyon yok). Gerçek veri doğrulaması: P002 logo parçaları 13/14 SKIP, 40 rastgele AUTO'dan 39 untouched; id 83 (`Aw`, dev art-vokalizasyon) da SKIP — logo imzası, false positive değil.
+- [ ] Faz 3 (sıradaki): provider glossary tüketiyor (`inp.glossary` → sentinel), ama üretim `TranslationInput(items)` ile boş geçiyor. İş: bölüm-içi tekrar kilidi + `glossary.json` artefaktı.
