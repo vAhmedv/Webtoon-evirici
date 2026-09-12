@@ -55,6 +55,23 @@ def _is_story_text(region: Region) -> bool:
     )
 
 
+def _is_second_chance_block(block: Any) -> bool:
+    """Blok üyelerinin tamamı eşik-altı ikinci-şans tespiti mi?"""
+    members: tuple[Any, ...] = tuple(getattr(block, "members", ()) or ())
+    if not members:
+        return False
+    for m in members:
+        meta = getattr(m, "metadata", None)
+        if not isinstance(meta, dict) or not meta.get("second_chance"):
+            return False
+    return True
+
+
+# İkinci-şans kutusu görece büyütme (düşük güven ↔ kısmi kutu korelasyonu).
+SECOND_CHANCE_PAD_RATIO = 0.18
+SECOND_CHANCE_KERNEL_MAX = 81
+
+
 class Inpainter:
     """Removes source glyphs while preserving every pixel outside the refined mask."""
 
@@ -96,6 +113,10 @@ class Inpainter:
                 continue
             eligible = members
             mask = self.mask_builder._build(result, block.merged_bbox, eligible)
+            # İkinci-şans kutuları kısmi olur (düşük güven ↔ eksik geometri);
+            # maske balon içinde görece genişletilir (sanat korunur).
+            if _is_second_chance_block(block):
+                mask = self._expand_mask_in_bubble(mask)
             block_id = int(getattr(block, "id", -1))
             if np.any(mask.refined):
                 self.processed_block_ids.add(block_id)
@@ -345,6 +366,60 @@ class Inpainter:
 
     @staticmethod
     def _interior_ghost_area(inpainted_crop: np.ndarray, refined_mask: np.ndarray) -> int:
+        """Inpaint SONRASI maske içinde kalan zıt piksel alanı.
+
+        Düz-dolguda iç zaten tek renktir (0 döner). LaMa/ortanca yolda
+        kalan glif hayaleti (P003 `I`/tırnak artığı, P005 zerreleri) burada
+        yakalanır: tekil bileşen eşiği VEYA dağınık toplam eşik.
+        Saf numpy/cv2 — model çağrısı yok.
+        """
+        import cv2
+
+        refined = (np.asarray(refined_mask) > 0)
+        if not np.any(refined):
+            return 0
+        gray = cv2.cvtColor(np.ascontiguousarray(inpainted_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
+        interior = gray[refined]
+        if interior.size == 0:
+            return 0
+        bg = float(np.median(interior))
+        dev = (np.abs(gray - bg) >= GHOST_CONTRAST_THRESHOLD) & refined
+        total_dev = int(np.count_nonzero(dev))
+        if total_dev < GHOST_MIN_COMPONENT_AREA:
+            return 0
+        # Bileşen-ebat artı toplam-ebat: dağınık zerreler de bayraklanır.
+        if total_dev >= GHOST_MIN_TOTAL_AREA:
+            return total_dev
+        # Bileşen alanı: stub-gürültüsüz yol (labels argümanı geçilmez).
+        count, labels = cv2.connectedComponents(dev.astype(np.uint8))
+        if count <= 1:
+            return 0
+        areas = np.bincount(labels.ravel())[1:]
+        return int(np.max(areas)) if areas.size else 0
+
+    @staticmethod
+    def _expand_mask_in_bubble(mask: TextMask) -> TextMask:
+        """İkinci-şans maskesini balon içinde görece genişletir.
+
+        Balon YOKSA aynen döner (sanat yeme riski alınmaz). Balon varsa
+        genişleme balon içiyle sınırlıdır — beyaz balonda güvenli.
+        """
+        import cv2
+
+        if mask.bubble_interior is None or not np.any(mask.bubble_interior):
+            return mask
+        refined = (np.asarray(mask.refined) > 0)
+        if not np.any(refined):
+            return mask
+        pad = max(3, int(refined.shape[0] * SECOND_CHANCE_PAD_RATIO))
+        kernel = cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE, (min(SECOND_CHANCE_KERNEL_MAX, pad * 2 + 1),) * 2
+        )
+        grown = (cv2.dilate(refined.astype(np.uint8), kernel) > 0)
+        grown &= (np.asarray(mask.bubble_interior) > 0)
+        if not np.any(grown):
+            return mask
+        return replace(mask, refined=(grown.astype(np.uint8) * 255))
         """Inpaint SONRASI maske içinde kalan en büyük zıt bileşenin alanı.
 
         Düz-dolguda iç zaten tek renktir (0 döner). LaMa/ortanca yolda

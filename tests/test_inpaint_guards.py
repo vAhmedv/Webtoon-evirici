@@ -114,3 +114,59 @@ def test_fill_ring_mismatch_bubble_found_skips() -> None:
 
 def test_fill_ring_gap_constant_sane() -> None:
     assert 30 <= FILL_RING_LUMA_GAP <= 120
+
+
+def _member_with_flag(flag: bool):
+    from core.detection import BBox, Region, RegionStatus, RegionType
+
+    return Region(
+        id=1,
+        global_bbox=BBox(0, 0, 50, 30),
+        type=RegionType.UNKNOWN,
+        detection_confidence=0.38,
+        source_window_ids=(1,),
+        status=RegionStatus.REVIEW,
+        text="X",
+        metadata={"second_chance": flag},
+    )
+
+
+def test_is_second_chance_block() -> None:
+    from core.imaging.inpainter import _is_second_chance_block
+    from core.detection.text_block import TextBlock
+    from core.detection import BBox
+
+    def _block(*flags: bool) -> TextBlock:
+        members = tuple(_member_with_flag(f) for f in flags)
+        return TextBlock(
+            id=1, member_ids=tuple(m.id for m in members), members=members,
+            merged_bbox=BBox(0, 0, 50, 30), source_text="X",
+        )
+
+    assert _is_second_chance_block(_block(True))
+    assert _is_second_chance_block(_block(True, True))
+    assert not _is_second_chance_block(_block(True, False))
+    assert not _is_second_chance_block(_block(False))
+
+
+def test_expand_mask_in_bubble_grows_bounded() -> None:
+    from core.imaging.inpainter import Inpainter
+
+    tm = _mask(120, 160, 60, 50, 100, 70)  # 40x20 maske
+    bubble = np.zeros((120, 160), dtype=np.uint8)
+    bubble[10:110, 20:140] = 255  # geniş balon
+    object.__setattr__(tm, "bubble_interior", bubble)
+    before = int(np.count_nonzero(tm.refined))
+    grown = Inpainter._expand_mask_in_bubble(tm)
+    after = int(np.count_nonzero(grown.refined))
+    assert after > before
+    # Balon dışına taşmaz.
+    assert bool(np.all((grown.refined == 0) | (bubble > 0)))
+
+
+def test_expand_mask_without_bubble_unchanged() -> None:
+    from core.imaging.inpainter import Inpainter
+
+    tm = _mask(120, 160, 60, 50, 100, 70)
+    grown = Inpainter._expand_mask_in_bubble(tm)
+    assert np.array_equal(grown.refined, tm.refined)
