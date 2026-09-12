@@ -68,8 +68,9 @@ def _is_second_chance_block(block: Any) -> bool:
 
 
 # İkinci-şans kutusu görece büyütme (düşük güven ↔ kısmi kutu korelasyonu).
-SECOND_CHANCE_PAD_RATIO = 0.18
-SECOND_CHANCE_KERNEL_MAX = 81
+# Her eksende maske boyutunun oranı (DAMMIT: 180px kutu, ~300px glif).
+SECOND_CHANCE_PAD_RATIO = 0.35
+SECOND_CHANCE_KERNEL_MAX = 121
 
 
 class Inpainter:
@@ -411,9 +412,15 @@ class Inpainter:
         refined = (np.asarray(mask.refined) > 0)
         if not np.any(refined):
             return mask
-        pad = max(3, int(refined.shape[0] * SECOND_CHANCE_PAD_RATIO))
+        ys, xs = np.nonzero(refined)
+        pad_y = max(3, int((ys.max() - ys.min() + 1) * SECOND_CHANCE_PAD_RATIO))
+        pad_x = max(3, int((xs.max() - xs.min() + 1) * SECOND_CHANCE_PAD_RATIO))
         kernel = cv2.getStructuringElement(
-            cv2.MORPH_ELLIPSE, (min(SECOND_CHANCE_KERNEL_MAX, pad * 2 + 1),) * 2
+            cv2.MORPH_ELLIPSE,
+            (
+                min(SECOND_CHANCE_KERNEL_MAX, pad_x * 2 + 1),
+                min(SECOND_CHANCE_KERNEL_MAX, pad_y * 2 + 1),
+            ),
         )
         grown = (cv2.dilate(refined.astype(np.uint8), kernel) > 0)
         src = np.ascontiguousarray(mask.source).astype(np.int16)
