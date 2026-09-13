@@ -192,3 +192,9 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - Testler: 684 geçti (3 yeni: swap-uyuşmazlık/uyum/hedge), 2 önceden-var hata aynı. Kabul kanıtı için Ch1 audit'i yeniden koşuyor (259/260 balonları).
 - [x] **İŞ 5 (gate'ler):** audit `--strict` kapısı (`short_untranslated≤6` [ölçülen], `overflow==0`; varsayılan uyarı, strict'te non-zero) + `scripts/write_defect_report.py` + test envanteri (F1–F5'in her birinin özel test dosyası var: logo/test_logo_protection, render/test_renderer_guards, terim/test_chapter_glossary, inpaint/test_inpaint_guards+test_text_mask_inpainting, coverage/test_translation_eligibility).
 - Bilinen önceden-var kusurlar (bu turda dokunulmadı): `test_mixed_status_block_safety` (renderer kısmi-render vs eski tam-veto — spesifikasyon çelişkisi, karar bekliyor), `test_residual_expansion_can_follow_a_bounded_multi_pixel_glyph_edge` (review=True).
+
+## F2 TURU (2026-09-13, build)
+
+- [x] **Spike (ÖLDÜRÜLDÜ):** llama-server json_schema batch kilidi denendi — yapı geçerli (30/30 id) AMA içerik birleştirme + sessiz bir-kayma üretti. Yapı doğru numarayı yanlış metinle kilitler.
+- [x] **Merge-pair net + ad-düşürme + S5 + S6** (detay commit mesajlarında). Testler: **722 geçti, 0 kırmızı.**
+- [x] **Hızlı ölçü hattı** (tek yükleme ~10 sn) + **F2 terazisi:** overflow 4/4 sıfır, blok-sayımları sabit; REVIEW artışı bilinçli (dungeon +3, swordmaster +5, estate +2, prologue 0). `benchmark/golden_f2_v1.json` donduruldu.
