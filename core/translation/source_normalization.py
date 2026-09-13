@@ -74,6 +74,17 @@ def _canonical_source_spans(
     return sorted(spans.items(), key=lambda pair: len(pair[0]), reverse=True)
 
 
+def _join_hyphen_splits(text: str) -> str:
+    """Satır-sonu tire-bölünmesini birleştirir (S7).
+
+    "DIFFER- ENT" → "DIFFERENT", "REINCARNA- TED" → "REINCARNATED".
+    Yalnız bitişik-tire + boşluk + kelime deseni birleşir; satır-başı
+    diyalog tireleri ("- Hey"), aralıklı tireler ("well - known") ve
+    bitişik bileşikler ("well-known") etkilenmez.
+    """
+    return re.sub(r"(\w)-[ \t]+(\w)", r"\1\2", text)
+
+
 def normalize_translation_source_case(
     source: str,
     profile: SeriesProfile | None = None,

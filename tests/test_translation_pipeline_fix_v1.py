@@ -177,3 +177,14 @@ def test_collapse_stem_doubles_keeps_inflected() -> None:
     assert collapse_stem_doubles("cok cok guzel.") == "cok cok guzel."
     assert collapse_stem_doubles("cok heyecanli bir gundu.") == "cok heyecanli bir gundu."
     assert collapse_stem_doubles("") == ""
+
+
+def test_join_hyphen_splits() -> None:
+    from core.translation.source_normalization import _join_hyphen_splits
+
+    assert _join_hyphen_splits("HERE, IT'S DIFFER- ENT.") == "HERE, IT'S DIFFERENT."
+    assert _join_hyphen_splits("REINCARNA- TED OLDUM") == "REINCARNATED OLDUM"
+    # Dokunulmazlar: diyalog tiresi, aralıklı tire, bitişik bileşik.
+    assert _join_hyphen_splits("- Hey, sen!") == "- Hey, sen!"
+    assert _join_hyphen_splits("well - known") == "well - known"
+    assert _join_hyphen_splits("well-known adam") == "well-known adam"

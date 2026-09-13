@@ -32,7 +32,10 @@ from core.translation.protection import (
     restore_protected_translation,
     validate_protected_terms,
 )
-from core.translation.source_normalization import normalize_translation_source_case
+from core.translation.source_normalization import (
+    _join_hyphen_splits,
+    normalize_translation_source_case,
+)
 from core.translation.system_text import is_system_ui_line, translate_system_ui_line
 from providers.translation.base import (
     TranslationInput,
@@ -377,6 +380,9 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
             profile=inp.profile,
             approved_terms=explicit_glossary,
         )
+        # S7: satır-sonu tire-bölünmesi çevrilecek metinde birleşir
+        # (kayıtlı kaynak aynen korunur).
+        source_text = _join_hyphen_splits(source_text)
         approved_terms, _ = get_relevant_terms_for_item(
             source_text,
             inp.profile,
