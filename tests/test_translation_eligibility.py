@@ -100,3 +100,14 @@ def test_complete_single_word_utterances_stay_eligible() -> None:
     for word in ("EVET.", "DUR!", "HAYIR", "KOŞ", "I AM HERE", "NE?"):
         decision = evaluate_translation_eligibility(_text_block(word))
         assert decision.eligible, word
+
+
+def test_short_english_exclamations_stay_eligible() -> None:
+    """İŞ 3: kısa ünlemler uzunluğa göre elenmez (SFX ayrımı konum/tarz işi).
+
+    `DAMMIT...!` vakası detector-recall idi; eligibility katmanı bu
+    metinleri her zaman çeviriye sokar. Davranış mührü (kod değişikliği yok).
+    """
+    for shout in ("DAMMIT...!", "BUT...", "HEY!", "NO... NOT NOW...!"):
+        decision = evaluate_translation_eligibility(_text_block(shout))
+        assert decision.eligible, shout

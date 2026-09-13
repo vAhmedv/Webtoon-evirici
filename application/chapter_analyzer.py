@@ -553,6 +553,7 @@ class ChapterAnalyzer:
         trans_start = time.time()
         t_trans_start = time.perf_counter()
         translated_block_pairs: list[tuple[TextBlock, str]] = []
+        translation_guard_count = 0
 
         if translation_eligible_blocks and translator is not None:
             _progress("Loading Translation Model (Hy-MT2)")
@@ -566,6 +567,7 @@ class ChapterAnalyzer:
                 _harvest_terms: list = []
                 _harvest_rejected: dict[str, str] = {}
                 _harvest_methods: dict[str, str] = {}
+                _typo_rejected: dict[str, str] = {}
                 try:
                     from core.translation.chapter_glossary import (
                         extract_observed_terms,
@@ -581,7 +583,8 @@ class ChapterAnalyzer:
                     _terms = extract_repeated_terms(_term_texts, _term_ids)
                     _harvest_terms = _terms
                     _mapping, _methods, _rejected = resolve_chapter_glossary(
-                        translator, _terms, texts=_term_texts, block_ids=_term_ids
+                        translator, _terms, texts=_term_texts, block_ids=_term_ids,
+                        typo_rejected=_typo_rejected,
                     )
                     _harvest_rejected = _rejected
                     _harvest_methods = _methods
@@ -596,19 +599,38 @@ class ChapterAnalyzer:
                 trans_out = translator.translate(trans_inp)
 
                 out_map = {item.region_id: item.translation for item in trans_out.results if item.translation}
+                # P1-B: ÖLÜMCÜL çeviri guard'ı varsa (numbering_inconsistent:
+                # kanıtlı satır-kayma) blok sessizce basılmaz — failed sayılır,
+                # bölgesi REVIEW olur. Yumuşak bayraklar (echo/prose) eski
+                # davranışı korur (meşru yankılar basılmaya devam eder).
+                guard_review_ids = {
+                    item.region_id
+                    for item in trans_out.results
+                    if "numbering_inconsistent" in item.validation_warnings
+                }
 
                 # Faz 3 hasat (2. tur): reddedilen terimler 1. tur TR'lerde
                 # yüzey oylamasıyla doğrulanırsa kilitlenir; SADECE kilitli
                 # terim geçen bloklar glossary ile yeniden çevrilir.
                 try:
-                    from core.translation.chapter_glossary import harvest_confirmed_locks as _harvest
+                    from core.translation.chapter_glossary import (
+                        harvest_confirmed_locks as _harvest,
+                    )
+                    from core.translation.chapter_glossary import (
+                        normalize_lock_target as _normalize,
+                    )
 
-                    _new_locks = _harvest(_harvest_rejected, _harvest_terms, out_map)
+                    _new_locks = _harvest(
+                        _harvest_rejected, _harvest_terms, out_map,
+                        typo_rejected=_typo_rejected,
+                    )
                     if _new_locks:
                         _harvest_methods.update(
                             {s.upper(): "harvest" for s in _new_locks}
                         )
-                        _mapping.update(_new_locks)
+                        _mapping.update(
+                            {_k: _normalize(_k, _v) for _k, _v in _new_locks.items()}
+                        )
                         glossary_list = glossary_entries(_mapping)
                         _affected = [
                             b for b in translation_eligible_blocks
@@ -637,6 +659,8 @@ class ChapterAnalyzer:
                             for _ri in _re_out.results:
                                 if _ri.translation:
                                     out_map[_ri.region_id] = _ri.translation
+                                if "numbering_inconsistent" in _ri.validation_warnings:
+                                    guard_review_ids.add(_ri.region_id)
                 except Exception as exc:
                     logger.warning(f"Hasat turu atlandı: {exc}")
 
@@ -651,18 +675,26 @@ class ChapterAnalyzer:
                         _harvest_terms,
                         _obs(_term_texts, _term_ids),
                         _harvest_methods,
+                        _typo_rejected,
                     )
                 except Exception as exc:
                     logger.warning(f"glossary.json yazılamadı: {exc}")
 
                 for b in translation_eligible_blocks:
-                    if b.id in out_map:
+                    if b.id in out_map and b.id not in guard_review_ids:
                         translated_block_pairs.append((b, out_map[b.id]))
 
                 updated_regions: list[Region] = []
                 for r in regions:
                     b_id = region_to_block.get(r.id)
-                    if b_id and b_id in out_map and r.id in eligible_member_ids.get(b_id, set()):
+                    if b_id in guard_review_ids and r.id in eligible_member_ids.get(b_id or -1, set()):
+                        r_updated = _replace_region(
+                            r,
+                            status=RegionStatus.REVIEW,
+                            review_reason="translation_guard_review",
+                        )
+                        updated_regions.append(r_updated)
+                    elif b_id and b_id in out_map and r.id in eligible_member_ids.get(b_id, set()):
                         tr_text = out_map[b_id]
                         meta = dict(r.metadata)
                         if "text_block" in meta:
@@ -672,6 +704,9 @@ class ChapterAnalyzer:
                     else:
                         updated_regions.append(r)
                 regions = updated_regions
+                translation_guard_count = sum(
+                    1 for b in translation_eligible_blocks if b.id in guard_review_ids
+                )
             finally:
                 translator.unload()
 
@@ -769,6 +804,7 @@ class ChapterAnalyzer:
                     "translation_eligible_blocks_count": len(translation_eligible_blocks),
                     "translated_blocks_count": len(translated_block_pairs),
                     "translation_failed_blocks_count": translation_failed_count,
+                    "translation_guard_blocks_count": translation_guard_count,
                     "pre_inpaint_skipped_blocks_count": pre_inpaint_skipped_count,
                     "inpainted_blocks_count": successful_inpainting_count,
                     "inpaint_review_blocks_count": review_inpainting_count,
@@ -834,6 +870,7 @@ class ChapterAnalyzer:
             "text_blocks_count": len(text_blocks),
             "translation_eligible_blocks_count": len(translation_eligible_blocks),
             "translation_failed_blocks_count": translation_failed_count,
+            "translation_guard_blocks_count": translation_guard_count,
             "pre_inpaint_skipped_blocks_count": pre_inpaint_skipped_count,
             "inpainted_blocks_count": successful_inpainting_count,
             "inpaint_review_blocks_count": review_inpainting_count,

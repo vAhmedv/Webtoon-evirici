@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import pytest
 from PIL import Image
@@ -310,3 +311,110 @@ def test_end_to_end_synthetic_chapter_smoke_test(synthetic_chapter_dir: Path, tm
         assert page_path.exists()
         with Image.open(page_path) as im:
             assert im.size == (200, 400)
+
+
+class TwoBoxDetector(DummyDetector):
+    """Uzak iki DIALOGUE kutusu üretir (iki ayrı blok garanti)."""
+
+    @property
+    def name(self) -> str:
+        return "TwoBoxDetector"  # tespit önbelleğinden ayrı düşer
+
+    def detect(self, image: Image.Image, window_id: int = 1) -> list[Detection]:
+        return [
+            Detection(
+                bbox=BBox(x1=20, y1=20, x2=120, y2=60),
+                confidence=0.95,
+                type=RegionType.DIALOGUE,
+                source_window_id=window_id,
+            ),
+            Detection(
+                bbox=BBox(x1=20, y1=300, x2=120, y2=340),
+                confidence=0.95,
+                type=RegionType.DIALOGUE,
+                source_window_id=window_id,
+            ),
+        ]
+
+
+def test_region_translations_match_own_block(synthetic_chapter_dir: Path, tmp_path: Path) -> None:
+    """STUDIO regresyonu bekçisi: her bölge KENDİ bloğunun çevirisini taşır.
+
+    DummyTranslator çeviriye blok id'sini gömer (`MERHABA DÜNYA (<id>)`);
+    sızmış döngü değişkeni (`out_map[b.id]` yerine `b_id`) tüm bölgelere
+    son bloğun çevirisini yazardı — bu test o sınıfı yakalar.
+    """
+    out_dir = tmp_path / "output_blockmatch"
+    analyzer = ChapterAnalyzer()
+    analyzer.process_chapter(
+        chapter_path=synthetic_chapter_dir,
+        output_path=out_dir,
+        detector=TwoBoxDetector(),
+        primary_ocr=DummyOCR("HELLO WORLD"),
+        translator=DummyTranslator(),
+    )
+    payload = json.loads((out_dir / "analysis" / "regions.json").read_text(encoding="utf-8"))
+    regions = {r["id"]: r for r in payload["regions"]}
+    checked = 0
+    for block in payload["text_blocks"]:
+        expected = f"({block['id']})"
+        for member_id in block["member_ids"]:
+            region = regions[member_id]
+            if region.get("type") in ("sfx", "watermark"):
+                continue
+            translation = region.get("translation") or ""
+            if not translation:
+                continue
+            checked += 1
+            assert expected in translation, (
+                f"b{block['id']} r{member_id}: {translation!r} blok id'sini taşımıyor"
+            )
+    assert checked >= 1, "hiç çevrilmiş bölge bulunamadı"
+
+
+class GuardFlagTranslator(DummyTranslator):
+    """Translator stub emitting a fatal numbering_inconsistent guard flag."""
+
+    def translate(self, input_data: TranslationInput) -> TranslationOutput:
+        results = [
+            TranslationOutputItem(
+                region_id=item.region_id,
+                source=item.source,
+                translation=f"MERHABA ({item.region_id})",
+                raw_model_response=f"MERHABA ({item.region_id})",
+                validation_warnings=["numbering_inconsistent"],
+                requires_review=True,
+            )
+            for item in input_data.items
+        ]
+        return TranslationOutput(
+            inputs=input_data,
+            results=results,
+            raw_response="DUMMY-GUARD",
+            repair_model="dummy-guard",
+        )
+
+
+def test_translation_guard_blocks_never_render(synthetic_chapter_dir: Path, tmp_path: Path) -> None:
+    """P1-B: numbering_inconsistent blok failed sayılır, REVIEW olur, basılmaz."""
+    out_dir = tmp_path / "output_guard"
+    analyzer = ChapterAnalyzer()
+
+    res: ProductionPipelineResult = analyzer.process_chapter(
+        chapter_path=synthetic_chapter_dir,
+        output_path=out_dir,
+        detector=DummyDetector(),
+        primary_ocr=DummyOCR("HELLO WORLD"),
+        translator=GuardFlagTranslator(),
+    )
+    assert res.page_count == 2
+
+    summary = json.loads((out_dir / "analysis" / "summary.json").read_text(encoding="utf-8"))
+    assert summary["translated_blocks_count"] == 0
+    assert summary["translation_guard_blocks_count"] >= 1
+    assert summary["rendered_blocks_count"] == 0
+
+    regions = json.loads((out_dir / "analysis" / "regions.json").read_text(encoding="utf-8"))["regions"]
+    guard_regions = [r for r in regions if r.get("review_reason") == "translation_guard_review"]
+    assert guard_regions, "guard blok bölgesi REVIEW işaretlenmeli"
+    assert all(r.get("status") == "review" for r in guard_regions)
