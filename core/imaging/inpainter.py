@@ -499,6 +499,14 @@ class Inpainter:
         else:
             bg = np.asarray(mask.background_color, dtype=np.float32)
         bg_like = np.max(np.abs(src - bg.reshape(1, 1, 3)), axis=-1) < SECOND_CHANCE_BG_TOLERANCE
+        # İŞ 1 SONUCU (geri alındı, Faz 4-kısıt): 7px renksiz köprü
+        # (`bg_like | dilate(refined,15x15)`) beyaz dolguyu birleştirir ama
+        # UZAK GLİF piksellerini maskeye sokmaz (glifler bg_like dışıdır;
+        # kapsama yalnız refined + 7px band). Tam-audit kanıtı (block_0035):
+        # grown maske beyazı %97 kaplar, glif pikselleri bant dışında kalır,
+        # sınır-artık denetimi REVIEW üretir (0→10 inpaint-REVIEW regresyonu).
+        # Kısmi-kutu glifleri maske katmanının ötesindedir (detector-recall
+        # işi) — bkz. ROADMAP "FAZ 4-KISIT". Orijinal 3x3 tohum korundu.
         seed_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
         seeds = (cv2.dilate(refined.astype(np.uint8), seed_kernel) > 0) & bg_like
         if not np.any(seeds):

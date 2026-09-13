@@ -263,6 +263,38 @@ def test_flood_ignores_poisoned_background_color() -> None:
     assert int(np.count_nonzero(grown.refined)) > int(np.count_nonzero(seed))
 
 
+def test_expand_mask_stays_in_seed_compartment() -> None:
+    """FAZ 4-KISIT kilidi (İŞ 1 sonucu): kısmi-kutu tohumu glif bariyerini
+    aşamaz — flood tohumun beyaz kompartımanında kalır, komşu sanat korunur.
+
+    Uzak glifler (DAMMIT `D`/`IT`) maske katmanıyla kapsanamaz
+    (detector-recall işi); taşma dürüstçe sınırlı kalır, sessiz leke yok.
+    """
+    from core.imaging.inpainter import Inpainter
+
+    from core.imaging.text_mask import TextMask
+
+    h, w = 60, 120
+    src = np.full((h, w, 3), 255, dtype=np.uint8)
+    src[:, 58:62] = (0, 0, 0)  # 4px siyah glif bariyeri
+    tm = TextMask(
+        crop_bbox=(0, 0, w, h),
+        source=src,
+        raw=np.zeros((h, w), dtype=np.uint8),
+        refined=np.zeros((h, w), dtype=np.uint8),
+        background_color=(255, 255, 255),
+        is_uniform_background=False,
+    )
+    seed = np.zeros((h, w), dtype=np.uint8)
+    seed[20:40, 64:90] = 255  # bariyerin sağında beyaz tohum
+    object.__setattr__(tm, "refined", seed)
+    grown = Inpainter._expand_mask_in_bubble(tm)
+    grown_mask = grown.refined > 0
+    # Sağ kompartıman dolar, sol kompartımana (x<58) taşma yok.
+    assert int(np.count_nonzero(grown_mask[:, 63:])) > int(np.count_nonzero(seed))
+    assert int(np.count_nonzero(grown_mask[:, :57])) == 0
+
+
 def test_flood_area_cap_trips_on_runaway() -> None:
     """40× üstü taşmada tavan devreye girer (hesapsal kaçak sigortası)."""
     from core.imaging.inpainter import Inpainter
