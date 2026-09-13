@@ -647,6 +647,207 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
         out_map = {item.region_id: item.translation for item in out.results}
         return [out_map.get(idx + 1, "") or "" for idx in range(len(texts))]
 
+    # P1-B: numbering-confusion eşiği. Kısa kaynaklar (≤25 karakter, 259/260
+    # sınıfı) komşu satırlarla karışır; model deterministiktir (temp 0.0,
+    # top_k 1, seed 0) — farklı bağlamda farklı sonuç = kanıtlı karışma.
+    # Gerçek-dağılım notu (Ch1: 175/265 blok ≤25kr, her chunk'ta 7-28 kırılgan):
+    # mini-batch yalnız seyrek-kırılgan chunk'larda işe yarar; yoğun chunk'ta
+    # aynı karışma tekrarlar. Bu yüzden ikinci ağ: bitişik-tamamlayıcı oran
+    # (swap imzası) + düşük-oran hedge'leri tekil izolasyonla doğrulanır.
+    _FRAGILE_SOURCE_LEN = 25
+    _VERIFY_MAX_FRAGILE = 8
+    _VERIFY_MAX_SINGLES_PER_CHUNK = 8
+    _SWAP_RATIO_HIGH = 1.5
+    _SWAP_RATIO_LOW = 0.5
+    _HEDGE_RATIO_LOW = 0.4
+    _HEDGE_MIN_SRC_LEN = 10
+
+    @staticmethod
+    def _norm_tr(text: str | None) -> str:
+        return " ".join((text or "").split()).casefold()
+
+    @staticmethod
+    def _length_ratio(source: str | None, translation: str | None) -> float:
+        src_len = len((source or "").strip())
+        if src_len <= 0:
+            return 1.0
+        return len((translation or "").strip()) / src_len
+
+    def _verify_fragile_numbering(
+        self,
+        chunk_label: str,
+        temp_chunk_results: list,
+        non_bypass: list,
+    ) -> list:
+        """Kırılgan item'ları izole mini-batch ile çapraz-dogrula.
+
+        `temp_chunk_results` chunk sırasıyla hizalıdır; `non_bypass` girdileri
+        (chunk-içi idx, item, prepared) tutar. Uyuşmazlıkta tekil çağrı sonucu
+        kullanılır AMA `numbering_inconsistent` + requires_review ile
+        işaretlenir (üretim sessiz basmaz).
+        """
+        fragile_pos: dict[int, tuple] = {}
+        for orig_k, it, pr in non_bypass:
+            if len((it.source or "").strip()) <= self._FRAGILE_SOURCE_LEN:
+                fragile_pos[orig_k] = (it, pr)
+        if (
+            not fragile_pos
+            or len(non_bypass) <= 1
+            or len(fragile_pos) > self._VERIFY_MAX_FRAGILE
+            or len(fragile_pos) == len(non_bypass)
+        ):
+            return temp_chunk_results
+
+        ordered = sorted(fragile_pos.items())
+        mini_lines = [
+            f"[{k + 1}] {pr.prepared_text}" for k, (_, (it, pr)) in enumerate(ordered)
+        ]
+        mini_raw, mini_cleaned, mini_err = self._request_translation(
+            "\n".join(mini_lines), label=f"{chunk_label}_verify"
+        )
+        mini_parsed: dict[int, str] = {}
+        if not mini_err and mini_cleaned:
+            mini_pattern = re.compile(r"\[(\d+)\]\s*(.*?)(?=\n\s*\[\d+\]|\Z)", re.DOTALL)
+            for m in mini_pattern.finditer(mini_cleaned):
+                try:
+                    mini_parsed[int(m.group(1))] = m.group(2).strip()
+                except ValueError:
+                    continue
+
+        amended = list(temp_chunk_results)
+        checked, mismatched = 0, 0
+        for mini_k, (orig_k, (it, pr)) in enumerate(ordered):
+            checked += 1
+            res, raw, trace = amended[orig_k]
+            batch_tr = self._norm_tr(getattr(trace, "stripped_output", None))
+            mini_tr = self._norm_tr(mini_parsed.get(mini_k + 1, ""))
+            if mini_tr and mini_tr == batch_tr:
+                continue
+            mismatched += 1
+            logger.warning(
+                "Hy-MT2 %s item %s numbering_inconsistent "
+                "(batch=%r mini=%r); single tiebreak + review",
+                chunk_label,
+                it.region_id,
+                (getattr(trace, "stripped_output", "") or "")[:60],
+                (mini_parsed.get(mini_k + 1, "") or "")[:60],
+            )
+            s_res, s_raw, s_trace = self._process_single_prepared_item(it, pr)
+            s_res = replace(
+                s_res,
+                requires_review=True,
+                validation_warnings=[*s_res.validation_warnings, "numbering_inconsistent"],
+            )
+            amended[orig_k] = (s_res, s_raw, s_trace)
+        if checked:
+            logger.info(
+                "Hy-MT2 %s numbering check: %d fragile, %d mismatch",
+                chunk_label,
+                checked,
+                mismatched,
+            )
+        return amended
+
+    def _verify_swap_pairs(
+        self,
+        chunk_label: str,
+        temp_chunk_results: list,
+        non_bypass: list,
+    ) -> list:
+        """Bitişik-tamamlayıcı oran + hedge taraması (P1-B ikinci ağ).
+
+        Yalnız batch-kabul görmüş item'lar incelenir (tekil retry'lar zaten
+        izole). Komşu iki kırılganın oranları zıt-uçlardaysa (biri >1.5,
+        diğeri <0.5 — 259/260 imzası) veya tek başına hedge ise (<0.4,
+        kaynak ≥10kr), tekil izolasyonla doğrulanır; uyuşmazlık REVIEW olur.
+        Chunk başına en fazla _VERIFY_MAX_SINGLES_PER_CHUNK ek çağrı.
+        """
+        pos_of: dict[int, int] = {}
+        batch_text: dict[int, str] = {}
+        for pos, (orig_k, it, pr) in enumerate(non_bypass):
+            res, raw, trace = temp_chunk_results[orig_k]
+            if getattr(trace, "pipeline_diagnosis", "") != "MODEL_OUTPUT_ACCEPTED":
+                continue
+            pos_of[pos] = orig_k
+            batch_text[pos] = self._norm_tr(getattr(trace, "stripped_output", None))
+
+        ordered = sorted(pos_of)
+        suspects: list[int] = []
+
+        def _is_fragile(pos: int) -> bool:
+            _, it, _ = non_bypass[pos]
+            return len((it.source or "").strip()) <= self._FRAGILE_SOURCE_LEN
+
+        for left, right in zip(ordered, ordered[1:]):
+            if right != left + 1:
+                continue
+            if not (_is_fragile(left) and _is_fragile(right)):
+                continue
+            _, it_l, _ = non_bypass[left]
+            _, it_r, _ = non_bypass[right]
+            r_l = self._length_ratio(it_l.source, batch_text[left])
+            r_r = self._length_ratio(it_r.source, batch_text[right])
+            if (r_l > self._SWAP_RATIO_HIGH and r_r < self._SWAP_RATIO_LOW) or (
+                r_r > self._SWAP_RATIO_HIGH and r_l < self._SWAP_RATIO_LOW
+            ):
+                logger.warning(
+                    "Hy-MT2 %s swap-suspect pair (%s ratio %.2f, %s ratio %.2f)",
+                    chunk_label,
+                    it_l.region_id,
+                    r_l,
+                    it_r.region_id,
+                    r_r,
+                )
+                suspects.extend([left, right])
+
+        for pos in ordered:
+            if len(suspects) >= self._VERIFY_MAX_SINGLES_PER_CHUNK:
+                break
+            if pos in suspects:
+                continue
+            if not _is_fragile(pos):
+                continue
+            _, it, _ = non_bypass[pos]
+            if len((it.source or "").strip()) < self._HEDGE_MIN_SRC_LEN:
+                continue
+            if self._length_ratio(it.source, batch_text[pos]) < self._HEDGE_RATIO_LOW:
+                logger.warning(
+                    "Hy-MT2 %s hedge-suspect item %s (ratio %.2f)",
+                    chunk_label,
+                    it.region_id,
+                    self._length_ratio(it.source, batch_text[pos]),
+                )
+                suspects.append(pos)
+
+        if not suspects:
+            return temp_chunk_results
+        amended = list(temp_chunk_results)
+        for pos in suspects[: self._VERIFY_MAX_SINGLES_PER_CHUNK]:
+            orig_k = pos_of[pos]
+            _, it, pr = non_bypass[pos]
+            res, raw, trace = amended[orig_k]
+            single = self._process_single_prepared_item(it, pr)
+            s_tr = self._norm_tr(getattr(single[2], "stripped_output", None))
+            if s_tr and s_tr == batch_text[pos]:
+                continue
+            # Tekil çağrı zaten yapıldı (single); sonucu REVIEW işaretli benimse:
+            s_res, s_raw, s_trace = single
+            s_res = replace(
+                s_res,
+                requires_review=True,
+                validation_warnings=[*s_res.validation_warnings, "numbering_inconsistent"],
+            )
+            logger.warning(
+                "Hy-MT2 %s item %s numbering_inconsistent "
+                "(batch=%r single=%r); single tiebreak + review",
+                chunk_label,
+                it.region_id,
+                batch_text[pos][:60],
+                (getattr(s_trace, "stripped_output", "") or "")[:60],
+            )
+            amended[orig_k] = (s_res, s_raw, s_trace)
+        return amended
+
     def translate(self, inp: TranslationInput, chunk_size: int = 32) -> TranslationOutput:
         if not self.is_loaded:
             self.load()
@@ -689,14 +890,21 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
             )
             req_latency = time.perf_counter() - req_start
 
-            # Parse numbered responses [1] ... [N]
+            # Parse numbered responses [1] ... [N] (P1-A: duplicate/out-of-range
+            # aware — a repeated number means the model merged or shifted lines,
+            # and silent dict-overwrite would misattribute translations).
             pattern = re.compile(r"\[(\d+)\]\s*(.*?)(?=\n\s*\[\d+\]|\Z)", re.DOTALL)
             parsed: dict[int, str] = {}
+            dup_numbers: set[int] = set()
             for m in pattern.finditer(cleaned):
                 try:
-                    parsed[int(m.group(1))] = m.group(2).strip()
+                    num = int(m.group(1))
                 except ValueError:
-                    pass
+                    continue
+                if num in parsed:
+                    dup_numbers.add(num)
+                else:
+                    parsed[num] = m.group(2).strip()
 
             # Secondary fallback pattern if brackets were altered (e.g. 1. or 1) )
             if len(parsed) < len(non_bypass):
@@ -709,6 +917,23 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
                     except ValueError:
                         pass
 
+            expected_numbers = set(range(1, len(non_bypass) + 1))
+            stray_numbers = {k for k in parsed if k not in expected_numbers}
+            if stray_numbers:
+                logger.warning(
+                    "Hy-MT2 batch %d: out-of-range numbers ignored: %s",
+                    i // chunk_size,
+                    sorted(stray_numbers),
+                )
+                for k in stray_numbers:
+                    del parsed[k]
+            if dup_numbers:
+                logger.warning(
+                    "Hy-MT2 batch %d: duplicate numbers (line merge/shift): %s",
+                    i // chunk_size,
+                    sorted(dup_numbers),
+                )
+
             if not err and len(parsed) > 0:
                 nb_map = {orig_k: (k + 1) for k, (orig_k, it, pr) in enumerate(non_bypass)}
                 temp_chunk_results = []
@@ -720,7 +945,26 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
                     else:
                         batch_num = nb_map[chunk_k]
                         raw_tr = parsed.get(batch_num, "").strip()
-                        if raw_tr:
+                        # P1-A suspect screen: duplicate number, missing text, or
+                        # extreme length ratio (misattribution signature; the
+                        # renderer already treats TR/EN > 2.5 as overflow-risk).
+                        suspect_reason = None
+                        if batch_num in dup_numbers:
+                            suspect_reason = "duplicate_number"
+                        elif not raw_tr:
+                            suspect_reason = None  # handled below as missing
+                        elif len(raw_tr) > 2.5 * max(1, len((it.source or "").strip())):
+                            suspect_reason = "length_ratio"
+                        if suspect_reason:
+                            logger.warning(
+                                "Hy-MT2 batch %d item %s suspect (%s); single retry",
+                                i // chunk_size,
+                                it.region_id,
+                                suspect_reason,
+                            )
+                            missing_fallback_count += 1
+                            temp_chunk_results.append(self._process_single_prepared_item(it, pr))
+                        elif raw_tr:
                             # Batch successfully parsed this item
                             restored = restore_protected_translation(raw_tr, pr.placeholder_map)
                             res = self._finalize_prepared_item(pr, raw_tr, raw_text)
@@ -760,6 +1004,12 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
                         missing_fallback_count,
                     )
 
+                temp_chunk_results = self._verify_fragile_numbering(
+                    f"batch_{i // chunk_size}", temp_chunk_results, non_bypass
+                )
+                temp_chunk_results = self._verify_swap_pairs(
+                    f"batch_{i // chunk_size}", temp_chunk_results, non_bypass
+                )
                 for res, raw, trace in temp_chunk_results:
                     results.append(res)
                     raw_responses.append(raw)

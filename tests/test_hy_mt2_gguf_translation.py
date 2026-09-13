@@ -252,6 +252,149 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertEqual(config.translator.provider, "hy_mt2_gguf")
         self.assertEqual(config.translator.server_url, DEFAULT_HY_MT2_SERVER_URL)
 
+    # --- P1-A/B: numaralı-batch kayma korumaları (sentetik, model yok) ---
+
+    def _batch_provider(self, responses):
+        provider = self._ready_provider()
+        patcher = patch.object(provider, "_request_translation", side_effect=list(responses))
+        mocked = patcher.start()
+        self.addCleanup(patcher.stop)
+        return provider, mocked
+
+    def test_duplicate_number_triggers_single_retry(self):
+        long_src = "THE OLD KING SLOWLY WALKED BACK HOME TONIGHT"
+        batch_raw = "[1] Uzun cevap bir.\n[1] Tekrarlanan satir.\n[2] Kos!"
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+            ("Ejderha tek basina geldi.", "Ejderha tek basina geldi.", False),
+            ("[1] Kos!", "[1] Kos!", False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, long_src, 1),
+            TranslationItem(2, "GO!", 2),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertIn("tek basina", by_id[1].translation)
+        self.assertEqual(by_id[2].translation, "Kos!")
+        self.assertFalse(by_id[2].requires_review)
+        self.assertEqual(mocked.call_count, 3)  # batch + single + mini-verify
+
+    def test_extreme_length_ratio_triggers_single_retry(self):
+        src_a = "THE OLD KING SLOWLY WALKED HOME"
+        src_b = "THE YOUNG QUEEN QUIETLY LEFT THE GREAT HALL BEFORE DAWN TODAY"
+        essay = "Bu cok uzun bir ceviri metnidir " * 10
+        batch_raw = f"[1] {essay}\n[2] Genc kralice sessizce ayrildi."
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+            ("Kisa ve dogru.", "Kisa ve dogru.", False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, src_a, 1),
+            TranslationItem(2, src_b, 2),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertEqual(by_id[1].translation, "Kisa ve dogru.")
+        self.assertNotIn(essay.strip()[:20], by_id[1].translation)
+        self.assertEqual(mocked.call_count, 2)  # batch + single, verify skipped (no fragile)
+
+    def test_verify_agree_keeps_batch_result(self):
+        batch_raw = "[1] Hemen git!\n[2] Kral sessizce dinledi."
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+            ("[1] Hemen git!", "[1] Hemen git!", False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, "GO NOW!", 1),
+            TranslationItem(2, "THE OLD KING QUIETLY LISTENED FOR A WHILE", 2),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertEqual(by_id[1].translation, "Hemen git!")
+        self.assertFalse(by_id[1].requires_review)
+        self.assertEqual(mocked.call_count, 2)  # batch + mini, no single tiebreak
+
+    def test_swap_pair_disagreement_flags_both_review(self):
+        # 259/260 imzası: bitişik iki kırılgan, oranlar zıt-uçlu (1.7 / 0.3).
+        # Mini hemfikir kalır (aynı karışma), tekil izolasyon ayrışır.
+        long_src = "THE OLD KING QUIETLY LISTENED FOR A WHILE TODAY"
+        batch_raw = "[1] Bu sefer ben uzun uzun yapiyorum iste.\n[2] Bunu...\n[3] Kral dinledi."
+        mini_raw = "[1] Bu sefer ben uzun uzun yapiyorum iste.\n[2] Bunu..."
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+            (mini_raw, mini_raw, False),
+            ("Hicbir fikrim yok.", "Hicbir fikrim yok.", False),
+            ("Bunu bu sefer yapacagim.", "Bunu bu sefer yapacagim.", False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, "HAS NO IDEA YET.", 1),
+            TranslationItem(2, "THIS TIME, I'M DOING", 2),
+            TranslationItem(3, long_src, 3),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertEqual(by_id[1].translation, "Hicbir fikrim yok.")
+        self.assertEqual(by_id[2].translation, "Bunu bu sefer yapacagim.")
+        for rid in (1, 2):
+            self.assertTrue(by_id[rid].requires_review)
+            self.assertIn("numbering_inconsistent", by_id[rid].validation_warnings)
+        self.assertFalse(by_id[3].requires_review)
+        self.assertEqual(mocked.call_count, 4)  # batch + mini + 2 tekil
+
+    def test_swap_pair_agreement_keeps_batch(self):
+        long_src = "THE OLD KING QUIETLY LISTENED FOR A WHILE TODAY"
+        batch_raw = "[1] Hicbir fikrim yok.\n[2] Bunu bu sefer yapacagim.\n[3] Kral dinledi."
+        mini_raw = "[1] Hicbir fikrim yok.\n[2] Bunu bu sefer yapacagim."
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+            (mini_raw, mini_raw, False),
+            ("Hicbir fikrim yok.", "Hicbir fikrim yok.", False),
+            ("Bunu bu sefer yapacagim.", "Bunu bu sefer yapacagim.", False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, "HAS NO IDEA YET.", 1),
+            TranslationItem(2, "THIS TIME, I'M DOING", 2),
+            TranslationItem(3, long_src, 3),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertFalse(by_id[1].requires_review)
+        self.assertFalse(by_id[2].requires_review)
+        # batch + mini; oranlar normal olduğu için tekil kontrol açılmaz
+        self.assertEqual(mocked.call_count, 2)
+
+    def test_hedge_lone_item_verified(self):
+        long_src = "THE OLD KING QUIETLY LISTENED FOR A WHILE TODAY"
+        batch_raw = "[1] Kral sessizce dinledi.\n[2] Asla!"
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+            ("[1] Asla!", "[1] Asla!", False),
+            ("Asla teslim olma!", "Asla teslim olma!", False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, long_src, 1),
+            TranslationItem(2, "NEVER SURRENDER!", 2),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertEqual(by_id[2].translation, "Asla teslim olma!")
+        self.assertTrue(by_id[2].requires_review)
+        self.assertIn("numbering_inconsistent", by_id[2].validation_warnings)
+        self.assertFalse(by_id[1].requires_review)
+
+    def test_verify_mismatch_flags_review_with_single_tiebreak(self):
+        batch_raw = "[1] Hemen git!\n[2] Kral sessizce dinledi."
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+            ("[1] Farkli cevap!", "[1] Farkli cevap!", False),
+            ("Selam ver!", "Selam ver!", False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, "GO NOW!", 1),
+            TranslationItem(2, "THE OLD KING QUIETLY LISTENED FOR A WHILE", 2),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertEqual(by_id[1].translation, "Selam ver!")
+        self.assertTrue(by_id[1].requires_review)
+        self.assertIn("numbering_inconsistent", by_id[1].validation_warnings)
+        self.assertEqual(by_id[2].translation, "Kral sessizce dinledi.")
+        self.assertEqual(mocked.call_count, 3)  # batch + mini + single
+
 
 if __name__ == "__main__":
     unittest.main()
