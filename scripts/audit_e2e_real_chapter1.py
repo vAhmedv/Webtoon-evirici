@@ -13,16 +13,23 @@ if str(ROOT) not in sys.path:
 
 import hashlib
 import json
+import os
 import time
 from typing import Any
 
 from application.chapter_analyzer import ChapterAnalyzer, load_config
 from core.detection import RegionStatus, RegionType
 
+# F1 altın-set: aynı denetim farklı bölümlere env ile yönlendirilebilir.
+# Varsayılanlar God-Tier Ch1 (tarihsel). Örn:
+#   $env:AUDIT_SOURCE_CHAPTER=".../Chapter 1"; $env:AUDIT_OUTPUT_DIR="audit_output/golden/x"
 SOURCE_CHAPTER = Path(
-    r"C:\Users\Ahmed\AppData\Local\Tachidesk\downloads\mangas\Asmodeus Scans (EN)\Reincarnated as a God-Tier Crafter\Chapter 1"
+    os.environ.get(
+        "AUDIT_SOURCE_CHAPTER",
+        r"C:\Users\Ahmed\AppData\Local\Tachidesk\downloads\mangas\Asmodeus Scans (EN)\Reincarnated as a God-Tier Crafter\Chapter 1",
+    )
 )
-OUTPUT_DIR = Path(r"audit_output/real_chapter1_e2e")
+OUTPUT_DIR = Path(os.environ.get("AUDIT_OUTPUT_DIR", r"audit_output/real_chapter1_e2e"))
 
 
 def compute_file_hash_and_mtime(p: Path) -> tuple[str, float]:
