@@ -67,6 +67,44 @@ def summarize_final_region_states(regions: list[dict[str, Any]]) -> dict[str, in
     }
 
 
+_OCR_GARBAGE_REASONS = frozenset({"word_difference", "ambiguous_unknown_review"})
+
+
+def count_short_dialogue_untranslated(raw_regions: list[dict[str, Any]]) -> int:
+    """İŞ 3 bekçisi: çevrilmeyen kısa hikâye balonu sayısı.
+
+    Tanım: metni ≤20 karakter, alfa içeren, status == review, tipi
+    sfx/watermark olmayan bölge. SKIP tasarım-gereği çevrilmez (SFX,
+    gürültü, logo, filigran) — sayılmaz. OCR çöpü hariç: review_reason
+    `word_difference` / `ambiguous_unknown_review` / `primary_*`.
+    Taze-audit kanıtı (2026-09-12): 6 — tamamı inpaint-sınır-artığı
+    (DAMMIT, STOP IT!!, LEVEL 1... dahil; Faz 4-kısıt). Eşik: 6 (artış yasak).
+    """
+    import re
+
+    count = 0
+    for region in raw_regions:
+        if region.get("status") != "review":
+            continue
+        text = (region.get("text") or "").strip()
+        if not text or len(text) > 20:
+            continue
+        if not re.search(r"[A-Za-z]", text):
+            continue
+        if region.get("type") in ("sfx", "watermark"):
+            continue
+        reason = region.get("review_reason") or ""
+        if reason in _OCR_GARBAGE_REASONS or reason.startswith("primary_"):
+            continue
+        # P1-B ikinci ağ: kanıtlı karışma (numbering_inconsistent) REVIEW'a
+        # düşer ve İngilizce korunur — bilinçli tasarım, "çevrilmeyen hikâye"
+        # değildir; bekçi metriğine sayılmaz.
+        if reason == "translation_guard_review":
+            continue
+        count += 1
+    return count
+
+
 def main() -> None:
     print("==================================================================")
     print("RUNNING REAL CHAPTER 1 PRODUCTION E2E AUDIT")
@@ -175,6 +213,7 @@ def main() -> None:
         "review_inpaint_blocks_count": summary_data["review_inpaint_blocks_count"],
         "actually_rendered_blocks_count": summary_data["rendered_blocks_count"],
         "overflow_blocks_count": summary_data["overflow_blocks_count"],
+        "short_dialogue_untranslated_count": count_short_dialogue_untranslated(raw_regions),
         "ocr_elapsed_seconds": round(pipeline_result.ocr_elapsed_time, 2),
         "translation_elapsed_seconds": round(pipeline_result.translation_elapsed_time, 2),
         "inpainting_rendering_elapsed_seconds": round(
@@ -184,6 +223,19 @@ def main() -> None:
     }
 
     assert metrics["output_page_count"] == metrics["source_page_count"], "Output page count mismatch!"
+
+    # İŞ 5.1 — Kalıcı gate'ler (ölçülmüş eşikler, uydurma yok).
+    # Varsayılan: rapor + uyarı (exit 0). --strict: eşik aşımında non-zero.
+    gates = {
+        "short_dialogue_untranslated_count <= 6": metrics["short_dialogue_untranslated_count"] <= 6,
+        "overflow_blocks_count == 0": metrics["overflow_blocks_count"] == 0,
+    }
+    metrics["gates"] = {k: ("pass" if v else "FAIL") for k, v in gates.items()}
+    for name, ok in gates.items():
+        print(f"  [GATE-{'PASS' if ok else 'FAIL'}] {name}")
+    if "--strict" in sys.argv[1:] and not all(gates.values()):
+        failed = [k for k, v in gates.items() if not v]
+        raise SystemExit(f"AUDIT GATE FAILED: {failed}")
 
     audit_json_path = OUTPUT_DIR / "e2e_audit_metrics.json"
     audit_json_path.write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
