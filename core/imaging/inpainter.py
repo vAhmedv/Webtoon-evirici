@@ -96,6 +96,90 @@ SECOND_CHANCE_BG_TOLERANCE = 28
 SECOND_CHANCE_MAX_AREA_RATIO = 40
 
 
+# S4 maske-dışı bant sabitleri (B19-ölçümlü: "M'" 561px/32x37oran1.2,
+# maskeye 4.8px, %98 aydınlık-komşu; dungeon b10-ölçümlü: balon çizgi
+# artıkları 31x3..143x11 (oran≥10), toz 53px).
+# Kural: maskeye ≤8px + komşu ≥%50 aydınlık + alan 100..4000 +
+# en-boy-oranı ≤6 + kutu ≤1/3. Çizgi/toz elenir, glif parçası kalır.
+OUTSIDE_MAX_DIST_PX = 8.0
+OUTSIDE_MIN_LIGHT_FRAC = 0.5
+OUTSIDE_MIN_COMPONENT_AREA = 100
+OUTSIDE_MAX_COMPONENT_AREA = 4000
+OUTSIDE_MAX_ASPECT = 6.0
+OUTSIDE_DARK_MARGIN = 40
+
+
+def _outside_mask_text(
+    source_crop: np.ndarray,
+    inpainted_crop: np.ndarray,
+    refined_mask: np.ndarray,
+    background_color: tuple[int, int, int] | list[int],
+    bubble_interior: np.ndarray | None = None,
+) -> bool:
+    """Maske-dışı bantta kalmış glif parçası var mı (S4)?
+
+    Refined maskenin ~12px dış bandında, BALON DOLGUSU üstünde (kaynak
+    zemine yakın-açık) duran, bitmiş görüntüde zeminden koyu, glif-ölçekli
+    (5..4000px, kırpıntının 1/3'ünden küçük kutulu) bağlı bileşen arar.
+    Kaynak-koyu bant (balon çizgisi, dış sanat, kaya dokusu) elenir —
+    artık hem kaynakta hem bitmiş görüntüde koyu olmak zorundadır ki
+    inpaint lekesinden değil, temizlenmemiş gliften söz edelim.
+    Balon-içi biliniyorsa bant onunla sınırlanır.
+    Temizlenememiş tam-İngilizce de DAHİL bayraklanır: üzerine Türkçe
+    basılırsa çakışır — blok İngilizce korunmalıdır (S0: ya tam temizle
+    ya hiç dokunma).
+    """
+    import cv2
+
+    refined = (np.asarray(refined_mask) > 0)
+    if not np.any(refined):
+        return False
+    h, w = refined.shape[:2]
+    src_gray = cv2.cvtColor(np.ascontiguousarray(source_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
+    out_gray = cv2.cvtColor(np.ascontiguousarray(inpainted_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
+    bg = float(np.dot(np.asarray(background_color, dtype=np.float32), [0.299, 0.587, 0.114]))
+    # Dokunulmamış artık: hem kaynakta hem bitmiş görüntüde koyu.
+    leftover = ((bg - out_gray >= OUTSIDE_DARK_MARGIN)
+                & (bg - src_gray >= OUTSIDE_DARK_MARGIN)
+                & (~refined))
+    if bubble_interior is not None:
+        leftover &= (np.asarray(bubble_interior) > 0)
+    if int(np.count_nonzero(leftover)) < OUTSIDE_MIN_COMPONENT_AREA:
+        return False
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(leftover.astype(np.uint8), 8)
+    if count <= 1:
+        return False
+    # Maskeye uzaklık: arkaplan piksellerinin en yakın maske-piksele mesafesi
+    # (ters-çevirme şart — distanceTransform sıfıra olanı ölçer).
+    dist = cv2.distanceTransform((~refined).astype(np.uint8), cv2.DIST_L2, 3)
+    src_light = src_gray >= bg - 25
+    ring_kernel = np.ones((11, 11), np.uint8)
+    labels = np.asarray(labels)
+    for idx in range(1, count):
+        area = int(stats[idx, cv2.CC_STAT_AREA])
+        if not (OUTSIDE_MIN_COMPONENT_AREA <= area <= OUTSIDE_MAX_COMPONENT_AREA):
+            continue
+        bw = int(stats[idx, cv2.CC_STAT_WIDTH])
+        bh = int(stats[idx, cv2.CC_STAT_HEIGHT])
+        if bw > w // 3 or bh > h // 3:
+            continue
+        # Çizgi artıkları (balon kuyruğu/kontur: oran≥10) elenir;
+        # glif parçaları topludur (B19 "M'" oranı 1.2).
+        if max(bw, bh) / max(1, min(bw, bh)) > OUTSIDE_MAX_ASPECT:
+            continue
+        ys, xs = np.where(labels == idx)
+        if dist[ys, xs].min() > OUTSIDE_MAX_DIST_PX:
+            continue
+        comp = (labels == idx).astype(np.uint8)
+        ring = (cv2.dilate(comp, ring_kernel) > 0) & (comp == 0)
+        if int(np.count_nonzero(ring)) == 0:
+            continue
+        light_frac = float(np.count_nonzero(src_light & (ring > 0))) / float(np.count_nonzero(ring))
+        if light_frac >= OUTSIDE_MIN_LIGHT_FRAC:
+            return True
+    return False
+
+
 class Inpainter:
     """Removes source glyphs while preserving every pixel outside the refined mask."""
 
@@ -257,6 +341,18 @@ class Inpainter:
                 lama_expanded = cv2.dilate(expanded, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (_kh, _kh)))
                 inpainted_crop = self.lama.inpaint(text_mask.source, lama_expanded)
         review = self._has_boundary_residual(text_mask, inpainted_crop)
+        # S4: maske-dışı bantta kalmış glif (B19 "M'" sınıfı) — iç-bakan
+        # denetçilerin kör noktası. Varsa blok REVIEW (İngilizce korunur).
+        _bg_vals = [int(v) for v in np.asarray(text_mask.background_color).ravel()[:3]]
+        _bg: tuple[int, int, int] = (_bg_vals[0], _bg_vals[1], _bg_vals[2]) if len(_bg_vals) == 3 else (255, 255, 255)
+        if not review and _outside_mask_text(
+            text_mask.source,
+            inpainted_crop,
+            text_mask.refined,
+            _bg,
+            text_mask.bubble_interior,
+        ):
+            review = True
         # Faz 4a: maske-içi hayalet (LaMa/ortanca artığı).
         if method != "flat_fill_fast":
             try:

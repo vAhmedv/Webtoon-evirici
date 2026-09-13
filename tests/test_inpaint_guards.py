@@ -5,14 +5,27 @@ oranlardır (çekirdek = maske yüksekliğinin işlevi, kontrast = medyandan sap
 """
 
 import numpy as np
+from pathlib import Path
+from PIL import Image
 
 from core.imaging.inpainter import (
     FILL_RING_LUMA_GAP,
     GHOST_MIN_COMPONENT_AREA,
     Inpainter,
+    _outside_mask_text,
     lama_kernel_for_height,
 )
 from core.imaging.text_mask import TextMask
+
+_FIXTURE_B19 = Path(__file__).resolve().parent / "fixtures" / "inpaint_b19"
+
+
+def _fixture_png(name: str) -> np.ndarray:
+    return np.array(Image.open(_FIXTURE_B19 / name).convert("RGB"), dtype=np.uint8)
+
+
+def _fixture_mask(name: str) -> np.ndarray:
+    return np.array(Image.open(_FIXTURE_B19 / name).convert("L"))
 
 
 def _mask(h: int, w: int, x1: int, y1: int, x2: int, y2: int) -> TextMask:
@@ -305,3 +318,54 @@ def test_flood_area_cap_trips_on_runaway() -> None:
     object.__setattr__(tm, "refined", seed)
     grown = Inpainter._expand_mask_in_bubble(tm)
     assert np.array_equal(grown.refined, tm.refined)
+
+
+def test_outside_mask_band_catches_b19_shard() -> None:
+    """S4 B19-kanıtı: maske-dışında kalan "M'" artığı bantta yakalanır."""
+    source = _fixture_png("source.png")
+    inpainted = _fixture_png("inpainted.png")
+    refined = _fixture_mask("refined_mask.png")
+    assert _outside_mask_text(source, inpainted, refined, (255, 255, 255)) is True
+
+
+def test_outside_mask_band_clean_crop_passes() -> None:
+    crop = np.full((60, 100, 3), 255, dtype=np.uint8)
+    mask = np.zeros((60, 100), dtype=np.uint8)
+    mask[10:50, 30:90] = 255
+    assert _outside_mask_text(crop, crop, mask, (255, 255, 255)) is False
+
+
+def test_outside_mask_band_near_glyph_flags() -> None:
+    base_mask = np.zeros((60, 120), dtype=np.uint8)
+    base_mask[10:50, 60:110] = 255
+    near = np.full((60, 120, 3), 255, dtype=np.uint8)
+    near[20:40, 48:56] = (0, 0, 0)  # maske kenarının 4px solunda
+    assert _outside_mask_text(near, near, base_mask, (255, 255, 255)) is True
+
+
+def test_outside_mask_band_far_glyph_out_of_scope() -> None:
+    # Bant-dışı uzak leke bu fonksiyonun işi değil (dedektör-erişim
+    # sorunu) — sessiz False, şişirme yok.
+    base_mask = np.zeros((60, 120), dtype=np.uint8)
+    base_mask[10:50, 60:110] = 255
+    far = np.full((60, 120, 3), 255, dtype=np.uint8)
+    far[20:40, 10:18] = (0, 0, 0)
+    assert _outside_mask_text(far, far, base_mask, (255, 255, 255)) is False
+
+
+def test_outside_mask_band_ignores_huge_art() -> None:
+    crop = np.full((60, 120, 3), 255, dtype=np.uint8)
+    crop[0:60, 0:40] = (0, 0, 0)  # kırpıntının 1/3ünden büyük yapı
+    mask = np.zeros((60, 120), dtype=np.uint8)
+    mask[10:50, 60:110] = 255
+    assert _outside_mask_text(crop, crop, mask, (255, 255, 255)) is False
+
+
+def test_outside_mask_band_ignores_dark_source_art() -> None:
+    # Balon-dışı kaya dokusu: kaynakta koyu → bant elenir (dungeon b10
+    # sınıfı sel düzeltmesi).
+    art = np.full((60, 120, 3), 255, dtype=np.uint8)
+    art[0:60, 0:30] = (90, 80, 110)  # koyu doku (kaynak + bitmiş aynı)
+    art_mask = np.zeros((60, 120), dtype=np.uint8)
+    art_mask[10:50, 60:110] = 255
+    assert _outside_mask_text(art, art, art_mask, (255, 255, 255)) is False
