@@ -59,6 +59,20 @@ _FATAL_TRANSLATION_WARNINGS = frozenset({
 })
 
 
+def _norm_echo_text(text: str | None) -> str:
+    return " ".join((text or "").split()).casefold()
+
+
+def _is_single_word_echo(source_text: str | None, translated_text: str | None) -> bool:
+    """S2: tek-kelimelik yankı (TR==kaynak) basılmaz — İngilizce korunur.
+
+    Çevrilen tek kelimeler (DAMMIT→Kahretsin!) etkilenmez; çok-kelimeli
+    yankılar (ZFO GOBLINS?!) mevcut davranışta kalır (S0 Katman-1 serbest).
+    """
+    src = _norm_echo_text(source_text)
+    return bool(src) and src == _norm_echo_text(translated_text) and len(src.split()) == 1
+
+
 class AnalysisResult:
     """Bölüm analizi sonucu.
 
@@ -563,6 +577,7 @@ class ChapterAnalyzer:
         t_trans_start = time.perf_counter()
         translated_block_pairs: list[tuple[TextBlock, str]] = []
         translation_guard_count = 0
+        echo_skip_ids: set[int] = set()
 
         if translation_eligible_blocks and translator is not None:
             _progress("Loading Translation Model (Hy-MT2)")
@@ -616,6 +631,16 @@ class ChapterAnalyzer:
                     item.region_id
                     for item in trans_out.results
                     if _FATAL_TRANSLATION_WARNINGS.intersection(item.validation_warnings)
+                }
+                # S2: tek-kelimelik yankı bloğu çevrim-dışı bırakılır —
+                # inpaint/render YOK, orijinal İngilizce pikseller korunur.
+                # (Çok-kelimeli yankılar basılmaya devam eder.)
+                echo_skip_ids = {
+                    b.id
+                    for b in translation_eligible_blocks
+                    if b.id in out_map
+                    and b.id not in guard_review_ids
+                    and _is_single_word_echo(eligible_block_text[b.id], out_map[b.id])
                 }
 
                 # Faz 3 hasat (2. tur): reddedilen terimler 1. tur TR'lerde
@@ -690,7 +715,7 @@ class ChapterAnalyzer:
                     logger.warning(f"glossary.json yazılamadı: {exc}")
 
                 for b in translation_eligible_blocks:
-                    if b.id in out_map and b.id not in guard_review_ids:
+                    if b.id in out_map and b.id not in guard_review_ids and b.id not in echo_skip_ids:
                         translated_block_pairs.append((b, out_map[b.id]))
 
                 updated_regions: list[Region] = []
@@ -701,6 +726,13 @@ class ChapterAnalyzer:
                             r,
                             status=RegionStatus.REVIEW,
                             review_reason="translation_guard_review",
+                        )
+                        updated_regions.append(r_updated)
+                    elif b_id in echo_skip_ids and r.id in eligible_member_ids.get(b_id or -1, set()):
+                        r_updated = _replace_region(
+                            r,
+                            status=RegionStatus.SKIP,
+                            review_reason="echo_single_preserved",
                         )
                         updated_regions.append(r_updated)
                     elif b_id and b_id in out_map and r.id in eligible_member_ids.get(b_id, set()):
@@ -880,6 +912,7 @@ class ChapterAnalyzer:
             "translation_eligible_blocks_count": len(translation_eligible_blocks),
             "translation_failed_blocks_count": translation_failed_count,
             "translation_guard_blocks_count": translation_guard_count,
+            "echo_preserved_blocks_count": len(echo_skip_ids),
             "pre_inpaint_skipped_blocks_count": pre_inpaint_skipped_count,
             "inpainted_blocks_count": successful_inpainting_count,
             "inpaint_review_blocks_count": review_inpainting_count,

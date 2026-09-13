@@ -402,7 +402,6 @@ class DroppedFlagTranslator(GuardFlagTranslator):
 
     warnings = ["dropped_number_token"]
 
-
 def test_translation_guard_blocks_never_render(synthetic_chapter_dir: Path, tmp_path: Path) -> None:
     """P1-B: numbering_inconsistent blok failed sayılır, REVIEW olur, basılmaz."""
     out_dir = tmp_path / "output_guard"
@@ -451,3 +450,49 @@ def test_dropped_token_guard_blocks_never_render(synthetic_chapter_dir: Path, tm
     guard_regions = [r for r in regions if r.get("review_reason") == "translation_guard_review"]
     assert guard_regions, "dropped blok bölgesi REVIEW işaretlenmeli"
     assert all(r.get("status") == "review" for r in guard_regions)
+
+
+class EchoTranslator(DummyTranslator):
+    """S2: çeviriyi aynen iade eder (tek-kelimelik yankı)."""
+
+    def translate(self, input_data: TranslationInput) -> TranslationOutput:
+        results = [
+            TranslationOutputItem(
+                region_id=item.region_id,
+                source=item.source,
+                translation=item.source,
+                raw_model_response=item.source,
+            )
+            for item in input_data.items
+        ]
+        return TranslationOutput(
+            inputs=input_data,
+            results=results,
+            raw_response="DUMMY-ECHO",
+            repair_model="dummy-echo",
+        )
+
+
+def test_single_word_echo_blocks_keep_english_pixels(synthetic_chapter_dir: Path, tmp_path: Path) -> None:
+    """S2: tek-kelimelik yankı bloğu inpaint/render görmez, SKIP olur."""
+    out_dir = tmp_path / "output_echo"
+    analyzer = ChapterAnalyzer()
+
+    res: ProductionPipelineResult = analyzer.process_chapter(
+        chapter_path=synthetic_chapter_dir,
+        output_path=out_dir,
+        detector=DummyDetector(),
+        primary_ocr=DummyOCR("GOT"),
+        translator=EchoTranslator(),
+    )
+    assert res.page_count == 2
+
+    summary = json.loads((out_dir / "analysis" / "summary.json").read_text(encoding="utf-8"))
+    assert summary["translated_blocks_count"] == 0
+    assert summary["rendered_blocks_count"] == 0
+    assert summary["echo_preserved_blocks_count"] >= 1
+
+    regions = json.loads((out_dir / "analysis" / "regions.json").read_text(encoding="utf-8"))["regions"]
+    echo_regions = [r for r in regions if r.get("review_reason") == "echo_single_preserved"]
+    assert echo_regions, "yankı blok bölgesi SKIP işaretlenmeli"
+    assert all(r.get("status") == "skip" for r in echo_regions)
