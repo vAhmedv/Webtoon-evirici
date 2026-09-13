@@ -5,6 +5,7 @@ from unittest.mock import patch
 from core.translation.protection import (
     ProtectedTermMeta,
     _suffix_category,
+    collapse_stem_doubles,
     detect_named_terms_in_items,
     restore_protected_translation,
 )
@@ -141,3 +142,38 @@ def test_qwen_v2_long_all_caps_protects_approved_term_and_restores_copula() -> N
     assert "yetenek kullanıcısıdır" in (result.translation or "")
     assert "__WTTERM" not in (result.translation or "")
     assert result.requires_review is False
+
+
+def test_sentinel_unknown_suffix_falls_back_to_bare_base() -> None:
+    # S5 çekim kapısı: "Dünya"+"ine" uydurması yerine yalın taban.
+    world = ProtectedTermMeta(
+        sentinel="__WTTERM0009__",
+        source_original="WORLD",
+        target_base="Dünya",
+        is_approved=True,
+        proper_name=False,
+    )
+    mapping = {world.sentinel: world}
+    assert restore_protected_translation("__WTTERM0009__ine", mapping) == "Dünya"
+    assert restore_protected_translation("__WTTERM0009__xyz", mapping) == "Dünya"
+    # Bilinen ekler etkilenmez.
+    assert restore_protected_translation("__WTTERM0009__da", mapping) == "Dünyada"
+    proper = ProtectedTermMeta(
+        sentinel="__WTTERM0010__",
+        source_original="GAO YUAN",
+        target_base="Gao Yuan",
+        is_approved=True,
+        proper_name=True,
+    )
+    pmap = {proper.sentinel: proper}
+    assert restore_protected_translation("__WTTERM0010__xyz", pmap) == "Gao Yuan"
+    assert restore_protected_translation("__WTTERM0010__DIR", pmap) == "Gao Yuan'dır"
+
+
+def test_collapse_stem_doubles_keeps_inflected() -> None:
+    assert collapse_stem_doubles("Son Seviye seviyesine kaldi.") == "Son seviyesine kaldi."
+    # Eş-form tekrarlar (vurgu/ikileme) korunur.
+    assert collapse_stem_doubles("yavas yavas ilerle.") == "yavas yavas ilerle."
+    assert collapse_stem_doubles("cok cok guzel.") == "cok cok guzel."
+    assert collapse_stem_doubles("cok heyecanli bir gundu.") == "cok heyecanli bir gundu."
+    assert collapse_stem_doubles("") == ""

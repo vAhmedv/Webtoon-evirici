@@ -49,6 +49,22 @@ def _clean_orphan_quotes(text: str) -> str:
     return text
 
 
+def _bond_terminal_punct(text: str) -> str:
+    """Sondaki sahipsiz noktalamayı kelimeye bağlar, art arda bitiş
+    işaretlerini tekler (S6).
+
+    "AMA.. ." → "AMA…", "olmalısın!." → "olmalısın!",
+    "..." → "…" (tek-glife iner). "?!" / "!?" bileşimleri korunur.
+    """
+    text = re.sub(r"\s+([.!?])$", r"\1", text)
+    text = text.replace("...", "…")
+    text = re.sub(r"!\.+", "!", text)
+    text = re.sub(r"\?\.+", "?", text)
+    text = re.sub(r"\.{2,}", "…", text)
+    text = re.sub(r",{2,}", ",", text)
+    return text
+
+
 def _normalize_render_text(text: str) -> str:
     """Kopya-karşılaştırma için normalize et (küçük harf + tek boşluk)."""
     return re.sub(r"\s+", " ", text.strip().casefold())
@@ -198,7 +214,7 @@ class TextRenderer:
             if members and not eligible:
                 continue
 
-            cleaned = _clean_orphan_quotes(turkish_text.strip())
+            cleaned = _bond_terminal_punct(_clean_orphan_quotes(turkish_text.strip()))
             if not _has_word_content(cleaned):
                 logger.debug(
                     f"Renderer: blok {block_id} kelime içeriği yok "

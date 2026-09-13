@@ -14,6 +14,7 @@ from core.detection import BBox, Region, RegionStatus, RegionType
 from core.detection.text_block import TextBlock
 from core.imaging.renderer import (
     TextRenderer,
+    _bond_terminal_punct,
     _clean_orphan_quotes,
     _group_overlapping,
     _has_word_content,
@@ -83,6 +84,18 @@ def test_clean_orphan_quotes_keeps_balanced_and_apostrophe() -> None:
 
 def test_normalize_render_text() -> None:
     assert _normalize_render_text("  Merhaba   DÜNYA ") == "merhaba dünya"
+
+
+def test_bond_terminal_punct() -> None:
+    # S6: kopuk noktalama bağlanır, art arda bitiş işaretleri teklenir.
+    assert _bond_terminal_punct("AMA.. .") == "AMA…"
+    assert _bond_terminal_punct("Saka yapiyor olmalisin!.") == "Saka yapiyor olmalisin!"
+    assert _bond_terminal_punct("Bekle..") == "Bekle…"
+    assert _bond_terminal_punct("Tamam,, devam.") == "Tamam, devam."
+    assert _bond_terminal_punct("NE ...?!") == "NE …?!"
+    # "?!" / "!?" bileşimleri ile temiz metinler korunur.
+    assert _bond_terminal_punct("Geri cekilin! Geri cekilin!") == "Geri cekilin! Geri cekilin!"
+    assert _bond_terminal_punct("Neden?!") == "Neden?!"
 
 
 def test_group_overlapping_singletons() -> None:
