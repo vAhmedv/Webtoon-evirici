@@ -1,0 +1,107 @@
+{
+  "name": "golden_f2_v1",
+  "created": "2026-09-13",
+  "code": "F2 sonrasi olcum (hizli runner, tek yukleme)",
+  "chapters": {
+    "dungeon_odyssey_ch1": {
+      "source": "C:\\Users\\Ahmed\\AppData\\Local\\Tachidesk\\downloads\\mangas\\Asura Scans (EN)\\Dungeon Odyssey\\Chapter 1",
+      "output": "C:\\Users\\Ahmed\\Desktop\\DOSYALAR\\Antigravity Projeler\\Webtoon cevirici\\audit_output\\golden\\dungeon_odyssey_ch1",
+      "source_page_count": 18,
+      "output_page_count": 18,
+      "text_block_count": 197,
+      "translation_eligible_blocks_count": 178,
+      "translated_blocks_count": 175,
+      "successfully_inpainted_blocks_count": 169,
+      "review_inpaint_blocks_count": 6,
+      "actually_rendered_blocks_count": 169,
+      "overflow_blocks_count": 0,
+      "short_dialogue_untranslated_count": 8,
+      "final_auto_regions": 169,
+      "final_review_regions": 28,
+      "final_skip_regions": 80,
+      "ocr_elapsed_seconds": 50.345,
+      "translation_elapsed_seconds": 64.275,
+      "inpainting_rendering_elapsed_seconds": 5.774,
+      "elapsed_seconds": null,
+      "gates": {
+        "short_dialogue_untranslated_count <= 6": "FAIL",
+        "overflow_blocks_count == 0": "pass"
+      }
+    },
+    "omniscient_reader_prologue": {
+      "source": "C:\\Users\\Ahmed\\AppData\\Local\\Tachidesk\\downloads\\mangas\\Asura Scans (EN)\\Omniscient Reader’s Viewpoint\\Chapter 0 - Prologue",
+      "output": "C:\\Users\\Ahmed\\Desktop\\DOSYALAR\\Antigravity Projeler\\Webtoon cevirici\\audit_output\\golden\\omniscient_reader_prologue",
+      "source_page_count": 7,
+      "output_page_count": 7,
+      "text_block_count": 65,
+      "translation_eligible_blocks_count": 48,
+      "translated_blocks_count": 46,
+      "successfully_inpainted_blocks_count": 43,
+      "review_inpaint_blocks_count": 3,
+      "actually_rendered_blocks_count": 43,
+      "overflow_blocks_count": 0,
+      "short_dialogue_untranslated_count": 3,
+      "final_auto_regions": 45,
+      "final_review_regions": 20,
+      "final_skip_regions": 40,
+      "ocr_elapsed_seconds": 31.484,
+      "translation_elapsed_seconds": 20.903,
+      "inpainting_rendering_elapsed_seconds": 3.769,
+      "elapsed_seconds": 88.45,
+      "gates": {
+        "short_dialogue_untranslated_count <= 6": "pass",
+        "overflow_blocks_count == 0": "pass"
+      }
+    },
+    "swordmaster_ch1": {
+      "source": "C:\\Users\\Ahmed\\AppData\\Local\\Tachidesk\\downloads\\mangas\\Asura Scans (EN)\\Swordmaster’s Youngest Son\\Chapter 1",
+      "output": "C:\\Users\\Ahmed\\Desktop\\DOSYALAR\\Antigravity Projeler\\Webtoon cevirici\\audit_output\\golden\\swordmaster_ch1",
+      "source_page_count": 18,
+      "output_page_count": 18,
+      "text_block_count": 180,
+      "translation_eligible_blocks_count": 154,
+      "translated_blocks_count": 146,
+      "successfully_inpainted_blocks_count": 145,
+      "review_inpaint_blocks_count": 1,
+      "actually_rendered_blocks_count": 145,
+      "overflow_blocks_count": 0,
+      "short_dialogue_untranslated_count": 2,
+      "final_auto_regions": 148,
+      "final_review_regions": 32,
+      "final_skip_regions": 59,
+      "ocr_elapsed_seconds": 32.234,
+      "translation_elapsed_seconds": 65.938,
+      "inpainting_rendering_elapsed_seconds": 7.654,
+      "elapsed_seconds": 215.3,
+      "gates": {
+        "short_dialogue_untranslated_count <= 6": "pass",
+        "overflow_blocks_count == 0": "pass"
+      }
+    },
+    "estate_developer_ch1": {
+      "source": "C:\\Users\\Ahmed\\AppData\\Local\\Tachidesk\\downloads\\mangas\\Asura Scans (EN)\\The Greatest Estate Developer\\Chapter 1",
+      "output": "C:\\Users\\Ahmed\\Desktop\\DOSYALAR\\Antigravity Projeler\\Webtoon cevirici\\audit_output\\golden\\estate_developer_ch1",
+      "source_page_count": 19,
+      "output_page_count": 19,
+      "text_block_count": 228,
+      "translation_eligible_blocks_count": 212,
+      "translated_blocks_count": 206,
+      "successfully_inpainted_blocks_count": 200,
+      "review_inpaint_blocks_count": 6,
+      "actually_rendered_blocks_count": 199,
+      "overflow_blocks_count": 0,
+      "short_dialogue_untranslated_count": 5,
+      "final_auto_regions": 201,
+      "final_review_regions": 27,
+      "final_skip_regions": 68,
+      "ocr_elapsed_seconds": 49.091,
+      "translation_elapsed_seconds": 100.242,
+      "inpainting_rendering_elapsed_seconds": 9.795,
+      "elapsed_seconds": 245.62,
+      "gates": {
+        "short_dialogue_untranslated_count <= 6": "pass",
+        "overflow_blocks_count == 0": "pass"
+      }
+    }
+  }
+}
