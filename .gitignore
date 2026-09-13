@@ -38,6 +38,8 @@ review_output/
 logs/
 
 # Not: benchmark/ kaynak koddur, test_data/ test fixture'ıdır — ignore edilmez.
+# Dondurulmuş kör setler (benchmark/*.json) track edilir; koşu çıktıları
+# (benchmark/results/) ignore edilir.
 # Üretim çıktıları yukarıda zaten kapsamlı (output*/, e2e_output/, audit_output/ vb.).
 # Not: assets/fonts/*.ttf bilerek track edilir (Türkçe glyph fallback);
 # yukarıdaki model filtreleri (*.gguf/*.ckpt/*.onnx) fontları etkilemez.
@@ -51,6 +53,11 @@ Desktop.ini
 /benchmark_output/
 /benchmark_data/
 benchmark_output.txt
+benchmark/results/
+
+# Hunspell sözlükleri vendorda (assets/hunspell/, ~38MB, MPL-2.0):
+# kurulumda oradadır, repoya commit edilmez.
+assets/hunspell/
 
 # Audit / review artifacts
 audit_output/
@@ -62,6 +69,9 @@ graphify-out/
 
 # IDE / Tool configs
 .kilo/
+# Oturum notları (yerel, repoya girmez)
+HANDOFF.md
+önceki KONUŞMALAR.txt
 .serena/
 _debug_*
 test_full_output.py

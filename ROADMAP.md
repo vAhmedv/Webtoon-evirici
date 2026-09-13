@@ -159,3 +159,36 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - Kök neden bulundu: parti-bağlam deterministik değil — aynı cümle farklı partide farklı çevriliyor. Maskeli yeniden-çeviri o yüzden çöp üretti. Çare: 1. tur TR'lerde yüzey oylaması (ek parti yok) + kilitlenen terim geçen bloklara 2. tur.
 - Mini-kanıt: `CRAFTER`→`USTA` (hasat) — 4 blokta tek aile (`USTA/USTA/USTA/USTAlar`); `WORLD`→`DÜNYA`, `LEVEL`→`SEVİYE` hasat kilitli. Yankı-ailesi dondurma yasağı + `kara/karar` ayrımı testli.
 - Bilinen küçük izler (Faz 3 cila backlogu): taban-büyük-harf artığı (`DÜNYAda`/`DÜNYAinde` — ek doğru, kasa ham), nadir çift-çoğul (`USTAlar"’ler` — model sentinel sonrasına ek yapıştırmış).
+
+## KALAN-İŞLER TURU (2026-09-12, İŞ 1–5)
+
+- [x] **İŞ 1 (DAMMIT → Faz 4-kısıt, DURDURULDU):** hipotez 1 doğrulandı (glif-bariyer hapsi) ve 7px renksiz köprü denendi — AMA tam-audit kanıtı reddetti: köprü beyazı %97 doldurur (`block_0035` forenziği) ama uzak glif pikselleri maskeye giremez (glifler `bg_like` dışı; kapsama yalnız refined+7px bant). Sonuç: inpaint-REVIEW 0→10 regresyonu (9'u second-chance). KALAN stop-kuralı uygulandı: köprü GERİ ALINDI (3x3 tohum), yerine kısıt kilitlendi. **FAZ 4-KISIT:** kısmi-kutu + sivri-uçlu balon glifleri maske katmanının ötesindedir (detector-recall işi). Kilit testi: `test_expand_mask_stays_in_seed_compartment` (taşma yok, sessiz leke yok).
+- Taze tam-audit (İŞ 1+2'li kod, 298 sn): blok 265, çevrilen 212, inpaint 202 ok / 10 review, render 199, overflow 0; bölge 203 auto / 62 review / 324 skip. DAMMIT çevirisi hazır (`Kahretsin!`) ama temizlik REVIEW — kısıt teyidi.
+- [x] **İŞ 2 (kasa cilası):** `_store_lock` — mapping'e yazan TEK nokta, normalize garantili (`chapter_glossary.py`); hasat yolu + `chapter_analyzer` hasat-`update` de normalize'den geçiyor. 3 yeni test (store/harvest/resolve `DÜNYA`→`Dünya`); eski `USTA` beklentisi `Usta` olarak düzeltildi. 27/27 yeşil.
+- [x] **İŞ 3 (coverage kilidi):** kod değişikliği YOK. Bekçi testi (`test_short_english_exclamations_stay_eligible`: DAMMIT/BUT/HEY/NO-NOT-NOW) + audit metriği `short_dialogue_untranslated_count` — taze kanıtla rafine edildi: yalnız REVIEW-statü (SKIP tasarım-gereği), OCR-çöp hariç (`word_difference`/`ambiguous_unknown_review`/`primary_*`). Ölçülen: **6** (tamamı inpaint-sınır-artığı review; SKIP gürültü/logo sayılmaz). Eşik: ≤6 (artış yasak).
+- [x] **İŞ 4 (shootout 4.1+4.2+4.3a):** kör set donduruldu — `benchmark/translation_ab_v1.json` (30 balon: 8 short + 8 longest + term-yoğun; bölüm gerçeği: maks 108 karakter, çok-üyeli çevrilmiş blok yok). İki kol koştu: Hy-MT2 (8.9 sn) ve TranslateGemma-12B (31.2 sn), ikisi de 30/30 boş-sıfır. Otomatik skor: echo 1-0, TR-karakter 21-21, uzunluk-oran 0.99-1.13 (fark ANLAMLI DEĞİL). Pusula hazır: `benchmark/results/translation_ab_v1/ballot_20260912-1707.md` (A/B karışık, anahtar ayrı dosyada). **AÇIK (insan):** 30 çift kör oy + karar kapısı (4.3b/4.4) — pusulayı doldurunca `config.yaml` kararı verilecek.
+- Taze tam-audit (İŞ 1+2 kanıtı: DAMMIT görseli + `glossary.json` kasa) arka-planda koşuyor (`logs/audit_fresh.log`, ~5 dk).
+
+## P1+P2 TURU (2026-09-12, build)
+
+- [x] **P1-A (batch kayma sertleştirme):** `hy_mt2_gguf_translation.py` parse artık tekrarlı/uzaylı numara farkında (`dup_numbers` + `stray_numbers` loglanır/atılır); şüpheli item (tekrarlı numara, TR/EN>2.5) tekil retry'a düşer. 2 yeni test.
+- [x] **P1-B (çapraz-numaralama doğrulaması):** kırılgan item'lar (kaynak ≤25 karakter, karmaşık chunk'ta ≤8 adet) izole mini-batch ile yeniden sorulur; model deterministiktir (temp 0.0/top_k 1/seed 0) — uyuşmazlık = kanıtlı karışma → tekil tiebreak + `numbering_inconsistent` + requires_review. 2 yeni test.
+- [x] **P1-B analyzer bağlama:** yalnız ÖLÜMCÜL kod (`numbering_inconsistent`) bloğu failed sayar + `translation_guard_review` REVIEW'u verir + `translation_guard_blocks_count` metriği (regions/summary). Yumuşak bayraklar (echo/prose) eski davranışı korur — meşru yankılar (`Lv.998`, `BOSS`) basılmaya devam eder. Uçtan-uca sentetik test yeşil.
+- [x] **P2 (kilit yazım kapısı):** `spylls` (pip) + `hunspell-tr` vendorda (`assets/hunspell/`, MPL-2.0). Kural: mesafe-1 + GEÇERLİ öneri = typo (red); bilinmeyen (Goblin) + yankı (BOSS) kabul; sözlük yoksafail-open. `resolve`/`harvest`/`glossary.json` (`rejected_targets`) hattına bağlı. 3 yeni test. Kanıt: `Sılah` red, `Silah/Dünyada/Usta/Goblin` kabul.
+- Testler: 680 geçti (8 yeni), 2 önceden-var hata aynı. Taze Ch1 audit'i arka-planda (`logs/audit_p1p2_ch1.log`); ardından Ch2 genelleme audit'i.
+
+## STUDIO POST-MORTEM (2026-09-13, KRİTİK BULGU + FİX)
+
+- **Olay:** P1/P2'li Ch1 audit'inde `regions.json`'daki 211 çevirinin TAMAMI `STUDIO` yazıldı; render'lar doğruydu (P002 görsel + PIL kırpıntı kanıtlı).
+- **Kök neden:** `chapter_analyzer.py` bölge-döngüsünde `tr_text = out_map[b.id]` — sızmış döngü değişkeni (`b` = `translation_eligible_blocks`'un SON bloğu). Bölgeler hep son bloğun çevirisini aldı. Son uygun blok, yankı-çevirili `STUDIO` logolu kredi bloğuydu (r571 `STUDIO`, AUTO). Forenzik: `git show HEAD` doğrusu `out_map[b_id]` — gerileme HEAD-sonrası çalışma ağacına girmiş, 211/211 sabit-değer imzası + `b.id`/`b_id` diff'i ile kanıtlandı.
+- **Neden yakalanmadı:** mevcut e2e testleri tek blokluydu (sızan `b` tesadüfen doğru), `regions.json` çeviri alanı hiçbir testte blok-bazında doğrulanmıyordu; görsel QA render'a baktı (doğruydu).
+- **Fix:** `out_map[b_id]` (tek satır) + mutasyon-kanıtlı bekçi `test_region_translations_match_own_block` (iki kutulu fixture, çeviriye blok-id gömülü; bug'lı kodda KIRMIZI, fix'li kodda YEŞİL doğrulandı). Ek ders: tespit-önbelleği stub adlarına duyarlı (`TwoBoxDetector` ayrı ad).
+- Testler: 681 geçti, 2 önceden-var hata aynı. Doğrulama Ch1 + Ch2 audit'leri yeniden koşuyor.
+
+## P1-B İKİNCİ AĞ (2026-09-13, 259/260 kör noktası)
+
+- **Ölçüm:** Ch1'de 175/265 blok ≤25 karakter; her 32'li chunk'ta 7-28 kırılgan — mini-batch doğrulaması neredeyse hiç çalışmıyormuş (yalnız batch_0'da 1 kez, o da gerçek bir yakalama: b249). 259/260'ın chunk'ı eşiği aştığı için denetimsiz kalmış.
+- **Fix:** `_verify_swap_pairs` — batch-kabul item'larda bitişik-tamamlayıcı oran (biri >1.5, diğeri <0.5) veya tekil hedge (<0.4, kaynak ≥10kr) → tekil izolasyon; uyuşmazlık `numbering_inconsistent` + REVIEW. Chunk başına ≤8 ek çağrı tavanı.
+- Testler: 684 geçti (3 yeni: swap-uyuşmazlık/uyum/hedge), 2 önceden-var hata aynı. Kabul kanıtı için Ch1 audit'i yeniden koşuyor (259/260 balonları).
+- [x] **İŞ 5 (gate'ler):** audit `--strict` kapısı (`short_untranslated≤6` [ölçülen], `overflow==0`; varsayılan uyarı, strict'te non-zero) + `scripts/write_defect_report.py` + test envanteri (F1–F5'in her birinin özel test dosyası var: logo/test_logo_protection, render/test_renderer_guards, terim/test_chapter_glossary, inpaint/test_inpaint_guards+test_text_mask_inpainting, coverage/test_translation_eligibility).
+- Bilinen önceden-var kusurlar (bu turda dokunulmadı): `test_mixed_status_block_safety` (renderer kısmi-render vs eski tam-veto — spesifikasyon çelişkisi, karar bekliyor), `test_residual_expansion_can_follow_a_bounded_multi_pixel_glyph_edge` (review=True).
