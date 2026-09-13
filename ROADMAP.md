@@ -198,3 +198,11 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - [x] **Spike (ÖLDÜRÜLDÜ):** llama-server json_schema batch kilidi denendi — yapı geçerli (30/30 id) AMA içerik birleştirme + sessiz bir-kayma üretti. Yapı doğru numarayı yanlış metinle kilitler.
 - [x] **Merge-pair net + ad-düşürme + S5 + S6** (detay commit mesajlarında). Testler: **722 geçti, 0 kırmızı.**
 - [x] **Hızlı ölçü hattı** (tek yükleme ~10 sn) + **F2 terazisi:** overflow 4/4 sıfır, blok-sayımları sabit; REVIEW artışı bilinçli (dungeon +3, swordmaster +5, estate +2, prologue 0). `benchmark/golden_f2_v1.json` donduruldu.
+
+## F3 TURU (2026-09-13, build)
+
+- [x] **S4 bant-tarama:** B19 "M'" fotoğrafıyla kanıtlandı (maske-dışı kör nokta). İlk sürüm sel üretti (balon çizgisi/toz) → ölçülen ayıraçlarla daraltıldı (uzaklık≤8px + %50 aydınlık-komşu + alan 100..4000 + oran≤6). B19 + dungeon b21 ("IT'S" artığı) görsel kanıtlı yakalanıyor, temiz balonlar geçiyor.
+- [x] **S2 yankı-koruma:** tek-kelimelik yankı blokları inpaint/render görmez, SKIP olur (orijinal piksel + özgün font korunur). Çok-kelimeliler basılmaya devam eder.
+- [x] **S7 tire-birleştirme:** "DIFFER- ENT"→"DIFFERENT" hazırlıkta birleşir (kayıtlı kaynak korunur). Siyah-balon OCR'a dokunulmadı (kanıt yok; F2 guard'ları çöp çeviriyi REVIEW'a düşürür).
+- [x] **F3 terazisi:** overflow 4/4 sıfır, blok-sayımları sabit; basılan düşüşü bilinçli (yankı-nötr + gerçek artık + yanlış-anlam tutmaları). `benchmark/golden_f3_v1.json` donduruldu.
+- Testler: **732 geçti, 0 kırmızı.** Ara-bulgu: tam-süit, tanımsız `echo_skip_ids` UnboundLocalError yakaladı (çevrilecek-bloksuz hat) — düzeltildi.

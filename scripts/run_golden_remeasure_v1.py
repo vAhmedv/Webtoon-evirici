@@ -19,6 +19,7 @@ KULLANIM:
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -65,6 +66,7 @@ SUMMARY_KEYS = [
     "translation_elapsed_seconds",
     "inpainting_rendering_elapsed_seconds",
     "elapsed_seconds",
+    "echo_preserved_blocks_count",
 ]
 
 
@@ -113,6 +115,7 @@ def _extract_metrics(tag: str, src: Path, elapsed: float | None) -> dict:
         "review_inpaint_blocks_count": summary_data["review_inpaint_blocks_count"],
         "actually_rendered_blocks_count": summary_data["rendered_blocks_count"],
         "overflow_blocks_count": summary_data["overflow_blocks_count"],
+        "echo_preserved_blocks_count": summary_data.get("echo_preserved_blocks_count", 0),
         "short_dialogue_untranslated_count": count_short_dialogue_untranslated(raw_regions),
         "ocr_elapsed_seconds": stage.get("ocr"),
         "translation_elapsed_seconds": stage.get("translation"),
@@ -151,44 +154,48 @@ def main() -> None:
     print(f"[FAST] yukleme {round(time.time() - t_load, 1)} sn", flush=True)
 
     baseline = json.loads((ROOT / "benchmark" / "golden_baseline_v1.json").read_text(encoding="utf-8"))
+    run_tag = os.environ.get("GOLDEN_TAG", "golden_f2_v1")
+    # Kurtarma kipi (çökme artığı): GOLDEN_RESUME=1 olmadan eski hattan
+    # metrik çıkarılmaz — her zaman taze hat koşar.
+    resume_allowed = os.environ.get("GOLDEN_RESUME", "") == "1"
     frozen: dict = {
-        "name": "golden_f2_v1",
+        "name": run_tag,
         "created": time.strftime("%Y-%m-%d"),
-        "code": "F2 sonrasi olcum (hizli runner, tek yukleme)",
+        "code": f"olcum ({run_tag}, hizli runner, tek yukleme)",
         "chapters": {},
     }
     try:
-        for tag, src in CHAPTERS:
-            out = ROOT / "audit_output" / "golden" / tag
+        for ctag, src in CHAPTERS:
+            out = ROOT / "audit_output" / "golden" / ctag
             metrics_path = out / "e2e_audit_metrics.json"
             if metrics_path.is_file():
                 # Ölçüm hazır (önceki koşu) — hattı tekrar koşturma.
-                print(f"[FAST] atlaniyor (olcum var): {tag}", flush=True)
+                print(f"[FAST] atlaniyor (olcum var): {ctag}", flush=True)
                 m = json.loads(metrics_path.read_text(encoding="utf-8"))
-            elif (out / "analysis" / "regions.json").is_file():
+            elif resume_allowed and (out / "analysis" / "regions.json").is_file():
                 # Hattı bitmiş ama metriği yazılamamış koşu (çökme artığı):
                 # hattı tekrar koşturmadan metriği çıkar.
-                print(f"[FAST] devam (hat hazır): {tag}", flush=True)
-                m = _extract_metrics(tag, src, None)
+                print(f"[FAST] devam (hat hazır): {ctag}", flush=True)
+                m = _extract_metrics(ctag, src, None)
             else:
-                print(f"[FAST] basliyor: {tag}", flush=True)
-                elapsed = _run_pipeline(tag, src, shared)
-                m = _extract_metrics(tag, src, elapsed)
-            frozen["chapters"][tag] = {
+                print(f"[FAST] basliyor: {ctag}", flush=True)
+                elapsed = _run_pipeline(ctag, src, shared)
+                m = _extract_metrics(ctag, src, elapsed)
+            frozen["chapters"][ctag] = {
                 "source": str(src),
-                "output": str(ROOT / "audit_output" / "golden" / tag),
+                "output": str(ROOT / "audit_output" / "golden" / ctag),
                 **{k: m.get(k) for k in SUMMARY_KEYS},
                 "gates": m.get("gates"),
             }
             print(
-                f"[FAST] bitti: {tag} blok={m['text_block_count']} cevrilmis={m['translated_blocks_count']} "
+                f"[FAST] bitti: {ctag} blok={m['text_block_count']} cevrilmis={m['translated_blocks_count']} "
                 f"basildi={m['actually_rendered_blocks_count']} overflow={m['overflow_blocks_count']} "
                 f"kisacevrilmemis={m['short_dialogue_untranslated_count']} review={m['final_review_regions']} "
                 f"sure={m['elapsed_seconds'] if m['elapsed_seconds'] is not None else '?'}sn",
                 flush=True,
             )
-            if tag == "dungeon_odyssey_ch1":
-                base = baseline["chapters"][tag]
+            if ctag == "dungeon_odyssey_ch1":
+                base = baseline["chapters"][ctag]
                 check = ["text_block_count", "translated_blocks_count", "actually_rendered_blocks_count",
                          "overflow_blocks_count", "final_review_regions"]
                 diff = {k: (base.get(k), m.get(k)) for k in check if base.get(k) != m.get(k)}
@@ -205,7 +212,7 @@ def main() -> None:
         except Exception:
             pass
 
-    dest = ROOT / "benchmark" / "golden_f2_v1.json"
+    dest = ROOT / "benchmark" / f"{run_tag}.json"
     dest.write_text(json.dumps(frozen, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[FAST-OK] -> {dest}", flush=True)
 
