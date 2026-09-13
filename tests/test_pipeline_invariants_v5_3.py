@@ -163,7 +163,13 @@ def test_non_uniform_width_contract_characterization(tmp_path: Path) -> None:
 
 
 def test_mixed_status_block_safety() -> None:
-    """Verify that a TextBlock with mixed AUTO and REVIEW/SKIP members is neither in-painted nor rendered."""
+    """Kısmi-render politikası bekçisi (kilitli kullanıcı kararı).
+
+    Karışık statülü blok (AUTO + REVIEW üye): inpaint YOK (blok veto
+    korunur — temizlikte yarım iş yasak), render KISMİ (yalnız AUTO
+    üyenin çevirisi, AUTO üye kutusuna; REVIEW üye pikselleri korunur).
+    Eski tam-veto spesifikasyonu bu politika ile değiştirilmiştir.
+    """
     arr = np.random.randint(0, 255, (200, 200, 3), dtype=np.uint8)
     canvas = Image.fromarray(arr, "RGB")
 
@@ -190,9 +196,10 @@ def test_mixed_status_block_safety() -> None:
     renderer = TextRenderer()
     out_canvas, rendered_cnt, _ = renderer.render_blocks(canvas, [(mixed_block, "Türkçe")])
 
-    # Renderer must NOT render mixed-status block
-    assert rendered_cnt == 0
-    assert np.array_equal(arr, np.asarray(out_canvas))
+    # Kısmi render: blok basılır (yalnız AUTO üye kutusuna), REVIEW üye
+    # alanı (alt yarı, satır 70+) pikseli piksel korunur.
+    assert rendered_cnt == 1
+    assert np.array_equal(arr[70:100, :, :], np.asarray(out_canvas)[70:100, :, :])
 
 
 def test_renderer_breaks_long_turkish_token_within_narrow_bubble() -> None:

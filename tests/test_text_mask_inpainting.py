@@ -230,6 +230,10 @@ def test_residual_second_pass_expands_once_and_tracks_final_identity() -> None:
 
 
 def test_residual_expansion_can_follow_a_bounded_multi_pixel_glyph_edge() -> None:
+    # Faz-4-kısıt hükmü: genişleme başarılı olsa bile sınırlı-artık
+    # geometrisi muhafazakâr REVIEW ile işaretlenir (sessiz leke yerine
+    # görünür REVIEW — bilinçli tasarım). Eski "review is False"
+    # beklentisi bu kararla değiştirilmiştir.
     source = np.full((24, 24, 3), 255, np.uint8)
     source[10:14, 6:18] = 0
     raw = np.zeros((14, 18), np.uint8)
@@ -252,7 +256,7 @@ def test_residual_expansion_can_follow_a_bounded_multi_pixel_glyph_edge() -> Non
 
     assert record["residual_expansion_passes"] >= 2
     assert record["remaining_boundary_residual_pixels"] == 0
-    assert record["review"] is False
+    assert record["review"] is True
     final_mask = np.zeros(source.shape[:2], bool)
     x1, y1, x2, y2 = inpainter.last_text_mask.crop_bbox
     final_mask[y1:y2, x1:x2] = inpainter.last_text_mask.refined > 0
