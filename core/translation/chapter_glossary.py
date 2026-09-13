@@ -239,6 +239,113 @@ def normalize_lock_target(source: str, target: str) -> str:
     return _tr_titlecase(t)
 
 
+def _store_lock(
+    mapping: dict[str, str],
+    methods: dict[str, str],
+    term: str,
+    target: str,
+    method: str,
+) -> str:
+    """Kilit yazan TEK nokta (İŞ 2): normalize garantili.
+
+    Gelecek kilit yolları (vote/harvest/standalone) buradan geçmek zorunda;
+    `mapping[x] = ham_hedef` doğrudan yazımı YASAK (DÜNYA→DÜNYAda artığı).
+    """
+    norm = normalize_lock_target(term, target)
+    mapping[term] = norm
+    methods[term.upper()] = method
+    return norm
+
+
+# P2: kilit yazım-denetime kapısı (WEAPON→"Sılah" vakası). hunspell-tr
+# sözlüğü vendorda (assets/hunspell); spylls saf-python'dur. Kural hassasiyet
+# önceliklidir: yalnız mesafe-1 + GEÇERLİ öneri = yazım yanlışı (red);
+# bilinmeyen sözcük (Goblin) ve yankı (BOSS) KABUL edilir. Sözlük yoksa
+# kapı açık-geçer (fail-open — üretim asla kırılmaz).
+_SPELL_DIR = Path(__file__).resolve().parents[2] / "assets" / "hunspell"
+_spell_dict = None
+_spell_unavailable_logged = False
+
+
+def _spell_dictionary():
+    """hunspell-tr singleton (yoksa None)."""
+    global _spell_dict, _spell_unavailable_logged
+    if _spell_dict is not None:
+        return _spell_dict
+    try:
+        from spylls.hunspell import Dictionary
+
+        aff = _SPELL_DIR / "tr_TR.aff"
+        dic = _SPELL_DIR / "tr_TR.dic"
+        if not (aff.is_file() and dic.is_file()):
+            raise FileNotFoundError(f"sözlük dosyası yok: {_SPELL_DIR}")
+        _spell_dict = Dictionary.from_files(str(_SPELL_DIR / "tr_TR"))
+    except Exception as exc:
+        if not _spell_unavailable_logged:
+            logger.warning(f"Yazım kapısı devre-dışı (sözlük yüklenemedi): {exc}")
+            _spell_unavailable_logged = True
+        _spell_dict = False
+    return _spell_dict or None
+
+
+def _edit_distance(a: str, b: str) -> int:
+    """Kısa dizgiler için Levenshtein (yanlış-öneri eşiği)."""
+    if a == b:
+        return 0
+    la, lb = len(a), len(b)
+    if abs(la - lb) > 1:
+        return 2
+    prev = list(range(lb + 1))
+    for i in range(1, la + 1):
+        cur = [i] + [0] * lb
+        row_min = i
+        for j in range(1, lb + 1):
+            cur[j] = min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] != b[j - 1]))
+            row_min = min(row_min, cur[j])
+        if row_min > 1:
+            return 2
+        prev = cur
+    return prev[lb]
+
+
+def _is_typo_lock_target(source: str, target: str) -> bool:
+    """Kilit hedefi bariz yazım yanlışı mı? (Sılah→red, Goblin→kabul)."""
+    t = (target or "").strip()
+    if not t or t.casefold() == (source or "").strip().casefold():
+        return False  # yankı muaf
+    spell = _spell_dictionary()
+    if spell is None:
+        return False  # fail-open
+    for token in re.findall(r"[A-Za-zÇçĞğİıÖöŞşÜü]+", t.lower()):
+        if len(token) < 2 or token.isdigit():
+            continue
+        try:
+            if spell.lookup(token):
+                continue
+            for sug in list(spell.suggest(token))[:3]:
+                cand = str(sug).lower()
+                if spell.lookup(cand) and _edit_distance(cand, token) == 1:
+                    return True
+        except Exception:
+            continue
+    return False
+
+
+def _accept_lock_target(
+    term: str,
+    target: str,
+    typo_rejected: dict[str, str] | None = None,
+) -> str | None:
+    """Normalize + yazım kapısı: kabulde normalize hedef, redde None."""
+    norm = normalize_lock_target(term, target)
+    if _is_typo_lock_target(term, norm):
+        logger.warning(f"Terim kilidi reddedildi ({term}): yazım yanlışı {norm!r}")
+        if typo_rejected is not None:
+            typo_rejected[term] = norm
+        return None
+    return norm
+
+
 def _surface_hits_in_texts(target: str, trs: Sequence[str]) -> list[str | None]:
     """Her TR için bağımsız hedefin eşleşen yüzeyini (veya None) döndürür."""
     from core.translation.protection import ProtectedTermMeta, _target_surface_forms
@@ -267,6 +374,7 @@ def resolve_chapter_glossary(
     max_terms: int = MAX_LOCKED_TERMS_DEFAULT,
     texts: Sequence[str] | None = None,
     block_ids: Sequence[int] | None = None,
+    typo_rejected: dict[str, str] | None = None,
 ) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
     """Benzersiz terimleri çözüp tutarlılık kapanışıyla kilitler.
 
@@ -296,7 +404,9 @@ def resolve_chapter_glossary(
     for term, target in zip(chosen, rendered):
         target = (target or "").strip()
         if _is_usable_target(target):
-            standalone[term.term] = normalize_lock_target(term.term, target)
+            accepted = _accept_lock_target(term.term, target, typo_rejected)
+            if accepted is not None:
+                standalone[term.term] = accepted
         else:
             logger.warning(
                 f"Terim kilidi reddedildi ({term.term}): bozuk hedef {target!r}"
@@ -330,15 +440,16 @@ def resolve_chapter_glossary(
             sample_tr.setdefault(owner, []).append(tr or "")
 
     mapping: dict[str, str] = {}
+    methods: dict[str, str] = {}
     rejected: dict[str, str] = {}
     for term, target in standalone.items():
         checks = sample_tr.get(term, [])
         if not checks:
-            mapping[term] = target
+            _store_lock(mapping, methods, term, target, "standalone")
             continue
         hits = _surface_hits_in_texts(target, checks)
         if all(h is not None for h in hits):
-            mapping[term] = target
+            _store_lock(mapping, methods, term, target, "standalone")
         else:
             rejected[term] = target
             logger.warning(
@@ -346,7 +457,6 @@ def resolve_chapter_glossary(
                 f"geçiş cümlelerinde yok (anlam uyuşmazlığı). "
                 f"örnekler={[ (h, (tr or '')[:40]) for h, tr in zip(hits, checks) ]}"
             )
-    methods = {s.upper(): "standalone" for s in mapping}
     logger.info(f"Terim kilidi: {len(mapping)}/{len(chosen)} terim kilitlendi.")
     return mapping, methods, rejected
 
@@ -371,6 +481,7 @@ def harvest_confirmed_locks(
     block_translations: dict[int, str],
     min_hits: int = 2,
     min_ratio: float = 0.5,
+    typo_rejected: dict[str, str] | None = None,
 ) -> dict[str, str]:
     """Reddedilen terimler için ana-geçiş çevirilerinde yüzey oylaması.
 
@@ -408,8 +519,11 @@ def harvest_confirmed_locks(
             )
         )
         if hits >= min_hits and hits / len(trs) >= min_ratio:
-            winners[term] = target
-            logger.info(f"Hasat kilidi: {term} -> {target} ({hits}/{len(trs)})")
+            accepted = _accept_lock_target(term, target, typo_rejected)
+            if accepted is None:
+                continue
+            winners[term] = accepted
+            logger.info(f"Hasat kilidi: {term} -> {winners[term]} ({hits}/{len(trs)})")
         else:
             logger.info(f"Hasat kilitsiz bıraktı: {term} ({hits}/{len(trs)})")
     return winners
@@ -421,6 +535,7 @@ def write_glossary_json(
     terms: Sequence[ChapterTerm],
     observed: Sequence[ChapterTerm] = (),
     methods: dict[str, str] | None = None,
+    rejected_targets: dict[str, str] | None = None,
 ) -> Path:
     """`analysis/glossary.json` artefaktı: kilit + kanıt (blok id'leri)."""
     out = Path(path)
@@ -445,6 +560,10 @@ def write_glossary_json(
                 "block_ids": t.block_ids,
             }
             for t in observed
+        ],
+        "rejected_targets": [
+            {"source": src, "target": tgt, "reason": "typo"}
+            for src, tgt in (rejected_targets or {}).items()
         ],
     }
     out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

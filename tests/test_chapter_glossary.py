@@ -269,9 +269,9 @@ def test_harvest_locks_consistent_majority() -> None:
     }
     # USTA bağımsız hedef değil (Üretici) → yüzey yok → kilit yok.
     assert harvest_confirmed_locks(rejected, terms, out_map) == {}
-    # USTA bağımsız hedef olsaydı 4/4 ile kilitlenirdi.
+    # USTA bağımsız hedef olsaydı 4/4 ile kilitlenirdi (normalize: Usta).
     assert harvest_confirmed_locks({"CRAFTER": "USTA"}, terms, out_map) == {
-        "CRAFTER": "USTA"
+        "CRAFTER": "Usta"
     }
 
 
@@ -285,6 +285,69 @@ def test_harvest_rejects_mismatch() -> None:
         3: "Ünlü bir loncadan mısın",
     }
     assert harvest_confirmed_locks(rejected, terms, out_map) == {}
+
+
+def test_store_lock_normalizes_uppercase_target() -> None:
+    """İŞ 2: mapping'e yazan TEK nokta büyük-kasa hedefi indirir.
+
+    Üretim artığı: `WORLD`→`DÜNYA` kilidi cümlelerde `DÜNYAda` basıyordu.
+    Beklenen: mapping'de `Dünya` (morfoloji küçük tabandan çeker).
+    """
+    from core.translation.chapter_glossary import _store_lock
+
+    mapping: dict[str, str] = {}
+    methods: dict[str, str] = {}
+    _store_lock(mapping, methods, "WORLD", "DÜNYA", "standalone")
+    assert mapping == {"WORLD": "Dünya"}
+    assert methods == {"WORLD": "standalone"}
+
+
+def test_harvest_normalizes_uppercase_target() -> None:
+    """İŞ 2: hasat yoluyla gelen `DÜNYA` de `Dünya` olarak kilitlenir."""
+    rejected = {"WORLD": "DÜNYA"}
+    terms = [ChapterTerm("WORLD", 4, [1, 2, 3, 4])]
+    out_map = {
+        1: "Dünya tehlikede",
+        2: "Dünyayı kurtar",
+        3: "Dünyada barış",
+        4: "Dünyanın sonu",
+    }
+    assert harvest_confirmed_locks(rejected, terms, out_map) == {"WORLD": "Dünya"}
+
+
+def test_resolve_normalizes_uppercase_standalone() -> None:
+    """İŞ 2: resolve yoluyla gelen `SEVİYE` hedefi `Seviye` olur."""
+    stub = _StubTranslator({"LEVEL": "SEVİYE"})
+    terms = [ChapterTerm("LEVEL", 5, [1])]
+    mapping, _methods, _rejected = resolve_chapter_glossary(stub, terms)
+    assert mapping == {"LEVEL": "Seviye"}
+
+
+def test_typo_lock_target_rejected() -> None:
+    """P2: WEAPON→Sılah kilitlenemez (mesafe-1 + geçerli öneri = typo)."""
+    from core.translation.chapter_glossary import _accept_lock_target
+
+    collector: dict[str, str] = {}
+    assert _accept_lock_target("WEAPON", "Sılah", collector) is None
+    assert collector == {"WEAPON": "Sılah"}
+
+
+def test_loanword_and_inflected_targets_accepted() -> None:
+    """P2: Goblin (ödünç) + Dünyada (çekimli) + BOSS (yankı) kabul edilir."""
+    from core.translation.chapter_glossary import _accept_lock_target
+
+    assert _accept_lock_target("GOBLIN", "Goblin", {}) == "Goblin"
+    assert _accept_lock_target("WORLD", "Dünyada", {}) == "Dünyada"
+    assert _accept_lock_target("BOSS", "BOSS", {}) == "BOSS"
+
+
+def test_resolve_rejects_typo_lock_end_to_end() -> None:
+    """P2: resolve yolundan gelen Sılah mapping'e girmez."""
+    stub = _StubTranslator({"WEAPON": "Sılah", "LEVEL": "Seviye"})
+    terms = [ChapterTerm("WEAPON", 3, [1]), ChapterTerm("LEVEL", 5, [2])]
+    mapping, _methods, _rejected = resolve_chapter_glossary(stub, terms)
+    assert "WEAPON" not in mapping
+    assert mapping == {"LEVEL": "Seviye"}
 
 
 def test_harvest_needs_quorum() -> None:
