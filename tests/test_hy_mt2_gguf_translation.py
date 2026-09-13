@@ -471,8 +471,7 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
             find_dropped_source_tokens("ONLY LEVEL ONE!", "Sadece seviyesin!"),
         )
 
-    def test_dropped_content_mass_evaporation(self):
-        # B255 sınıfı: uzun kaynak buharlaşıp kısa kalırsa ateşler.
+    def test_dropped_content_mass_evaporation(self):        # B255 sınıfı: uzun kaynak buharlaşıp kısa kalırsa ateşler.
         src = "ALRIGHT, I THINK I'VE GOT THE HANG OF THIS AND THEN WE MARCH HOME"
         self.assertIn(
             "dropped_content_token",
@@ -489,6 +488,25 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertEqual(res.translation, "ÇEVRİMİÇİ")
         self.assertNotIn("dropped_number_token", res.validation_warnings)
         self.assertNotIn("dropped_content_token", res.validation_warnings)
+
+    def test_dropped_short_name_evaporation_b256_class(self):
+        # "BUT ALLEN..." -> "DELİ.": tek ad buharlaşmış + yarıya inmiş.
+        # Çeviri korunur ama REVIEW ile işaretlenir (basılmaz).
+        provider, mocked = self._batch_provider([("DELİ.", "DELİ.", False)])
+        out = provider.translate(TranslationInput(items=[TranslationItem(1, "BUT ALLEN...", 1)]))
+        res = out.results[0]
+        self.assertEqual(res.translation, "DELİ.")
+        self.assertIn("dropped_content_token", res.validation_warnings)
+        self.assertTrue(res.requires_review)
+
+    def test_short_legit_exclamations_no_dropped_flag(self):
+        # Kısa-istisna oran kapısı doğru kısaları korur.
+        self.assertEqual(find_dropped_source_tokens("DAMMIT", "Kahretsin!"), [])
+        self.assertEqual(find_dropped_source_tokens("BEIT SCHOOL...", "SPOR OKULU"), [])
+        self.assertIn(
+            "dropped_content_token",
+            find_dropped_source_tokens("BUT ALLEN...", "DELİ."),
+        )
 
 
 if __name__ == "__main__":

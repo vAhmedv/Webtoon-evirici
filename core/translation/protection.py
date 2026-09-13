@@ -73,6 +73,11 @@ _DROPPED_CONTENT_MAX_RATIO = 0.6
 # Kısa kaynaklarda sıkışma meşrudur ("INTO THE WORLD!"→"Dünyaya!");
 # buharlaşma hükmü için en az bu kadar kaynak gerekir.
 _DROPPED_CONTENT_MIN_SRC_LEN = 20
+# Kısa-istisna (B256 sınıfı): ≤25kr kaynak tek içerik sözcüğünü yitirip
+# yarıya inerse ("BUT ALLEN..."→"DELİ.") buharlaşmadır. Oran kapısı
+# (0.5) doğru kısa çevirileri korur ("DAMMIT"→"Kahretsin!" 1.5).
+_DROPPED_SHORT_MAX_SRC_LEN = 25
+_DROPPED_SHORT_MAX_RATIO = 0.5
 
 
 def _word_present(word: str, text: str) -> bool:
@@ -92,7 +97,10 @@ def find_dropped_source_tokens(
     - `dropped_content_token`: ≥2 büyük-içerik-token (≥4 harf, işlev
       sözcüğü değil, kilitli-terim değil) düşmüş VE blok boyu küçülmüş
       (TR/EN<0.6 — içerik buharlaşmış). Normal oranlı çevirilerde ortak
-      adların çevrilmesi (WORLD→dünya) asla ateşlemez.
+      adların çevrilmesi (WORLD→dünya) asla ateşlemez. Kısa kaynaklarda
+      (<20kr) sıkışma meşru sayılır.
+    - Kısa-istisna: ≤25kr kaynakta TEK içerik-token düşmüş VE oran<0.5
+      ise yine `dropped_content_token` (B256: ad buharlaşmış).
     Çeviri null'lanmaz — uyarı listesine eklenir, REVIEW kararı analyzer'ındır.
     """
     warnings: list[str] = []
@@ -114,10 +122,14 @@ def find_dropped_source_tokens(
         tok for tok in re.findall(r"[A-Z]{4,}", src)
         if tok not in EXCLUDED_WORDS and tok.casefold() not in protected
     ]
+    ratio = len(tr.strip()) / max(1, len(src.strip()))
     if len(src.strip()) >= _DROPPED_CONTENT_MIN_SRC_LEN and len(eligible) >= _DROPPED_CONTENT_MIN_TOKENS:
         dropped = [tok for tok in set(eligible) if not _word_present(tok, tr)]
-        ratio = len(tr.strip()) / max(1, len(src.strip()))
         if len(dropped) >= _DROPPED_CONTENT_MIN_TOKENS and ratio < _DROPPED_CONTENT_MAX_RATIO:
+            warnings.append("dropped_content_token")
+    elif len(src.strip()) <= _DROPPED_SHORT_MAX_SRC_LEN and len(eligible) >= 1:
+        dropped = [tok for tok in set(eligible) if not _word_present(tok, tr)]
+        if dropped and ratio < _DROPPED_SHORT_MAX_RATIO:
             warnings.append("dropped_content_token")
     return warnings
 
