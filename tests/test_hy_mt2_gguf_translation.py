@@ -12,6 +12,7 @@ from unittest.mock import MagicMock, patch
 from core.config import TranslatorConfig, load_config
 from core.translation.protection import (
     detect_named_terms_in_items,
+    find_dropped_source_tokens,
     protect_source_text,
     restore_protected_translation,
 )
@@ -316,7 +317,7 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         # 259/260 imzası: bitişik iki kırılgan, oranlar zıt-uçlu (1.7 / 0.3).
         # Mini hemfikir kalır (aynı karışma), tekil izolasyon ayrışır.
         long_src = "THE OLD KING QUIETLY LISTENED FOR A WHILE TODAY"
-        batch_raw = "[1] Bu sefer ben uzun uzun yapiyorum iste.\n[2] Bunu...\n[3] Kral dinledi."
+        batch_raw = "[1] Bu sefer ben uzun uzun yapiyorum iste.\n[2] Bunu...\n[3] Yasli kral bugun bir sure sessizce dinledi."
         mini_raw = "[1] Bu sefer ben uzun uzun yapiyorum iste.\n[2] Bunu..."
         provider, mocked = self._batch_provider([
             (batch_raw, batch_raw, False),
@@ -361,7 +362,7 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
 
     def test_hedge_lone_item_verified(self):
         long_src = "THE OLD KING QUIETLY LISTENED FOR A WHILE TODAY"
-        batch_raw = "[1] Kral sessizce dinledi.\n[2] Asla!"
+        batch_raw = "[1] Yasli kral bugun bir sure sessizce dinledi.\n[2] Asla!"
         provider, mocked = self._batch_provider([
             (batch_raw, batch_raw, False),
             ("[1] Asla!", "[1] Asla!", False),
@@ -394,6 +395,100 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertIn("numbering_inconsistent", by_id[1].validation_warnings)
         self.assertEqual(by_id[2].translation, "Kral sessizce dinledi.")
         self.assertEqual(mocked.call_count, 3)  # batch + mini + single
+
+
+    def test_merge_pair_long_short_flags_both_review(self):
+        # F2 spike sınıfı (B255/256): uzun üye şişkin oran (>1.8 — iki
+        # içerik tek numarada), kısa üye cılız oran (<0.6). Tekiller
+        # ayrışırsa ikisi de REVIEW + tekil metin.
+        # Not: kısa üyenin oranı hedge bölgesi dışında (0.5) tutuldu ki
+        # bu test merge ağını izole etsin.
+        src_long = "ALRIGHT, I THINK I'VE GOT THE HANG OF THIS."
+        merged = ("Tamam sanirim artik olayi tamamen cozdum ve Allen da geldi "
+                  "simdi hep birlikte basliyoruz haydi bakalim.")
+        batch_raw = f"[1] {merged}\n[2] Ah be."
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+            ("[1] Ah be.", "[1] Ah be.", False),
+            ("Tamamdir, isi kaptim.", "Tamamdir, isi kaptim.", False),
+            ("Ama Allen...", "Ama Allen...", False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, src_long, 1),
+            TranslationItem(2, "BUT ALLEN...", 2),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertEqual(by_id[1].translation, "Tamamdir, isi kaptim.")
+        self.assertEqual(by_id[2].translation, "Ama Allen...")
+        for rid in (1, 2):
+            self.assertTrue(by_id[rid].requires_review)
+            self.assertIn("numbering_inconsistent", by_id[rid].validation_warnings)
+        self.assertEqual(mocked.call_count, 4)  # batch + mini + 2 tekil
+
+    def test_merge_pair_agreement_keeps_batch(self):
+        src_a = "THE OLD KING SLOWLY WALKED BACK HOME TONIGHT"
+        src_b = "THE YOUNG QUEEN QUIETLY LEFT THE GREAT HALL TODAY"
+        batch_raw = "[1] Yasli kral aksama dogru eve yurudu.\n[2] Genc kralice salondan ayrildi."
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, src_a, 1),
+            TranslationItem(2, src_b, 2),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertFalse(by_id[1].requires_review)
+        self.assertFalse(by_id[2].requires_review)
+        self.assertEqual(mocked.call_count, 1)  # yalniz batch
+
+
+    # --- F2: ad-düşürme bekçisi (sayı + toplu buharlaşma) ---
+
+    def test_dropped_number_token_b87_class(self):
+        # "LEVEL ONE" -> "...Seviyesiniz!" : "birinci" düştü. Çeviri
+        # korunur ama dropped_number_token + REVIEW ile işaretlenir.
+        src = "SETTING YOUR JOB? BUT YOU'RE ONLY LEVEL ONE!"
+        bad = "Mesleginizi mi ayarliyorsunuz? Ama siz sadece Seviyesiniz!"
+        provider, mocked = self._batch_provider([(bad, bad, False)])
+        out = provider.translate(TranslationInput(items=[TranslationItem(1, src, 1)]))
+        res = out.results[0]
+        self.assertEqual(res.translation, bad)
+        self.assertIn("dropped_number_token", res.validation_warnings)
+        self.assertNotIn("dropped_content_token", res.validation_warnings)
+        self.assertTrue(res.requires_review)
+        self.assertEqual(mocked.call_count, 1)  # tekil, ek çağrı yok
+
+    def test_dropped_number_escapes(self):
+        # "Seviye 1" / "birinci seviye" doğru karşılıklar — ateşlemez.
+        self.assertEqual(
+            find_dropped_source_tokens("ONLY LEVEL ONE!", "Sadece Seviye 1!"), []
+        )
+        self.assertEqual(
+            find_dropped_source_tokens("ONLY LEVEL ONE!", "Sadece birinci seviyesin!"), []
+        )
+        self.assertIn(
+            "dropped_number_token",
+            find_dropped_source_tokens("ONLY LEVEL ONE!", "Sadece seviyesin!"),
+        )
+
+    def test_dropped_content_mass_evaporation(self):
+        # B255 sınıfı: uzun kaynak buharlaşıp kısa kalırsa ateşler.
+        src = "ALRIGHT, I THINK I'VE GOT THE HANG OF THIS AND THEN WE MARCH HOME"
+        self.assertIn(
+            "dropped_content_token",
+            find_dropped_source_tokens(src, "Tamam."),
+        )
+        # Normal oranlı çeviride ortak adların çevrilmesi ateşlemez.
+        self.assertEqual(find_dropped_source_tokens("INTO THE WORLD!", "Dünyaya!"), [])
+        self.assertEqual(find_dropped_source_tokens("ONLINE", "ÇEVRİMİÇİ"), [])
+
+    def test_legit_translation_no_dropped_flag(self):
+        provider, mocked = self._batch_provider([("ÇEVRİMİÇİ", "ÇEVRİMİÇİ", False)])
+        out = provider.translate(TranslationInput(items=[TranslationItem(1, "ONLINE", 1)]))
+        res = out.results[0]
+        self.assertEqual(res.translation, "ÇEVRİMİÇİ")
+        self.assertNotIn("dropped_number_token", res.validation_warnings)
+        self.assertNotIn("dropped_content_token", res.validation_warnings)
 
 
 if __name__ == "__main__":

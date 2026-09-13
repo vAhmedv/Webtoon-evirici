@@ -661,6 +661,25 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
     _SWAP_RATIO_LOW = 0.5
     _HEDGE_RATIO_LOW = 0.4
     _HEDGE_MIN_SRC_LEN = 10
+    # F2 merge-si̇msi̇: spike kanıtı (30-set B kolu) — model kısa komşu iki
+    # satırı tek metinde birleştirince biri şişkin, diğeri cılız çıkar ve
+    # sonrası sessizce bir kayar. Swap ağından farkı: uzun üye de kapsanır
+    # (B255 44kr — kırılgan eşiğinin üstü). Sema-kilidi REDDEDİLDİ: doğru
+    # numarayı yanlış metinle kilitleyip kaymayı görünmez yapıyor.
+    _VERIFY_MAX_MERGE_SINGLES_PER_CHUNK = 4
+    _MERGE_RATIO_HIGH = 1.8
+    _MERGE_RATIO_LOW = 0.6
+    # Ad-düşürme bayraklı (dropped_*) ama henüz doğrulanmamış öğeler de
+    # ağlara katılır: bayrak yanlış-pozitif olabilir, tekil izolasyon
+    # hükmü verir. numbering_inconsistent'lar katılmaz (hüküm verilmiş).
+    _DROPPED_ONLY_FLAGS = frozenset({"dropped_number_token", "dropped_content_token"})
+
+    @classmethod
+    def _net_eligible(cls, trace) -> bool:
+        if getattr(trace, "pipeline_diagnosis", "") == "MODEL_OUTPUT_ACCEPTED":
+            return True
+        flags = set(getattr(trace, "guard_flags", []) or [])
+        return bool(flags & cls._DROPPED_ONLY_FLAGS) and "numbering_inconsistent" not in flags
 
     @staticmethod
     def _norm_tr(text: str | None) -> str:
@@ -766,7 +785,7 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
         batch_text: dict[int, str] = {}
         for pos, (orig_k, it, pr) in enumerate(non_bypass):
             res, raw, trace = temp_chunk_results[orig_k]
-            if getattr(trace, "pipeline_diagnosis", "") != "MODEL_OUTPUT_ACCEPTED":
+            if not self._net_eligible(trace):
                 continue
             pos_of[pos] = orig_k
             batch_text[pos] = self._norm_tr(getattr(trace, "stripped_output", None))
@@ -831,6 +850,80 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
             if s_tr and s_tr == batch_text[pos]:
                 continue
             # Tekil çağrı zaten yapıldı (single); sonucu REVIEW işaretli benimse:
+            s_res, s_raw, s_trace = single
+            s_res = replace(
+                s_res,
+                requires_review=True,
+                validation_warnings=[*s_res.validation_warnings, "numbering_inconsistent"],
+            )
+            logger.warning(
+                "Hy-MT2 %s item %s numbering_inconsistent "
+                "(batch=%r single=%r); single tiebreak + review",
+                chunk_label,
+                it.region_id,
+                batch_text[pos][:60],
+                (getattr(s_trace, "stripped_output", "") or "")[:60],
+            )
+            amended[orig_k] = (s_res, s_raw, s_trace)
+        return amended
+
+    def _verify_merge_pairs(
+        self,
+        chunk_label: str,
+        temp_chunk_results: list,
+        non_bypass: list,
+    ) -> list:
+        """Birleştirme (merge) imzası taraması (F2, spike-kanıtlı).
+
+        Bitişik batch-kabul çiftte biri şişkin oran (>1.8 — iki kaynağın
+        toplamı tek numaraya basılmış), diğeri cılız oran (<0.6 — içi
+        boşaltılmış) ise tekil izolasyonla doğrulanır; uyuşmazlık
+        `numbering_inconsistent` + REVIEW olur. Swap ağının kırılgan-şartı
+        burada YOK (uzun+kısa birleşmeleri de yakalanır).
+        Chunk başına en fazla _VERIFY_MAX_MERGE_SINGLES_PER_CHUNK ek çağrı.
+        """
+        pos_of: dict[int, int] = {}
+        batch_text: dict[int, str] = {}
+        for pos, (orig_k, it, pr) in enumerate(non_bypass):
+            res, raw, trace = temp_chunk_results[orig_k]
+            if not self._net_eligible(trace):
+                continue
+            pos_of[pos] = orig_k
+            batch_text[pos] = self._norm_tr(getattr(trace, "stripped_output", None))
+
+        ordered = sorted(pos_of)
+        suspects: list[int] = []
+        for left, right in zip(ordered, ordered[1:]):
+            if right != left + 1:
+                continue
+            _, it_l, _ = non_bypass[left]
+            _, it_r, _ = non_bypass[right]
+            r_l = self._length_ratio(it_l.source, batch_text[left])
+            r_r = self._length_ratio(it_r.source, batch_text[right])
+            if (r_l > self._MERGE_RATIO_HIGH and r_r < self._MERGE_RATIO_LOW) or (
+                r_r > self._MERGE_RATIO_HIGH and r_l < self._MERGE_RATIO_LOW
+            ):
+                logger.warning(
+                    "Hy-MT2 %s merge-suspect pair (%s ratio %.2f, %s ratio %.2f)",
+                    chunk_label,
+                    it_l.region_id,
+                    r_l,
+                    it_r.region_id,
+                    r_r,
+                )
+                suspects.extend([left, right])
+
+        if not suspects:
+            return temp_chunk_results
+        amended = list(temp_chunk_results)
+        for pos in suspects[: self._VERIFY_MAX_MERGE_SINGLES_PER_CHUNK]:
+            orig_k = pos_of[pos]
+            _, it, pr = non_bypass[pos]
+            res, raw, trace = amended[orig_k]
+            single = self._process_single_prepared_item(it, pr)
+            s_tr = self._norm_tr(getattr(single[2], "stripped_output", None))
+            if s_tr and s_tr == batch_text[pos]:
+                continue
             s_res, s_raw, s_trace = single
             s_res = replace(
                 s_res,
@@ -1008,6 +1101,9 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
                     f"batch_{i // chunk_size}", temp_chunk_results, non_bypass
                 )
                 temp_chunk_results = self._verify_swap_pairs(
+                    f"batch_{i // chunk_size}", temp_chunk_results, non_bypass
+                )
+                temp_chunk_results = self._verify_merge_pairs(
                     f"batch_{i // chunk_size}", temp_chunk_results, non_bypass
                 )
                 for res, raw, trace in temp_chunk_results:
