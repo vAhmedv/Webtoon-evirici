@@ -1,0 +1,231 @@
+{
+  "name": "translation_ab_v1",
+  "created": "2026-09-12",
+  "source_audit": "audit_output\\real_chapter1_e2e\\analysis\\regions.json",
+  "source_blocks_total": 224,
+  "items": [
+    {
+      "block_id": 2,
+      "source": "THE WORLD'S MOST POPULAR VRMMO...",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 4,
+      "source": "ONLINE",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 5,
+      "source": "“ZERO FANTASY ONLINE.",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 6,
+      "source": "COMMONLY KNOWN AS \"ZFO.",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 8,
+      "source": "IN THIS GAME, I...",
+      "strata": [
+        "short",
+        "term"
+      ]
+    },
+    {
+      "block_id": 9,
+      "source": "Lv.998",
+      "strata": [
+        "other"
+      ]
+    },
+    {
+      "block_id": 12,
+      "source": "I WAS ON THE VERGE OF BECOMING THE FIRST PLAYER TO EVER HIT THE LEVEL CAP.",
+      "strata": [
+        "term",
+        "long"
+      ]
+    },
+    {
+      "block_id": 13,
+      "source": "MAYBE I OVERDID IT... 200 HOURS STRAIGHT IS A BIT MUCH.",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 14,
+      "source": "ONCE I FINISH THIS, I'M GETTING A REAL MEAL AND CRASHING.",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 15,
+      "source": "HONESTLY, I JUST WANTED...",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 16,
+      "source": "TO ACHIEVE SOMETHING GREAT.",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 17,
+      "source": "I WANTED TO BE A MASTER WHO WAS AT THE TOP OFMY FIELD...",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 18,
+      "source": "TO LEAVE MY MARK ON HISTORY.",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 19,
+      "source": "BUT THE TRUTH WAS...",
+      "strata": [
+        "short",
+        "term"
+      ]
+    },
+    {
+      "block_id": 20,
+      "source": "BEIT SCHOOL...",
+      "strata": [
+        "short",
+        "term"
+      ]
+    },
+    {
+      "block_id": 21,
+      "source": "OR SPORTS...",
+      "strata": [
+        "short",
+        "term"
+      ]
+    },
+    {
+      "block_id": 22,
+      "source": "I COULD NEVER GET THAT NUMBER-ONE SPOT.",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 24,
+      "source": "BUT HERE...",
+      "strata": [
+        "short",
+        "term"
+      ]
+    },
+    {
+      "block_id": 25,
+      "source": "HERE, IT'S DIFFER- ENT.",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 26,
+      "source": "IN ZFO...",
+      "strata": [
+        "short"
+      ]
+    },
+    {
+      "block_id": 28,
+      "source": "I CAN FINALLY BE THE BEST IN THE WORLD.",
+      "strata": [
+        "term"
+      ]
+    },
+    {
+      "block_id": 30,
+      "source": "GAH...",
+      "strata": [
+        "short"
+      ]
+    },
+    {
+      "block_id": 33,
+      "source": "NO... NOT NOW...!",
+      "strata": [
+        "short"
+      ]
+    },
+    {
+      "block_id": 83,
+      "source": "WHICH MEANS THE QUEST TO FIGHT THE DEMON KING'S ARMY IS REAL..!",
+      "strata": [
+        "term",
+        "long"
+      ]
+    },
+    {
+      "block_id": 96,
+      "source": "IN THE GAME, EVERYONE TREATED IT LIKE A TOTAL TRASH-TIER JOB...",
+      "strata": [
+        "term",
+        "long"
+      ]
+    },
+    {
+      "block_id": 120,
+      "source": "EQUIPPED WITH AUTO-RELOAD. HOWEVER, ONCE THE MAGAZINE IS EMPTY, ATTACKING IS IMPOSSIBLE FOR SEVERAL SECONDS.",
+      "strata": [
+        "term",
+        "long"
+      ]
+    },
+    {
+      "block_id": 125,
+      "source": "CAN CREATE ANYTHING AS LONG AS YOU UNDERSTAND ITS STRUC- TURE\"...",
+      "strata": [
+        "term",
+        "long"
+      ]
+    },
+    {
+      "block_id": 134,
+      "source": "WHOKNEW ALL THOSE YEARS STUDYING TO BE A GENIUS WOULD PAY OFF HERE!",
+      "strata": [
+        "term",
+        "long"
+      ]
+    },
+    {
+      "block_id": 191,
+      "source": "ADVENTURERS EARN A LIVING BY TRADING THESE AT THE ADVENTURER'S GUILD.",
+      "strata": [
+        "term",
+        "long"
+      ]
+    },
+    {
+      "block_id": 231,
+      "source": "ATTACK 7 525 AMMO〉1 SPECIAL EFFECT〉 ADDS +5% ATTACK BoNUS. ADDS EXPLOSIVE ATTRIBUTE. NOTES NONE.",
+      "strata": [
+        "term",
+        "long"
+      ]
+    }
+  ]
+}
