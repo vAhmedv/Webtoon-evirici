@@ -49,6 +49,15 @@ from providers.translation.base import TranslationInput, TranslationItem, Transl
 
 ProgressCallback = Callable[[ProgressEvent], None]
 
+# ÖLÜMCÜL çeviri guard'ları: bu bayraklardan birini taşıyan blok sessizce
+# basılmaz — failed sayılır, bölgesi REVIEW olur (İngilizce korunur).
+# numbering_inconsistent (P1-B kanıtlı satır-kayma) + dropped_* (F2 ad-düşürme).
+_FATAL_TRANSLATION_WARNINGS = frozenset({
+    "numbering_inconsistent",
+    "dropped_number_token",
+    "dropped_content_token",
+})
+
 
 class AnalysisResult:
     """Bölüm analizi sonucu.
@@ -599,14 +608,14 @@ class ChapterAnalyzer:
                 trans_out = translator.translate(trans_inp)
 
                 out_map = {item.region_id: item.translation for item in trans_out.results if item.translation}
-                # P1-B: ÖLÜMCÜL çeviri guard'ı varsa (numbering_inconsistent:
-                # kanıtlı satır-kayma) blok sessizce basılmaz — failed sayılır,
-                # bölgesi REVIEW olur. Yumuşak bayraklar (echo/prose) eski
-                # davranışı korur (meşru yankılar basılmaya devam eder).
+                # P1-B/F2: ÖLÜMCÜL çeviri guard'ı varsa blok sessizce basılmaz —
+                # failed sayılır, bölgesi REVIEW olur. Yumuşak bayraklar
+                # (echo/prose) eski davranışı korur (meşru yankılar basılmaya
+                # devam eder).
                 guard_review_ids = {
                     item.region_id
                     for item in trans_out.results
-                    if "numbering_inconsistent" in item.validation_warnings
+                    if _FATAL_TRANSLATION_WARNINGS.intersection(item.validation_warnings)
                 }
 
                 # Faz 3 hasat (2. tur): reddedilen terimler 1. tur TR'lerde
@@ -659,7 +668,7 @@ class ChapterAnalyzer:
                             for _ri in _re_out.results:
                                 if _ri.translation:
                                     out_map[_ri.region_id] = _ri.translation
-                                if "numbering_inconsistent" in _ri.validation_warnings:
+                                if _FATAL_TRANSLATION_WARNINGS.intersection(_ri.validation_warnings):
                                     guard_review_ids.add(_ri.region_id)
                 except Exception as exc:
                     logger.warning(f"Hasat turu atlandı: {exc}")

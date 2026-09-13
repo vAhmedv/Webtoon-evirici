@@ -49,6 +49,78 @@ _ENGLISH_CARDINAL_WORDS = {
     "billion", "trillion", "dozen",
 }
 
+# Sayı-sözcüklerinin Türkçe yüzey formları (rakam + yalın + sıra).
+# Kapalı sınıf dil verisi — bölümden bağımsız. B87 sınıfı
+# ("LEVEL ONE" → "Seviyesiniz", "birinci" düştü) bekçisi.
+_TR_NUMBER_SURFACES = {
+    "zero": {"0", "sıfır", "sifir"},
+    "one": {"1", "bir", "biri", "birinci", "ilk"},
+    "two": {"2", "iki", "ikinci"},
+    "three": {"3", "üç", "uc", "üçüncü", "ucuncu"},
+    "four": {"4", "dört", "dort", "dördüncü", "dorduncu"},
+    "five": {"5", "beş", "bes", "beşinci", "besinci"},
+    "six": {"6", "altı", "alti", "altıncı", "altinci"},
+    "seven": {"7", "yedi", "yedinci"},
+    "eight": {"8", "sekiz", "sekizinci"},
+    "nine": {"9", "dokuz", "dokuzuncu"},
+    "ten": {"10", "on", "onuncu"},
+    "eleven": {"11", "onbir", "onbirinci"},
+    "twelve": {"12", "oniki", "onikinci"},
+}
+
+_DROPPED_CONTENT_MIN_TOKENS = 2
+_DROPPED_CONTENT_MAX_RATIO = 0.6
+# Kısa kaynaklarda sıkışma meşrudur ("INTO THE WORLD!"→"Dünyaya!");
+# buharlaşma hükmü için en az bu kadar kaynak gerekir.
+_DROPPED_CONTENT_MIN_SRC_LEN = 20
+
+
+def _word_present(word: str, text: str) -> bool:
+    return re.search(r"(?<!\w)" + re.escape(word) + r"(?!\w)", text, re.IGNORECASE) is not None
+
+
+def find_dropped_source_tokens(
+    source_text: str,
+    restored_translation: str,
+    protected_source_terms: set[str] | None = None,
+) -> list[str]:
+    """Ad-düşürme bekçisi (F2): kaynakta durup çeviride ailesi olmayan içerik.
+
+    İki kapalı kural (eşikler mutlak-sayı değil, dilbilgisel):
+    - `dropped_number_token`: sayı-sözcüğü (ONE..TWELVE) kaynakta var,
+      çeviride rakam/karşılık yok. Sayılar yankılanmaz, düşmesi anlam kaydırır.
+    - `dropped_content_token`: ≥2 büyük-içerik-token (≥4 harf, işlev
+      sözcüğü değil, kilitli-terim değil) düşmüş VE blok boyu küçülmüş
+      (TR/EN<0.6 — içerik buharlaşmış). Normal oranlı çevirilerde ortak
+      adların çevrilmesi (WORLD→dünya) asla ateşlemez.
+    Çeviri null'lanmaz — uyarı listesine eklenir, REVIEW kararı analyzer'ındır.
+    """
+    warnings: list[str] = []
+    src = source_text or ""
+    tr = restored_translation or ""
+    if not src.strip() or not tr.strip():
+        return warnings
+
+    src_words = set(re.findall(r"[A-Za-z]+", src.casefold()))
+    for cardinal, surfaces in _TR_NUMBER_SURFACES.items():
+        if cardinal not in src_words:
+            continue
+        if not any(_word_present(s, tr) for s in surfaces):
+            warnings.append("dropped_number_token")
+            break
+
+    protected = {s.casefold() for s in (protected_source_terms or set())}
+    eligible = [
+        tok for tok in re.findall(r"[A-Z]{4,}", src)
+        if tok not in EXCLUDED_WORDS and tok.casefold() not in protected
+    ]
+    if len(src.strip()) >= _DROPPED_CONTENT_MIN_SRC_LEN and len(eligible) >= _DROPPED_CONTENT_MIN_TOKENS:
+        dropped = [tok for tok in set(eligible) if not _word_present(tok, tr)]
+        ratio = len(tr.strip()) / max(1, len(src.strip()))
+        if len(dropped) >= _DROPPED_CONTENT_MIN_TOKENS and ratio < _DROPPED_CONTENT_MAX_RATIO:
+            warnings.append("dropped_content_token")
+    return warnings
+
 
 @dataclass
 class ProtectedTermMeta:
@@ -437,8 +509,10 @@ def restore_protected_translation(
                 category = _remove_plural_from_category(category)
             if category is not None:
                 return _inflect_target(meta.target_base, category, meta.proper_name)
-            joiner = "'" if meta.proper_name and translated_suffix else ""
-            return meta.target_base + joiner + translated_suffix
+            # S5 çekim kapısı: bilinmeyen ek ("Dünya"+"ine") uydurma kelime
+            # üretir — yalın taban basılır. Uydurma kelime, eksik ekten
+            # her zaman kötüdür (S0: yanlış anlam yasak).
+            return meta.target_base
 
         restored = pattern.sub(replacer, restored)
 
@@ -478,6 +552,35 @@ def validate_protected_terms(
 def contains_unrestored_protected_term(text: str) -> bool:
     """Return whether any opaque protection sentinel survived restoration."""
     return bool(OPAQUE_SENTINEL_PATTERN.search(text or ""))
+
+
+_STEM_DUP_MIN_PREFIX = 4
+
+
+def collapse_stem_doubles(text: str) -> str:
+    """Bitişik aynı-kök çiftlemeyi tekler (S5).
+
+    "Seviye seviyesine" → "seviyesine" (çekimli/uzun olan tutulur).
+    Eş-form tekrarlar korunur (vurgu/ikileme: "yavaş yavaş", "çok çok").
+    Yalnızca farklı-form + ortak ≥4-harf önek çiftleri birleşir.
+    """
+    if not text:
+        return text
+
+    def _fix(match: re.Match[str]) -> str:
+        first, second = match.group(1), match.group(2)
+        if first.casefold() == second.casefold():
+            return match.group(0)
+        shared = 0
+        for char_a, char_b in zip(first.casefold(), second.casefold()):
+            if char_a != char_b:
+                break
+            shared += 1
+        if shared >= _STEM_DUP_MIN_PREFIX:
+            return second
+        return match.group(0)
+
+    return re.sub(r"(\w{4,}) (\w{4,})", _fix, text, flags=re.UNICODE)
 
 
 def has_untranslated_source_prose(

@@ -22,8 +22,10 @@ from core.translation.profile_discovery import (
     get_relevant_terms_for_item,
 )
 from core.translation.protection import (
+    collapse_stem_doubles,
     contains_unrestored_protected_term,
     detect_named_terms_in_items,
+    find_dropped_source_tokens,
     has_untranslated_source_prose,
     is_term_only_source,
     protect_source_text,
@@ -476,6 +478,9 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
             )
 
         restored = restore_protected_translation(cleaned, prepared.placeholder_map)
+        # S5: model kilit-kökünü kendisi de yazınca çiftleme olur
+        # ("Seviye seviyesine") — çekimli olan tutulur.
+        restored = collapse_stem_doubles(restored)
         if contains_unrestored_protected_term(restored):
             return TranslationOutputItem(
                 region_id=item.region_id,
@@ -494,6 +499,16 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
                 prepared.placeholder_map,
             ) and "untranslated_source_prose" not in warnings:
                 warnings.append("untranslated_source_prose")
+            # F2 ad-düşürme: kaynakta durup çeviride ailesi olmayan içerik
+            # (sayı-sözcüğü / toplu içerik buharlaşması). Çeviri korunur,
+            # REVIEW kararı analyzer'ındır (guard wiring).
+            protected_sources = {
+                str(getattr(meta, "source_term", "") or getattr(meta, "source_original", "") or "")
+                for meta in prepared.placeholder_map.values()
+            }
+            for code in find_dropped_source_tokens(item.source, restored, protected_sources):
+                if code not in warnings:
+                    warnings.append(code)
 
         return TranslationOutputItem(
             region_id=item.region_id,
