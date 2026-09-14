@@ -19,10 +19,11 @@
 5. Gorev disi kod degistirme yapma. Kucuk, tek hedefli degisiklikler yap.
 6. Dependency/env bozma. Yeni paket kurmadan once `.venv` etkileyecek mi kontrol et.
 7. Model weights, cache, output dosyalarini asla commit etme.
+8. Yesil olmadan merge yok: `pytest -q` + `audit --strict` + `compare_golden` temiz olmadan birlestirme yapma.
 
 ## DuckDuckGo Search & Context Hygiene Protocol
 
-8. Local-first: codebase ici mantik, standart syntax, mevcut type/LSP tanimlari icin web search YOK. Once local type, proje dosyasi, LSP definition kontrol et. Web search SADECE: localde cozulemeyen obscure runtime/stack trace, third-party breaking change/API migration dogrulama, localde olmayan dis bagimlilik resmi dokumani icin.
-9. Queryler keyword-dense olacak, conversational CUMLE YOK (orn. "FastAPI CORSMiddleware allow_origins" OK, "how to resolve CORS error in FastAPI" YASAK). Exact hata/function signature tirnak icinde: `"exact error trace"`. Mumkunse domain filtresi: `site:github.com/issues`, `site:docs.*` / `site:nextjs.org/docs`.
-10. Rate-limit/anti-loop: problem basina MAX 2 query. Ilki basarisizsa bir kez refine et, ikincisi de basarisizsa DUR. Hizli ardisik/loop search YASAK. Local adim-adim debug + minimal repro'ya don.
-11. Token economy: once snippet degerlendir, her linki fetch ETME. Sadece verified snippet/patch iceren tek en alakali URL'yi fetch et. Minimal cozumu ozetle; raw web dump'u context'e GOMME.
+9. Local-first: codebase ici mantik, standart syntax, mevcut type/LSP tanimlari icin web search YOK. Once local type, proje dosyasi, LSP definition kontrol et. Web search SADECE: localde cozulemeyen obscure runtime/stack trace, third-party breaking change/API migration dogrulama, localde olmayan dis bagimlilik resmi dokumani icin.
+10. Queryler keyword-dense olacak, conversational CUMLE YOK (orn. "FastAPI CORSMiddleware allow_origins" OK, "how to resolve CORS error in FastAPI" YASAK). Exact hata/function signature tirnak icinde: `"exact error trace"`. Mumkunse domain filtresi: `site:github.com/issues`, `site:docs.*` / `site:nextjs.org/docs`.
+11. Rate-limit/anti-loop: problem basina MAX 2 query. Ilki basarisizsa bir kez refine et, ikincisi de basarisizsa DUR. Hizli ardisik/loop search YASAK. Local adim-adim debug + minimal repro'ya don.
+12. Token economy: once snippet degerlendir, her linki fetch ETME. Sadece verified snippet/patch iceren tek en alakali URL'yi fetch et. Minimal cozumu ozetle; raw web dump'u context'e GOMME.

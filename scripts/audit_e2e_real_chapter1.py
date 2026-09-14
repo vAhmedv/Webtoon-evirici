@@ -85,6 +85,12 @@ _OCR_GARBAGE_REASONS = frozenset({
     "primary_cjk",
 })
 
+# F6 tek-eşik kaynağı: bütün koşucular bu iki sayıya bakar.
+# Kısa-hikaye kaybı YASAK (0), taşma YASAK (0). Burası değişirse
+# run_golden_remeasure_v1 otomatik aynı sayıya geçer (drift yok).
+GATE_SHORT_UNTRANSLATED_MAX = 0
+GATE_OVERFLOW_MAX = 0
+
 
 def _is_countable_short(region: dict[str, Any]) -> bool:
     """Kısa-hikaye sayacına girer mi (ortak ön-filtre)?"""
@@ -267,8 +273,8 @@ def main() -> None:
     # Ch1+F3 ölçümü: 0). Çevirisi hazır basılamayanlar izlemededir.
     # Varsayılan: rapor + uyarı (exit 0). --strict: eşik aşımında non-zero.
     gates = {
-        "short_dialogue_untranslated_count == 0": metrics["short_dialogue_untranslated_count"] == 0,
-        "overflow_blocks_count == 0": metrics["overflow_blocks_count"] == 0,
+        "short_dialogue_untranslated_count == 0": metrics["short_dialogue_untranslated_count"] <= GATE_SHORT_UNTRANSLATED_MAX,
+        "overflow_blocks_count == 0": metrics["overflow_blocks_count"] <= GATE_OVERFLOW_MAX,
     }
     metrics["gates"] = {k: ("pass" if v else "FAIL") for k, v in gates.items()}
     for name, ok in gates.items():

@@ -30,7 +30,9 @@ if str(ROOT) not in sys.path:
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from application.chapter_analyzer import ChapterAnalyzer
-from audit_e2e_real_chapter1 import (  # aynı metrik fonksiyonları
+from audit_e2e_real_chapter1 import (  # aynı metrik fonksiyonları + tek eşik
+    GATE_OVERFLOW_MAX,
+    GATE_SHORT_UNTRANSLATED_MAX,
     count_short_dialogue_untranslated,
     count_short_unprinted,
     summarize_final_region_states,
@@ -126,12 +128,13 @@ def _extract_metrics(tag: str, src: Path, elapsed: float | None) -> dict:
         "elapsed_seconds": elapsed,
     }
     assert metrics["output_page_count"] == metrics["source_page_count"], "sayfa uyumsuzlugu!"
+    # F6: eşikler audit ile aynı kaynaktan (GATE_*). Ayrı sayı YASAK (drift).
     metrics["gates"] = {
-        "short_dialogue_untranslated_count <= 6": (
-            "pass" if metrics["short_dialogue_untranslated_count"] <= 6 else "FAIL"
+        "short_dialogue_untranslated_count == 0": (
+            "pass" if metrics["short_dialogue_untranslated_count"] <= GATE_SHORT_UNTRANSLATED_MAX else "FAIL"
         ),
         "overflow_blocks_count == 0": (
-            "pass" if metrics["overflow_blocks_count"] == 0 else "FAIL"
+            "pass" if metrics["overflow_blocks_count"] <= GATE_OVERFLOW_MAX else "FAIL"
         ),
     }
     (out / "e2e_audit_metrics.json").write_text(
@@ -171,9 +174,12 @@ def main() -> None:
         for ctag, src in CHAPTERS:
             out = ROOT / "audit_output" / "golden" / ctag
             metrics_path = out / "e2e_audit_metrics.json"
-            if metrics_path.is_file():
-                # Ölçüm hazır (önceki koşu) — hattı tekrar koşturma.
-                print(f"[FAST] atlaniyor (olcum var): {ctag}", flush=True)
+            # F6: eski ölçüm tekrarı YASAK — varsayılan her zaman taze hat
+            # koşar. Yalnız çökme-kurtarmada GOLDEN_RESUME=1 ile eski
+            # hattan metrik çıkarılır.
+            if resume_allowed and metrics_path.is_file():
+                # Kurtarma kipi (önceki koşu artığı) — hattı tekrar koşturma.
+                print(f"[FAST] atlaniyor (olcum var, RESUME): {ctag}", flush=True)
                 m = json.loads(metrics_path.read_text(encoding="utf-8"))
             elif resume_allowed and (out / "analysis" / "regions.json").is_file():
                 # Hattı bitmiş ama metriği yazılamamış koşu (çökme artığı):
