@@ -6,7 +6,9 @@ from core.translation.protection import (
     ProtectedTermMeta,
     _suffix_category,
     collapse_stem_doubles,
+    decapitalize_common_lock_targets,
     detect_named_terms_in_items,
+    find_name_glue,
     restore_protected_translation,
 )
 from core.translation.series_profile import SeriesProfile
@@ -179,6 +181,73 @@ def test_collapse_stem_doubles_keeps_inflected() -> None:
     assert collapse_stem_doubles("") == ""
 
 
+def _money_meta() -> ProtectedTermMeta:
+    return ProtectedTermMeta(
+        sentinel="__WTTERM0001__",
+        source_original="MONEY",
+        source_term="MONEY",
+        target_base="Para",
+        is_approved=True,
+        proper_name=False,
+    )
+
+
+def _echo_meta() -> ProtectedTermMeta:
+    return ProtectedTermMeta(
+        sentinel="__WTTERM0002__",
+        source_original="HYUNJI",
+        source_term="HYUNJI",
+        target_base="HYUNJI",
+        is_approved=True,
+        proper_name=False,
+    )
+
+
+def test_decapitalize_common_lock_mid_sentence() -> None:
+    mapping = {"__WTTERM0001__": _money_meta()}
+    assert (
+        restore_protected_translation("Onun için bu çok fazla __WTTERM0001__.", mapping)
+        == "Onun için bu çok fazla para."
+    )
+    assert (
+        restore_protected_translation("__WTTERM0001__ cebimde.", mapping)
+        == "Para cebimde."
+    )
+
+
+def test_decapitalize_skips_echo_and_shout() -> None:
+    echo = {"__WTTERM0002__": _echo_meta()}
+    # Yankı-hedef (ad) aynen durur.
+    assert (
+        restore_protected_translation("Bu __WTTERM0002__ odası.", echo)
+        == "Bu HYUNJI odası."
+    )
+    # Bağırma bloğuna dokunulmaz.
+    money = {"__WTTERM0001__": _money_meta()}
+    assert (
+        restore_protected_translation("VER __WTTERM0001__ HEMEN!", money)
+        == "VER Para HEMEN!"
+    )
+
+
+def test_decapitalize_keeps_multiword_surfaces() -> None:
+    # Çok-kelimeli yüzeyler ad/tamlama olabilir ("Gizli Diyar") — dokunulmaz.
+    meta = ProtectedTermMeta(
+        sentinel="__WTTERM0003__",
+        source_original="SECRET REALM",
+        source_term="SECRET REALM",
+        target_base="Gizli Diyar",
+        is_approved=True,
+        proper_name=False,
+    )
+    mapping = {"__WTTERM0003__": meta}
+    # Çekim biçimi restore'un işi; bu test yalnız decap'in dokunmadığını kilitler.
+    assert (
+        restore_protected_translation("Takım __WTTERM0003__'e girdi.", mapping)
+        == "Takım Gizli Diyara girdi."
+    )
+
+
 def test_join_hyphen_splits() -> None:
     from core.translation.source_normalization import _join_hyphen_splits
 
@@ -188,3 +257,29 @@ def test_join_hyphen_splits() -> None:
     assert _join_hyphen_splits("- Hey, sen!") == "- Hey, sen!"
     assert _join_hyphen_splits("well - known") == "well - known"
     assert _join_hyphen_splits("well-known adam") == "well-known adam"
+
+
+def test_find_name_glue_flags_mutation_and_missing_apostrophe() -> None:
+    src = "I LEFT THE FIRST PART OF THE PAYMENT IN HYUNJI'S ROOM."
+    assert find_name_glue(src, "Ödemenin ilk kısmını HYUNJInin odasında bıraktım.") == ["name_glue"]
+    # Doğru imla geçer: kesmeli + birebir yankı.
+    assert find_name_glue(src, "Ödemenin ilk kısmını HYUNJI'nin odasında bıraktım.") == []
+    assert find_name_glue("LOOK, ALLEN!", "Bak, ALLEN!") == []
+    # Tam yankı muaf (S0 Katman-1).
+    assert find_name_glue("ZFO GOBLINS?!", "ZFO GOBLINS?!") == []
+    # Küçük-harfler etkilenmez.
+    assert find_name_glue("SHE SAW THE MONEY.", "Parayı gördü.") == []
+    assert find_name_glue("ALLEN WENT HOME.", "Allen eve gitti.") == []
+
+
+def test_echo_lock_is_proper_name() -> None:
+    """Yankı-kilit (hedef==kaynak) özel-addır: ekler kesmeyle gelir."""
+    from core.translation.protection import protect_source_text
+
+    prepared, pmap = protect_source_text("HYUNJI'S ROOM", {"HYUNJI": "HYUNJI"}, set())
+    assert "__WTTERM" in prepared
+    meta = next(iter(pmap.values()))
+    assert meta.proper_name is True
+    assert restore_protected_translation("__WTTERM0001__nin odası.", pmap) == "HYUNJI'nin odası."
+    prepared2, pmap2 = protect_source_text("HYUNJI CAME", {"HYUNJI": "HYUNJI"}, set())
+    assert restore_protected_translation("__WTTERM0001__ geldi.", pmap2) == "HYUNJI geldi."

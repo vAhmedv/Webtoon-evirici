@@ -508,6 +508,19 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
             find_dropped_source_tokens("BUT ALLEN...", "DELİ."),
         )
 
+    def test_name_glue_b28_class(self):
+        # Kaynak HYUNJI, çeviride kesmesiz "HYUNJInin" (ad-bozulması):
+        # çeviri korunur ama REVIEW ile işaretlenir.
+        src = "I LEFT THE FIRST PART OF THE PAYMENT IN HYUNJI'S ROOM, SO SHE MUST HAVE SEEN IT."
+        bad = "Ödemenin ilk kısmını HYUNJInin odasında bıraktım, o yüzden mutlaka görmüştür."
+        provider, mocked = self._batch_provider([(bad, bad, False)])
+        out = provider.translate(TranslationInput(items=[TranslationItem(1, src, 1)]))
+        res = out.results[0]
+        self.assertEqual(res.translation, bad)
+        self.assertIn("name_glue", res.validation_warnings)
+        self.assertTrue(res.requires_review)
+        self.assertEqual(mocked.call_count, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

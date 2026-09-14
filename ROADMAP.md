@@ -233,3 +233,15 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - [x] CJK kırıntı muafiyeti (sistemde CJK yolu yok; Ch2 kanıtı "erh."/katakana karışımları).
 - [x] Dungeon Odyssey Ch2 (14 sayfa, ilk koşu): 176 blok, 147 çevrildi, 133 basıldı, overflow 0, çevrilemeyen 0, basılamayan 4. Kapılar yeşil.
 - Testler: 739 geçti (`test_audit_gates.py` yeni).
+
+## CH2-GERİBİLDİRİM TURU (2026-09-13, build — 5 ekran)
+
+- Kök-bulgu: 2 şikayet kilit-sisteminden (model değil): `REAL→Gerçek` kilidi yayılmış, `MONEY→Para` baş-harfı cümle-içine yayılmış.
+- [x] `NEVER_LOCK` += `REAL` (sıfat/zarf kilitlenemez; QUICK/BEST ailesinden).
+- [x] Konum-duyarlı decap: tek-kelimelik çevrilmiş ortak-ad yüzeyleri cümle-ortasında küçülür (`parayı`), yankılar (`HYUNJI`) + çok-kelimeliler (`Gizli Diyar`) + sözlük-dışı (`Seul`) + bağırma muaf. hunspell yoksa pas (fail-open).
+- [x] Ad-yapışma kuralı (`name_glue`, fatal): kesmesiz eklenmiş ad + ad-bozulması REVIEW. Tam-yankı/birebir-yankı muaf.
+- [x] Yankı-kilitler özel-ad sayılır (restore kesme üretir: `HYUNJI'nin`).
+- [x] Alt-sebep metadata (`inpaint_review_cause`).
+- Üretim kanıtı (Dungeon Ch2 tekrar): REAL kilidi yok, `parayı/para` küçük, B28/B77 `HYUNJI'nin` basıldı, kapılar yeşil.
+- Kural-YOK dosya: `kısmını` (sözlüksüz olmaz), akrabalık, B31 kesik-kutu, `odasınd` (yanlış-alarm: stored tam).
+- Testler: 750 geçti.

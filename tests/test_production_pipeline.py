@@ -402,6 +402,12 @@ class DroppedFlagTranslator(GuardFlagTranslator):
 
     warnings = ["dropped_number_token"]
 
+
+class NameGlueFlagTranslator(GuardFlagTranslator):
+    """Madde 2: ad-yapışma bayrağı da ölümcül guard sayılır."""
+
+    warnings = ["name_glue"]
+
 def test_translation_guard_blocks_never_render(synthetic_chapter_dir: Path, tmp_path: Path) -> None:
     """P1-B: numbering_inconsistent blok failed sayılır, REVIEW olur, basılmaz."""
     out_dir = tmp_path / "output_guard"
@@ -449,6 +455,31 @@ def test_dropped_token_guard_blocks_never_render(synthetic_chapter_dir: Path, tm
     regions = json.loads((out_dir / "analysis" / "regions.json").read_text(encoding="utf-8"))["regions"]
     guard_regions = [r for r in regions if r.get("review_reason") == "translation_guard_review"]
     assert guard_regions, "dropped blok bölgesi REVIEW işaretlenmeli"
+    assert all(r.get("status") == "review" for r in guard_regions)
+
+
+def test_name_glue_guard_blocks_never_render(synthetic_chapter_dir: Path, tmp_path: Path) -> None:
+    """Madde 2: name_glue bayraklı blok failed sayılır, REVIEW olur, basılmaz."""
+    out_dir = tmp_path / "output_nameglue"
+    analyzer = ChapterAnalyzer()
+
+    res: ProductionPipelineResult = analyzer.process_chapter(
+        chapter_path=synthetic_chapter_dir,
+        output_path=out_dir,
+        detector=DummyDetector(),
+        primary_ocr=DummyOCR("HELLO WORLD"),
+        translator=NameGlueFlagTranslator(),
+    )
+    assert res.page_count == 2
+
+    summary = json.loads((out_dir / "analysis" / "summary.json").read_text(encoding="utf-8"))
+    assert summary["translated_blocks_count"] == 0
+    assert summary["translation_guard_blocks_count"] >= 1
+    assert summary["rendered_blocks_count"] == 0
+
+    regions = json.loads((out_dir / "analysis" / "regions.json").read_text(encoding="utf-8"))["regions"]
+    guard_regions = [r for r in regions if r.get("review_reason") == "translation_guard_review"]
+    assert guard_regions, "name_glue blok bölgesi REVIEW işaretlenmeli"
     assert all(r.get("status") == "review" for r in guard_regions)
 
 

@@ -144,6 +144,17 @@ def test_ed_forms_never_locked() -> None:
     assert "WANTED" not in {t.term for t in terms}
 
 
+def test_real_adjective_never_locked() -> None:
+    """Madde 1: sıfat/zarf kilitlenemez (dungeon Ch2 REAL→Gerçek vakası)."""
+    texts = [
+        "THIS IS REAL GOLD HERE",
+        "A REAL HERO ARRIVES",
+        "REAL QUICK, FOLLOW ME",
+    ]
+    terms = extract_repeated_terms(texts, [1, 2, 3])
+    assert "REAL" not in {t.term for t in terms}
+
+
 def test_title_case_long_words_observed_not_locked() -> None:
     texts = [
         "Welcome to Adventure Guild",

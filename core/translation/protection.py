@@ -84,6 +84,56 @@ def _word_present(word: str, text: str) -> bool:
     return re.search(r"(?<!\w)" + re.escape(word) + r"(?!\w)", text, re.IGNORECASE) is not None
 
 
+_TR_WORD_RE = re.compile(r"[A-Za-zÇĞİÖŞÜçğıöşü]+")
+_TR_CAPS_RUN_RE = re.compile(r"[A-ZÇĞİÖŞÜ]{4,}")
+
+
+def find_name_glue(
+    source_text: str,
+    restored_translation: str,
+    protected_source_terms: set[str] | None = None,
+) -> list[str]:
+    """Ad-yapışma bekçisi (madde 2): kesmesiz ek almış ad.
+
+    "HYUNJInin" (kaynak HYUNJI): kesme işareti yok + gövde kaynakla
+    birebir → REVIEW. Türkçe özel-ad imlası kesme ister; kesmesiz
+    yapışma ya ek-düşürme ya da ad-bozulmasıdır (HYUNJI→HYUNJIN).
+    - Tam yankı (TR==kaynak) muaf (S0 Katman-1; S2/render halleder).
+    - Birebir yankı-sözcük muaf ("HYUNJI" aynen duruyorsa).
+    - Kilitli terimler muaf (restore kendi imlasını üretir).
+    - Küçük-har modern sözcükler etkilenmez (büyük-harf koşusu aranır).
+    Çeviri null'lanmaz — uyarı listesine eklenir.
+    """
+    warnings: list[str] = []
+    src = source_text or ""
+    tr = restored_translation or ""
+    if not src.strip() or not tr.strip():
+        return warnings
+    norm = lambda t: " ".join(t.split()).casefold()  # noqa: E731
+    if norm(src) == norm(tr):
+        return warnings
+    src_caps = {tok for tok in re.findall(r"[A-Z]{4,}", src) if tok not in EXCLUDED_WORDS}
+    if not src_caps:
+        return warnings
+    protected = {s.casefold() for s in (protected_source_terms or set())}
+    for word in _TR_WORD_RE.findall(tr):
+        if "'" in word or "\u2019" in word:
+            continue
+        run = _TR_CAPS_RUN_RE.match(word)
+        if not run:
+            continue
+        stem = run.group(0)
+        if stem.casefold() in protected:
+            continue
+        if any(stem.casefold() == tok.casefold() for tok in src_caps):
+            # Birebir yankı-sözcük mü (kesmesiz ama eksiz)?
+            if word.casefold() == stem.casefold():
+                continue
+            warnings.append("name_glue")
+            break
+    return warnings
+
+
 def find_dropped_source_tokens(
     source_text: str,
     restored_translation: str,
@@ -444,7 +494,11 @@ def protect_source_text(
 
     proper_keys = {term.strip().upper() for term in (proper_name_terms or set())}
     for src_k, tgt_v in approved_terms.items():
-        is_proper = src_k.strip().upper() in proper_keys
+        # Yankı-kilitler (hedef==kaynak: ad/terim aynen korunur) imla
+        # bakımından özel-addır — ekler kesmeyle gelir ("HYUNJI'nin").
+        # Ortak-ad çevirileri (MONEY→Para) bundan etkilenmez.
+        is_echo_lock = bool(src_k.strip()) and src_k.strip().casefold() == (tgt_v or "").strip().casefold()
+        is_proper = src_k.strip().upper() in proper_keys or is_echo_lock
         all_targets.append((src_k, tgt_v, True, is_proper))
 
     for named_t in detected_named_terms:
@@ -528,7 +582,9 @@ def restore_protected_translation(
 
         restored = pattern.sub(replacer, restored)
 
-    return restored
+    # Madde 1: kilitli ortak-adlar cümle-ortasında küçük harfe iner
+    # ("...çok fazla Para" → "...çok fazla para").
+    return decapitalize_common_lock_targets(restored, placeholder_map)
 
 
 def validate_protected_terms(
@@ -564,6 +620,91 @@ def validate_protected_terms(
 def contains_unrestored_protected_term(text: str) -> bool:
     """Return whether any opaque protection sentinel survived restoration."""
     return bool(OPAQUE_SENTINEL_PATTERN.search(text or ""))
+
+
+_TR_LOWER_FIRST_MAP = {"I": "ı", "İ": "i"}
+
+
+def _tr_lower_first(word: str) -> str:
+    """Türkçe-duyarlı ilk-harf küçültme (I→ı, İ→i)."""
+    if not word:
+        return word
+    return _TR_LOWER_FIRST_MAP.get(word[0], word[0].lower()) + word[1:]
+
+
+_SENTENCE_START_TAIL_RE = re.compile(r"[.?!…]['\"”’)\]]*\s*$")
+
+
+def _is_sentence_start(prefix: str) -> bool:
+    """Önek cümle-başı mı (tırnak/parantez toleranslı)?"""
+    stripped = prefix.rstrip().rstrip("\"”'’)]}")
+    return not stripped or bool(_SENTENCE_START_TAIL_RE.search(prefix.rstrip()))
+
+
+def decapitalize_common_lock_targets(
+    restored_translation: str,
+    placeholder_map: dict[str, ProtectedTermMeta],
+) -> str:
+    """Kilitli ortak-ad yüzeylerini cümle-ortasında küçültür (madde 1).
+
+    Kapsam bilerek DAR tutulur (eski testlerin kilitlediği sözleşme):
+    - YALNIZCA tek-kelimelik yüzeyler ("Para"→"para"; "Gizli Diyar",
+      "Ruh Taşı" gibi çok-kelimeliler ad/tamlamadır, dokunulmaz).
+    - Yankı-hedefler (hedef==kaynak: HYUNJI, PORTAL) atlanır.
+    - Sözlük-dışı hedefler atlanır ("Seul" gibi özel-ad riski) —
+      hunspell yoksa kural tamamen pas geçer (fail-open).
+    - Cümle-başları korunur; bağırma blokları es geçilir.
+    """
+    text = restored_translation or ""
+    if not text:
+        return text
+    from core.translation.chapter_glossary import _spell_dictionary
+
+    spell = _spell_dictionary()
+    if spell is None:
+        return text
+    metas = [
+        meta for meta in placeholder_map.values()
+        if not meta.proper_name
+        and (meta.target_base or "")
+        and (meta.source_term or meta.source_original or "").casefold()
+        != (meta.target_base or "").casefold()
+    ]
+    if not metas:
+        return text
+    alpha = [c for c in text if c.isalpha()]
+    if alpha and sum(1 for c in alpha if c.isupper()) / len(alpha) > 0.5:
+        return text
+    surfaces: set[str] = set()
+    for meta in metas:
+        for surface in _target_surface_forms(meta):
+            if " " not in surface.strip():
+                surfaces.add(surface)
+    candidates = set()
+    for surface in sorted(surfaces, key=len, reverse=True):
+        lowered = _tr_lower_first(surface)
+        if lowered == surface:
+            continue
+        try:
+            known = bool(spell.lookup(lowered))
+        except Exception:
+            known = False
+        if known:
+            candidates.add(surface)
+    if not candidates:
+        return text
+    for surface in sorted(candidates, key=len, reverse=True):
+        def _fix(match: re.Match[str], _surface: str = surface) -> str:
+            if _is_sentence_start(text[: match.start()]):
+                return match.group(0)
+            return _tr_lower_first(match.group(0))
+
+        text = re.sub(
+            r"(?<!\w)" + re.escape(surface) + r"(?!\w)",
+            _fix,
+            text,
+        )
+    return text
 
 
 _STEM_DUP_MIN_PREFIX = 4

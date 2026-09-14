@@ -26,6 +26,7 @@ from core.translation.protection import (
     contains_unrestored_protected_term,
     detect_named_terms_in_items,
     find_dropped_source_tokens,
+    find_name_glue,
     has_untranslated_source_prose,
     is_term_only_source,
     protect_source_text,
@@ -508,11 +509,19 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
             # F2 ad-düşürme: kaynakta durup çeviride ailesi olmayan içerik
             # (sayı-sözcüğü / toplu içerik buharlaşması). Çeviri korunur,
             # REVIEW kararı analyzer'ındır (guard wiring).
+            # Yankı-kilitler (hedef==kaynak) atlanır listesine GİRMEZ:
+            # sentinel baypas edilmişse ad-yapışma kuralı yakalar.
             protected_sources = {
                 str(getattr(meta, "source_term", "") or getattr(meta, "source_original", "") or "")
                 for meta in prepared.placeholder_map.values()
+                if (getattr(meta, "source_term", "") or getattr(meta, "source_original", "") or "").casefold()
+                != (getattr(meta, "target_base", "") or "").casefold()
             }
             for code in find_dropped_source_tokens(item.source, restored, protected_sources):
+                if code not in warnings:
+                    warnings.append(code)
+            # Madde 2: ad-yapışma (kesmesiz ek / ad-bozulması).
+            for code in find_name_glue(item.source, restored, protected_sources):
                 if code not in warnings:
                     warnings.append(code)
 

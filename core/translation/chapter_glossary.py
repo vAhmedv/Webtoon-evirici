@@ -80,6 +80,7 @@ NEVER_LOCK = frozenset({
     "ALONG", "ACROSS", "FORWARD",
     "LONG", "SHORT", "HIGH", "LOW", "FAST", "SLOW", "HARD", "SOFT",
     "EARLY", "LATE", "SOON", "FAR", "NEAR", "CLOSE", "WELL", "QUICK",
+    "REAL",
     "STRONG", "WEAK", "DARK", "BRIGHT", "CLEAR", "CLEAN", "FRESH",
     "BEST", "WORST", "BETTER",
     "ANYTHING", "SOMETHING", "NOTHING", "EVERYTHING",

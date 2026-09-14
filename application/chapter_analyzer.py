@@ -56,6 +56,7 @@ _FATAL_TRANSLATION_WARNINGS = frozenset({
     "numbering_inconsistent",
     "dropped_number_token",
     "dropped_content_token",
+    "name_glue",
 })
 
 
@@ -796,10 +797,15 @@ class ChapterAnalyzer:
             for r in regions:
                 b_id = region_to_block.get(r.id)
                 if b_id in inpainter.review_block_ids:
+                    # Madde 3: sebep string'i sabit; alt-sebep metadata'da
+                    # (boundary/outside/ghost/ring/coverage/empty_mask).
+                    meta = dict(r.metadata)
+                    meta["inpaint_review_cause"] = inpainter.review_causes.get(b_id or -1)
                     r_updated = _replace_region(
                         r,
                         status=RegionStatus.REVIEW,
                         review_reason="inpaint_boundary_residual_review",
+                        metadata=meta,
                     )
                     updated_regions.append(r_updated)
                 else:
