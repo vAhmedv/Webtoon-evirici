@@ -212,3 +212,9 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - [x] **F4-a kaynaşma-ölçümü → ATLANDI:** 670 blokta gerçek kaynaşma ~3 adet (ACHARACTER vb.), gerisi meşru uzun sözcük. Modeller bağlamdan çözüyor (OFMY kanıtlı). Sözlüksüz ayırıcı risk/faydayı karşılamaz.
 - [x] **F4-b fren aleti:** `scripts/compare_golden_v1.py` — yankı-nötr çevrilme-oranı + kısa-hikaye uyarısı + overflow alarmı. İlk fren: temiz (overflow 0, oranlar 5 puan içinde; sword/estate kısa-UYARI takibi).
 - [x] **F5 Gemini hakem deneyi → ÖLDÜRÜLDÜ:** 29 guard-REVIEW blokta Hy-tekil vs Gemini anlaşması 5/29; Gemini'de caps hastalığı + kırpma (b260 "BU SEFER,") + kişi-karıştırma (b249) var. Hakem çözümsüz belirsizliği çözmüyor, başka tahmin üretiyor. REVIEW+İngilizce-koruma zaten doğru cevap. Kanıt: `benchmark/results/hakem_gemini_v1.json`.
+
+## KÖR OY HÜKMÜ (2026-09-13, kullanıcı oyu)
+
+- **30'lu pusula (Hy vs Gemini): 7× B, 1× "ikisi de yanlış" (Blok 20).** Anahtar açıldı: B=Hy-MT2.
+- **1K pusula:** kullanıcı oylamayı yeterli görüp hükmü B'ye verdi (dosya oylanmadı).
+- **Karar: Hy-MT2 birincil kalır.** Gemini birincilik ve hakemlikten çıktı (kanıtlı: caps çöküşü, kırpma, kişi-karıştırma). TranslateGemma oylanmadan elendi (markdown çöpü).
