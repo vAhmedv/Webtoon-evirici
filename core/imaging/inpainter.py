@@ -180,10 +180,19 @@ def _outside_mask_text(
     return False
 
 
-# P2 kapsama-kapısı sabitleri: 100px+ her mürekkep parçasının en az
-# yarısı maskede olmalı, yoksa temizliğe girilmez (B19 "MY" sınıfı).
+# P2 kapsama-kapısı sabitleri: her mürekkep parçasının en az yarısı
+# maskede olmalı, yoksa temizliğe girilmez (B19 "MY" sınıfı).
+# Alan eşiği balon-göreli: küçük balonda toz veto üretmesin, büyükte
+# zerreler veto üretmesin. Taban 80px (B19 toz 53px altı kalır).
 COVERAGE_MIN_COMPONENT_AREA = 100
 COVERAGE_MIN_FRACTION = 0.5
+COVERAGE_AREA_FLOOR = 80
+COVERAGE_AREA_RATIO = 0.002
+
+
+def _coverage_min_area(bubble_pixels: int) -> int:
+    """Balon büyüklüğüne göre en-küçük mürekkep alanı (genel, oranlı)."""
+    return max(COVERAGE_AREA_FLOOR, int(round(bubble_pixels * COVERAGE_AREA_RATIO)))
 
 
 def _bg_luma_tuple(background_color) -> tuple[int, int, int]:
@@ -199,7 +208,7 @@ def _mask_coverage_ok(
 ) -> bool:
     """P2: maske, balon-içi mürekkep parçalarını kapsıyor mu?
 
-    100px+ her kaynak-koyu bileşenin ≥%50'si refined içindeyse True.
+    Balon-göreli her kaynak-koyu bileşenin ≥%50'si refined içindeyse True.
     Balon-içi bilinmiyorsa True döner (sanat/kirpinti-kenarı yanlış
     alarm üretmesin diye — o durumda sonradan-kontroller devrededir).
     """
@@ -211,10 +220,12 @@ def _mask_coverage_ok(
     if bubble_interior is None:
         return True
     area = (np.asarray(bubble_interior) > 0)
+    bubble_pixels = int(np.count_nonzero(area))
+    min_area = _coverage_min_area(bubble_pixels)
     gray = cv2.cvtColor(np.ascontiguousarray(source_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
     bg = float(np.dot(np.asarray(background_color, dtype=np.float32), [0.299, 0.587, 0.114]))
     dark = ((bg - gray) >= OUTSIDE_DARK_MARGIN) & area
-    if int(np.count_nonzero(dark)) < COVERAGE_MIN_COMPONENT_AREA:
+    if int(np.count_nonzero(dark)) < min_area:
         return True
     count, labels, stats, _ = cv2.connectedComponentsWithStats(dark.astype(np.uint8), 8)
     if count <= 1:
@@ -222,13 +233,66 @@ def _mask_coverage_ok(
     refined_u8 = refined.astype(np.uint8)
     for idx in range(1, count):
         comp_area = int(stats[idx, cv2.CC_STAT_AREA])
-        if comp_area < COVERAGE_MIN_COMPONENT_AREA:
+        if comp_area < min_area:
             continue
         comp = (np.asarray(labels) == idx)
         inside = int(np.count_nonzero(comp & (refined_u8 > 0)))
         if inside / max(1, comp_area) < COVERAGE_MIN_FRACTION:
             return False
     return True
+
+
+def _expand_refined_to_bubble_ink(
+    source_crop: np.ndarray,
+    refined_mask: np.ndarray,
+    background_color: tuple[int, int, int] | list[int],
+    bubble_interior: np.ndarray | None,
+) -> np.ndarray:
+    """Düz balonda maskeye girmemiş mürekkebi maskeye kat (genel kurtarma).
+
+    YALNIZ düz-renkli balonlarda çağrılır (sanat korunur): balon-içi
+    zeminle zıt her mürekkep parçası (koyu-açık iki yön) en-boy-oranı
+    ve balon-göreli alan süzgecinden geçerse refined'a eklenir. Uzak
+    küçük kelimeler (`IN` 116px kuzeyde) böyle kurtulur; toz/çizgi
+    elenir. Renk-bağımsız, metin-bağımsız, bölüm-sayısı yok.
+    """
+    import cv2
+
+    refined = (np.asarray(refined_mask) > 0)
+    if not np.any(refined) or bubble_interior is None:
+        return np.asarray(refined_mask)
+    area = (np.asarray(bubble_interior) > 0)
+    if not np.any(area):
+        return np.asarray(refined_mask)
+    bubble_pixels = int(np.count_nonzero(area))
+    min_area = _coverage_min_area(bubble_pixels)
+    max_area = max(min_area + 1, bubble_pixels // 3)
+    gray = cv2.cvtColor(np.ascontiguousarray(source_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
+    bg = float(np.dot(np.asarray(background_color, dtype=np.float32), [0.299, 0.587, 0.114]))
+    ink = (np.abs(gray - bg) >= OUTSIDE_DARK_MARGIN) & area
+    ink = ink & (~refined)
+    if int(np.count_nonzero(ink)) < min_area:
+        return np.asarray(refined_mask)
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(ink.astype(np.uint8), 8)
+    if count <= 1:
+        return np.asarray(refined_mask)
+    grown = refined.copy()
+    for idx in range(1, count):
+        comp_area = int(stats[idx, cv2.CC_STAT_AREA])
+        if comp_area < min_area or comp_area > max_area:
+            continue
+        w = int(stats[idx, cv2.CC_STAT_WIDTH])
+        h = int(stats[idx, cv2.CC_STAT_HEIGHT])
+        if min(w, h) <= 0:
+            continue
+        if max(w, h) / max(1, min(w, h)) > OUTSIDE_MAX_ASPECT:
+            continue
+        grown |= (np.asarray(labels) == idx)
+    if not np.any(grown & (~refined)):
+        return np.asarray(refined_mask)
+    out = np.zeros_like(np.asarray(refined_mask), dtype=np.uint8)
+    out[grown] = 255
+    return out
 
 
 class Inpainter:
@@ -296,6 +360,18 @@ class Inpainter:
                 self.review_block_ids.add(block_id)
                 self.review_causes[block_id] = "empty_mask"
             debug_name = f"block_{getattr(block, 'id', len(self.debug_records) + len(prepared) + 1):04d}"
+            # Düz-balon kurtarma (genel): tekdüze zeminde maske-dışı mürekkep
+            # maskeye katılır (uzak küçük kelimeler). Sanatlı balonda ASLA
+            # çalışmaz (is_uniform False ise atlanır). Sonrası aynı kapı.
+            if np.any(mask.refined) and mask.bubble_found and mask.is_uniform_background:
+                recovered = _expand_refined_to_bubble_ink(
+                    mask.source,
+                    mask.refined,
+                    _bg_luma_tuple(mask.background_color),
+                    mask.bubble_interior,
+                )
+                if np.any((np.asarray(recovered) > 0) & ~(np.asarray(mask.refined) > 0)):
+                    mask = replace(mask, refined=np.ascontiguousarray(recovered))
             # P2 kapsama-kapısı: maske mürekkebi kapsamıyorsa temizliğe
             # girilmez (B19 "MY" sınıfı) — piksel aynen durur, blok REVIEW.
             if np.any(mask.refined) and not _mask_coverage_ok(

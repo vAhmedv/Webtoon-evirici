@@ -280,6 +280,12 @@ class TextRenderer:
             font, lines, line_height, is_overflow = self._fit_block_text(
                 turkish_text, avail_w, avail_h, member_cnt
             )
+            # Kanıt izi (#3 odasınd şüphesi): kesik iddiası piksel-kanıtla
+            # kapanır — planlanan kutu, sığan satırlar, taşma bayrağı (debug).
+            logger.debug(
+                f"Renderer: blok {getattr(block, 'id', '?')} kutu=({box_w}x{box_h}) "
+                f"satir={len(lines)} taslak={turkish_text[:40]!r} tasma={is_overflow}"
+            )
 
             if is_overflow:
                 overflow_count += 1

@@ -184,6 +184,59 @@ def find_dropped_source_tokens(
     return warnings
 
 
+# Akraba-küçük-liste DENEYİ (F6-sonrası, yumuşak iz — pipeline'a bağlı DEĞİL).
+# Kapalı sınıf dil verisi, bölümden bağımsız. "PARENTS→Aile", "SISTER→kızı"
+# gibi akıcı-ama-yanlışları yakalamak için: kaynakta akraba sözcüğü var,
+# çeviride ailesinden HİÇBİR gövde yoksa `kinship_ambiguous` döner.
+# ÖLÜMCÜL DEĞİL (fatal sete eklenmez) — basım durmaz, yalnız izlenir.
+# Deney yeşilse bağlanır, sel yaparsa öldürülür.
+_KINSHIP_TR_STEMS = {
+    "parents": ("ebeve", "anne", "baba"),
+    "parent": ("ebeve", "anne", "baba"),
+    "mother": ("anne",),
+    "father": ("baba",),
+    "sister": ("kızkardeş", "kız kardeş", "kardeş", "abla", "bacı"),
+    "brother": ("erkekkardeş", "erkek kardeş", "kardeş", "abi", "ağabey", "agabey"),
+    "daughter": ("kız", "evlat"),
+    "son": ("oğl", "ogl", "evlat"),
+}
+
+
+def find_kinship_mismatch(
+    source_text: str,
+    restored_translation: str,
+) -> list[str]:
+    """Akraba-anlam kayması izi (yumuşak): liste küçük, karar hafif."""
+    src = source_text or ""
+    tr = restored_translation or ""
+    if not src.strip() or not tr.strip():
+        return []
+    norm = lambda t: " ".join(t.split()).casefold()  # noqa: E731
+    if norm(src) == norm(tr):
+        return []
+    src_words = set(re.findall(r"[A-Za-z]+", src.casefold()))
+    present = [k for k in _KINSHIP_TR_STEMS if k in src_words]
+    if not present:
+        return []
+    tr_norm = " ".join(tr.split()).casefold()
+    tr_words = re.findall(r"[A-Za-zÇĞİÖŞÜçğıöşü]+", tr_norm)
+    for kin in present:
+        stems = _KINSHIP_TR_STEMS[kin]
+        hit = False
+        for stem in stems:
+            s = stem.casefold()
+            if " " in s:
+                if s in tr_norm:
+                    hit = True
+                    break
+            elif any(w.startswith(s) for w in tr_words):
+                hit = True
+                break
+        if not hit:
+            return ["kinship_ambiguous"]
+    return []
+
+
 @dataclass
 class ProtectedTermMeta:
     sentinel: str
