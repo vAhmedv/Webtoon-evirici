@@ -206,3 +206,9 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - [x] **S7 tire-birleştirme:** "DIFFER- ENT"→"DIFFERENT" hazırlıkta birleşir (kayıtlı kaynak korunur). Siyah-balon OCR'a dokunulmadı (kanıt yok; F2 guard'ları çöp çeviriyi REVIEW'a düşürür).
 - [x] **F3 terazisi:** overflow 4/4 sıfır, blok-sayımları sabit; basılan düşüşü bilinçli (yankı-nötr + gerçek artık + yanlış-anlam tutmaları). `benchmark/golden_f3_v1.json` donduruldu.
 - Testler: **732 geçti, 0 kırmızı.** Ara-bulgu: tam-süit, tanımsız `echo_skip_ids` UnboundLocalError yakaladı (çevrilecek-bloksuz hat) — düzeltildi.
+
+## F4+F5 TURU (2026-09-13, build)
+
+- [x] **F4-a kaynaşma-ölçümü → ATLANDI:** 670 blokta gerçek kaynaşma ~3 adet (ACHARACTER vb.), gerisi meşru uzun sözcük. Modeller bağlamdan çözüyor (OFMY kanıtlı). Sözlüksüz ayırıcı risk/faydayı karşılamaz.
+- [x] **F4-b fren aleti:** `scripts/compare_golden_v1.py` — yankı-nötr çevrilme-oranı + kısa-hikaye uyarısı + overflow alarmı. İlk fren: temiz (overflow 0, oranlar 5 puan içinde; sword/estate kısa-UYARI takibi).
+- [x] **F5 Gemini hakem deneyi → ÖLDÜRÜLDÜ:** 29 guard-REVIEW blokta Hy-tekil vs Gemini anlaşması 5/29; Gemini'de caps hastalığı + kırpma (b260 "BU SEFER,") + kişi-karıştırma (b249) var. Hakem çözümsüz belirsizliği çözmüyor, başka tahmin üretiyor. REVIEW+İngilizce-koruma zaten doğru cevap. Kanıt: `benchmark/results/hakem_gemini_v1.json`.
