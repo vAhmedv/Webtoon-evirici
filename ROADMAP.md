@@ -226,3 +226,10 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - [x] **P4 kısa-sayım:** 23 (FAIL sürüyor). Kırılımı: tamamı tasarımlı tutmalar (inpaint-temizlenemez + guard). Eşik kararı kullanıcıda (direk oynanmadı).
 - Testler: **738 geçti, 0 kırmızı.**
 - Açık izleme: DAMMIT kutusunda %5 artık-koyu piksel (aynı metin, IoU 0.856; yanlış basım/boşluk yok) — kullanıcı görseli hakem olacak.
+
+## (b) KISA-KAPI + DUNGEON CH2 (2026-09-13, build)
+
+- [x] Metrik ayrımı: `short_untranslated` (çevirisi BİLE yok → kapılı, eşik 0) + `short_unprinted` (çevirisi hazır basılamayan → izleme). Ch1: 0/23.
+- [x] CJK kırıntı muafiyeti (sistemde CJK yolu yok; Ch2 kanıtı "erh."/katakana karışımları).
+- [x] Dungeon Odyssey Ch2 (14 sayfa, ilk koşu): 176 blok, 147 çevrildi, 133 basıldı, overflow 0, çevrilemeyen 0, basılamayan 4. Kapılar yeşil.
+- Testler: 739 geçti (`test_audit_gates.py` yeni).

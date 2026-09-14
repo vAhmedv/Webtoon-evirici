@@ -74,39 +74,69 @@ def summarize_final_region_states(regions: list[dict[str, Any]]) -> dict[str, in
     }
 
 
-_OCR_GARBAGE_REASONS = frozenset({"word_difference", "ambiguous_unknown_review"})
+_OCR_GARBAGE_REASONS = frozenset({
+    "word_difference",
+    "ambiguous_unknown_review",
+    # CJK kırıntıları: sistemde CJK->TR yolu yok; süs/parça olarak
+    # tutulmaları tasarım-gereğidir (SFX ailesi). Ch2 kanıtı: "erh.",
+    # katakana+latin karışımları ("トh。", "RS 上 R").
+    "verifier_cjk",
+    "ambiguous_cjk_review",
+    "primary_cjk",
+})
+
+
+def _is_countable_short(region: dict[str, Any]) -> bool:
+    """Kısa-hikaye sayacına girer mi (ortak ön-filtre)?"""
+    import re
+
+    if region.get("status") != "review":
+        return False
+    text = (region.get("text") or "").strip()
+    if not text or len(text) > 20:
+        return False
+    if not re.search(r"[A-Za-z]", text):
+        return False
+    if region.get("type") in ("sfx", "watermark"):
+        return False
+    reason = region.get("review_reason") or ""
+    if reason in _OCR_GARBAGE_REASONS or reason.startswith("primary_"):
+        return False
+    return True
 
 
 def count_short_dialogue_untranslated(raw_regions: list[dict[str, Any]]) -> int:
-    """İŞ 3 bekçisi: çevrilmeyen kısa hikâye balonu sayısı.
+    """(b) GERÇEK hikaye kaybı: kısa + REVIEW + çevirisi BİLE yok.
 
-    Tanım: metni ≤20 karakter, alfa içeren, status == review, tipi
-    sfx/watermark olmayan bölge. SKIP tasarım-gereği çevrilmez (SFX,
-    gürültü, logo, filigran) — sayılmaz. OCR çöpü hariç: review_reason
-    `word_difference` / `ambiguous_unknown_review` / `primary_*`.
-    Taze-audit kanıtı (2026-09-12): 6 — tamamı inpaint-sınır-artığı
-    (DAMMIT, STOP IT!!, LEVEL 1... dahil; Faz 4-kısıt). Eşik: 6 (artış yasak).
+    Çevirisi hazır ama basılamayanlar (inpaint/guard tutmaları) buraya
+    sayılmaz — onlar `count_short_unprinted` izlemesindedir. Kapı bunu kilitler.
     """
-    import re
-
     count = 0
     for region in raw_regions:
-        if region.get("status") != "review":
-            continue
-        text = (region.get("text") or "").strip()
-        if not text or len(text) > 20:
-            continue
-        if not re.search(r"[A-Za-z]", text):
-            continue
-        if region.get("type") in ("sfx", "watermark"):
+        if not _is_countable_short(region):
             continue
         reason = region.get("review_reason") or ""
-        if reason in _OCR_GARBAGE_REASONS or reason.startswith("primary_"):
-            continue
         # P1-B ikinci ağ: kanıtlı karışma (numbering_inconsistent) REVIEW'a
         # düşer ve İngilizce korunur — bilinçli tasarım, "çevrilmeyen hikâye"
         # değildir; bekçi metriğine sayılmaz.
         if reason == "translation_guard_review":
+            continue
+        if (region.get("translation") or "").strip():
+            continue
+        count += 1
+    return count
+
+
+def count_short_unprinted(raw_regions: list[dict[str, Any]]) -> int:
+    """Çevirisi hazır ama basılamayan kısalar (inpaint/guard tutmaları).
+
+    Bilgi amaçlı izlenir, kapıya bağlanmaz — İngilizce sapasağlam durur.
+    """
+    count = 0
+    for region in raw_regions:
+        if not _is_countable_short(region):
+            continue
+        if not (region.get("translation") or "").strip():
             continue
         count += 1
     return count
@@ -221,6 +251,7 @@ def main() -> None:
         "actually_rendered_blocks_count": summary_data["rendered_blocks_count"],
         "overflow_blocks_count": summary_data["overflow_blocks_count"],
         "short_dialogue_untranslated_count": count_short_dialogue_untranslated(raw_regions),
+        "short_unprinted_count": count_short_unprinted(raw_regions),
         "ocr_elapsed_seconds": round(pipeline_result.ocr_elapsed_time, 2),
         "translation_elapsed_seconds": round(pipeline_result.translation_elapsed_time, 2),
         "inpainting_rendering_elapsed_seconds": round(
@@ -232,9 +263,11 @@ def main() -> None:
     assert metrics["output_page_count"] == metrics["source_page_count"], "Output page count mismatch!"
 
     # İŞ 5.1 — Kalıcı gate'ler (ölçülmüş eşikler, uydurma yok).
+    # (b) kapısı: çevirisi BİLE olmayan kısa hikaye balonu YASAK (eşik 0 —
+    # Ch1+F3 ölçümü: 0). Çevirisi hazır basılamayanlar izlemededir.
     # Varsayılan: rapor + uyarı (exit 0). --strict: eşik aşımında non-zero.
     gates = {
-        "short_dialogue_untranslated_count <= 6": metrics["short_dialogue_untranslated_count"] <= 6,
+        "short_dialogue_untranslated_count == 0": metrics["short_dialogue_untranslated_count"] == 0,
         "overflow_blocks_count == 0": metrics["overflow_blocks_count"] == 0,
     }
     metrics["gates"] = {k: ("pass" if v else "FAIL") for k, v in gates.items()}

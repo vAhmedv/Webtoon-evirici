@@ -24,6 +24,7 @@ KEYS = [
     "actually_rendered_blocks_count",
     "overflow_blocks_count",
     "short_dialogue_untranslated_count",
+    "short_unprinted_count",
     "final_auto_regions",
     "final_review_regions",
     "final_skip_regions",

@@ -32,6 +32,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from application.chapter_analyzer import ChapterAnalyzer
 from audit_e2e_real_chapter1 import (  # aynı metrik fonksiyonları
     count_short_dialogue_untranslated,
+    count_short_unprinted,
     summarize_final_region_states,
 )
 from providers.detector.ctd import ComicTextDetector
@@ -59,6 +60,7 @@ SUMMARY_KEYS = [
     "actually_rendered_blocks_count",
     "overflow_blocks_count",
     "short_dialogue_untranslated_count",
+    "short_unprinted_count",
     "final_auto_regions",
     "final_review_regions",
     "final_skip_regions",
@@ -117,6 +119,7 @@ def _extract_metrics(tag: str, src: Path, elapsed: float | None) -> dict:
         "overflow_blocks_count": summary_data["overflow_blocks_count"],
         "echo_preserved_blocks_count": summary_data.get("echo_preserved_blocks_count", 0),
         "short_dialogue_untranslated_count": count_short_dialogue_untranslated(raw_regions),
+        "short_unprinted_count": count_short_unprinted(raw_regions),
         "ocr_elapsed_seconds": stage.get("ocr"),
         "translation_elapsed_seconds": stage.get("translation"),
         "inpainting_rendering_elapsed_seconds": stage.get("inpainting"),
