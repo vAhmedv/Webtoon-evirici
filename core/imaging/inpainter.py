@@ -246,6 +246,8 @@ class Inpainter:
         self.debug_records: list[dict[str, Any]] = []
         self.processed_block_ids: set[int] = set()
         self.review_block_ids: set[int] = set()
+        # Madde 3: REVIEW'a düşüren alt-sebep (forensik; sebep string'i sabit).
+        self.review_causes: dict[int, str] = {}
         self.last_text_mask: TextMask | None = None
 
     def unload(self) -> None:
@@ -292,6 +294,7 @@ class Inpainter:
                 # safely rendered. Count it as inpaint REVIEW so lifecycle
                 # totals remain explicit and the original pixels stay intact.
                 self.review_block_ids.add(block_id)
+                self.review_causes[block_id] = "empty_mask"
             debug_name = f"block_{getattr(block, 'id', len(self.debug_records) + len(prepared) + 1):04d}"
             # P2 kapsama-kapısı: maske mürekkebi kapsamıyorsa temizliğe
             # girilmez (B19 "MY" sınıfı) — piksel aynen durur, blok REVIEW.
@@ -302,6 +305,7 @@ class Inpainter:
                 mask.bubble_interior,
             ):
                 self.review_block_ids.add(block_id)
+                self.review_causes[block_id] = "coverage"
                 self._save_debug(debug_name, mask, mask.source, "coverage_skip", review=True)
                 continue
             prepared.append((block, mask, debug_name))
@@ -408,6 +412,7 @@ class Inpainter:
                 lama_expanded = cv2.dilate(expanded, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (_kh, _kh)))
                 inpainted_crop = self.lama.inpaint(text_mask.source, lama_expanded)
         review = self._has_boundary_residual(text_mask, inpainted_crop)
+        review_cause: str | None = "boundary" if review else None
         # S4: maske-dışı bantta kalmış glif (B19 "M'" sınıfı) — iç-bakan
         # denetçilerin kör noktası. Varsa blok REVIEW (İngilizce korunur).
         _bg_vals = [int(v) for v in np.asarray(text_mask.background_color).ravel()[:3]]
@@ -420,23 +425,28 @@ class Inpainter:
             text_mask.bubble_interior,
         ):
             review = True
+            review_cause = "outside"
         # Faz 4a: maske-içi hayalet (LaMa/ortanca artığı).
         if method != "flat_fill_fast":
             try:
                 if self._interior_ghost_area(inpainted_crop, text_mask.refined) >= GHOST_MIN_COMPONENT_AREA:
                     review = True
+                    review_cause = "ghost"
             except Exception:
                 pass
         # Faz 4b: dolgu/zemin uyuşmazlığı (balonsuz beyaz-leke).
         try:
             if self._fill_ring_mismatch(text_mask, inpainted_crop):
                 review = True
+                review_cause = "ring"
         except Exception:
             pass
         self.last_text_mask = text_mask
         if review and debug_name.startswith("block_"):
             try:
-                self.review_block_ids.add(int(debug_name.removeprefix("block_")))
+                _bid = int(debug_name.removeprefix("block_"))
+                self.review_block_ids.add(_bid)
+                self.review_causes[_bid] = review_cause or "unknown"
             except ValueError:
                 pass
 

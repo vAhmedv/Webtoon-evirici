@@ -452,3 +452,40 @@ def test_coverage_clean_balloon_passes() -> None:
     mask = np.zeros((60, 120), dtype=np.uint8)
     mask[20:40, 60:110] = 255
     assert _mask_coverage_ok(crop, mask, (255, 255, 255), _interior_full(60, 120)) is True
+
+
+def test_review_cause_recorded_for_outside() -> None:
+    """Madde 3: bant-tutması sebebi review_causes'a işlenir."""
+    from core.imaging.text_mask import TextMask
+
+    arr = np.full((60, 120, 3), 255, dtype=np.uint8)
+    arr[20:40, 62:108] = (0, 0, 0)
+    arr[20:40, 48:56] = (0, 0, 0)  # 8x20 artığı, 4px ötede (B19: 4.8px)
+    source = arr.copy()
+    raw = np.zeros((60, 120), dtype=np.uint8)
+    raw[20:40, 62:108] = 255
+    refined = np.zeros_like(raw)
+    refined[20:40, 62:108] = 255
+    mask = TextMask((0, 0, 120, 60), source, raw, refined, (255, 255, 255), True, dilation_radius=2)
+    inpainter = Inpainter()
+    inpainter._apply_mask(arr, mask, "block_0042")
+    assert 42 in inpainter.review_block_ids
+    assert inpainter.review_causes.get(42) == "outside"
+
+
+def test_review_cause_recorded_for_coverage() -> None:
+    """Madde 3: kapsama-kapısı sebebi review_causes'a işlenir."""
+    from unittest.mock import patch
+
+    arr = np.full((60, 120, 3), 255, dtype=np.uint8)
+    arr[20:40, 62:108] = (0, 0, 0)
+    canvas = Image.fromarray(arr, "RGB")
+    member = _story_member(93, 60, 20, 110, 40)
+    block = _bbox_block(43, [member], 40, 10, 120, 50)
+    inpainter = Inpainter()
+    fixed = _mask(60, 120, 60, 20, 110, 40)
+    with patch("core.imaging.inpainter._mask_coverage_ok", return_value=False):
+        with patch.object(inpainter.mask_builder, "_build", return_value=fixed):
+            inpainter.inpaint_blocks(canvas, [block])
+    assert 43 in inpainter.review_block_ids
+    assert inpainter.review_causes.get(43) == "coverage"
