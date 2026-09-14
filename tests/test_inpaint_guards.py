@@ -8,10 +8,13 @@ import numpy as np
 from pathlib import Path
 from PIL import Image
 
+from core.detection import BBox, Region, RegionStatus, RegionType
+from core.detection.text_block import TextBlock
 from core.imaging.inpainter import (
     FILL_RING_LUMA_GAP,
     GHOST_MIN_COMPONENT_AREA,
     Inpainter,
+    _mask_coverage_ok,
     _outside_mask_text,
     lama_kernel_for_height,
 )
@@ -369,3 +372,83 @@ def test_outside_mask_band_ignores_dark_source_art() -> None:
     art_mask = np.zeros((60, 120), dtype=np.uint8)
     art_mask[10:50, 60:110] = 255
     assert _outside_mask_text(art, art, art_mask, (255, 255, 255)) is False
+
+
+def _story_member(rid: int, x1: int, y1: int, x2: int, y2: int) -> Region:
+    return Region(
+        id=rid,
+        global_bbox=BBox(x1, y1, x2, y2),
+        type=RegionType.DIALOGUE,
+        detection_confidence=0.9,
+        source_window_ids=(1,),
+        status=RegionStatus.AUTO,
+        text="TEXT",
+        metadata={},
+    )
+
+
+def _bbox_block(bid: int, members: list[Region], x1: int, y1: int, x2: int, y2: int) -> TextBlock:
+    return TextBlock(
+        id=bid,
+        member_ids=tuple(m.id for m in members),
+        members=tuple(members),
+        source_text="TEXT",
+        merged_bbox=BBox(x1, y1, x2, y2),
+    )
+
+
+def test_review_revert_and_alias_guard() -> None:
+    """P1: REVIEW geri-alması orijinali yazar; çakışan kırpıntı bakışı bozamaz."""
+    arr = np.full((120, 120, 3), 255, dtype=np.uint8)
+    arr[52:58, 10:110] = (0, 0, 0)  # X yazısı (uzun çubuk, oran>6 → elenir)
+    arr[62:72, 62:108] = (0, 0, 0)  # Y yazısı (üye kutusu içi)
+    arr[62:82, 46:54] = (0, 0, 0)  # Y dış artığı (6px ötede, 8x20=160px)
+    canvas = Image.fromarray(arr, "RGB")
+    x_block = _bbox_block(8, [_story_member(81, 10, 50, 110, 60)], 0, 50, 120, 60)
+    y_block = _bbox_block(9, [_story_member(91, 60, 60, 110, 80)], 0, 60, 120, 80)
+
+    inpainter = Inpainter()
+    out = np.asarray(inpainter.inpaint_blocks(canvas, [x_block, y_block]))
+    assert 9 in inpainter.review_block_ids
+    assert 8 not in inpainter.review_block_ids
+    # X temizlendi (beyaz), Y sapasağlam geri alındı (orijinal İngilizce).
+    assert bool(np.all(out[52:58, 10:110] == 255))
+    assert bool(np.all(out[62:72, 62:108] == 0))
+    assert bool(np.all(out[62:82, 46:54] == 0))
+
+
+def _interior_full(h: int, w: int) -> np.ndarray:
+    return np.full((h, w), 255, dtype=np.uint8)
+
+
+def test_coverage_ok_when_mask_covers_ink() -> None:
+    crop = np.full((60, 120, 3), 255, dtype=np.uint8)
+    crop[20:40, 62:108] = (0, 0, 0)
+    mask = np.zeros((60, 120), dtype=np.uint8)
+    mask[18:42, 60:110] = 255
+    assert _mask_coverage_ok(crop, mask, (255, 255, 255), _interior_full(60, 120)) is True
+
+
+def test_coverage_fails_on_half_covered_glyph() -> None:
+    # B19 sınıfı: mürekkebin yarısından azı maskede → temizliğe girilmez.
+    crop = np.full((60, 120, 3), 255, dtype=np.uint8)
+    crop[20:40, 20:80] = (0, 0, 0)  # 60x20 = 1200px bar
+    mask = np.zeros((60, 120), dtype=np.uint8)
+    mask[20:40, 60:110] = 255  # barın üçte birini kapsar
+    assert _mask_coverage_ok(crop, mask, (255, 255, 255), _interior_full(60, 120)) is False
+
+
+def test_coverage_defers_without_interior() -> None:
+    # Balon-içi bilinmiyorsa sanat yanlış-alarm üretmesin diye kapı pas geçer.
+    crop = np.full((60, 120, 3), 255, dtype=np.uint8)
+    crop[20:40, 20:80] = (0, 0, 0)
+    mask = np.zeros((60, 120), dtype=np.uint8)
+    mask[20:40, 60:110] = 255
+    assert _mask_coverage_ok(crop, mask, (255, 255, 255), None) is True
+
+
+def test_coverage_clean_balloon_passes() -> None:
+    crop = np.full((60, 120, 3), 255, dtype=np.uint8)
+    mask = np.zeros((60, 120), dtype=np.uint8)
+    mask[20:40, 60:110] = 255
+    assert _mask_coverage_ok(crop, mask, (255, 255, 255), _interior_full(60, 120)) is True

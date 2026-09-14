@@ -180,6 +180,57 @@ def _outside_mask_text(
     return False
 
 
+# P2 kapsama-kapısı sabitleri: 100px+ her mürekkep parçasının en az
+# yarısı maskede olmalı, yoksa temizliğe girilmez (B19 "MY" sınıfı).
+COVERAGE_MIN_COMPONENT_AREA = 100
+COVERAGE_MIN_FRACTION = 0.5
+
+
+def _bg_luma_tuple(background_color) -> tuple[int, int, int]:
+    vals = [int(v) for v in np.asarray(background_color).ravel()[:3]]
+    return (vals[0], vals[1], vals[2]) if len(vals) == 3 else (255, 255, 255)
+
+
+def _mask_coverage_ok(
+    source_crop: np.ndarray,
+    refined_mask: np.ndarray,
+    background_color: tuple[int, int, int] | list[int],
+    bubble_interior: np.ndarray | None = None,
+) -> bool:
+    """P2: maske, balon-içi mürekkep parçalarını kapsıyor mu?
+
+    100px+ her kaynak-koyu bileşenin ≥%50'si refined içindeyse True.
+    Balon-içi bilinmiyorsa True döner (sanat/kirpinti-kenarı yanlış
+    alarm üretmesin diye — o durumda sonradan-kontroller devrededir).
+    """
+    import cv2
+
+    refined = (np.asarray(refined_mask) > 0)
+    if not np.any(refined):
+        return True
+    if bubble_interior is None:
+        return True
+    area = (np.asarray(bubble_interior) > 0)
+    gray = cv2.cvtColor(np.ascontiguousarray(source_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
+    bg = float(np.dot(np.asarray(background_color, dtype=np.float32), [0.299, 0.587, 0.114]))
+    dark = ((bg - gray) >= OUTSIDE_DARK_MARGIN) & area
+    if int(np.count_nonzero(dark)) < COVERAGE_MIN_COMPONENT_AREA:
+        return True
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(dark.astype(np.uint8), 8)
+    if count <= 1:
+        return True
+    refined_u8 = refined.astype(np.uint8)
+    for idx in range(1, count):
+        comp_area = int(stats[idx, cv2.CC_STAT_AREA])
+        if comp_area < COVERAGE_MIN_COMPONENT_AREA:
+            continue
+        comp = (np.asarray(labels) == idx)
+        inside = int(np.count_nonzero(comp & (refined_u8 > 0)))
+        if inside / max(1, comp_area) < COVERAGE_MIN_FRACTION:
+            return False
+    return True
+
+
 class Inpainter:
     """Removes source glyphs while preserving every pixel outside the refined mask."""
 
@@ -228,6 +279,11 @@ class Inpainter:
                     (getattr(m, "text", "") or "") for m in eligible
                 )
                 mask = self._expand_mask_in_bubble(mask, _member_text)
+            # P1 kopya-bekçisi: tam-genişlik kırpıntılarda mask.source
+            # canvas'a bakış (view) olabilir; sonraki blok uygulamaları
+            # onu bozardı. Geri-alma için her maske kendi kopyasını tutar.
+            if mask.source.base is not None:
+                mask = replace(mask, source=mask.source.copy())
             block_id = int(getattr(block, "id", -1))
             if np.any(mask.refined):
                 self.processed_block_ids.add(block_id)
@@ -237,6 +293,17 @@ class Inpainter:
                 # totals remain explicit and the original pixels stay intact.
                 self.review_block_ids.add(block_id)
             debug_name = f"block_{getattr(block, 'id', len(self.debug_records) + len(prepared) + 1):04d}"
+            # P2 kapsama-kapısı: maske mürekkebi kapsamıyorsa temizliğe
+            # girilmez (B19 "MY" sınıfı) — piksel aynen durur, blok REVIEW.
+            if np.any(mask.refined) and not _mask_coverage_ok(
+                mask.source,
+                mask.refined,
+                _bg_luma_tuple(mask.background_color),
+                mask.bubble_interior,
+            ):
+                self.review_block_ids.add(block_id)
+                self._save_debug(debug_name, mask, mask.source, "coverage_skip", review=True)
+                continue
             prepared.append((block, mask, debug_name))
 
         # 2. Batch GPU LaMa inference for all blocks requiring full neural inpainting
@@ -384,6 +451,18 @@ class Inpainter:
             residual_expansion_passes=residual_expansion_passes,
             review=review,
         )
+        # P1 geri-alma: REVIEW'a düşen blokta temizlik geri alınır —
+        # YALNIZCA maske-içi pikseller iade edilir (dışarısı hiç
+        # dokunulmadı; tüm-kırpıntı iadesi komşu bloğun temizliğini ezerdi).
+        # Boş-beyaz/bulaşma/yarım-hasar yerine sapasağlam İngilizce durur.
+        # Debug görüntüsü temizlenmiş haliyle saklanır (adli iz korunur).
+        if review:
+            pristine = np.ascontiguousarray(text_mask.source)
+            ph, pw = pristine.shape[:2]
+            dh, dw = destination.shape[:2]
+            hh, ww = min(ph, dh), min(pw, dw)
+            rev_mask = refined[:hh, :ww] if refined.shape != (hh, ww) else refined
+            destination[:hh, :ww][rev_mask] = pristine[:hh, :ww][rev_mask]
         return target_canvas
 
 

@@ -214,7 +214,15 @@ Faz 2 ile 1 bağımsızdır, paralel yürütülebilir. Faz 3, Faz 2'nin bitmesin
 - [x] **F5 Gemini hakem deneyi → ÖLDÜRÜLDÜ:** 29 guard-REVIEW blokta Hy-tekil vs Gemini anlaşması 5/29; Gemini'de caps hastalığı + kırpma (b260 "BU SEFER,") + kişi-karıştırma (b249) var. Hakem çözümsüz belirsizliği çözmüyor, başka tahmin üretiyor. REVIEW+İngilizce-koruma zaten doğru cevap. Kanıt: `benchmark/results/hakem_gemini_v1.json`.
 
 ## KÖR OY HÜKMÜ (2026-09-13, kullanıcı oyu)
-
 - **30'lu pusula (Hy vs Gemini): 7× B, 1× "ikisi de yanlış" (Blok 20).** Anahtar açıldı: B=Hy-MT2.
 - **1K pusula:** kullanıcı oylamayı yeterli görüp hükmü B'ye verdi (dosya oylanmadı).
 - **Karar: Hy-MT2 birincil kalır.** Gemini birincilik ve hakemlikten çıktı (kanıtlı: caps çöküşü, kırpma, kişi-karıştırma). TranslateGemma oylanmadan elendi (markdown çöpü).
+
+## P1+P2 TURU (2026-09-13, build — 9 ekran şikayeti)
+
+- [x] **P1 geri-alma:** REVIEW'a düşen blokta yalnızca maske-içi piksel iade edilir (komşu temizliğini ezmemek için kapsamlı). Kopya-bekçisi (tam-genişlik view bozulması) + örtüşme testi. NOT: tam-süit, P1'in habersiz değiştirdiği eski bir varsayımı yakaladı (ring-REVIEW vakasında temizlik bekleniyordu) — test yeni söze göre güncellendi.
+- [x] **P2 kapsama-kapısı:** 100px+ her mürekkep parçasının ≥%50'si maskede olmalı, yoksa temizliğe girilmez. Balon-içi yoksa pas geçer (sonradan-kontroller devrede).
+- [x] **P3 B64 soruşturması → KAPANDI:** "1" kaynakta var (OCR artığı, r139), çeviri sadık. Tek örnek → kural yok.
+- [x] **P4 kısa-sayım:** 23 (FAIL sürüyor). Kırılımı: tamamı tasarımlı tutmalar (inpaint-temizlenemez + guard). Eşik kararı kullanıcıda (direk oynanmadı).
+- Testler: **738 geçti, 0 kırmızı.**
+- Açık izleme: DAMMIT kutusunda %5 artık-koyu piksel (aynı metin, IoU 0.856; yanlış basım/boşluk yok) — kullanıcı görseli hakem olacak.

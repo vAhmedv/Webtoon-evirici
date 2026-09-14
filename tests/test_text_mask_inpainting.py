@@ -342,7 +342,39 @@ def test_review_inpaint_returns_original_source_unchanged() -> None:
 
 
 def test_non_review_inpaint_modifies_only_approved_mask() -> None:
-    """Successful inpaint must change pixels inside refined mask and preserve everything outside."""
+    """Kabul-yolu: maske yazıyı tamamen kapsıyorsa temizlenir, dışı korunur."""
+    source = np.full((24, 24, 3), 255, np.uint8)
+    source[10:14, 6:18] = 0
+    interior = np.full((14, 18), 255, dtype=np.uint8)
+    raw = np.zeros((14, 18), np.uint8)
+    raw[4:10, 2:16] = 255
+    refined = np.zeros_like(raw)
+    refined[4:10, 2:16] = 255
+    mask = TextMask(
+        (3, 5, 21, 19),
+        source[5:19, 3:21].copy(),
+        raw,
+        refined,
+        (255, 255, 255),
+        True,
+        interior,
+        None,
+        2,
+    )
+
+    inpainter = Inpainter()
+    output = inpainter._apply_mask(source, mask, "block_0100")
+
+    assert inpainter.debug_records[-1]["review"] is False
+    final_mask = np.zeros(source.shape[:2], bool)
+    x1, y1, x2, y2 = inpainter.last_text_mask.crop_bbox
+    final_mask[y1:y2, x1:x2] = inpainter.last_text_mask.refined > 0
+    assert np.array_equal(output[~final_mask], source[~final_mask])
+    assert np.any(output[final_mask] != source[final_mask])
+
+
+def test_review_inpaint_reverts_canvas_to_source() -> None:
+    """P1: REVIEW'a düşen blokta kutu orijinaline iade edilir (ring-kaynaklı REVIEW)."""
     source = np.full((24, 24, 3), 255, np.uint8)
     source[10:14, 6:18] = 0
     raw = np.zeros((14, 18), np.uint8)
@@ -360,13 +392,11 @@ def test_non_review_inpaint_modifies_only_approved_mask() -> None:
     )
 
     inpainter = Inpainter()
-    output = inpainter._apply_mask(source, mask, "block_0100")
+    output = inpainter._apply_mask(source, mask, "block_0101")
 
-    final_mask = np.zeros(source.shape[:2], bool)
-    x1, y1, x2, y2 = inpainter.last_text_mask.crop_bbox
-    final_mask[y1:y2, x1:x2] = inpainter.last_text_mask.refined > 0
-    assert np.array_equal(output[~final_mask], source[~final_mask])
-    assert np.any(output[final_mask] != source[final_mask])
+    assert inpainter.debug_records[-1]["review"] is True
+    assert 101 in inpainter.review_block_ids
+    assert np.array_equal(output, source)
 
 
 def test_empty_mask_block_remains_review_and_unchanged() -> None:
