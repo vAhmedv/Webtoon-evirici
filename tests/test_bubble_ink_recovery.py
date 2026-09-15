@@ -18,7 +18,7 @@ from core.imaging.inpainter import (
     _lama_mask_for,
     _mask_coverage_ok,
 )
-from core.imaging.text_mask import TextMask, TextMaskBuilder
+from core.imaging.text_mask import TextMask, TextMaskBuilder, _yolo_box_interior
 
 
 def _story_member(rid, x1, y1, x2, y2):
@@ -210,8 +210,7 @@ def test_no_box_no_bubble() -> None:
     assert TextMaskBuilder._extract_bubble(src, raw) is None
 
 
-def test_tight_frame_fallback_stays_quiet() -> None:
-    # Yazıya-yapışık çerçeve: YEDEK sessiz kalır (ana yolun eski davranışı
+def test_tight_frame_fallback_stays_quiet() -> None:    # Yazıya-yapışık çerçeve: YEDEK sessiz kalır (ana yolun eski davranışı
     # aynen durur; bu test yalnız yedeği bağlar).
     import cv2
 
@@ -371,3 +370,43 @@ def test_lama_mask_footprint_preserved_without_bubble() -> None:
     plain = cv2.dilate(base, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kh, kh)))
     diff = abs(int(np.count_nonzero(out)) - int(np.count_nonzero(plain)))
     assert diff / max(1, int(np.count_nonzero(plain))) < 0.05
+
+
+def _yolo_crop():
+    # 200x120 kırpıntı, ortada yazı; YOLO kutusu (global) balonu sarar.
+    raw = np.zeros((120, 200), dtype=np.uint8)
+    raw[45:75, 60:160] = 255
+    return (1000, 2000, 1200, 2120), raw
+
+
+def test_yolo_box_interior_found() -> None:
+    crop, raw = _yolo_crop()
+    # Kutu: yazıyı sarar, kırpıntıdan küçüktür.
+    out = _yolo_box_interior(crop, raw, [(1040, 2030, 1180, 2110)])
+    assert out is not None and bool(np.any(out))
+    assert int(np.count_nonzero((raw > 0) & (out == 0))) == 0
+
+
+def test_yolo_box_no_overlap_is_none() -> None:
+    crop, raw = _yolo_crop()
+    assert _yolo_box_interior(crop, raw, [(0, 0, 50, 50)]) is None
+    assert _yolo_box_interior(crop, raw, []) is None
+    assert _yolo_box_interior(crop, raw, None) is None
+
+
+def test_yolo_page_box_rejected() -> None:
+    # Sayfa-kadar kutu sahtekarlığı elenir (0.92 tavanı).
+    crop, raw = _yolo_crop()
+    assert _yolo_box_interior(crop, raw, [(1000, 2000, 1200, 2120)]) is None
+
+
+def test_yolo_provider_fail_open_without_download() -> None:
+    # Model yoksa indirme DENENMEZ, FileNotFoundError gelir.
+    from providers.detector.yolo8_bubble import YoloBubbleDetector
+
+    det = YoloBubbleDetector(model_path="yok/boyle/bir/model.pt")
+    try:
+        det.load()
+        raise AssertionError("yuklenmemeliydi")
+    except FileNotFoundError:
+        pass

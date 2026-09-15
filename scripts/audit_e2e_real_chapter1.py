@@ -174,6 +174,18 @@ def main() -> None:
     qwen_repair = QwenRepairProvider()
     translator = HyMT2GGUFTranslationProvider()
 
+    # A2 deneyi (varsayılan kapalı): YOLO_BUBBLE=1 ile YOLO-balon kutuları
+    # maske-kurucuya sınır olur. Model diskte yoksa hat aynen devam eder.
+    bubble_detector = None
+    if os.environ.get("YOLO_BUBBLE", "") == "1":
+        try:
+            from providers.detector.yolo8_bubble import YoloBubbleDetector
+
+            bubble_detector = YoloBubbleDetector()
+            print("[A2] YOLO-balon detektörü etkin.")
+        except Exception as exc:
+            print(f"[A2] YOLO-balon açılamadı, devam: {exc}")
+
     analyzer = ChapterAnalyzer()
     analyzer._cache.enabled = False
 
@@ -186,6 +198,7 @@ def main() -> None:
         verifier_ocr=verifier_ocr,
         qwen_repair=qwen_repair,
         translator=translator,
+        bubble_detector=bubble_detector,
     )
     elapsed = time.time() - t_start
 

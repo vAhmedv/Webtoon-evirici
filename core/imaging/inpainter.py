@@ -574,8 +574,9 @@ class Inpainter:
         lama_checkpoint: str | Path = DEFAULT_LAMA_CHECKPOINT,
         debug_dir: str | Path | None = None,
         context_scale: float = 1.7,
+        bubble_boxes: Sequence[tuple[int, int, int, int]] | None = None,
     ) -> None:
-        self.mask_builder = TextMaskBuilder(context_scale=context_scale)
+        self.mask_builder = TextMaskBuilder(context_scale=context_scale, bubble_boxes=bubble_boxes)
         self.lama = LaMaLargeInpainter(lama_checkpoint)
         self.debug_dir = Path(debug_dir) if debug_dir is not None else None
         self.debug_records: list[dict[str, Any]] = []

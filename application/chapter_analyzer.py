@@ -176,6 +176,7 @@ class ChapterAnalyzer:
         verifier_ocr: OCRProvider | None = None,
         qwen_repair: OCRRepairProvider | None = None,
         translator: TranslationProvider | None = None,
+        bubble_detector: DetectorProvider | None = None,
         window_height: int | None = None,
         window_overlap: int | None = None,
         min_confidence: float | None = None,
@@ -311,6 +312,45 @@ class ChapterAnalyzer:
             self._cache.save()
         finally:
             detector.unload()
+
+        # A2 YOLO-balon (opsiyonel): sayfa-düzey balon kutuları toplanır,
+        # maske-kurucuya sınır olarak verilir. None ise eski davranış.
+        # Başarısızlıkta CTD-tekil devam (indirme YOK, hata YOK).
+        yolo_bubble_boxes: list[tuple[int, int, int, int]] = []
+        if bubble_detector is not None:
+            try:
+                _progress("Loading bubble detector")
+                bubble_detector.load()
+                from PIL import Image as _PILImage
+
+                page_y = 0
+                for page in pages:
+                    if cancellation_token and cancellation_token.is_cancelled:
+                        raise CancelledError()
+                    with _PILImage.open(page.path) as p_img:
+                        p_img_rgb = p_img.convert("RGB")
+                        if p_img_rgb.width != page.width or p_img_rgb.height != page.height:
+                            p_img_rgb = p_img_rgb.resize(
+                                (page.width, page.height), _PILImage.Resampling.LANCZOS
+                            )
+                        for det in bubble_detector.detect(p_img_rgb, 0):
+                            yolo_bubble_boxes.append(
+                                (
+                                    det.bbox.x1,
+                                    det.bbox.y1 + page_y,
+                                    det.bbox.x2,
+                                    det.bbox.y2 + page_y,
+                                )
+                            )
+                    page_y += page.height
+            except Exception as exc:
+                logger.warning(f"YOLO-balon atlandı (CTD-tekil devam): {exc}")
+                yolo_bubble_boxes = []
+            finally:
+                try:
+                    bubble_detector.unload()
+                except Exception:
+                    pass
 
         # Merge duplicates
         regions = merge_duplicates(all_detections, min_confidence=conf)
@@ -784,6 +824,8 @@ class ChapterAnalyzer:
         }
         if cfg.inpainter.model:
             inpainter_kwargs["lama_checkpoint"] = cfg.inpainter.model
+        if yolo_bubble_boxes:
+            inpainter_kwargs["bubble_boxes"] = yolo_bubble_boxes
         inpainter = Inpainter(**inpainter_kwargs)
         t_inp_start = time.perf_counter()
         try:

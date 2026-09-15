@@ -21,6 +21,50 @@ def self_or_inverse(candidate: np.ndarray, predicted: np.ndarray) -> tuple[np.nd
     return (inverse_mask, inverse) if inverse < direct else (candidate, direct)
 
 
+def _yolo_box_interior(
+    crop_bbox: tuple[int, int, int, int],
+    raw: np.ndarray,
+    yolo_boxes: Sequence[tuple[int, int, int, int]] | None,
+) -> np.ndarray | None:
+    """YOLO-balon kutusundan kırpıntı-içi iç-maske (A2 yedeği).
+
+    Canny serbest-şekli kapatamadığında (sivri/patlak) YOLO kutusu sınır
+    olur: yazının yarısından çoğu kutudaysa, kutu kırpıntıya oranlıysa
+    (sayfa-kutusu sahteciliğine karşı 0.92 tavanı) içi doldurulur.
+    Kenar-sanat payı için 9x9 aşındırılır (çağıran ayrıca 3x3 aşındırır).
+    Bölüme-özel sayı yok; uymazsa None (eski davranış).
+    """
+    import cv2
+
+    if not yolo_boxes:
+        return None
+    x1, y1, x2, y2 = (int(v) for v in crop_bbox)
+    cw, ch = max(1, x2 - x1), max(1, y2 - y1)
+    raw_pixels = int(np.count_nonzero(np.asarray(raw) > 0))
+    if raw_pixels <= 0:
+        return None
+    best: np.ndarray | None = None
+    best_area: float = float("inf")
+    for gx1, gy1, gx2, gy2 in yolo_boxes:
+        lx1, ly1 = max(0, int(gx1) - x1), max(0, int(gy1) - y1)
+        lx2, ly2 = min(cw, int(gx2) - x1), min(ch, int(gy2) - y1)
+        if lx2 <= lx1 or ly2 <= ly1:
+            continue
+        box_area = float((lx2 - lx1) * (ly2 - ly1))
+        if box_area >= cw * ch * 0.92:
+            continue
+        inside = int(np.count_nonzero((np.asarray(raw) > 0)[ly1:ly2, lx1:lx2]))
+        if inside < raw_pixels * 0.5:
+            continue
+        if box_area < best_area:
+            filled = np.zeros_like(np.asarray(raw), dtype=np.uint8)
+            filled[ly1:ly2, lx1:lx2] = 255
+            best, best_area = filled, box_area
+    if best is None:
+        return None
+    return cv2.erode(best, np.ones((9, 9), np.uint8))
+
+
 def merge_xor_components(candidates: list[tuple[np.ndarray, int]], predicted: np.ndarray) -> np.ndarray:
     """Greedily admit connected components only when they improve predicted-mask XOR."""
     import cv2
@@ -90,8 +134,15 @@ class TextMask:
 class TextMaskBuilder:
     """Match CTD mask components to DBNet lines and refine only those components."""
 
-    def __init__(self, context_scale: float = 1.7) -> None:
+    def __init__(
+        self,
+        context_scale: float = 1.7,
+        bubble_boxes: Sequence[tuple[int, int, int, int]] | None = None,
+    ) -> None:
         self.context_scale = max(1.2, float(context_scale))
+        # A2: YOLO-balon kutuları (GLOBAL koordinat); Canny+yedek bulamazsa
+        # son şans olarak denenir. None = eski davranış.
+        self._yolo_boxes = list(bubble_boxes) if bubble_boxes else []
 
     def build_for_region(self, image: Image.Image | np.ndarray, region: Region) -> TextMask:
         return self._build(image, region.global_bbox, [region])
@@ -152,6 +203,10 @@ class TextMaskBuilder:
                 cv2.rectangle(raw, (rx1, ry1), (rx2, ry2), 255, -1)
 
         bubble = self._extract_bubble(source, raw)
+        if bubble is None and self._yolo_boxes:
+            yolo_hit = _yolo_box_interior((x1, y1, x2, y2), raw, self._yolo_boxes)
+            if yolo_hit is not None:
+                bubble = yolo_hit
         protected = self._protected_structures(source, raw, bubble)
         glyph, radius = self._upstream_refine(source, raw, segmentation, bubble)
         refined = glyph.copy()
