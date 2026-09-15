@@ -31,5 +31,6 @@ pytest==8.3.2
 # Ayrı dosyalara taşındı (istenirse tek tek kurun, env'i korumak için):
 #   pip install -r requirements-detector.txt  # ultralytics, onnxruntime-gpu, ...
 #   pip install -r requirements-ocr.txt       # paddleocr, rapidocr, transformers, ...
+#   pip install -r requirements-mining.txt    # sentence-transformers (yalnız av scriptleri)
 # LLM'ler harici llama-server binary kullanır (pip paketi yok):
 #   C:\AI\llama-cpp-cuda\llama-server.exe (bkz. config.yaml + core/system/ports.py)

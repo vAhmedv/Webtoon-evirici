@@ -9,6 +9,7 @@ from core.detection.text_block import TextBlock
 from core.imaging.inpainter import (
     Inpainter,
     _absorb_nearband_ink,
+    _absorb_nearblock_ink,
     _bubble_fill_safe,
     _catch_soft_halo,
     _coverage_min_area,
@@ -309,6 +310,43 @@ def test_fill_safe_needs_bubble() -> None:
     src = np.full((40, 40, 3), 255, dtype=np.uint8)
     ok, _ = _bubble_fill_safe(src, None)
     assert ok is False
+
+
+def _nearblock_fixture():
+    # Balonsuz düz kırpıntı: ana yazı + 10px ötede artığı + 45px ötede artığı.
+    h, w = 100, 220
+    source = np.full((h, w, 3), 255, dtype=np.uint8)
+    source[40:65, 80:160] = (0, 0, 0)    # ana yazı
+    source[40:60, 164:172] = (0, 0, 0)   # yakın artık (4px, 8x20=160px)
+    source[40:60, 205:213] = (0, 0, 0)   # uzak artık (45px)
+    refined = np.zeros((h, w), dtype=np.uint8)
+    refined[40:65, 80:160] = 255
+    return source, refined
+
+
+def test_nearblock_shard_absorbed() -> None:
+    src, ref = _nearblock_fixture()
+    grown = _absorb_nearblock_ink(src, ref, (255, 255, 255), 3)
+    added = (grown > 0) & ~(ref > 0)
+    assert int(np.count_nonzero(added[38:62, 163:173])) > 0
+
+
+def test_nearblock_far_shard_ignored() -> None:
+    src, ref = _nearblock_fixture()
+    grown = _absorb_nearblock_ink(src, ref, (255, 255, 255), 3)
+    added = (grown > 0) & ~(ref > 0)
+    assert int(np.count_nonzero(added[38:62, 204:214])) == 0
+
+
+def test_nearblock_art_band_ignored() -> None:
+    # Bantta gerçek sanat (güçlü varyasyon) varsa emme yok.
+    src, ref = _nearblock_fixture()
+    grad = np.tile(np.linspace(0, 120, ref.shape[1]).astype(np.uint8), (ref.shape[0], 1))
+    for c in range(3):
+        src[:, :, c] = np.clip(src[:, :, c].astype(int) - grad, 0, 255).astype(np.uint8)
+    grown = _absorb_nearblock_ink(src, ref, (255, 255, 255), 3)
+    added = (grown > 0) & ~(ref > 0)
+    assert int(np.count_nonzero(added[38:62, 163:173])) == 0
 
 
 def test_lama_mask_clipped_to_bubble() -> None:

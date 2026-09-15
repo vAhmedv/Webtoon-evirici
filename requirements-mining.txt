@@ -1,0 +1,9 @@
+# Webtoon Çevirici — Opsiyonel: kör-nokta avı (madencilik eleği)
+# YALNIZ av/QA scriptleri kullanır (boru-hattı bu pakete dokunmaz):
+#   .venv\Scripts\python.exe scripts/mine_blind_spots_v1.py --embed
+#   .venv\Scripts\python.exe scripts/score_mining_embed.py
+# torch/transformers ana + OCR dosyalarından gelir (burada tekrar YOK).
+# Ölçüm (RTX 5070): GPU ~1s/1400 çift, ~1.9GB VRAM; CPU kullanılamaz-yavaş.
+sentence-transformers==6.0.1
+scikit-learn==1.9.1
+scipy==1.17.1

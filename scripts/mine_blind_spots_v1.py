@@ -1,4 +1,4 @@
-"""V1 kör-nokta avı: cümleleri Hy-MT2'den geçir, otomatik eleklerle süz.
+r"""V1 kör-nokta avı: cümleleri Hy-MT2'den geçir, otomatik eleklerle süz.
 
 KULLANIM (arka plan):
     .venv\Scripts\python.exe scripts/mine_blind_spots_v1.py --limit 2500
@@ -9,6 +9,10 @@ Elekler (hepsi genel, dile-özel; bölüme-özel sayı YOK):
   J_uydurma: TR sözcük hunspell-tr'de YOK + kaynakta YOK (AMBİLGO sınıfı)
   J_sorry:   kaynakta SORRY + TR'de tek-başına özürüm/özürsün
   J_kinship: find_kinship_mismatch (akraba-anlam kayması)
+  J_embed:   --embed ile LaBSE kaynak-çeviri benzerliği < 0.55
+             (kalibrasyon: 703 çift ort=0.748 p5=0.560; kaba-anlam
+             kayması + boş çeviri yakalar, ince-rol hatasını YAKALAMAZ —
+             o kapalı listenin işi; GPU ister, boru-hattına girmez)
 """
 
 from __future__ import annotations
@@ -79,6 +83,15 @@ def judge_sorry(src: str, tr: str) -> bool:
     return bool(_SORRY_SRC_RE.search(src)) and bool(_SORRY_TR_RE.search(tr))
 
 
+# LaBSE kaba-anlam eşiği (kalibrasyon: 703 çift ort=0.748 p5=0.560).
+# Altı = boş/kaba-kayma çeviri adayı. İnce-rol hatasını YAKALAMAZ.
+EMBED_SIM_THRESHOLD = 0.55
+
+
+def judge_embed(sim: float) -> bool:
+    return sim < EMBED_SIM_THRESHOLD
+
+
 def collect_corpus(seeds_path: Path) -> list[str]:
     seen: set[str] = set()
     out: list[str] = []
@@ -120,6 +133,9 @@ def main() -> None:
     ap.add_argument("--chunk", type=int, default=16)
     ap.add_argument("--seeds", default="benchmark/mining_seeds_v1.txt")
     ap.add_argument("--outdir", default="scratch/mine_v1")
+    # --embed: LaBSE benzerlik eleği (GPU ister, boru-hattıyla yan yana
+    # gelmez; requirements-mining.txt). Kapalıysa sıfır ek bağımlılık.
+    ap.add_argument("--embed", action="store_true")
     args = ap.parse_args()
 
     outdir = ROOT / args.outdir
@@ -150,7 +166,16 @@ def main() -> None:
     model_name = getattr(getattr(tr_provider, "metrics", None), "translation_model", "unknown")
     print(f"[MINE] model={model_name}", flush=True)
 
-    counts = {"n": 0, "J_uydurma": 0, "J_sorry": 0, "J_kinship": 0, "sec": 0.0}
+    embedder = None
+    if args.embed:
+        import torch
+        from sentence_transformers import SentenceTransformer, util
+
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        embedder = (SentenceTransformer("sentence-transformers/LaBSE", device=device), util)
+        print(f"[MINE] embed=acik ({device}, esik={EMBED_SIM_THRESHOLD})", flush=True)
+
+    counts = {"n": 0, "J_uydurma": 0, "J_sorry": 0, "J_kinship": 0, "J_embed_low": 0, "sec": 0.0}
     t0 = time.time()
     try:
         with cand_path.open("a", encoding="utf-8") as fh:
@@ -165,6 +190,13 @@ def main() -> None:
                 )
                 tr_map = {it.region_id: (it.translation or "") for it in out.results}
                 counts["sec"] += time.time() - t1
+                sim_map: dict[int, float] = {}
+                if embedder is not None:
+                    model_e, util_e = embedder
+                    e = model_e.encode(batch + [tr_map.get(j + 1, "") for j in range(len(batch))],
+                                       batch_size=32, show_progress_bar=False)
+                    for j in range(len(batch)):
+                        sim_map[j + 1] = float(util_e.cos_sim(e[j], e[len(batch) + j]).item())
                 for j, s in enumerate(batch):
                     tr = tr_map.get(j + 1, "")
                     src_words = set(re.findall(r"[A-Za-z]+", s.casefold()))
@@ -179,13 +211,16 @@ def main() -> None:
                     if find_kinship_mismatch(s, tr):
                         flags["J_kinship"] = True
                         counts["J_kinship"] += 1
+                    if (j + 1) in sim_map and judge_embed(sim_map[j + 1]):
+                        flags["J_embed_low"] = round(sim_map[j + 1], 4)
+                        counts["J_embed_low"] += 1
                     rec = {"source": s, "tr": tr, "flags": flags, "model": model_name}
                     fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
                     counts["n"] += 1
                 fh.flush()
                 if counts["n"] % 50 == 0 or i + args.chunk >= len(todo):
                     el = round(time.time() - t0, 1)
-                    print(f"[MINE] {counts['n']}/{len(todo)} uydurma={counts['J_uydurma']} sorry={counts['J_sorry']} kin={counts['J_kinship']} {el}sn", flush=True)
+                    print(f"[MINE] {counts['n']}/{len(todo)} uydurma={counts['J_uydurma']} sorry={counts['J_sorry']} kin={counts['J_kinship']} embed={counts['J_embed_low']} {el}sn", flush=True)
     finally:
         try:
             tr_provider.unload()

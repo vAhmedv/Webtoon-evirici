@@ -419,6 +419,75 @@ def _fill_uniform_bubble_interior(    refined_mask: np.ndarray,
     return out
 
 
+def _absorb_nearblock_ink(
+    source_crop: np.ndarray,
+    refined_mask: np.ndarray,
+    background_color: tuple[int, int, int] | list[int],
+    dilation_radius: int = 3,
+) -> np.ndarray:
+    """Balonsuz kutuda kutuya-bitişik mürekkebi maskeye kat (2b).
+
+    Balon bulunamadığında (sivri/kenar-dayalı) S4'ün gördüğü yakın-artıklar
+    (IS/THE sınıfı) ne kapsamaya girer ne banda takılır — sayfada kalır.
+    Bu yedek, maske-kenar bandı TEKDÜZE ise (sanat yoksa) S4-aynalı
+    parçaları önden emer; çağrı sonrası düz-dolgu sürüyorsa kalır, yoksa
+    çağrıcı iade eder (LaMa-dev-maske YASAK). Yarıçap = S4'ün 8px'i +
+    yazı-boyuna-göre genleşme payı (dilation_radius) — yeni mutlak yok.
+    """
+    import cv2
+
+    base = np.asarray(refined_mask)
+    refined = (base > 0)
+    if not np.any(refined):
+        return base
+    radius = int(OUTSIDE_MAX_DIST_PX + max(0, dilation_radius))
+    # Bant, mesafe-yarıçapının TAMAMINI kapsar (2r+1): parça bütün
+    # ölçülür, kenardan-kırpık alan tabanı delinmez.
+    band = (cv2.dilate(refined.astype(np.uint8), np.ones((2 * radius + 1, 2 * radius + 1), np.uint8)) > 0) & (~refined)
+    if int(np.count_nonzero(band)) < 24:
+        return base
+    img = np.ascontiguousarray(source_crop)
+    bandpx = img[band].reshape(-1, 3).astype(np.float32)
+    med = np.median(bandpx, axis=0)
+    dev = np.max(np.abs(bandpx - med), axis=1)
+    clean = bandpx[dev < OUTSIDE_DARK_MARGIN]
+    if len(clean) < 24:
+        return base
+    if float(np.max(np.std(clean, axis=0))) > 14.0 or float(np.std(clean)) > 12.0:
+        return base
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY).astype(np.float32)
+    bg = float(np.dot(np.asarray(background_color, dtype=np.float32), [0.299, 0.587, 0.114]))
+    dark = ((bg - gray) >= OUTSIDE_DARK_MARGIN) & band
+    if int(np.count_nonzero(dark)) < OUTSIDE_MIN_COMPONENT_AREA:
+        return base
+    dist = cv2.distanceTransform((~refined).astype(np.uint8), cv2.DIST_L2, 3)
+    h, w = refined.shape[:2]
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(dark.astype(np.uint8), 8)
+    if count <= 1:
+        return base
+    grown = refined.copy()
+    labels = np.asarray(labels)
+    for idx in range(1, count):
+        comp_area = int(stats[idx, cv2.CC_STAT_AREA])
+        if comp_area < OUTSIDE_MIN_COMPONENT_AREA or comp_area > OUTSIDE_MAX_COMPONENT_AREA:
+            continue
+        bw = int(stats[idx, cv2.CC_STAT_WIDTH])
+        bh = int(stats[idx, cv2.CC_STAT_HEIGHT])
+        if bw > w // 3 or bh > h // 3:
+            continue
+        if min(bw, bh) <= 0 or max(bw, bh) / max(1, min(bw, bh)) > OUTSIDE_MAX_ASPECT:
+            continue
+        ys, xs = np.where(labels == idx)
+        if float(np.min(dist[ys, xs])) > radius:
+            continue
+        grown |= (labels == idx)
+    if not np.any(grown & (~refined)):
+        return base
+    out = np.zeros_like(base, dtype=np.uint8)
+    out[grown] = 255
+    return out
+
+
 def _absorb_nearband_ink(    source_crop: np.ndarray,
     refined_mask: np.ndarray,
     background_color: tuple[int, int, int] | list[int],
@@ -605,6 +674,24 @@ class Inpainter:
                     )
                     if not still_flat:
                         mask = replace(mask, refined=np.ascontiguousarray(original_refined))
+            # 2b balonsuz-kutu (genel): balon bulunamadığında S4-aynalı yakın
+            # mürekkep tekdüze-bantta emilir (IS/THE sınıfı). Balonlu kutular
+            # yukarıda halledilir (çift-çalışma yok). Düz-dolgu sürmezse iade.
+            if np.any(mask.refined) and not mask.bubble_found:
+                original_refined_2b = mask.refined
+                absorbed_2b = _absorb_nearblock_ink(
+                    mask.source,
+                    mask.refined,
+                    _bg_luma_tuple(mask.background_color),
+                    mask.dilation_radius,
+                )
+                if np.any((np.asarray(absorbed_2b) > 0) & ~(np.asarray(mask.refined) > 0)):
+                    mask = replace(mask, refined=np.ascontiguousarray(absorbed_2b))
+                    still_flat_2b, _ = self._can_use_flat_fill(
+                        mask.source, mask.refined, mask.bubble_interior
+                    )
+                    if not still_flat_2b:
+                        mask = replace(mask, refined=np.ascontiguousarray(original_refined_2b))
             # P2 kapsama-kapısı: maske mürekkebi kapsamıyorsa temizliğe
             # girilmez (B19 "MY" sınıfı) — piksel aynen durur, blok REVIEW.
             if np.any(mask.refined) and not _mask_coverage_ok(
