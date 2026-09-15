@@ -88,6 +88,7 @@ def _run_pipeline(tag: str, src: Path, shared: dict) -> float:
         verifier_ocr=shared["verifier_ocr"],
         qwen_repair=shared["qwen_repair"],
         translator=shared["translator"],
+        bubble_detector=shared.get("bubble_detector"),
     )
     return round(time.time() - t0, 2)
 
@@ -158,6 +159,17 @@ def main() -> None:
     }
     shared["translator"].load()
     print(f"[FAST] yukleme {round(time.time() - t_load, 1)} sn", flush=True)
+
+    # F6: YOLO-balon üretimde devrede (IS/THE düzeltmeleri mühürlensin).
+    # Model diskte yoksa None kalır — hat CTD-tekil koşar (fail-open).
+    shared["bubble_detector"] = None
+    try:
+        from providers.detector.yolo8_bubble import YoloBubbleDetector
+
+        shared["bubble_detector"] = YoloBubbleDetector()
+        print("[FAST] YOLO-balon hazir.", flush=True)
+    except Exception as exc:
+        print(f"[FAST] YOLO-balon yok (CTD-tekil): {exc}", flush=True)
 
     baseline = json.loads((ROOT / "benchmark" / "golden_baseline_v1.json").read_text(encoding="utf-8"))
     run_tag = os.environ.get("GOLDEN_TAG", "golden_f2_v1")
