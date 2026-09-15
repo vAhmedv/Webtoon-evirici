@@ -8,11 +8,15 @@ from core.detection import BBox, Region, RegionStatus, RegionType
 from core.detection.text_block import TextBlock
 from core.imaging.inpainter import (
     Inpainter,
+    _absorb_nearband_ink,
+    _bubble_fill_safe,
+    _catch_soft_halo,
     _coverage_min_area,
     _expand_refined_to_bubble_ink,
+    _fill_uniform_bubble_interior,
     _mask_coverage_ok,
 )
-from core.imaging.text_mask import TextMask
+from core.imaging.text_mask import TextMask, TextMaskBuilder
 
 
 def _story_member(rid, x1, y1, x2, y2):
@@ -46,8 +50,10 @@ def _uniform_mask_with_far_word():
 def test_coverage_min_area_scales_with_bubble() -> None:
     small = _coverage_min_area(60 * 120)
     big = _coverage_min_area(800 * 400)
+    huge = _coverage_min_area(10**6)
     assert small < big
-    assert small >= 80  # toz tabanı
+    assert small >= 100  # r3 dersi: eski davranış tabanı (daraltma yok)
+    assert huge == 300  # B19 boşluğu tavanı (toz 53 < 300 < M' 561)
     # B19 toz sınıfı (53px) küçük balonda bile veto üretmez.
     assert small > 53
 
@@ -123,3 +129,182 @@ def test_non_uniform_block_stays_review() -> None:
             inpainter.inpaint_blocks(canvas, [block])
     assert 78 in inpainter.review_block_ids
     assert inpainter.review_causes.get(78) == "coverage"
+
+
+def _halo_fixture():
+    # Düz beyaz balon: ana yazı + bitişik soluk hale + uzak soluk toz.
+    h, w = 80, 200
+    source = np.full((h, w, 3), 255, dtype=np.uint8)
+    source[30:55, 80:160] = (0, 0, 0)       # ana yazı
+    source[28:30, 80:160] = (225, 225, 225)  # bitişik soluk hale (30 kontrast)
+    source[5:8, 10:40] = (230, 230, 230)     # uzak soluk toz (alınmamalı)
+    refined = np.zeros((h, w), dtype=np.uint8)
+    refined[30:55, 80:160] = 255
+    bubble = np.full((h, w), 255, dtype=np.uint8)
+    return source, refined, bubble
+
+
+def test_soft_halo_near_mask_is_caught() -> None:
+    src, ref, bub = _halo_fixture()
+    grown = _catch_soft_halo(src, ref, (255, 255, 255), bub)
+    added = (grown > 0) & ~(ref > 0)
+    assert int(np.count_nonzero(added[27:30, 80:160])) > 0
+
+
+def test_soft_halo_far_dust_is_ignored() -> None:
+    src, ref, bub = _halo_fixture()
+    grown = _catch_soft_halo(src, ref, (255, 255, 255), bub)
+    added = (grown > 0) & ~(ref > 0)
+    assert int(np.count_nonzero(added[4:9, 8:42])) == 0
+
+
+def test_soft_halo_needs_bubble() -> None:
+    src, ref, _ = _halo_fixture()
+    assert np.array_equal(_catch_soft_halo(src, ref, (255, 255, 255), None), ref)
+
+
+def _rect_box_fixture():
+    # Eksen-paralel anlatım kutusu: siyah çerçeve + içte yazı.
+    import cv2
+
+    h, w = 120, 200
+    source = np.full((h, w, 3), 255, dtype=np.uint8)
+    cv2.rectangle(source, (20, 10), (180, 110), (0, 0, 0), 2)
+    source[40:60, 50:150] = (0, 0, 0)  # yazı
+    raw = np.zeros((h, w), dtype=np.uint8)
+    raw[40:60, 50:150] = 255
+    return source, raw
+
+
+def test_rect_box_found_when_canny_misses() -> None:
+    src, raw = _rect_box_fixture()
+    bubble = TextMaskBuilder._extract_bubble(src, raw)
+    assert bubble is not None and bool(np.any(bubble))
+    # Yazı balonun içinde kalır.
+    assert int(np.count_nonzero((raw > 0) & (bubble == 0))) == 0
+
+
+def test_chamfered_octagon_box_found() -> None:
+    # Köşesi kesik anlatım kutusu (TODAY sınıfı: 8 köşe).
+    import cv2
+
+    h, w = 120, 220
+    src = np.full((h, w, 3), 255, dtype=np.uint8)
+    pts = np.array([[40, 10], [180, 10], [200, 30], [200, 90], [180, 110], [40, 110], [20, 90], [20, 30]], np.int32)
+    cv2.polylines(src, [pts], True, (0, 0, 0), 2)
+    src[45:75, 60:160] = (0, 0, 0)
+    raw = np.zeros((h, w), dtype=np.uint8)
+    raw[45:75, 60:160] = 255
+    bubble = TextMaskBuilder._extract_bubble(src, raw)
+    assert bubble is not None and bool(np.any(bubble))
+    assert int(np.count_nonzero((raw > 0) & (bubble == 0))) == 0
+
+
+def test_no_box_no_bubble() -> None:
+    src = np.full((60, 100, 3), 255, dtype=np.uint8)
+    src[20:40, 30:70] = (0, 0, 0)
+    raw = np.zeros((60, 100), dtype=np.uint8)
+    raw[20:40, 30:70] = 255
+    assert TextMaskBuilder._extract_bubble(src, raw) is None
+
+
+def test_tight_frame_fallback_stays_quiet() -> None:
+    # Yazıya-yapışık çerçeve: YEDEK sessiz kalır (ana yolun eski davranışı
+    # aynen durur; bu test yalnız yedeği bağlar).
+    import cv2
+
+    h, w = 60, 100
+    src = np.full((h, w, 3), 255, dtype=np.uint8)
+    cv2.rectangle(src, (28, 18), (72, 42), (0, 0, 0), 1)
+    src[22:38, 32:68] = (0, 0, 0)
+    raw = np.zeros((h, w), dtype=np.uint8)
+    raw[22:38, 32:68] = 255
+    blurred = cv2.GaussianBlur(src, (3, 3), 0)
+    edges = cv2.Canny(blurred, 70, 140, L2gradient=True)
+    edges = cv2.dilate(edges, np.ones((3, 3), np.uint8))
+    edges[raw > 0] = 0
+    cv2.rectangle(edges, (0, 0), (w - 1, h - 1), 255, 1)
+    contours, _ = cv2.findContours(edges, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
+    tp = cv2.findNonZero(raw)
+    assert TextMaskBuilder._extract_rectangular_box(src, raw, contours, tp) is None
+
+
+def _nearband_fixture():
+    # Düz balon: ana maske + 4px ötede 8x20 artığı + 30px ötede artığı.
+    h, w = 80, 200
+    source = np.full((h, w, 3), 255, dtype=np.uint8)
+    source[30:55, 80:140] = (0, 0, 0)    # ana yazı
+    source[30:50, 144:152] = (0, 0, 0)   # yakın artık (4px, 8x20=160px)
+    source[30:50, 175:183] = (0, 0, 0)   # uzak artık (35px)
+    refined = np.zeros((h, w), dtype=np.uint8)
+    refined[30:55, 80:140] = 255
+    bubble = np.full((h, w), 255, dtype=np.uint8)
+    return source, refined, bubble
+
+
+def test_nearband_shard_absorbed() -> None:
+    src, ref, bub = _nearband_fixture()
+    grown = _absorb_nearband_ink(src, ref, (255, 255, 255), bub)
+    added = (grown > 0) & ~(ref > 0)
+    assert int(np.count_nonzero(added[28:52, 143:153])) > 0
+
+
+def test_nearband_far_shard_ignored() -> None:
+    src, ref, bub = _nearband_fixture()
+    grown = _absorb_nearband_ink(src, ref, (255, 255, 255), bub)
+    added = (grown > 0) & ~(ref > 0)
+    assert int(np.count_nonzero(added[28:52, 174:184])) == 0
+
+
+def test_nearband_needs_bubble() -> None:
+    src, ref, _ = _nearband_fixture()
+    assert np.array_equal(_absorb_nearband_ink(src, ref, (255, 255, 255), None), ref)
+
+
+def test_uniform_interior_fill_covers_all_ink() -> None:
+    # Düz balonda uzak kelime + hale + bant artığı: hepsi maskeye girer.
+    h, w = 80, 220
+    source = np.full((h, w, 3), 255, dtype=np.uint8)
+    source[8:20, 20:50] = (0, 0, 0)      # uzak kelime
+    source[38:52, 90:170] = (0, 0, 0)    # ana yazı
+    source[36:38, 90:170] = (225, 225, 225)  # hale
+    refined = np.zeros((h, w), dtype=np.uint8)
+    refined[38:52, 90:170] = 255
+    bubble = np.zeros((h, w), dtype=np.uint8)
+    bubble[4:76, 10:210] = 255
+    grown = _fill_uniform_bubble_interior(refined, bubble)
+    assert int(np.count_nonzero((grown > 0)[8:20, 20:50])) > 0
+    assert int(np.count_nonzero((grown > 0)[36:38, 90:170])) > 0
+    # Çerçeve payı korunur (7x7 aşındırma): en dış 3px boyanmaz.
+    assert int(np.count_nonzero((grown > 0)[0:3, :])) == 0
+    assert int(np.count_nonzero((grown > 0)[:, 0:8])) == 0
+
+
+def test_uniform_interior_fill_needs_bubble() -> None:
+    ref = np.zeros((40, 40), dtype=np.uint8)
+    ref[10:20, 10:20] = 255
+    assert np.array_equal(_fill_uniform_bubble_interior(ref, None), ref)
+
+
+def test_fill_safe_passes_white_box() -> None:
+    src = np.full((80, 200, 3), 255, dtype=np.uint8)
+    src[30:55, 80:140] = (0, 0, 0)
+    bub = np.full((80, 200), 255, dtype=np.uint8)
+    ok, color = _bubble_fill_safe(src, bub)
+    assert ok is True
+    assert color == (255, 255, 255)
+
+
+def test_fill_safe_fails_gradient() -> None:
+    src = np.zeros((80, 200, 3), dtype=np.uint8)
+    for c in range(3):
+        src[:, :, c] = np.tile(np.linspace(0, 200, 200).astype(np.uint8), (80, 1))
+    bub = np.full((80, 200), 255, dtype=np.uint8)
+    ok, _ = _bubble_fill_safe(src, bub)
+    assert ok is False
+
+
+def test_fill_safe_needs_bubble() -> None:
+    src = np.full((40, 40, 3), 255, dtype=np.uint8)
+    ok, _ = _bubble_fill_safe(src, None)
+    assert ok is False

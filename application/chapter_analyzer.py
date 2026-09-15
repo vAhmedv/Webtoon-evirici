@@ -51,12 +51,14 @@ ProgressCallback = Callable[[ProgressEvent], None]
 
 # ÖLÜMCÜL çeviri guard'ları: bu bayraklardan birini taşıyan blok sessizce
 # basılmaz — failed sayılır, bölgesi REVIEW olur (İngilizce korunur).
-# numbering_inconsistent (P1-B kanıtlı satır-kayma) + dropped_* (F2 ad-düşürme).
+# numbering_inconsistent (P1-B kanıtlı satır-kayma) + dropped_* (F2 ad-düşürme)
+# + name_glue (ad-yapışma) + kinship_ambiguous (akıcı-ama-yanlış akrabalık).
 _FATAL_TRANSLATION_WARNINGS = frozenset({
     "numbering_inconsistent",
     "dropped_number_token",
     "dropped_content_token",
     "name_glue",
+    "kinship_ambiguous",
 })
 
 

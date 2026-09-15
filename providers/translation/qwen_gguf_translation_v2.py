@@ -26,6 +26,7 @@ from core.translation.protection import (
     contains_unrestored_protected_term,
     detect_named_terms_in_items,
     find_dropped_source_tokens,
+    find_kinship_mismatch,
     find_name_glue,
     has_untranslated_source_prose,
     is_term_only_source,
@@ -522,6 +523,12 @@ class QwenGGUFTranslationProviderV2(TranslationProvider):
                     warnings.append(code)
             # Madde 2: ad-yapışma (kesmesiz ek / ad-bozulması).
             for code in find_name_glue(item.source, restored, protected_sources):
+                if code not in warnings:
+                    warnings.append(code)
+            # Akraba-anlam kayması (akıcı-ama-yanlış: PARENTS->Aile,
+            # SISTER->kızı). Yumuşak değil ÖLÜMCÜL: yanlış anlam en ağır
+            # sınıf (S0 katman-4) — İngilizce durur, REVIEW kararı analyzer'ın.
+            for code in find_kinship_mismatch(item.source, restored):
                 if code not in warnings:
                     warnings.append(code)
 

@@ -117,6 +117,21 @@ def post_process_turkish_translation(translated_text: str, source_text: str) -> 
     t = re.sub(r"Şaka\s+yapıyor\s+olmalısınız", "Şaka yapıyor olmalısın!", t, flags=re.IGNORECASE)
     t = re.sub(r"Şaka\s+yapıyorsunuz\s+olmalı", "Şaka yapıyor olmalısın!", t, flags=re.IGNORECASE)
 
+    # SORRY tabanı (sistematik model sürçmesi): "I'M SORRY" bazen "ben
+    # özürüm" (ben = özür) diye çıkar; doğrusu "özür dilerim". YALNIZ
+    # kaynakta SORRY geçiyorsa dokunulur ("özrüm kabul edilmedi" gibi
+    # meşru özne-kullanımlar ezilmez; "özrümü" ayrı biçim, eşleşmez).
+    if re.search(r"(?<![A-Za-z])SORRY(?![A-Za-z])", source_text or "", re.IGNORECASE):
+        def _sorry_fix(m: re.Match) -> str:
+            base = "Özür dilersin" if m.group(1).lower() == "n" else "Özür dilerim"
+            return base if m.group(0)[0].isupper() else base.lower()
+
+        t = re.sub(
+            r"(?<![A-Za-zÇĞİÖŞÜçğıöşü])[Öö]z[üuU]r[üuU](m|n)(?![A-Za-zÇĞİÖŞÜçğıöşü])",
+            _sorry_fix,
+            t,
+        )
+
     return t.strip()
 
 

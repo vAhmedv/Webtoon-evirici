@@ -198,7 +198,7 @@ _KINSHIP_TR_STEMS = {
     "sister": ("kızkardeş", "kız kardeş", "kardeş", "abla", "bacı"),
     "brother": ("erkekkardeş", "erkek kardeş", "kardeş", "abi", "ağabey", "agabey"),
     "daughter": ("kız", "evlat"),
-    "son": ("oğl", "ogl", "evlat"),
+    "son": ("oğu", "oğl", "ogl", "evlat"),
 }
 
 

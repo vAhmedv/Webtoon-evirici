@@ -210,8 +210,104 @@ class TextMaskBuilder:
                 continue
             best, best_area = candidate, area
         if best is None:
-            return None
+            best = TextMaskBuilder._extract_rectangular_box(source, raw, contours, text_points)
+            if best is None:
+                return None
         return cv2.erode(best, np.ones((3, 3), np.uint8))
+
+    @staticmethod
+    def _extract_rectangular_box(
+        source: np.ndarray,
+        raw: np.ndarray,
+        contours: Sequence,
+        text_points,
+    ) -> np.ndarray | None:
+        """Yedek: dikdörtgen anlatım kutusu (Canny serbest-şekli bulamazsa).
+
+        Anlatım kutuları eksen-paralel dikdörtgendir; serbest kontur araması
+        kırpıntı-kenarına dayanan kutuları eler. Bu yedek YALNIZ dörtgen,
+        dışbükey, dik-açılı, yazıyı kapsayan, alanı ham-mürekkebe ve kırpıntıya
+        GÖRELİ sınırlı adayları kabul eder — ÜSTELİK çerçeve-kanıtı ister
+        (kenar pikselleri sayfa-zemininden ayrışmalı; yazıya-yapışık sahte
+        kutular elenir). Bölüme-özel sayı yok; bulunamazsa None.
+        """
+        import cv2
+        import math
+
+        h, w = raw.shape[:2]
+        raw_pixels = int(np.count_nonzero(raw))
+        if raw_pixels <= 0:
+            return None
+        gray = cv2.cvtColor(np.ascontiguousarray(source), cv2.COLOR_RGB2GRAY).astype(np.float32)
+        corner = np.concatenate([
+            gray[:5, :5].ravel(), gray[:5, -5:].ravel(),
+            gray[-5:, :5].ravel(), gray[-5:, -5:].ravel(),
+        ])
+        page_bg = float(np.median(corner))
+        tx, ty, tw, th = cv2.boundingRect(text_points)
+        best, best_area = None, float(h * w)
+        for contour in contours:
+            peri = cv2.arcLength(contour, True)
+            if peri <= 0:
+                continue
+            approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
+            # Dörtgen + pah-köşeli kutular (4-8 köşe): webtoon anlatım
+            # kutuları genelde köşesi kesik sekizgendir.
+            if not (4 <= len(approx) <= 8) or not cv2.isContourConvex(approx):
+                continue
+            pts = [tuple(int(v) for v in corner.ravel()) for corner in approx]
+            ok_angles = True
+            for i in range(len(pts)):
+                x0, y0 = pts[i]
+                x1, y1 = pts[(i + 1) % len(pts)]
+                x2, y2 = pts[(i + 2) % len(pts)]
+                v1 = (x0 - x1, y0 - y1)
+                v2 = (x2 - x1, y2 - y1)
+                n1 = math.hypot(*v1)
+                n2 = math.hypot(*v2)
+                if n1 <= 0 or n2 <= 0:
+                    ok_angles = False
+                    break
+                # İç-açı ~70°..180°: dik (90°) + pah (135°) geçer,
+                # sivri (<70°) elenir.
+                if (v1[0] * v2[0] + v1[1] * v2[1]) / (n1 * n2) > 0.35:
+                    ok_angles = False
+                    break
+            if not ok_angles:
+                continue
+            x, y, cw, ch = cv2.boundingRect(approx)
+            if x > tx or y > ty or x + cw < tx + tw or y + ch < ty + th:
+                continue
+            area = float(cw * ch)
+            # Gerçek kutunun payı olur: yazıya-yapışık dörtgen (kenar
+            # gürültüsü) elenir; üst sınır kırpıntı-çerçeve sahtesini eler.
+            if area <= raw_pixels * 2.0 or area >= h * w * 0.92 or area >= best_area:
+                continue
+            # Çerçeve-kanıtı: dört kenar sayfa-zemininden ayrışmalı. Aday,
+            # şişirilmiş Canny'den geldiği için gerçek çizginin birkaç px
+            # dışında kalabilir — her örnekte 7x7 pencereye bakılır.
+            edge_hit, edge_total = 0, 0
+            for i in range(len(pts)):
+                x0, y0 = pts[i]
+                x1, y1 = pts[(i + 1) % len(pts)]
+                steps = max(abs(x1 - x0), abs(y1 - y0), 1)
+                for s_i in range(0, steps + 1, max(1, steps // 60)):
+                    ex = min(w - 1, max(0, x0 + round((x1 - x0) * s_i / steps)))
+                    ey = min(h - 1, max(0, y0 + round((y1 - y0) * s_i / steps)))
+                    edge_total += 1
+                    x1w, x2w = max(0, ex - 3), min(w, ex + 4)
+                    y1w, y2w = max(0, ey - 3), min(h, ey + 4)
+                    win = gray[y1w:y2w, x1w:x2w]
+                    if win.size and float(np.count_nonzero(np.abs(win - page_bg) >= 40)) / win.size >= 0.2:
+                        edge_hit += 1
+            if edge_total <= 0 or edge_hit / edge_total < 0.35:
+                continue
+            candidate = np.zeros_like(raw)
+            cv2.drawContours(candidate, [approx], -1, 255, -1)
+            if np.count_nonzero((raw > 0) & (candidate == 0)):
+                continue
+            best, best_area = candidate, area
+        return best
 
     @staticmethod
     def _protected_structures(source: np.ndarray, raw: np.ndarray, bubble: np.ndarray | None) -> np.ndarray:

@@ -186,13 +186,18 @@ def _outside_mask_text(
 # zerreler veto üretmesin. Taban 80px (B19 toz 53px altı kalır).
 COVERAGE_MIN_COMPONENT_AREA = 100
 COVERAGE_MIN_FRACTION = 0.5
-COVERAGE_AREA_FLOOR = 80
+# Balon-göreli gevşeme (B19 toz sınıfı korunur): büyük balonda toz veto
+# üretmesin. Taban ESKİ 100 (küçük balonda davranış birebir aynı — daraltma
+# YOK, r3 dersi: tabanı düşürmek veto artırır). Tavan 300: B19-ölçümlü boşluk
+# (toz 53 < 300 < M' 561) — gerçek parça büyük balonda da veto yer.
+COVERAGE_AREA_FLOOR = 100
 COVERAGE_AREA_RATIO = 0.002
+COVERAGE_AREA_CEIL = 300
 
 
 def _coverage_min_area(bubble_pixels: int) -> int:
     """Balon büyüklüğüne göre en-küçük mürekkep alanı (genel, oranlı)."""
-    return max(COVERAGE_AREA_FLOOR, int(round(bubble_pixels * COVERAGE_AREA_RATIO)))
+    return max(COVERAGE_AREA_FLOOR, min(COVERAGE_AREA_CEIL, int(round(bubble_pixels * COVERAGE_AREA_RATIO))))
 
 
 def _bg_luma_tuple(background_color) -> tuple[int, int, int]:
@@ -295,6 +300,176 @@ def _expand_refined_to_bubble_ink(
     return out
 
 
+# Yumuşak-hale eşiği (zemin-bağıl): bileşen filtresinden kaçan
+# kenar-yumuşatma pikselleri. 40'lık glif eşiğinin altında, ama düz
+# zeminde hâlâ kir (hayalet/bulanık kenar). YALNIZ tekdüze balonda.
+SOFT_HALO_MARGIN = 12
+
+
+def _catch_soft_halo(
+    source_crop: np.ndarray,
+    refined_mask: np.ndarray,
+    background_color: tuple[int, int, int] | list[int],
+    bubble_interior: np.ndarray | None,
+) -> np.ndarray:
+    """Düz balonda maske-kenarındaki soluk hale piksellerini maskeye kat.
+
+    Bileşen-kurtarma (40 kontrast + alan süzgeci) uzak mürekkebi alır;
+    bu, YAKINDAKİ soluk kenarları (yumuşatma/gölge, 12+ kontrast) toplar.
+    Sınır maske-boyutuna göre (oranlı), yalnızca maskeye BAĞLI bileşenler
+    alınır (uzak toz asla). Renk-bağıl, boyut-oranlı, bölüm-sayısı yok.
+    """
+    import cv2
+
+    base = np.asarray(refined_mask)
+    refined = (base > 0)
+    if not np.any(refined) or bubble_interior is None:
+        return base
+    area = (np.asarray(bubble_interior) > 0)
+    if not np.any(area):
+        return base
+    gray = cv2.cvtColor(np.ascontiguousarray(source_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
+    bg = float(np.dot(np.asarray(background_color, dtype=np.float32), [0.299, 0.587, 0.114]))
+    soft = (np.abs(gray - bg) >= SOFT_HALO_MARGIN) & area & (~refined)
+    min_add = max(8, int(round(int(np.count_nonzero(refined)) * 0.001)))
+    if int(np.count_nonzero(soft)) < min_add:
+        return base
+    h, w = refined.shape[:2]
+    k = min(32, max(8, int(round(max(h, w) * 0.08))))
+    bound = cv2.dilate(refined.astype(np.uint8), np.ones((k, k), np.uint8)) > 0
+    cand = (refined | (soft & bound)).astype(np.uint8)
+    count, labels = cv2.connectedComponents(cand, 8)[:2]
+    if count <= 1:
+        return base
+    seed_labels = set(np.unique(np.asarray(labels)[refined]))
+    seed_labels.discard(0)
+    if not seed_labels:
+        return base
+    kept = np.isin(np.asarray(labels), list(seed_labels))
+    if not np.any(kept & (~refined)):
+        return base
+    out = np.zeros_like(base, dtype=np.uint8)
+    out[kept] = 255
+    return out
+
+
+def _bubble_fill_safe(
+    source_crop: np.ndarray,
+    bubble_interior: np.ndarray | None,
+) -> tuple[bool, tuple[int, int, int]]:
+    """Balon-içi düz-dolguya uygun mu (balon-geneli sertifika)?
+
+    r5 dersi: maske-istatistiği (is_uniform, std<=9) metin-yoğun kutuda
+    haksız veto verir; oysa can_flat (düz-dolguyu seçen kapı) True'dur.
+    Bu sertifika balonun TAMAMINI ölçer (mürekkep hariç): tekdüzeyse düz
+    dolgu görsel no-op'tur — maske ne kadar büyürse büyüsün güvenlidir.
+    Eşikler mevcut kapıların aynısı (14/12/20/40; yeni mutlak sayı yok).
+    """
+    import cv2
+
+    if bubble_interior is None:
+        return False, (255, 255, 255)
+    area = (np.asarray(bubble_interior) > 0)
+    if int(np.count_nonzero(area)) < 24:
+        return False, (255, 255, 255)
+    img = np.ascontiguousarray(source_crop)
+    med = np.median(img[area].reshape(-1, 3).astype(np.float32), axis=0)
+    dev = np.max(np.abs(img.reshape(-1, 3).astype(np.float32) - med), axis=1).reshape(img.shape[:2])
+    bgpx = img[(area) & (dev < OUTSIDE_DARK_MARGIN)]
+    if len(bgpx) < 24:
+        return False, (255, 255, 255)
+    std_rgb = np.std(bgpx, axis=0)
+    if float(np.max(std_rgb)) > 14.0 or float(np.std(bgpx)) > 12.0:
+        return False, (255, 255, 255)
+    distances = np.linalg.norm(bgpx.astype(np.float32) - med, axis=1)
+    if float(np.percentile(distances, 90)) > 20:
+        return False, (255, 255, 255)
+    median_color = tuple(int(round(v)) for v in med)
+    median_color = (median_color[0], median_color[1], median_color[2]) if len(median_color) == 3 else (255, 255, 255)
+    return True, median_color
+
+
+def _fill_uniform_bubble_interior(    refined_mask: np.ndarray,
+    bubble_interior: np.ndarray | None,
+) -> np.ndarray:
+    """Tekdüze balonun içini maskeye kat (düz-dolgu ile temizlenecek).
+
+    Bileşen-kurtarma uzak mürekkebi, hale-yakalama kenarları, bant-emme
+    yakın parçaları alır; ama S4'ün gördüğü (genişlemiş maskeye ≤8px)
+    artıklar aradan kaçabilir. Tekdüze zeminde EN GENEL çözüm: için TAMAMINI
+    maskelemek — düz-dolgu tekdüze pikseli aynen yazar (görsel no-op),
+    mürekkep pikseli zemin rengine döner. Balon-çizgisi korunur (içerik
+    7x7 aşındırılır). Çağıran kapı ÇİFT kilit ister: is_uniform (balon-geneli
+    örneklemeli) VE can_flat — yoksa LaMa devasa maskeyle çağrılırdı.
+    """
+    import cv2
+
+    base = np.asarray(refined_mask)
+    if bubble_interior is None:
+        return base
+    area = (np.asarray(bubble_interior) > 0)
+    if not np.any(area):
+        return base
+    safe = cv2.erode(area.astype(np.uint8), np.ones((7, 7), np.uint8)) > 0
+    grown = (base > 0) | safe
+    if not np.any(grown & ~(base > 0)):
+        return base
+    out = np.zeros_like(base, dtype=np.uint8)
+    out[grown] = 255
+    return out
+
+
+def _absorb_nearband_ink(    source_crop: np.ndarray,
+    refined_mask: np.ndarray,
+    background_color: tuple[int, int, int] | list[int],
+    bubble_interior: np.ndarray | None,
+) -> np.ndarray:
+    """Düz balonda S4-bant mürekkebini veto yerine maskeye kat (ön-emme).
+
+    S4 (maske-dışı bant) maskeye ≤8px, 100..4000px, oranı ≤6 parçayı veto
+    eder (B19 "M'" sınıfı). Düz zeminde bu parçalar zararsızca silinebilir:
+    veto yerine maskeye katılır, düz-dolgu temizler. Sanatlı balonda ASLA
+    çalışmaz (çağıran kapı tekdüzelik ister). S4'ün kendi eşikleri aynen
+    kullanılır (yeni mutlak sayı yok), karar SAMİMİ: veto→temizlik.
+    """
+    import cv2
+
+    base = np.asarray(refined_mask)
+    refined = (base > 0)
+    if not np.any(refined) or bubble_interior is None:
+        return base
+    area = (np.asarray(bubble_interior) > 0)
+    if not np.any(area):
+        return base
+    gray = cv2.cvtColor(np.ascontiguousarray(source_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
+    bg = float(np.dot(np.asarray(background_color, dtype=np.float32), [0.299, 0.587, 0.114]))
+    dark = ((bg - gray) >= OUTSIDE_DARK_MARGIN) & area & (~refined)
+    if int(np.count_nonzero(dark)) < OUTSIDE_MIN_COMPONENT_AREA:
+        return base
+    dist = cv2.distanceTransform((~refined).astype(np.uint8), cv2.DIST_L2, 3)
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(dark.astype(np.uint8), 8)
+    if count <= 1:
+        return base
+    grown = refined.copy()
+    for idx in range(1, count):
+        comp_area = int(stats[idx, cv2.CC_STAT_AREA])
+        if comp_area < OUTSIDE_MIN_COMPONENT_AREA or comp_area > OUTSIDE_MAX_COMPONENT_AREA:
+            continue
+        w = int(stats[idx, cv2.CC_STAT_WIDTH])
+        h = int(stats[idx, cv2.CC_STAT_HEIGHT])
+        if min(w, h) <= 0 or max(w, h) / max(1, min(w, h)) > OUTSIDE_MAX_ASPECT:
+            continue
+        comp = (np.asarray(labels) == idx)
+        if float(np.min(dist[comp])) > OUTSIDE_MAX_DIST_PX:
+            continue
+        grown |= comp
+    if not np.any(grown & (~refined)):
+        return base
+    out = np.zeros_like(base, dtype=np.uint8)
+    out[grown] = 255
+    return out
+
+
 class Inpainter:
     """Removes source glyphs while preserving every pixel outside the refined mask."""
 
@@ -360,18 +535,49 @@ class Inpainter:
                 self.review_block_ids.add(block_id)
                 self.review_causes[block_id] = "empty_mask"
             debug_name = f"block_{getattr(block, 'id', len(self.debug_records) + len(prepared) + 1):04d}"
-            # Düz-balon kurtarma (genel): tekdüze zeminde maske-dışı mürekkep
-            # maskeye katılır (uzak küçük kelimeler). Sanatlı balonda ASLA
-            # çalışmaz (is_uniform False ise atlanır). Sonrası aynı kapı.
-            if np.any(mask.refined) and mask.bubble_found and mask.is_uniform_background:
-                recovered = _expand_refined_to_bubble_ink(
-                    mask.source,
-                    mask.refined,
-                    _bg_luma_tuple(mask.background_color),
-                    mask.bubble_interior,
-                )
-                if np.any((np.asarray(recovered) > 0) & ~(np.asarray(mask.refined) > 0)):
-                    mask = replace(mask, refined=np.ascontiguousarray(recovered))
+            # Düz-balon kurtarma (genel): sertifikalı-tekdüze zeminde maske-dışı
+            # mürekkep maskeye katılır (uzak küçük kelimeler, hale, bant).
+            # Sanatlı balonda ASLA çalışmaz (sertifika yoksa atlanır).
+            # Sonrası aynı kapı; büyümüş maske düz-dolguyu kaybederse iade.
+            if np.any(mask.refined) and mask.bubble_found:
+                fill_safe, _ = _bubble_fill_safe(mask.source, mask.bubble_interior)
+                if fill_safe:
+                    original_refined = mask.refined
+                    filled = _fill_uniform_bubble_interior(mask.refined, mask.bubble_interior)
+                    if np.any((np.asarray(filled) > 0) & ~(np.asarray(mask.refined) > 0)):
+                        mask = replace(mask, refined=np.ascontiguousarray(filled))
+                    recovered = _expand_refined_to_bubble_ink(
+                        mask.source,
+                        mask.refined,
+                        _bg_luma_tuple(mask.background_color),
+                        mask.bubble_interior,
+                    )
+                    if np.any((np.asarray(recovered) > 0) & ~(np.asarray(mask.refined) > 0)):
+                        mask = replace(mask, refined=np.ascontiguousarray(recovered))
+                    halo_caught = _catch_soft_halo(
+                        mask.source,
+                        mask.refined,
+                        _bg_luma_tuple(mask.background_color),
+                        mask.bubble_interior,
+                    )
+                    if np.any((np.asarray(halo_caught) > 0) & ~(np.asarray(mask.refined) > 0)):
+                        mask = replace(mask, refined=np.ascontiguousarray(halo_caught))
+                    band_absorbed = _absorb_nearband_ink(
+                        mask.source,
+                        mask.refined,
+                        _bg_luma_tuple(mask.background_color),
+                        mask.bubble_interior,
+                    )
+                    if np.any((np.asarray(band_absorbed) > 0) & ~(np.asarray(mask.refined) > 0)):
+                        mask = replace(mask, refined=np.ascontiguousarray(band_absorbed))
+                    # LaMa-sigortası: büyümüş maske düz-dolguyu kaybederse
+                    # (ilerideki _apply_mask LaMa'ya düşerdi) büyüme iade —
+                    # dev LaMa maskesi YASAK.
+                    still_flat, _ = self._can_use_flat_fill(
+                        mask.source, mask.refined, mask.bubble_interior
+                    )
+                    if not still_flat:
+                        mask = replace(mask, refined=np.ascontiguousarray(original_refined))
             # P2 kapsama-kapısı: maske mürekkebi kapsamıyorsa temizliğe
             # girilmez (B19 "MY" sınıfı) — piksel aynen durur, blok REVIEW.
             if np.any(mask.refined) and not _mask_coverage_ok(
