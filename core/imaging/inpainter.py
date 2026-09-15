@@ -470,6 +470,33 @@ def _absorb_nearband_ink(    source_crop: np.ndarray,
     return out
 
 
+def _lama_mask_for(
+    base_mask: np.ndarray,
+    bubble_interior: np.ndarray | None = None,
+) -> np.ndarray:
+    """LaMa maskesi: genişlet + balonla-kırp + kenar-yumuşat (B).
+
+    Kırpma: maske balon-dışına taşamaz (sanat-bulaşma biter; veto yönünde
+    güvenli — kaçıran kapı REVIEW verir, kir basılmaz). Yumuşatma: 3x3
+    bulanık + eşik (ayak-izi ~aynı, sert halka kenarı yumuşar).
+    """
+    import cv2
+
+    kh = lama_kernel_for_height(base_mask.shape[0])
+    grown = cv2.dilate(
+        np.asarray(base_mask), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kh, kh))
+    )
+    if bubble_interior is not None and np.any(bubble_interior):
+        grown = (
+            np.logical_and(np.asarray(grown) > 0, np.asarray(bubble_interior) > 0)
+            .astype(np.uint8)
+            * 255
+        )
+    soft = cv2.GaussianBlur(grown, (3, 3), 0)
+    _, out = cv2.threshold(soft, 128, 255, cv2.THRESH_BINARY)
+    return out
+
+
 class Inpainter:
     """Removes source glyphs while preserving every pixel outside the refined mask."""
 
@@ -599,9 +626,7 @@ class Inpainter:
                 continue
             can_flat, _ = self._can_use_flat_fill(mask.source, mask.refined, mask.bubble_interior)
             if not can_flat and not mask.is_uniform_background:
-                import cv2
-                _kh = lama_kernel_for_height(mask.refined.shape[0])
-                lama_mask = cv2.dilate(mask.refined, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (_kh, _kh)))
+                lama_mask = _lama_mask_for(mask.refined, mask.bubble_interior)
                 lama_jobs.append((idx, mask.source, lama_mask))
 
         precomputed_crops: dict[int, np.ndarray] = {}
@@ -660,9 +685,7 @@ class Inpainter:
             inpainted_crop = precomputed_crop
             method = "lama_large"
         else:
-            import cv2
-            _kh = lama_kernel_for_height(text_mask.refined.shape[0])
-            lama_mask = cv2.dilate(text_mask.refined, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (_kh, _kh)))
+            lama_mask = _lama_mask_for(text_mask.refined, text_mask.bubble_interior)
             inpainted_crop = self.lama.inpaint(text_mask.source, lama_mask)
             method = "lama_large"
 
@@ -689,9 +712,7 @@ class Inpainter:
                 inpainted_crop = text_mask.source.copy()
                 inpainted_crop[refined] = np.asarray(text_mask.background_color, dtype=np.uint8)
             else:
-                import cv2
-                _kh = lama_kernel_for_height(expanded.shape[0])
-                lama_expanded = cv2.dilate(expanded, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (_kh, _kh)))
+                lama_expanded = _lama_mask_for(expanded, text_mask.bubble_interior)
                 inpainted_crop = self.lama.inpaint(text_mask.source, lama_expanded)
         review = self._has_boundary_residual(text_mask, inpainted_crop)
         review_cause: str | None = "boundary" if review else None

@@ -14,6 +14,7 @@ from core.imaging.inpainter import (
     _coverage_min_area,
     _expand_refined_to_bubble_ink,
     _fill_uniform_bubble_interior,
+    _lama_mask_for,
     _mask_coverage_ok,
 )
 from core.imaging.text_mask import TextMask, TextMaskBuilder
@@ -308,3 +309,27 @@ def test_fill_safe_needs_bubble() -> None:
     src = np.full((40, 40, 3), 255, dtype=np.uint8)
     ok, _ = _bubble_fill_safe(src, None)
     assert ok is False
+
+
+def test_lama_mask_clipped_to_bubble() -> None:
+    base = np.zeros((60, 120), dtype=np.uint8)
+    base[10:50, 10:110] = 255
+    bub = np.zeros((60, 120), dtype=np.uint8)
+    bub[10:50, 10:60] = 255  # balon yalnız sol yarı
+    out = _lama_mask_for(base, bub)
+    assert int(np.count_nonzero((out > 0)[:, 61:])) == 0
+    assert int(np.count_nonzero((out > 0)[:, :60])) > 0
+
+
+def test_lama_mask_footprint_preserved_without_bubble() -> None:
+    import cv2
+
+    base = np.zeros((120, 160), dtype=np.uint8)
+    base[30:90, 40:120] = 255
+    out = _lama_mask_for(base, None)
+    from core.imaging.inpainter import lama_kernel_for_height
+
+    kh = lama_kernel_for_height(120)
+    plain = cv2.dilate(base, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kh, kh)))
+    diff = abs(int(np.count_nonzero(out)) - int(np.count_nonzero(plain)))
+    assert diff / max(1, int(np.count_nonzero(plain))) < 0.05
