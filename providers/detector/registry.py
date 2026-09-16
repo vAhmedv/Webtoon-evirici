@@ -26,11 +26,6 @@ class DetectorRegistry:
             self.register("ComicTextDetector", ComicTextDetector, status="experimental")
         except Exception:
             pass
-        try:
-            from providers.detector.yolo8_comic import Yolo8ComicTextDetector
-            self.register("YOLOv8 Comic Text Segmenter", Yolo8ComicTextDetector, status="stable/default")
-        except Exception:
-            pass
 
     def register(self, name: str, factory: Callable[[], DetectorProvider], status: str = "stable") -> None:
         self._providers[name] = factory

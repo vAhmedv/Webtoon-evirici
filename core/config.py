@@ -184,7 +184,7 @@ def validate_config(cfg: Config) -> list[str]:
     if not 0.0 <= cfg.min_confidence <= 1.0:
         problems.append(f"min_confidence must be in [0,1] (got {cfg.min_confidence})")
 
-    known_detectors = {"ComicTextDetector", "YOLOv8 Comic Text Segmenter", "DummyDetector"}
+    known_detectors = {"ComicTextDetector", "DummyDetector"}
     if cfg.detector.provider not in known_detectors:
         problems.append(
             f"Unknown detector.provider {cfg.detector.provider!r}. "

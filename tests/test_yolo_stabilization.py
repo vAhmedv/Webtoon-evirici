@@ -18,7 +18,6 @@ from core.detection.coordinate import window_bbox_to_global
 from core.detection.merge import merge_duplicates
 from core.serialization.serializer import detection_to_dict, dict_to_detection, region_to_dict, dict_to_region
 from providers.detector.registry import get_registry
-from providers.detector.yolo8_comic import Yolo8ComicTextDetector
 from gui.main_window import MainWindow
 from gui.workers.analysis_worker import AnalysisWorker
 
@@ -149,84 +148,9 @@ class TestPageBoundaryCrossing:
         assert global_bbox.y1 < 5000 < global_bbox.y2
 
 
-# ---------------------------------------------------------------------------
-# 4. YOLO provider tests
-# ---------------------------------------------------------------------------
-
-class TestYoloProvider:
-    """YOLOv8 provider davranışı."""
-
-    def test_provider_name(self) -> None:
-        det = Yolo8ComicTextDetector("/nonexistent/path")
-        assert det.name == "YOLOv8 Comic Text Segmenter"
-
-    def test_missing_model_raises(self) -> None:
-        det = Yolo8ComicTextDetector("/nonexistent/path")
-        with pytest.raises(FileNotFoundError):
-            det.load()
-
-    @pytest.mark.skipif(not _has_yolo_model(), reason="YOLO model not available")
-    def test_yolo_outputs_local_coordinates(self) -> None:
-        """YOLO provider window-local bbox üretmeli."""
-        det = Yolo8ComicTextDetector()
-        det.load()
-        img = Image.new("RGB", (1024, 1024), (255, 255, 255))
-        draw = ImageDraw.Draw(img)
-        draw.text((100, 200), "Hello", fill=(0, 0, 0))
-        draw.rectangle((50, 400, 300, 500), outline=(0, 0, 0), width=3)
-
-        detections = det.detect(img, window_id=0)
-        det.unload()
-
-        assert len(detections) > 0
-        for d in detections:
-            assert d.bbox.x1 >= 0
-            assert d.bbox.y1 >= 0
-            assert d.bbox.x2 <= img.width
-            assert d.bbox.y2 <= img.height
-            assert d.source_window_id == 0
-            assert d.type == RegionType.UNKNOWN
-
-    @pytest.mark.skipif(not _has_yolo_model(), reason="YOLO model not available")
-    def test_yolo_mask_presence(self) -> None:
-        """YOLO segmentation mask/polygon korunmalı."""
-        det = Yolo8ComicTextDetector()
-        det.load()
-        img = Image.new("RGB", (1024, 1024), (255, 255, 255))
-        draw = ImageDraw.Draw(img)
-        draw.text((100, 200), "Hello", fill=(0, 0, 0))
-
-        detections = det.detect(img, window_id=0)
-        det.unload()
-
-        masked = [d for d in detections if d.metadata.get("polygon") is not None]
-        assert len(masked) > 0
-        for d in masked:
-            poly = d.metadata["polygon"]
-            assert len(poly) >= 3
-            assert all(len(p) == 2 for p in poly)
-
-    @pytest.mark.skipif(not _has_yolo_model(), reason="YOLO model not available")
-    def test_yolo_confidence_threshold_is_single_source_of_truth(self) -> None:
-        """YOLO confidence threshold tek source of truth'tur: provider.confidence_threshold."""
-        det = Yolo8ComicTextDetector()
-        det.load()
-        img = Image.new("RGB", (1024, 1024), (255, 255, 255))
-        draw = ImageDraw.Draw(img)
-        draw.text((100, 200), "Hello", fill=(0, 0, 0))
-
-        # threshold=0.5 → tüm detections >= 0.5
-        det.confidence_threshold = 0.5
-        detections_05 = det.detect(img, window_id=0)
-        assert all(d.confidence >= 0.5 for d in detections_05)
-
-        # threshold=0.3 → >=0.3 detection'lar gelebilir ve count artar
-        det.confidence_threshold = 0.3
-        detections_03 = det.detect(img, window_id=0)
-        assert all(d.confidence >= 0.3 for d in detections_03)
-        assert len(detections_03) >= len(detections_05)
-
-        det.unload()
+# NOT: YOLOv8 metin-segmenter provider'ı kaldırıldı (2026-09-16; hatta
+# bağlı değildi, yalnızca deneyde kullanılıyordu). Koordinat/poligon
+# regresyonları provider-bağımsız bölümlerde yaşamaya devam eder.
 
 
 # ---------------------------------------------------------------------------
@@ -271,11 +195,6 @@ class TestSerialization:
 
 class TestRegistry:
     """Provider registry durumu."""
-
-    def test_yolo_status_is_stable(self) -> None:
-        registry = get_registry()
-        if "YOLOv8 Comic Text Segmenter" in registry.list_providers():
-            assert registry.get_status("YOLOv8 Comic Text Segmenter") == "stable/default"
 
     def test_ctd_status_is_experimental(self) -> None:
         registry = get_registry()

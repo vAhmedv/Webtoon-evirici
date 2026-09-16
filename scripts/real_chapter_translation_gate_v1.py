@@ -42,7 +42,7 @@ from core.translation.semantic_context import (
     resolve_controlled_bridge_with_fallback,
 )
 from core.translation.series_profile import SeriesProfile
-from providers.detector.yolo8_comic import Yolo8ComicTextDetector
+from providers.detector.ctd import ComicTextDetector
 from providers.ocr.agreement import decide_ocr_agreement
 from providers.ocr.base import OCRLine, OCRResult
 from providers.ocr.paddleocr import PaddleOCRProvider
@@ -165,7 +165,7 @@ def is_noise_or_sfx(text: str) -> tuple[bool, str]:
 def extract_real_chapter_dataset() -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     print("\n--- PHASE 1: Real Chapter Image Loading, Detection & OCR Extraction ---")
 
-    detector = Yolo8ComicTextDetector()
+    detector = ComicTextDetector()
     detector.load()
 
     ocr_primary = PaddleOCRVLOcrProvider()

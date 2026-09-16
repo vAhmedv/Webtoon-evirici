@@ -17,11 +17,6 @@ MODELS = {
         "sha256": "1f90fa60aeeb1eb82e2ac1167a66bf139a8a61b8780acd351ead55268540cccb",
         "filename": "comictextdetector.pt",
     },
-    "yolo8_comic": {
-        "url": "https://huggingface.co/ogkalu/comic-text-segmenter-yolov8m/resolve/main/comic-text-segmenter.pt",
-        "sha256": None,
-        "filename": "comic-text-segmenter.pt",
-    },
 }
 
 
