@@ -269,6 +269,7 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
             (batch_raw, batch_raw, False),
             ("Ejderha tek basina geldi.", "Ejderha tek basina geldi.", False),
             ("[1] Kos!", "[1] Kos!", False),
+            ("Ejderha tek basina geldi.", "Ejderha tek basina geldi.", False),
         ])
         out = provider.translate(TranslationInput(items=[
             TranslationItem(1, long_src, 1),
@@ -278,7 +279,7 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertIn("tek basina", by_id[1].translation)
         self.assertEqual(by_id[2].translation, "Kos!")
         self.assertFalse(by_id[2].requires_review)
-        self.assertEqual(mocked.call_count, 3)  # batch + single + mini-verify
+        self.assertEqual(mocked.call_count, 4)  # batch + single + mini-verify + dropped-rötuş
 
     def test_extreme_length_ratio_triggers_single_retry(self):
         src_a = "THE OLD KING SLOWLY WALKED HOME"
@@ -288,6 +289,8 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         provider, mocked = self._batch_provider([
             (batch_raw, batch_raw, False),
             ("Kisa ve dogru.", "Kisa ve dogru.", False),
+            ("Kisa ve dogru.", "Kisa ve dogru.", False),
+            ("Genc kralice sessizce ayrildi.", "Genc kralice sessizce ayrildi.", False),
         ])
         out = provider.translate(TranslationInput(items=[
             TranslationItem(1, src_a, 1),
@@ -296,13 +299,14 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         by_id = {r.region_id: r for r in out.results}
         self.assertEqual(by_id[1].translation, "Kisa ve dogru.")
         self.assertNotIn(essay.strip()[:20], by_id[1].translation)
-        self.assertEqual(mocked.call_count, 2)  # batch + single, verify skipped (no fragile)
+        self.assertEqual(mocked.call_count, 4)  # batch + single + 2 dropped-rötuş
 
     def test_verify_agree_keeps_batch_result(self):
         batch_raw = "[1] Hemen git!\n[2] Kral sessizce dinledi."
         provider, mocked = self._batch_provider([
             (batch_raw, batch_raw, False),
             ("[1] Hemen git!", "[1] Hemen git!", False),
+            ("Kral sessizce dinledi.", "Kral sessizce dinledi.", False),
         ])
         out = provider.translate(TranslationInput(items=[
             TranslationItem(1, "GO NOW!", 1),
@@ -311,7 +315,7 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         by_id = {r.region_id: r for r in out.results}
         self.assertEqual(by_id[1].translation, "Hemen git!")
         self.assertFalse(by_id[1].requires_review)
-        self.assertEqual(mocked.call_count, 2)  # batch + mini, no single tiebreak
+        self.assertEqual(mocked.call_count, 3)  # batch + mini + dropped-rötuş
 
     def test_swap_pair_disagreement_flags_both_review(self):
         # 259/260 imzası: bitişik iki kırılgan, oranlar zıt-uçlu (1.7 / 0.3).
@@ -348,6 +352,7 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
             (mini_raw, mini_raw, False),
             ("Hicbir fikrim yok.", "Hicbir fikrim yok.", False),
             ("Bunu bu sefer yapacagim.", "Bunu bu sefer yapacagim.", False),
+            ("Kral dinledi.", "Kral dinledi.", False),
         ])
         out = provider.translate(TranslationInput(items=[
             TranslationItem(1, "HAS NO IDEA YET.", 1),
@@ -357,8 +362,8 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         by_id = {r.region_id: r for r in out.results}
         self.assertFalse(by_id[1].requires_review)
         self.assertFalse(by_id[2].requires_review)
-        # batch + mini; oranlar normal olduğu için tekil kontrol açılmaz
-        self.assertEqual(mocked.call_count, 2)
+        # batch + mini + cılız-oranlı 3. öğeye dropped-rötuş (sonuç aynı kirli)
+        self.assertEqual(mocked.call_count, 3)
 
     def test_hedge_lone_item_verified(self):
         long_src = "THE OLD KING QUIETLY LISTENED FOR A WHILE TODAY"
@@ -384,6 +389,7 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
             (batch_raw, batch_raw, False),
             ("[1] Farkli cevap!", "[1] Farkli cevap!", False),
             ("Selam ver!", "Selam ver!", False),
+            ("Kral sessizce dinledi.", "Kral sessizce dinledi.", False),
         ])
         out = provider.translate(TranslationInput(items=[
             TranslationItem(1, "GO NOW!", 1),
@@ -394,7 +400,7 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertTrue(by_id[1].requires_review)
         self.assertIn("numbering_inconsistent", by_id[1].validation_warnings)
         self.assertEqual(by_id[2].translation, "Kral sessizce dinledi.")
-        self.assertEqual(mocked.call_count, 3)  # batch + mini + single
+        self.assertEqual(mocked.call_count, 4)  # batch + mini + single + dropped-rötuş
 
 
     def test_merge_pair_long_short_flags_both_review(self):
@@ -542,6 +548,46 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertIn("name_glue", res.validation_warnings)
         self.assertTrue(res.requires_review)
         self.assertEqual(mocked.call_count, 1)
+
+    # --- G2: yalnız-dropped rötuşu (tekil izolasyon) ---
+
+    def test_dropped_only_single_retry_recovers_clean(self):
+        # Batch'te buharlaşan öğe tekilde temiz dönerse kullanılır.
+        src1 = "ALRIGHT, I THINK I'VE GOT THE HANG OF THIS AND THEN WE MARCH HOME"
+        src2 = "THE OLD KING QUIETLY LISTENED FOR A WHILE"
+        batch_raw = "[1] Pekala, bunu hallettik sanirim.\n[2] Yasli kral bir sure sessizce dinledi."
+        single_clean = "Pekala, sanirim isi cozdum ve sonra eve yuruyoruz."
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+            (single_clean, single_clean, False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, src1, 1),
+            TranslationItem(2, src2, 2),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertEqual(by_id[1].translation, single_clean)
+        self.assertFalse(by_id[1].requires_review)
+        self.assertNotIn("dropped_content_token", by_id[1].validation_warnings)
+        self.assertEqual(mocked.call_count, 2)  # batch + rötuş
+
+    def test_dropped_retry_keeps_review_when_single_still_dirty(self):
+        # Tekil de kirliyse REVIEW durur (sessiz basılmaz).
+        src1 = "ALRIGHT, I THINK I'VE GOT THE HANG OF THIS AND THEN WE MARCH HOME"
+        src2 = "THE OLD KING QUIETLY LISTENED FOR A WHILE"
+        batch_raw = "[1] Tamam.\n[2] Yasli kral bir sure sessizce dinledi."
+        provider, mocked = self._batch_provider([
+            (batch_raw, batch_raw, False),
+            ("Tamam.", "Tamam.", False),
+        ])
+        out = provider.translate(TranslationInput(items=[
+            TranslationItem(1, src1, 1),
+            TranslationItem(2, src2, 2),
+        ]))
+        by_id = {r.region_id: r for r in out.results}
+        self.assertTrue(by_id[1].requires_review)
+        self.assertIn("dropped_content_token", by_id[1].validation_warnings)
+        self.assertEqual(mocked.call_count, 2)  # batch + rötuş denemesi
 
 
 if __name__ == "__main__":

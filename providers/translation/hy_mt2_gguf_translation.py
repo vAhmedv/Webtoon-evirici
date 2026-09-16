@@ -956,6 +956,50 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
             amended[orig_k] = (s_res, s_raw, s_trace)
         return amended
 
+    # Dropped-tekil rötuş (G2): ölümcül bayrağı YALNIZCA dropped_* olan öğe
+    # tekil izolasyonda yeniden sorulur; temiz dönerse kullanılır, yoksa
+    # REVIEW durur (sessiz basılmaz). P1-B tiebreak deseninin aynısı:
+    # kanıta-dayalı, chunk-başı tavanlı. numbering_inconsistent/name_glue/
+    # kinship katılmaz (hüküm verilmiş ya da ayrı sınıf).
+    _RETRY_DROPPED_MAX_PER_CHUNK = 4
+    _RETRY_DROPPED_FATAL = frozenset({
+        "numbering_inconsistent",
+        "dropped_number_token",
+        "dropped_content_token",
+        "name_glue",
+        "kinship_ambiguous",
+    })
+
+    def _retry_dropped_only(
+        self,
+        chunk_label: str,
+        temp_chunk_results: list,
+        non_bypass: list,
+    ) -> list:
+        """Yalnız-dropped bayraklı öğeleri tekil çağrıyla rötuşla."""
+        amended = list(temp_chunk_results)
+        retried = 0
+        for _pos, (orig_k, it, pr) in enumerate(non_bypass):
+            if retried >= self._RETRY_DROPPED_MAX_PER_CHUNK:
+                break
+            res, _raw, _trace = amended[orig_k]
+            fatal = set(getattr(res, "validation_warnings", []) or []) & self._RETRY_DROPPED_FATAL
+            if not fatal or not fatal <= self._DROPPED_ONLY_FLAGS:
+                continue
+            retried += 1
+            logger.info(
+                "Hy-MT2 %s item %s dropped-retry (flags=%s); single isolation",
+                chunk_label,
+                it.region_id,
+                sorted(fatal),
+            )
+            s_res, s_raw, s_trace = self._process_single_prepared_item(it, pr)
+            s_fatal = set(getattr(s_res, "validation_warnings", []) or []) & self._RETRY_DROPPED_FATAL
+            if not s_fatal and (s_res.translation or "").strip():
+                amended[orig_k] = (s_res, s_raw, s_trace)
+            # else: tekil de kirli/boş → REVIEW durur.
+        return amended
+
     def translate(self, inp: TranslationInput, chunk_size: int = 32) -> TranslationOutput:
         if not self.is_loaded:
             self.load()
@@ -1119,6 +1163,9 @@ class HyMT2GGUFTranslationProvider(QwenGGUFTranslationProviderV2):
                     f"batch_{i // chunk_size}", temp_chunk_results, non_bypass
                 )
                 temp_chunk_results = self._verify_merge_pairs(
+                    f"batch_{i // chunk_size}", temp_chunk_results, non_bypass
+                )
+                temp_chunk_results = self._retry_dropped_only(
                     f"batch_{i // chunk_size}", temp_chunk_results, non_bypass
                 )
                 for res, raw, trace in temp_chunk_results:
