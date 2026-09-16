@@ -180,6 +180,67 @@ def _outside_mask_text(
     return False
 
 
+def _outside_mask_boxes(
+    source_crop: np.ndarray,
+    inpainted_crop: np.ndarray,
+    refined_mask: np.ndarray,
+    background_color: tuple[int, int, int] | list[int],
+    bubble_interior: np.ndarray | None = None,
+) -> list[tuple[int, int, int, int]]:
+    """_outside_mask_text ile AYNI kapılardan geçen bileşenlerin kutuları.
+
+    Kırpıntı-içi (x1, y1, x2, y2) döndürür; kapı mantığı tek kaynaktır
+    (bool sürüm bu listedeki ilk elemanın varlığına bakar).
+    """
+    import cv2
+
+    refined = (np.asarray(refined_mask) > 0)
+    if not np.any(refined):
+        return []
+    h, w = refined.shape[:2]
+    src_gray = cv2.cvtColor(np.ascontiguousarray(source_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
+    out_gray = cv2.cvtColor(np.ascontiguousarray(inpainted_crop), cv2.COLOR_RGB2GRAY).astype(np.float32)
+    bg = float(np.dot(np.asarray(background_color, dtype=np.float32), [0.299, 0.587, 0.114]))
+    leftover = ((bg - out_gray >= OUTSIDE_DARK_MARGIN)
+                & (bg - src_gray >= OUTSIDE_DARK_MARGIN)
+                & (~refined))
+    if bubble_interior is not None:
+        leftover &= (np.asarray(bubble_interior) > 0)
+    if int(np.count_nonzero(leftover)) < OUTSIDE_MIN_COMPONENT_AREA:
+        return []
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(leftover.astype(np.uint8), 8)
+    if count <= 1:
+        return []
+    dist = cv2.distanceTransform((~refined).astype(np.uint8), cv2.DIST_L2, 3)
+    src_light = src_gray >= bg - 25
+    ring_kernel = np.ones((11, 11), np.uint8)
+    labels = np.asarray(labels)
+    boxes: list[tuple[int, int, int, int]] = []
+    for idx in range(1, count):
+        area = int(stats[idx, cv2.CC_STAT_AREA])
+        if not (OUTSIDE_MIN_COMPONENT_AREA <= area <= OUTSIDE_MAX_COMPONENT_AREA):
+            continue
+        bw = int(stats[idx, cv2.CC_STAT_WIDTH])
+        bh = int(stats[idx, cv2.CC_STAT_HEIGHT])
+        if bw > w // 3 or bh > h // 3:
+            continue
+        if max(bw, bh) / max(1, min(bw, bh)) > OUTSIDE_MAX_ASPECT:
+            continue
+        ys, xs = np.where(labels == idx)
+        if dist[ys, xs].min() > OUTSIDE_MAX_DIST_PX:
+            continue
+        comp = (labels == idx).astype(np.uint8)
+        ring = (cv2.dilate(comp, ring_kernel) > 0) & (comp == 0)
+        if int(np.count_nonzero(ring)) == 0:
+            continue
+        light_frac = float(np.count_nonzero(src_light & (ring > 0))) / float(np.count_nonzero(ring))
+        if light_frac >= OUTSIDE_MIN_LIGHT_FRAC:
+            x = int(stats[idx, cv2.CC_STAT_LEFT])
+            y = int(stats[idx, cv2.CC_STAT_TOP])
+            boxes.append((x, y, x + bw, y + bh))
+    return boxes
+
+
 # P2 kapsama-kapısı sabitleri: her mürekkep parçasının en az yarısı
 # maskede olmalı, yoksa temizliğe girilmez (B19 "MY" sınıfı).
 # Alan eşiği balon-göreli: küçük balonda toz veto üretmesin, büyükte
@@ -584,6 +645,10 @@ class Inpainter:
         self.review_block_ids: set[int] = set()
         # Madde 3: REVIEW'a düşüren alt-sebep (forensik; sebep string'i sabit).
         self.review_causes: dict[int, str] = {}
+        # Artık-kutu tesisatı (ölçüm): boundary/outside sebepli bloklarda
+        # kalan artığın global kutuları — render-kapsama kurtarması için.
+        # Davranış değiştirmez (yalnız kayıt).
+        self.review_residual_boxes: dict[int, list[list[int]]] = {}
         self.last_text_mask: TextMask | None = None
 
     def unload(self) -> None:
@@ -838,6 +903,22 @@ class Inpainter:
                 _bid = int(debug_name.removeprefix("block_"))
                 self.review_block_ids.add(_bid)
                 self.review_causes[_bid] = review_cause or "unknown"
+                if review_cause in ("boundary", "outside"):
+                    # Artık-kutu kaydı (ölçüm): global koordinatta.
+                    _ox, _oy = int(text_mask.crop_bbox[0]), int(text_mask.crop_bbox[1])
+                    if review_cause == "boundary":
+                        _crop_boxes = self._boundary_residual_boxes(text_mask, inpainted_crop)
+                    else:
+                        _crop_boxes = _outside_mask_boxes(
+                            text_mask.source, inpainted_crop, text_mask.refined,
+                            _bg, text_mask.bubble_interior,
+                        )
+                    _global_boxes = [
+                        [_ox + bx1, _oy + by1, _ox + bx2, _oy + by2]
+                        for bx1, by1, bx2, by2 in _crop_boxes
+                    ]
+                    if _global_boxes:
+                        self.review_residual_boxes[_bid] = _global_boxes
             except ValueError:
                 pass
 
@@ -1140,21 +1221,42 @@ class Inpainter:
     def _has_boundary_residual(cls, text_mask: TextMask, result: np.ndarray) -> bool:
         import cv2
 
+        return len(cls._boundary_residual_boxes(text_mask, result)) > 0
+
+    @classmethod
+    def _boundary_residual_boxes(cls, text_mask: TextMask, result: np.ndarray) -> list[tuple[int, int, int, int]]:
+        """_has_boundary_residual ile AYNI kapı; geçen bileşenlerin kutuları.
+
+        Kırpıntı-içi (x1, y1, x2, y2) döndürür. Kapı mantığı tek kaynaktır.
+        """
+        import cv2
+
         candidates = cls._residual_candidates(text_mask, result)
         total_residual = int(np.count_nonzero(candidates))
         if total_residual < 2:
-            return False
+            return []
         outside_raw = candidates & (text_mask.raw == 0)
         outside_count = int(np.count_nonzero(outside_raw))
         if outside_count < 2:
-            return False
-        count, labels, stats, _ = cv2.connectedComponentsWithStats(outside_raw, 8)
+            return []
+        count, _labels, stats, _ = cv2.connectedComponentsWithStats(outside_raw, 8)
         if count <= 1:
-            return False
+            return []
         areas = stats[1:, cv2.CC_STAT_AREA]
         large_components = int(np.sum(areas >= 10))
         total_components = count - 1
-        return large_components >= 1 and total_components <= 10
+        if not (large_components >= 1 and total_components <= 10):
+            return []
+        boxes: list[tuple[int, int, int, int]] = []
+        for idx in range(1, count):
+            if int(stats[idx, cv2.CC_STAT_AREA]) < 10:
+                continue
+            x = int(stats[idx, cv2.CC_STAT_LEFT])
+            y = int(stats[idx, cv2.CC_STAT_TOP])
+            w = int(stats[idx, cv2.CC_STAT_WIDTH])
+            h = int(stats[idx, cv2.CC_STAT_HEIGHT])
+            boxes.append((x, y, x + w, y + h))
+        return boxes
 
     def _save_debug(
         self,

@@ -15,6 +15,7 @@ from core.imaging.inpainter import (
     GHOST_MIN_COMPONENT_AREA,
     Inpainter,
     _mask_coverage_ok,
+    _outside_mask_boxes,
     _outside_mask_text,
     lama_kernel_for_height,
 )
@@ -489,3 +490,63 @@ def test_review_cause_recorded_for_coverage() -> None:
             inpainter.inpaint_blocks(canvas, [block])
     assert 43 in inpainter.review_block_ids
     assert inpainter.review_causes.get(43) == "coverage"
+
+
+def _boundary_fixture() -> tuple[np.ndarray, "TextMask"]:
+    """Kenar-artığı: maske bitişiği koyu parça (ham-zarf dışı)."""
+    from core.imaging.text_mask import TextMask
+
+    source = np.full((40, 40, 3), 255, dtype=np.uint8)
+    source[8:22, 20:24] = (0, 0, 0)  # 14x4 artık, refined'e bitişik
+    refined = np.zeros((40, 40), dtype=np.uint8)
+    refined[10:20, 10:20] = 255
+    mask = TextMask(
+        (0, 0, 40, 40), source.copy(), refined.copy(), refined,
+        (255, 255, 255), True, dilation_radius=2,
+    )
+    return source, mask
+
+
+def test_boundary_residual_boxes_match_gate() -> None:
+    """Kutu yardımcısı kapıyla aynı hükmü verir (tek kaynak)."""
+    source, mask = _boundary_fixture()
+    boxes = Inpainter._boundary_residual_boxes(mask, source)
+    assert boxes == [(20, 9, 21, 21)]
+    assert Inpainter._has_boundary_residual(mask, source) is True
+
+
+def test_boundary_boxes_empty_on_clean() -> None:
+    source = np.full((40, 40, 3), 255, dtype=np.uint8)
+    _, mask = _boundary_fixture()
+    assert Inpainter._boundary_residual_boxes(mask, source) == []
+    assert Inpainter._has_boundary_residual(mask, source) is False
+
+
+def test_outside_boxes_mirror_bool_gate() -> None:
+    """Bant kutuları bool kapıyla aynı bileşeni verir."""
+    base_mask = np.zeros((60, 120), dtype=np.uint8)
+    base_mask[10:50, 60:110] = 255
+    near = np.full((60, 120, 3), 255, dtype=np.uint8)
+    near[20:40, 48:56] = (0, 0, 0)
+    assert _outside_mask_boxes(near, near, base_mask, (255, 255, 255)) == [(48, 20, 56, 40)]
+    far = np.full((60, 120, 3), 255, dtype=np.uint8)
+    far[20:40, 10:18] = (0, 0, 0)
+    assert _outside_mask_boxes(far, far, base_mask, (255, 255, 255)) == []
+
+
+def test_apply_mask_records_residual_boxes_global() -> None:
+    """_apply_mask artık kutuları global koordinatta kaydeder (ölçüm)."""
+    from core.imaging.text_mask import TextMask
+
+    arr = np.full((60, 120, 3), 255, dtype=np.uint8)
+    arr[20:40, 62:108] = (0, 0, 0)
+    arr[20:40, 48:56] = (0, 0, 0)
+    raw = np.zeros((60, 120), dtype=np.uint8)
+    raw[20:40, 62:108] = 255
+    refined = np.zeros_like(raw)
+    refined[20:40, 62:108] = 255
+    mask = TextMask((0, 0, 120, 60), arr.copy(), raw, refined, (255, 255, 255), True, dilation_radius=2)
+    inpainter = Inpainter()
+    inpainter._apply_mask(arr, mask, "block_0042")
+    assert inpainter.review_causes.get(42) == "outside"
+    assert inpainter.review_residual_boxes.get(42) == [[48, 20, 56, 40]]

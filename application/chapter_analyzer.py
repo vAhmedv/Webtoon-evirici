@@ -845,6 +845,7 @@ class ChapterAnalyzer:
                     # (boundary/outside/ghost/ring/coverage/empty_mask).
                     meta = dict(r.metadata)
                     meta["inpaint_review_cause"] = inpainter.review_causes.get(b_id or -1)
+                    meta["inpaint_residual_boxes"] = inpainter.review_residual_boxes.get(b_id or -1, [])
                     r_updated = _replace_region(
                         r,
                         status=RegionStatus.REVIEW,
