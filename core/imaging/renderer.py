@@ -163,6 +163,39 @@ def _get_font(font_size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
     return ImageFont.load_default()
 
 
+def _render_target_bbox(block: Any) -> Any:
+    """Blok hedef kutusu: kısmi blokta uygun üyelerin birleşimi, yoksa merged."""
+    members: tuple[Any, ...] = tuple(getattr(block, "members", ()) or ())
+    eligible: tuple[Any, ...] = tuple(
+        m for m in members
+        if getattr(m, "status", None) == RegionStatus.AUTO
+        and getattr(m, "type", None) not in (RegionType.SFX, RegionType.WATERMARK)
+    )
+    if eligible and len(eligible) < len(members):
+        x1 = min(m.global_bbox.x1 for m in eligible)
+        y1 = min(m.global_bbox.y1 for m in eligible)
+        x2 = max(m.global_bbox.x2 for m in eligible)
+        y2 = max(m.global_bbox.y2 for m in eligible)
+        return BBox(x1=x1, y1=y1, x2=x2, y2=y2)
+    return block.merged_bbox
+
+
+def _boxes_covered_by(
+    residual_boxes: Sequence[Sequence[int]],
+    line_rects: Sequence[Sequence[int]],
+) -> bool:
+    """Artık kutuların TAMAMI satır-dikdörtgenlerinin içinde mi?"""
+    if not residual_boxes or not line_rects:
+        return False
+    for rx1, ry1, rx2, ry2 in residual_boxes:
+        if not any(
+            rx1 >= lx1 and ry1 >= ly1 and rx2 <= lx2 and ry2 <= ly2
+            for lx1, ly1, lx2, ly2 in line_rects
+        ):
+            return False
+    return True
+
+
 
 class TextRenderer:
     """Renders translated Turkish text into speech bubbles on a canvas."""
@@ -222,14 +255,9 @@ class TextRenderer:
                 )
                 continue
 
-            if eligible and len(eligible) < len(members):
-                x1 = min(m.global_bbox.x1 for m in eligible)
-                y1 = min(m.global_bbox.y1 for m in eligible)
-                x2 = max(m.global_bbox.x2 for m in eligible)
-                y2 = max(m.global_bbox.y2 for m in eligible)
-                bbox = BBox(x1=x1, y1=y1, x2=x2, y2=y2)
-            else:
-                bbox = block.merged_bbox
+            # Hedef kutu tek kaynaktan (_render_target_bbox): kısmi blokta
+            # uygun üyelerin birleşimi, yoksa bloğun merged kutusu.
+            bbox = _render_target_bbox(block)
             planned.append((block, cleaned, bbox))
 
         winners: list[tuple[Any, str, BBox]] = []
@@ -333,6 +361,51 @@ class TextRenderer:
             rendered_count += 1
 
         return result, rendered_count, overflow_count
+
+    def plan_text_rects(
+        self,
+        block_translations: Sequence[tuple[Any, str]],
+    ) -> dict[int, list[list[int]]]:
+        """Render planı: blok-id → satır-dikdörtgenleri (global koordinat).
+
+        Çizim YAPMAZ; render_blocks ile aynı kutu/genişletme/sığdırma
+        matematiğini kullanır. Taşan/sığmayan blok sözlükte YOKTUR.
+        Artık-kurtarma (rescue) kapsama hesabı içindir.
+        """
+        rects: dict[int, list[list[int]]] = {}
+        for block, turkish_text in block_translations:
+            block_id = getattr(block, "id", None)
+            if block_id is None:
+                continue
+            cleaned = _bond_terminal_punct(_clean_orphan_quotes((turkish_text or "").strip()))
+            if not _has_word_content(cleaned):
+                continue
+            bbox = _render_target_bbox(block)
+            x1, y1, x2, y2 = bbox.x1, bbox.y1, bbox.x2, bbox.y2
+            box_w = max(1, x2 - x1)
+            box_h = max(1, y2 - y1)
+            cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+            exp_x = max(6, int(box_w * 0.18))
+            exp_y = max(6, int(box_h * 0.18))
+            avail_w = max(28, box_w + 2 * exp_x)
+            avail_h = max(28, box_h + 2 * exp_y)
+            member_cnt = len(getattr(block, "members", [1]))
+            font, lines, line_height, is_overflow = self._fit_block_text(
+                cleaned, avail_w, avail_h, member_cnt
+            )
+            if is_overflow:
+                continue
+            total_text_h = len(lines) * line_height
+            start_y = cy - (total_text_h // 2)
+            block_rects: list[list[int]] = []
+            for i, line in enumerate(lines):
+                line_y = start_y + i * line_height
+                bbox_line = font.getbbox(line) if hasattr(font, "getbbox") else (0, 0, 10, 12)
+                lw = bbox_line[2] - bbox_line[0]
+                line_x = cx - (lw // 2)
+                block_rects.append([line_x, line_y, line_x + lw, line_y + line_height])
+            rects[int(block_id)] = block_rects
+        return rects
 
     def render_regions(
         self,

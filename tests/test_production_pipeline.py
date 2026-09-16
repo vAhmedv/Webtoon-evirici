@@ -8,6 +8,7 @@ import pytest
 from PIL import Image
 
 from application.chapter_analyzer import ChapterAnalyzer, ProductionPipelineResult
+from application.pipeline_common import select_rescued_blocks
 from core.detection import BBox, Detection, Region, RegionStatus, RegionType
 from core.imaging.inpainter import Inpainter
 from core.imaging.renderer import TextRenderer
@@ -503,6 +504,24 @@ def test_guard_review_region_records_warning_codes(synthetic_chapter_dir: Path, 
         (r.get("metadata") or {}).get("translation_guard_warnings") == ["dropped_number_token"]
         for r in guard_regions
     ), "uyarı kodu metadata'da görünmeli"
+
+
+def test_select_rescued_blocks_needs_full_coverage_and_isolation() -> None:
+    """Kurtarma: tam kapsama + komşuyla çakışmasızlık birlikte gerekir."""
+    boxes = {7: [[20, 20, 40, 30]], 8: [[20, 20, 40, 30]], 9: [[20, 20, 40, 30]]}
+    plan = {7: [[10, 10, 100, 50]], 8: [[10, 10, 30, 50]], 9: [[10, 10, 100, 50]]}
+    block_boxes = {
+        7: BBox(x1=0, y1=0, x2=200, y2=100),
+        8: BBox(x1=0, y1=0, x2=200, y2=100),
+        9: BBox(x1=0, y1=0, x2=200, y2=100),
+    }
+    far = [BBox(x1=500, y1=500, x2=600, y2=600)]
+    near = [BBox(x1=10, y1=10, x2=190, y2=90)]
+    # 7: kapsanır + ıssız → kurtarılır; 8: taşar → yok; 9: komşuyla çakışır → yok.
+    assert select_rescued_blocks({7, 8}, boxes, plan, block_boxes, far) == {7}
+    assert select_rescued_blocks({9}, boxes, plan, block_boxes, near) == set()
+    assert select_rescued_blocks({7}, {}, plan, block_boxes, far) == set()
+    assert select_rescued_blocks({7}, boxes, {}, block_boxes, far) == set()
 
 
 class EchoTranslator(DummyTranslator):

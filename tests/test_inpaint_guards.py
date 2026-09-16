@@ -550,3 +550,30 @@ def test_apply_mask_records_residual_boxes_global() -> None:
     inpainter._apply_mask(arr, mask, "block_0042")
     assert inpainter.review_causes.get(42) == "outside"
     assert inpainter.review_residual_boxes.get(42) == [[48, 20, 56, 40]]
+
+
+def test_deferred_rollback_keeps_clean_interior() -> None:
+    """Ertelenen adayda iç-dolgu korunur; rollback_blocks iade eder."""
+    from core.imaging.text_mask import TextMask
+    from PIL import Image as PILImage
+
+    arr = np.full((60, 120, 3), 255, dtype=np.uint8)
+    arr[20:40, 62:108] = (0, 0, 0)
+    arr[20:40, 48:56] = (0, 0, 0)  # bant artığı (B19 sınıfı)
+    arr[25:29, 70:74] = (0, 0, 0)  # iç "İngilizce" (küçük → düz-dolgu)
+    raw = np.zeros((60, 120), dtype=np.uint8)
+    raw[20:40, 62:108] = 255
+    refined = np.zeros_like(raw)
+    refined[20:40, 62:108] = 255
+    mask = TextMask((0, 0, 120, 60), arr.copy(), raw, refined, (255, 255, 255), True, dilation_radius=2)
+    inpainter = Inpainter()
+    out = inpainter._apply_mask(arr.copy(), mask, "block_0051")
+    assert 51 in inpainter.review_block_ids
+    assert inpainter.review_causes.get(51) == "outside"
+    assert 51 in inpainter._deferred_masks  # iade ertelendi
+    assert inpainter.review_residual_boxes.get(51) == [[48, 20, 56, 40]]
+    assert bool(np.all(out[25:29, 70:74] == 255))  # iç temiz durur
+    rolled = np.asarray(inpainter.rollback_blocks(PILImage.fromarray(out), [51]))
+    assert bool(np.all(rolled[25:29, 70:74] == 0))  # İngilizce iade
+    assert bool(np.all(rolled[20:40, 48:56] == 0))  # dış artık aynen durur
+    assert 51 not in inpainter._deferred_masks  # tek kullanımlık

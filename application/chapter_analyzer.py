@@ -46,7 +46,7 @@ from core.detection.region_validity import evaluate_region_validity
 from core.detection.repair_eligibility import evaluate_repair_eligibility
 from core.imaging.inpainter import Inpainter
 from core.imaging.region_cropper import RegionCropper
-from core.imaging.renderer import TextRenderer
+from core.imaging.renderer import TextRenderer, _render_target_bbox
 from core.imaging.window_extractor import extract_window_image, WindowImage
 from core.io.input_loader import load_chapter
 from core.io.output_exporter import export_chapter_pages
@@ -860,12 +860,57 @@ class ChapterAnalyzer:
         # Render Turkish text into merged block bounding boxes (excluding review blocks)
         t_render_start = time.perf_counter()
         renderer = TextRenderer()
+        # Artık-kurtarma (rescue): kutulu boundary/outside adayında Türkçe
+        # plan artığın tamamını örtüyorsa basılır (görünmez artık zararsız).
+        # Örtülmeyen aday P1 iadesine döner (rollback_blocks). Çakışan
+        # basılı komşu varsa kurtarma YOK (çift-basım yasağı).
+        rescued_block_ids: set[int] = set()
+        _rescue_offers = [
+            (b, _tr) for b, _tr in translated_block_pairs
+            if int(getattr(b, "id", -1)) in inpainter.review_residual_boxes
+        ]
+        if _rescue_offers:
+            from application.pipeline_common import select_rescued_blocks
+
+            _plan = renderer.plan_text_rects(_rescue_offers)
+            _winner_boxes = [
+                _render_target_bbox(b) for b, _ in translated_block_pairs
+                if int(getattr(b, "id", -1)) in inpainter.processed_block_ids
+                and int(getattr(b, "id", -1)) not in inpainter.review_block_ids
+            ]
+            _offer_boxes = {
+                int(getattr(b, "id", -1)): b.merged_bbox for b, _ in _rescue_offers
+            }
+            rescued_block_ids = select_rescued_blocks(
+                {int(getattr(b, "id", -1)) for b, _ in _rescue_offers},
+                inpainter.review_residual_boxes,
+                _plan,
+                _offer_boxes,
+                _winner_boxes,
+            )
+            _unrescued = [
+                int(getattr(b, "id", -1)) for b, _ in _rescue_offers
+                if int(getattr(b, "id", -1)) not in rescued_block_ids
+            ]
+            if _unrescued:
+                cleaned_canvas = inpainter.rollback_blocks(cleaned_canvas, _unrescued)
         renderable_pairs = [
             pair for pair in translated_block_pairs
             if pair[0].id in inpainter.processed_block_ids
-            and pair[0].id not in inpainter.review_block_ids
+            and (pair[0].id not in inpainter.review_block_ids or pair[0].id in rescued_block_ids)
         ]
         rendered_canvas, actual_rendered_count, overflow_count = renderer.render_blocks(cleaned_canvas, renderable_pairs)
+        if rescued_block_ids:
+            _rescued_regions = []
+            for r in regions:
+                _rb = region_to_block.get(r.id)
+                if _rb in rescued_block_ids and r.review_reason == "inpaint_boundary_residual_review":
+                    _rescued_regions.append(
+                        _replace_region(r, status=RegionStatus.AUTO, review_reason="residual_covered_by_render")
+                    )
+                else:
+                    _rescued_regions.append(r)
+            regions = _rescued_regions
 
         inp_render_elapsed = time.time() - inp_render_start
 

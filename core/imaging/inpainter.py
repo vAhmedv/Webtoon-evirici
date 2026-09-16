@@ -649,6 +649,10 @@ class Inpainter:
         # kalan artığın global kutuları — render-kapsama kurtarması için.
         # Davranış değiştirmez (yalnız kayıt).
         self.review_residual_boxes: dict[int, list[list[int]]] = {}
+        # Ertelenmiş geri-alma: kurtarma adayı bloklarda temiz iç-dolgu
+        # korunur (kutu -> (crop_bbox, source-kopya, refined-kopya));
+        # analyzer kapsama kararından sonra rollback_blocks çağırır.
+        self._deferred_masks: dict[int, tuple[tuple[int, ...], np.ndarray, np.ndarray]] = {}
         self.last_text_mask: TextMask | None = None
 
     def unload(self) -> None:
@@ -797,6 +801,27 @@ class Inpainter:
 
         return Image.fromarray(result, "RGB")
 
+    def rollback_blocks(self, canvas: Image.Image, block_ids: Sequence[int]) -> Image.Image:
+        """Ertelenmiş P1 geri-almasını uygula (kurtarılamayan adaylar).
+
+        _apply_mask ile BİREBİR aynı iade mantığı; yalnızca zamanlaması
+        analyzer'ın kapsama kararından sonradır.
+        """
+        result = np.array(canvas.convert("RGB"), dtype=np.uint8, copy=True)
+        for _bid in block_ids:
+            saved = self._deferred_masks.pop(int(_bid), None)
+            if saved is None:
+                continue
+            (x1, y1, _x2, _y2), pristine, refined = saved
+            refined = (np.asarray(refined) > 0)
+            ph, pw = np.asarray(pristine).shape[:2]
+            dest = result[y1:y1 + ph, x1:x1 + pw]
+            dh, dw = dest.shape[:2]
+            hh, ww = min(ph, dh), min(pw, dw)
+            rev = refined[:hh, :ww] if refined.shape != (hh, ww) else refined
+            dest[:hh, :ww][rev] = np.ascontiguousarray(pristine)[:hh, :ww][rev]
+        return Image.fromarray(result, "RGB")
+
     def inpaint_regions(self, canvas: Image.Image, regions: Sequence[Region]) -> Image.Image:
         result = np.array(canvas.convert("RGB"), dtype=np.uint8, copy=True)
         for region in regions:
@@ -938,7 +963,20 @@ class Inpainter:
         # dokunulmadı; tüm-kırpıntı iadesi komşu bloğun temizliğini ezerdi).
         # Boş-beyaz/bulaşma/yarım-hasar yerine sapasağlam İngilizce durur.
         # Debug görüntüsü temizlenmiş haliyle saklanır (adli iz korunur).
-        if review:
+        # Kurtarma-adayında (kutulu boundary/outside) iade ERTELENİR —
+        # analyzer render-kapsama kararından sonra rollback_blocks çağırır.
+        _defer_bid: int | None = None
+        if review and (review_cause in ("boundary", "outside")) and debug_name.startswith("block_"):
+            _suffix = debug_name.removeprefix("block_")
+            if _suffix.isdigit() and int(_suffix) in self.review_residual_boxes:
+                _defer_bid = int(_suffix)
+        if _defer_bid is not None:
+            self._deferred_masks[_defer_bid] = (
+                tuple(int(v) for v in text_mask.crop_bbox),
+                np.ascontiguousarray(text_mask.source).copy(),
+                np.ascontiguousarray(text_mask.refined).copy(),
+            )
+        if review and _defer_bid is None:
             pristine = np.ascontiguousarray(text_mask.source)
             ph, pw = pristine.shape[:2]
             dh, dw = destination.shape[:2]

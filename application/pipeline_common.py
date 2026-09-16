@@ -15,6 +15,7 @@ import io
 import os
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 from core.config import Config
 from core.detection import Detection, Region, RegionStatus
@@ -160,3 +161,42 @@ def _offset_geometry_metadata(metadata: object, y_offset: int) -> dict:
             float(block_bbox[2]), float(block_bbox[3]) + y_offset,
         ]
     return result
+
+
+# Artık-kurtarma çakışma eşiği: basılı komşuyla en ufak anlamlı
+# örtüşmede kurtarma YOK (çift-basım/yer-değiştirme yasağı).
+_RESCUE_OVERLAP_IOU_LIMIT = 0.2
+
+
+def select_rescued_blocks(
+    candidate_ids: set[int],
+    residual_boxes: dict[int, list[list[int]]],
+    plan_rects: dict[int, list[list[int]]],
+    block_boxes: dict[int, Any],
+    winner_boxes: list[Any],
+) -> set[int]:
+    """Artık-kurtarma kararı (saf, test edilebilir).
+
+    Kurtarma ŞARTLARI (hepsi birden):
+    1. bloğun kayıtlı artık-kutusu var,
+    2. render planı artığın TAMAMINI satır-dikdörtgenleriyle örtüyor,
+    3. blok basılı komşuyla örtüşmüyor (IoU ≤ 0.2).
+    """
+    from core.imaging.renderer import _boxes_covered_by
+
+    rescued: set[int] = set()
+    for bid in candidate_ids:
+        boxes = residual_boxes.get(bid)
+        rects = plan_rects.get(bid)
+        if not boxes or not rects:
+            continue
+        if not _boxes_covered_by(boxes, rects):
+            continue
+        bbox = block_boxes.get(bid)
+        if bbox is not None and any(
+            bbox.iou(wb) > _RESCUE_OVERLAP_IOU_LIMIT for wb in winner_boxes
+        ):
+            continue
+        rescued.add(bid)
+    return rescued
+

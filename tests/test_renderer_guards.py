@@ -15,6 +15,7 @@ from core.detection.text_block import TextBlock
 from core.imaging.renderer import (
     TextRenderer,
     _bond_terminal_punct,
+    _boxes_covered_by,
     _clean_orphan_quotes,
     _group_overlapping,
     _has_word_content,
@@ -202,3 +203,27 @@ def test_repeated_sentence_separate_bubbles_both_render() -> None:
     b = _sourced_block(2, 50, 200, 350, 270, "RUN!")
     _, rendered, _ = renderer.render_blocks(_canvas(), [(a, "KAÇ!"), (b, "KAÇ!")])
     assert rendered == 2
+
+
+def test_boxes_covered_by_render_plan() -> None:
+    """Artık kutusu satır-dikdörtgenlerinin içindeyse kapsanır."""
+    lines = [[10, 10, 100, 30], [10, 30, 100, 50]]
+    assert _boxes_covered_by([[20, 15, 40, 25]], lines) is True
+    assert _boxes_covered_by([[20, 15, 40, 25], [0, 0, 5, 5]], lines) is False
+    assert _boxes_covered_by([], lines) is False
+    assert _boxes_covered_by([[20, 15, 40, 25]], []) is False
+
+
+def test_plan_text_rects_align_with_drawn_text() -> None:
+    """Plan kutuları çizilen mürekkebi tutar; boş metin planlanmaz."""
+    renderer = TextRenderer()
+    block = _block(701, 100, 100, 300, 170)
+    out, rendered, _ = renderer.render_blocks(_canvas(), [(block, "Merhaba dünya")])
+    assert rendered == 1
+    rects = renderer.plan_text_rects([(block, "Merhaba dünya")])
+    assert 701 in rects and len(rects[701]) >= 1
+    for x1, y1, x2, y2 in rects[701]:
+        assert x2 > x1 and y2 > y1
+        row = out.crop((x1, (y1 + y2) // 2, x2, (y1 + y2) // 2 + 1))
+        assert any(sum(p[:3]) < 600 for p in row.getdata())
+    assert renderer.plan_text_rects([(block, "   ")]) == {}
