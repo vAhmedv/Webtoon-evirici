@@ -406,6 +406,19 @@ def test_keyword_without_digit_stays_review(tmp_path: Path) -> None:
     assert classified.review_reason == "primary_empty_verifier_filled"
 
 
+def test_story_sentence_with_episodes_and_digits_stays_review(tmp_path: Path) -> None:
+    """Çıplak EPISODE + rakam hikaye cümlesi olabilir → REVIEW (G2 dersi)."""
+    coords = _make_dummy_coords(tmp_path)
+    region = _unknown_review_region(
+        2005, "THEN AGAIN, WHO WOULD READ A WEB NOVEL THAT HAS OVER 3,000 EPISODES?"
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.REVIEW
+    assert classified.review_reason == "primary_empty_verifier_filled"
+
+
 def test_dialogue_typed_chrome_is_never_touched(tmp_path: Path) -> None:
     """DIALOGUE tipli bölge chrome kuralına takılmaz (sıfır hikaye kaybı)."""
     coords = _make_dummy_coords(tmp_path)

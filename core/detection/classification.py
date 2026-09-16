@@ -70,8 +70,11 @@ def _is_verifier_refusal(norm_txt: str) -> bool:
 
 # Platform arayüz (UI-chrome) anahtarları: bölüm içeriği değil, okuma
 # uygulamasının arayüz yazısıdır (bölümden bağımsız kapalı liste).
+# NOT: çıplak EPISODE listede YOK — hikaye cümlesi de rakamla birlikte
+# "episode" geçirebilir ("...OVER 3,000 EPISODES?"). Yalnız arayüz
+# fiilleri (yorum/görüntülenme/beğeni/abone) + rakam chrome sayılır.
 _PLATFORM_CHROME_WORDS = (
-    "episode", "episodes", "comment", "comments", "view", "views",
+    "comment", "comments", "view", "views",
     "like", "likes", "subscribe", "subscriber", "subscribers",
     "follow", "followers", "share", "download",
 )
