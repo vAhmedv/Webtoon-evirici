@@ -84,6 +84,20 @@ def _word_present(word: str, text: str) -> bool:
     return re.search(r"(?<!\w)" + re.escape(word) + r"(?!\w)", text, re.IGNORECASE) is not None
 
 
+# "this/that/the one" zamirdir (bu kişi/şey), sayı değildir:
+# "THIS ONE FELL" → "bu düştü", "THE ONE WHO HIRED" → "tutan kişi".
+# Sayı hükmü (dropped_number_token) bu kullanıma ateşlemez.
+_DEMONSTRATIVE_ONE_RE = re.compile(r"\b(this|that|the)\s+one\b", re.IGNORECASE)
+
+
+def _has_numeral_one(src: str, src_words: set[str]) -> bool:
+    """Kaynakta zamir-olmayan 'one' (gerçek sayı) var mı?"""
+    if "one" not in src_words:
+        return False
+    bare = _DEMONSTRATIVE_ONE_RE.sub(" ", src)
+    return "one" in set(re.findall(r"[A-Za-z]+", bare.casefold()))
+
+
 _TR_WORD_RE = re.compile(r"[A-Za-zÇĞİÖŞÜçğıöşü]+")
 _TR_CAPS_RUN_RE = re.compile(r"[A-ZÇĞİÖŞÜ]{4,}")
 
@@ -161,7 +175,10 @@ def find_dropped_source_tokens(
 
     src_words = set(re.findall(r"[A-Za-z]+", src.casefold()))
     for cardinal, surfaces in _TR_NUMBER_SURFACES.items():
-        if cardinal not in src_words:
+        if cardinal == "one":
+            if not _has_numeral_one(src, src_words):
+                continue
+        elif cardinal not in src_words:
             continue
         if not any(_word_present(s, tr) for s in surfaces):
             warnings.append("dropped_number_token")

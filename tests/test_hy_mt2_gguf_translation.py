@@ -489,8 +489,30 @@ class TestHyMT2ProductionProvider(unittest.TestCase):
         self.assertNotIn("dropped_number_token", res.validation_warnings)
         self.assertNotIn("dropped_content_token", res.validation_warnings)
 
-    def test_dropped_short_name_evaporation_b256_class(self):
-        # "BUT ALLEN..." -> "DELİ.": tek ad buharlaşmış + yarıya inmiş.
+    def test_demonstrative_one_is_not_a_numeral(self):
+        # "THIS ONE FELL" (bu düştü) + "THE ONE WHO HIRED" (tutan kişi):
+        # zamir "one" sayı değildir — sayı hükmü ateşlemez (G1 dungeon sınıfı).
+        self.assertEqual(
+            find_dropped_source_tokens(
+                "RIGHT, THIS ONE FELL AFTER JUST A FEW SHOTS.",
+                "Bu birkac el atesten sonra dustu.",
+            ),
+            [],
+        )
+        self.assertEqual(
+            find_dropped_source_tokens(
+                "YOU'RE THE ONE WHO HIRED A HUNTER.",
+                "Avciyi tutan kisi sensin kardesim.",
+            ),
+            [],
+        )
+        # Gerçek sayı hâlâ yakalanır.
+        self.assertIn(
+            "dropped_number_token",
+            find_dropped_source_tokens("ONLY LEVEL ONE!", "Sadece seviyesin!"),
+        )
+
+    def test_dropped_short_name_evaporation_b256_class(self):        # "BUT ALLEN..." -> "DELİ.": tek ad buharlaşmış + yarıya inmiş.
         # Çeviri korunur ama REVIEW ile işaretlenir (basılmaz).
         provider, mocked = self._batch_provider([("DELİ.", "DELİ.", False)])
         out = provider.translate(TranslationInput(items=[TranslationItem(1, "BUT ALLEN...", 1)]))
