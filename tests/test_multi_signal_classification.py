@@ -347,3 +347,74 @@ def test_cjk_texture_noise_is_skipped(tmp_path: Path) -> None:
     assert classified.status is RegionStatus.SKIP
     assert classified.type is RegionType.UNKNOWN
     assert classified.review_reason == "non_text_noise_skip"
+
+
+def _unknown_review_region(rid: int, text: str) -> Region:
+    return Region(
+        id=rid,
+        global_bbox=BBox(100, 100, 400, 160),
+        type=RegionType.UNKNOWN,
+        detection_confidence=0.6,
+        source_window_ids=(1,),
+        status=RegionStatus.REVIEW,
+        text=text,
+        ocr_confidence=0.4,
+        review_reason="primary_empty_verifier_filled",
+        metadata={
+            "region_validity": {"valid": True, "primary_alnum_count": 3},
+            "ocr_verdict": {"reason": "primary_empty_verifier_filled", "second_pass_invoked": True},
+            "repair_eligibility": {"reason": "unresolved_ocr_with_ctd_text_evidence"},
+        },
+    )
+
+
+def test_verifier_refusal_sentence_is_skipped(tmp_path: Path) -> None:
+    """VLM ret cümlesi (birincil boş + 'too blurry') metin değildir → SKIP."""
+    coords = _make_dummy_coords(tmp_path)
+    region = _unknown_review_region(
+        2001, "The image is too blurry to recognize any text content."
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.SKIP
+    assert classified.review_reason == "verifier_refusal_skip"
+
+
+def test_platform_chrome_episode_comments_is_skipped(tmp_path: Path) -> None:
+    """Platform arayüz yazısı (EPISODE + COMMENTS/VIEWS + rakam) → SKIP."""
+    coords = _make_dummy_coords(tmp_path)
+    region = _unknown_review_region(
+        2002, "READ EPISODE 1383 COMMENTS: 1 VIEWS: 1"
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.SKIP
+    assert classified.type is RegionType.WATERMARK
+    assert classified.review_reason == "platform_chrome_skip"
+
+
+def test_keyword_without_digit_stays_review(tmp_path: Path) -> None:
+    """Rakamsız benzer metin hikaye olabilir → REVIEW (aşırı genelleme yok)."""
+    coords = _make_dummy_coords(tmp_path)
+    region = _unknown_review_region(2003, "READ THE COMMENTS BOARD")
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.REVIEW
+    assert classified.review_reason == "primary_empty_verifier_filled"
+
+
+def test_dialogue_typed_chrome_is_never_touched(tmp_path: Path) -> None:
+    """DIALOGUE tipli bölge chrome kuralına takılmaz (sıfır hikaye kaybı)."""
+    coords = _make_dummy_coords(tmp_path)
+    region = _unknown_review_region(2004, "READ EPISODE 1383 COMMENTS: 1 VIEWS: 1")
+    region = Region(
+        **{**region.__dict__, "type": RegionType.DIALOGUE, "status": RegionStatus.AUTO}
+    )
+
+    [classified] = classify_regions([region], coords)
+
+    assert classified.status is RegionStatus.AUTO
+    assert classified.type is RegionType.DIALOGUE

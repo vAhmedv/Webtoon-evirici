@@ -41,6 +41,71 @@ def _is_dialogue_exclamation(norm_txt: str) -> bool:
     return bool(words and any(w in _DIALOGUE_EXCLAMATIONS for w in words))
 
 
+# VLM ret/uydurma şablonları (görsel-model dili, bölümden bağımsız):
+# birincil OCR boşken verifier'ın ürettiği bu cümleler resimdeki metin
+# değil, modelin "okuyamadım" itirafı veya uydurmasıdır.
+_VERIFIER_REFUSAL_PHRASES = (
+    "too blurry to recognize",
+    "too blurry to read",
+    "no text detected",
+    "no readable text",
+    "no legible text",
+    "no discernible text",
+    "unable to read any text",
+    "unable to recognize any text",
+    "cannot read any text",
+    "can not read any text",
+    "could not read any text",
+    "cannot recognize any text",
+)
+
+
+def _is_verifier_refusal(norm_txt: str) -> bool:
+    """Verifier-doldurmalı metin VLM ret cümlesi mi?"""
+    low = (norm_txt or "").casefold()
+    if "text" not in low and "blurry" not in low:
+        return False
+    return any(p in low for p in _VERIFIER_REFUSAL_PHRASES)
+
+
+# Platform arayüz (UI-chrome) anahtarları: bölüm içeriği değil, okuma
+# uygulamasının arayüz yazısıdır (bölümden bağımsız kapalı liste).
+_PLATFORM_CHROME_WORDS = (
+    "episode", "episodes", "comment", "comments", "view", "views",
+    "like", "likes", "subscribe", "subscriber", "subscribers",
+    "follow", "followers", "share", "download",
+)
+_PLATFORM_CHROME_RE = re.compile(
+    r"(?<![A-Za-z])(?:" + "|".join(_PLATFORM_CHROME_WORDS) + r")(?![A-Za-z])"
+)
+
+
+def _is_platform_chrome(norm_txt: str) -> bool:
+    """Arayüz yazısı mı (anahtar sözcük + rakam birlikte)?"""
+    low = (norm_txt or "").casefold()
+    if not any(ch.isdigit() for ch in low):
+        return False
+    return bool(_PLATFORM_CHROME_RE.search(low))
+
+
+def _region_verdict_reason(region: Region) -> str | None:
+    meta = region.metadata if isinstance(region.metadata, dict) else {}
+    verdict = meta.get("ocr_verdict", {})
+    if isinstance(verdict, dict):
+        reason = verdict.get("reason")
+        return reason if isinstance(reason, str) else None
+    return getattr(verdict, "reason", None)
+
+
+def _is_verifier_refusal_skip(region: Region, norm_txt: str) -> bool:
+    """Birincil-boş + verifier-ret cümlesi → metin yok hükmü (UNKNOWN only)."""
+    if region.type != RegionType.UNKNOWN:
+        return False
+    if _region_verdict_reason(region) != "primary_empty_verifier_filled":
+        return False
+    return _is_verifier_refusal(norm_txt)
+
+
 def classify_regions(
     regions: Sequence[Region],
     coords: GlobalCoordinateSystem,
@@ -207,6 +272,28 @@ def classify_regions(
                         reg_type=RegionType.WATERMARK,
                         status=RegionStatus.SKIP,
                         reason="logo_art_skip",
+                    )
+                )
+            elif _is_verifier_refusal_skip(r, norm_txt):
+                # Çoklu kanıt: birincil OCR boş + verifier ret cümlesi
+                # (resimde metin yok, model itirafı) -> SKIP
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.UNKNOWN,
+                        status=RegionStatus.SKIP,
+                        reason="verifier_refusal_skip",
+                    )
+                )
+            elif _is_platform_chrome(norm_txt):
+                # Platform arayüz yazısı (bölüm içeriği değil, EPISODE/
+                # COMMENTS/VIEWS + rakam) -> SKIP
+                classified_regions.append(
+                    _replace_region_status(
+                        r,
+                        reg_type=RegionType.WATERMARK,
+                        status=RegionStatus.SKIP,
+                        reason="platform_chrome_skip",
                     )
                 )
             elif norm_txt and len(norm_txt) >= 2 and any(c.isalpha() for c in norm_txt):
