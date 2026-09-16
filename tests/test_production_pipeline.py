@@ -483,6 +483,28 @@ def test_name_glue_guard_blocks_never_render(synthetic_chapter_dir: Path, tmp_pa
     assert all(r.get("status") == "review" for r in guard_regions)
 
 
+def test_guard_review_region_records_warning_codes(synthetic_chapter_dir: Path, tmp_path: Path) -> None:
+    """Teşhis kaydı: guard-REVIEW bölge hangi uyarının tuttuğunu metadata'da taşır."""
+    out_dir = tmp_path / "output_guardwarn"
+    analyzer = ChapterAnalyzer()
+
+    analyzer.process_chapter(
+        chapter_path=synthetic_chapter_dir,
+        output_path=out_dir,
+        detector=DummyDetector(),
+        primary_ocr=DummyOCR("HELLO WORLD"),
+        translator=DroppedFlagTranslator(),
+    )
+
+    regions = json.loads((out_dir / "analysis" / "regions.json").read_text(encoding="utf-8"))["regions"]
+    guard_regions = [r for r in regions if r.get("review_reason") == "translation_guard_review"]
+    assert guard_regions, "guard blok bölgesi REVIEW işaretlenmeli"
+    assert all(
+        (r.get("metadata") or {}).get("translation_guard_warnings") == ["dropped_number_token"]
+        for r in guard_regions
+    ), "uyarı kodu metadata'da görünmeli"
+
+
 class EchoTranslator(DummyTranslator):
     """S2: çeviriyi aynen iade eder (tek-kelimelik yankı)."""
 

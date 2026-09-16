@@ -665,6 +665,12 @@ class ChapterAnalyzer:
                     for item in trans_out.results
                     if _FATAL_TRANSLATION_WARNINGS.intersection(item.validation_warnings)
                 }
+                # Teşhis kaydı: bloğu tutan uyarı kodları bölge metadata'sına
+                # yazılır (translation_guard_warnings) — kör uçuştan çıkış.
+                guard_warn_map: dict[int, list[str]] = {}
+                for item in trans_out.results:
+                    if item.region_id in guard_review_ids:
+                        guard_warn_map[item.region_id] = list(item.validation_warnings)
                 # S2: tek-kelimelik yankı bloğu çevrim-dışı bırakılır —
                 # inpaint/render YOK, orijinal İngilizce pikseller korunur.
                 # (Çok-kelimeli yankılar basılmaya devam eder.)
@@ -728,6 +734,7 @@ class ChapterAnalyzer:
                                     out_map[_ri.region_id] = _ri.translation
                                 if _FATAL_TRANSLATION_WARNINGS.intersection(_ri.validation_warnings):
                                     guard_review_ids.add(_ri.region_id)
+                                    guard_warn_map[_ri.region_id] = list(_ri.validation_warnings)
                 except Exception as exc:
                     logger.warning(f"Hasat turu atlandı: {exc}")
 
@@ -755,10 +762,13 @@ class ChapterAnalyzer:
                 for r in regions:
                     b_id = region_to_block.get(r.id)
                     if b_id in guard_review_ids and r.id in eligible_member_ids.get(b_id or -1, set()):
+                        _guard_md = dict(r.metadata or {})
+                        _guard_md["translation_guard_warnings"] = guard_warn_map.get(b_id or -1, [])
                         r_updated = _replace_region(
                             r,
                             status=RegionStatus.REVIEW,
                             review_reason="translation_guard_review",
+                            metadata=_guard_md,
                         )
                         updated_regions.append(r_updated)
                     elif b_id in echo_skip_ids and r.id in eligible_member_ids.get(b_id or -1, set()):
