@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Optional, Any
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtGui import QColor, QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QButtonGroup,
@@ -41,6 +41,12 @@ class RightInspector(QFrame):
 
         self._current_region: Optional[Region] = None
         self._current_view_mode: str = "original"
+        # Yazma-geciktirme: tuş başına canvas güncellemesi kasıyordu;
+        # metin 500ms durunca tek seferde yayınlanır.
+        self._edit_debounce = QTimer(self)
+        self._edit_debounce.setSingleShot(True)
+        self._edit_debounce.setInterval(500)
+        self._edit_debounce.timeout.connect(self._flush_pending_edit)
         self._build_ui()
         self._setup_shortcuts()
 
@@ -289,6 +295,9 @@ class RightInspector(QFrame):
         current_index: int = 0,
         total_count: int = 0,
     ) -> None:
+        # Bölge değişmeden önce bekleyen düzenlemeyi kaçırma.
+        self._flush_pending_edit()
+        self._edit_debounce.stop()
         self._current_region = region
         self.nav_counter.setText(f"{current_index + 1 if total_count > 0 else 0} / {total_count}")
 
@@ -339,6 +348,11 @@ class RightInspector(QFrame):
             self.status_changed.emit(self._current_region.id, new_status)
 
     def _on_translation_edited(self) -> None:
+        # Tuş vuruşu: sayacı sıfırla, yayınlama durunca olur.
+        self._edit_debounce.start()
+
+    def _flush_pending_edit(self) -> None:
+        """Bekleyen çeviri düzenlemesini yayınla (odak değişiminde de çağrılır)."""
         if self._current_region:
             text = self.tr_text.toPlainText()
             self.translation_updated.emit(self._current_region.id, text)
@@ -350,9 +364,11 @@ class RightInspector(QFrame):
                 clipboard.setText(self._current_region.text)
 
     def _on_confirm_clicked(self) -> None:
+        self._flush_pending_edit()
         if self._current_region:
             self.confirm_requested.emit(self._current_region.id)
 
     def _on_skip_clicked(self) -> None:
+        self._flush_pending_edit()
         if self._current_region:
             self.skip_requested.emit(self._current_region.id)

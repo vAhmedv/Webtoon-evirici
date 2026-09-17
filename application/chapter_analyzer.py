@@ -123,6 +123,8 @@ class ProductionPipelineResult:
         inpainting_rendering_elapsed_time: float = 0.0,
         warnings: list[str] | None = None,
         stage_timings: dict[str, float] | None = None,
+        cleaned_canvas: Any | None = None,
+        render_pairs: list[tuple[Any, str]] | None = None,
     ) -> None:
         self.source_chapter = source_chapter
         self.output_directory = output_directory
@@ -141,6 +143,10 @@ class ProductionPipelineResult:
         self.inpainting_rendering_elapsed_time = inpainting_rendering_elapsed_time
         self.warnings = warnings or []
         self.stage_timings = stage_timings or {}
+        # GUI yeniden-basımı için: temiz tuval (PIL) + basılan (blok, metin)
+        # çiftleri. Yalnız bellek-içi; dosyaya yazılmaz.
+        self.cleaned_canvas = cleaned_canvas
+        self.render_pairs = render_pairs
 
 
 class ChapterAnalyzer:
@@ -1038,6 +1044,8 @@ class ChapterAnalyzer:
             inpainting_rendering_elapsed_time=inp_render_elapsed,
             warnings=warnings,
             stage_timings=stage_timings,
+            cleaned_canvas=cleaned_canvas.copy() if hasattr(cleaned_canvas, "copy") else None,
+            render_pairs=list(renderable_pairs),
         )
 
     def analyze(

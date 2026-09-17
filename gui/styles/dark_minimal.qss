@@ -4,6 +4,8 @@
    Surface / Panels: #121215
    Borders: 1px solid rgba(255, 255, 255, 0.08)
    Text Primary: #FAFAFA | Text Secondary: #A1A1AA | Text Muted: #71717A
+   Accent (Linear indigo): #5E6AD2 — focus, running, active states only.
+   Status: AUTO #27A644 | REVIEW #F59E0B | SKIP muted.
    ========================================================================== */
 
 /* Global Reset */
@@ -94,8 +96,8 @@ QFrame#stepperBadge[state="idle"] {
 }
 
 QFrame#stepperBadge[state="running"] {
-    background-color: #09090B;
-    border: 1px solid #FAFAFA;
+    background-color: #121216;
+    border: 1px solid #5E6AD2;
 }
 
 QFrame#stepperBadge[state="completed"] {
@@ -122,8 +124,9 @@ QPushButton#toggleSegment {
 }
 
 QPushButton#toggleSegment:checked {
-    background-color: #27272A;
-    color: #FAFAFA;
+    background-color: #23233A;
+    border: 1px solid #5E6AD2;
+    color: #FFFFFF;
     font-weight: 600;
 }
 
@@ -282,8 +285,12 @@ QLineEdit, QTextEdit, QPlainTextEdit {
 }
 
 QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    border: 1px solid #5E6AD2;
     background-color: #16161A;
+}
+
+QPushButton:focus {
+    border: 1px solid #5E6AD2;
 }
 
 QLineEdit:disabled, QTextEdit:disabled, QPlainTextEdit:disabled {

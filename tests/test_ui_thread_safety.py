@@ -214,7 +214,8 @@ def test_main_window_starts_worker(qapp, tmp_path) -> None:
 
     with patch.object(QThread, "start", lambda self: None), \
          patch("core.models.manager.ModelManager.get_missing_models", return_value=[]), \
-         patch("PySide6.QtWidgets.QMessageBox.information"):
+         patch("PySide6.QtWidgets.QMessageBox.information"), \
+         patch.object(MainWindow, "_ask_output_dir", return_value=tmp_path):
         window._on_run_pipeline_clicked()
 
     assert window._worker is not None

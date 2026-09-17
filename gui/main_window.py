@@ -27,7 +27,7 @@ from core.coordinate.global_coords import GlobalCoordinateSystem
 from core.detection.detection import Region, RegionStatus, RegionType
 from core.io.input_loader import load_chapter
 from core.models import Page
-from core.serialization.serializer import dict_to_region
+from core.serialization.serializer import dict_to_region, region_to_dict
 from gui.components.top_bar import TopBar
 from gui.components.left_sidebar import LeftSidebar
 from gui.components.webtoon_canvas import WebtoonCanvas
@@ -35,6 +35,47 @@ from gui.components.right_inspector import RightInspector
 from gui.components.telemetry_bar import TelemetryStatusBar
 from gui.workers.analysis_worker import AnalysisWorker
 from gui.workers.async_page_loader import AsyncPageLoaderWorker
+
+
+def save_review_regions(
+    analysis_dir: Path,
+    regions: Sequence[Region],
+    block_overrides: dict[int, str] | None = None,
+) -> dict[str, int]:
+    """İnceleme düzeltmelerini analysis/regions.json + summary.json'a yazar.
+
+    Saf dosya mantığı (Qt yok): regions dizisini günceller, tek-üyeli
+    blokların text_blocks çevirisini override ile eşitler, özet
+    sayaçlarını (translated/skipped/review) yeniden hesaplar.
+    """
+    analysis_dir = Path(analysis_dir)
+    regions_path = analysis_dir / "regions.json"
+    data = json.loads(regions_path.read_text(encoding="utf-8"))
+    data["regions"] = [region_to_dict(r) for r in regions]
+    overrides = block_overrides or {}
+    synced = 0
+    blocks = data.get("text_blocks")
+    if isinstance(blocks, list) and overrides:
+        for b in blocks:
+            if not isinstance(b, dict):
+                continue
+            try:
+                bid = int(b.get("id", -1))
+            except (TypeError, ValueError):
+                continue
+            if bid in overrides:
+                b["translation"] = overrides[bid]
+                synced += 1
+    regions_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    summary_path = analysis_dir / "summary.json"
+    if summary_path.exists():
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary["translated"] = sum(1 for r in regions if r.translation)
+        summary["skipped"] = sum(1 for r in regions if r.status == RegionStatus.SKIP)
+        summary["review"] = sum(1 for r in regions if r.status == RegionStatus.REVIEW)
+        summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"saved_regions": len(regions), "synced_blocks": synced}
 
 
 class MainWindow(QMainWindow):
@@ -53,6 +94,15 @@ class MainWindow(QMainWindow):
         self._selected_region_index: int = 0
         self._worker: Optional[AnalysisWorker] = None
         self._page_loader_worker: Optional[AsyncPageLoaderWorker] = None
+        # İnceleme durumu: çıktı dizini + temiz tuval + basım çiftleri
+        # (son koşudan), blok-metin override'ları, kirli bayrağı.
+        self._output_dir: Optional[Path] = None
+        self._cleaned_canvas: Any = None
+        self._render_pairs: list[tuple[Any, str]] = []
+        self._region_to_block: dict[int, int] = {}
+        self._block_member_count: dict[int, int] = {}
+        self._text_overrides: dict[int, str] = {}
+        self._review_dirty: bool = False
 
         self._load_stylesheet()
         self._build_ui()
@@ -90,6 +140,8 @@ class MainWindow(QMainWindow):
         self.top_bar.run_pipeline_clicked.connect(self._on_run_pipeline_clicked)
         self.top_bar.cancel_pipeline_clicked.connect(self._on_cancel_pipeline_clicked)
         self.top_bar.settings_clicked.connect(self._on_batch_settings_clicked)
+        self.top_bar.save_review_clicked.connect(self._on_save_review_clicked)
+        self.top_bar.rerender_clicked.connect(self._on_rerender_clicked)
         root_layout.addWidget(self.top_bar)
 
         # 2. Main 3-Column Splitter (LeftSidebar | WebtoonCanvas | RightInspector)
@@ -147,6 +199,7 @@ class MainWindow(QMainWindow):
         if not path.exists() or not path.is_dir():
             return
 
+        self._reset_review_state()
         self._current_chapter_dir = path
         try:
             self._pages = list(load_chapter(path, self.config, allow_non_uniform_widths=True))
@@ -219,6 +272,14 @@ class MainWindow(QMainWindow):
             review_indices = [idx for idx, r in enumerate(self._regions) if r.status == RegionStatus.REVIEW]
             target_idx = review_indices[0] if review_indices else 0
             self._select_region_by_index(target_idx)
+        # Kayıtlı analiz açıldı: çıktı dizinindeyse kaydetmeye izin ver
+        # (kaynak klasörün içine yazılmaz).
+        try:
+            if json_path.parent.parent != self._current_chapter_dir:
+                self._output_dir = json_path.parent.parent
+                self.top_bar.set_review_actions_enabled(True, False)
+        except Exception:
+            pass
 
     def _select_region_by_index(self, index: int) -> None:
         if 0 <= index < len(self._regions):
@@ -235,6 +296,27 @@ class MainWindow(QMainWindow):
         chosen = QFileDialog.getExistingDirectory(self, "Select Chapter Folder", start_dir)
         if chosen:
             self.open_chapter(chosen)
+
+    def _ask_output_dir(self) -> Optional[Path]:
+        """Çıktı klasörünü sor (son kullanılan hatırlanır)."""
+        from PySide6.QtCore import QSettings
+
+        settings = QSettings("WebtoonTranslator", "Main")
+        remembered = str(settings.value("output_dir", "", type=str) or "")
+        default = remembered or str(
+            Path("output") / (self._current_chapter_dir.name if self._current_chapter_dir else "chapter")
+        )
+        chosen = QFileDialog.getExistingDirectory(self, "Çıktı Klasörü Seç", default)
+        if not chosen:
+            return None
+        out = Path(chosen)
+        try:
+            out.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            QMessageBox.warning(self, "Klasör Hatası", f"Çıktı klasörü açılamadı:\n{e}")
+            return None
+        settings.setValue("output_dir", str(out))
+        return out
 
     def _on_run_pipeline_clicked(self) -> None:
         if not self._current_chapter_dir or not self._pages:
@@ -253,8 +335,9 @@ class MainWindow(QMainWindow):
             if not dialog.was_successful:
                 return
 
-        out_dir = Path("output") / self._current_chapter_dir.name
-        out_dir.mkdir(parents=True, exist_ok=True)
+        out_dir = self._ask_output_dir()
+        if out_dir is None:
+            return
 
         self.top_bar.reset_stages()
         self.top_bar.set_pipeline_running(True)
@@ -321,6 +404,20 @@ class MainWindow(QMainWindow):
 
         if hasattr(result, "regions") and result.regions:
             self._regions = list(result.regions)
+            self._output_dir = Path(result.output_directory) if getattr(result, "output_directory", None) else None
+            self._cleaned_canvas = getattr(result, "cleaned_canvas", None)
+            self._render_pairs = list(getattr(result, "render_pairs", None) or [])
+            self._region_to_block = {}
+            self._block_member_count = {}
+            for block, _text in self._render_pairs:
+                bid = int(getattr(block, "id", -1))
+                members = tuple(getattr(block, "members", ()) or ())
+                self._block_member_count[bid] = len(members)
+                for m in members:
+                    self._region_to_block[int(getattr(m, "id", -1))] = bid
+            self._text_overrides = {}
+            self._review_dirty = False
+            self.top_bar.set_review_actions_enabled(False, bool(self._cleaned_canvas is not None and self._render_pairs))
             rendered_paths = getattr(result, "exported_page_paths", getattr(result, "pages", []))
             self.canvas.load_chapter_pages(self._pages, self._regions, rendered_pages=rendered_paths)
             if rendered_paths:
@@ -357,22 +454,32 @@ class MainWindow(QMainWindow):
         from dataclasses import replace
         for idx, r in enumerate(self._regions):
             if r.id == region_id:
+                if (r.translation or "") == (new_text or ""):
+                    return
                 updated_r = replace(r, translation=new_text)
                 self._regions[idx] = updated_r
                 if hasattr(self.canvas, "_region_items") and region_id in self.canvas._region_items:
                     self.canvas._region_items[region_id].region = updated_r
+                # Tek-üyeli blokta sayfa-basımı da güncellenir.
+                block_id = self._region_to_block.get(region_id)
+                if block_id is not None and self._block_member_count.get(block_id) == 1:
+                    self._text_overrides[block_id] = new_text
+                self._mark_review_dirty()
                 break
 
     def _on_status_changed(self, region_id: int, new_status: RegionStatus) -> None:
         from dataclasses import replace
         for idx, r in enumerate(self._regions):
             if r.id == region_id:
+                if r.status == new_status:
+                    return
                 updated_r = replace(r, status=new_status)
                 self._regions[idx] = updated_r
                 if hasattr(self.canvas, "_region_items") and region_id in self.canvas._region_items:
                     item = self.canvas._region_items[region_id]
                     item.region = updated_r
                     item._update_appearance()
+                self._mark_review_dirty()
                 break
 
     def _on_navigate_requested(self, delta: int) -> None:
@@ -395,4 +502,71 @@ class MainWindow(QMainWindow):
     def _on_skip_requested(self, region_id: int) -> None:
         self._on_status_changed(region_id, RegionStatus.SKIP)
         self._on_navigate_requested(1)
+
+    def _reset_review_state(self) -> None:
+        """Yeni bölüm/koşu: inceleme durumu sıfırlanır."""
+        self._output_dir = None
+        self._cleaned_canvas = None
+        self._render_pairs = []
+        self._region_to_block = {}
+        self._block_member_count = {}
+        self._text_overrides = {}
+        self._review_dirty = False
+        self.top_bar.set_review_actions_enabled(False, False)
+
+    def _mark_review_dirty(self) -> None:
+        if not self._review_dirty:
+            self._review_dirty = True
+            has_rerender = bool(self._cleaned_canvas is not None and self._render_pairs)
+            self.top_bar.set_review_actions_enabled(True, has_rerender)
+
+    def _on_save_review_clicked(self) -> None:
+        if self._output_dir is None:
+            QMessageBox.information(self, "Kayıt", "Önce hattı koşturun veya analizli bir bölüm açın.")
+            return
+        try:
+            stats = save_review_regions(
+                self._output_dir / "analysis", self._regions, self._text_overrides
+            )
+        except FileNotFoundError:
+            QMessageBox.warning(self, "Kayıt", "analysis/regions.json bulunamadı; önce hattı koşturun.")
+            return
+        except Exception as e:
+            QMessageBox.warning(self, "Kayıt", f"Kaydedilemedi:\n{e}")
+            return
+        self._review_dirty = False
+        self.top_bar.set_review_actions_enabled(False, bool(self._cleaned_canvas is not None and self._render_pairs))
+        QMessageBox.information(
+            self, "Kaydedildi",
+            f"{stats['saved_regions']} bölge yazıldı ({stats['synced_blocks']} blok metni eşitlendi).",
+        )
+
+    def _on_rerender_clicked(self) -> None:
+        if self._cleaned_canvas is None or not self._render_pairs or self._output_dir is None:
+            QMessageBox.information(self, "Yeniden Basım", "Önce hattı koşturun.")
+            return
+        if not self._text_overrides:
+            QMessageBox.information(self, "Yeniden Basım", "Değişen blok metni yok.")
+            return
+        from core.imaging.renderer import TextRenderer
+        from core.io.output_exporter import export_chapter_pages
+
+        pairs = [
+            (block, self._text_overrides.get(int(getattr(block, "id", -1)), text))
+            for block, text in self._render_pairs
+        ]
+        try:
+            renderer = TextRenderer()
+            canvas_copy = self._cleaned_canvas.copy()
+            rendered, rendered_count, overflow_count = renderer.render_blocks(canvas_copy, pairs)
+            new_paths = export_chapter_pages(self._pages, rendered, self._output_dir)
+        except Exception as e:
+            QMessageBox.warning(self, "Yeniden Basım", f"Basılamadı:\n{e}")
+            return
+        self.canvas.set_rendered_pages(new_paths)
+        self._text_overrides = {}
+        QMessageBox.information(
+            self, "Sayfalar Güncellendi",
+            f"{rendered_count} blok basıldı, {overflow_count} taşma atlandı.",
+        )
 

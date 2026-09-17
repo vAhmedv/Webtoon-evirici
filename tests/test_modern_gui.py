@@ -165,10 +165,12 @@ def test_right_inspector_view_mode_and_actions(qapp) -> None:
     inspector.toggle_view_mode()
     assert "translated" in modes
 
-    # Translation editing signal
+    # Translation editing signal (debounce: yayınlama gecikmeli, flush ile alınır)
     edited_translations = []
     inspector.translation_updated.connect(lambda rid, txt: edited_translations.append((rid, txt)))
     inspector.tr_text.setPlainText("Yeni Türkçe Çeviri")
+    assert edited_translations == []
+    inspector._flush_pending_edit()
     assert (10, "Yeni Türkçe Çeviri") in edited_translations
 
     # Confirm action signal

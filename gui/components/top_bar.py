@@ -191,6 +191,8 @@ class TopBar(QFrame):
     run_pipeline_clicked = Signal()
     cancel_pipeline_clicked = Signal()
     settings_clicked = Signal()
+    save_review_clicked = Signal()
+    rerender_clicked = Signal()
 
     STAGES = [
         (1, "DETECT"),
@@ -285,6 +287,20 @@ class TopBar(QFrame):
         self.cancel_btn.setEnabled(False)
         self.cancel_btn.clicked.connect(self.cancel_pipeline_clicked.emit)
 
+        self.save_btn = QPushButton("Kaydet")
+        self.save_btn.setObjectName("ghostButton")
+        self.save_btn.setCursor(Qt.PointingHandCursor)
+        self.save_btn.setToolTip("İnceleme düzeltmelerini analysis/regions.json dosyasına yaz")
+        self.save_btn.setEnabled(False)
+        self.save_btn.clicked.connect(self.save_review_clicked.emit)
+
+        self.rerender_btn = QPushButton("Sayfaları Güncelle")
+        self.rerender_btn.setObjectName("ghostButton")
+        self.rerender_btn.setCursor(Qt.PointingHandCursor)
+        self.rerender_btn.setToolTip("Kaydedilmiş düzeltmelerle çıktı sayfalarını yeniden bas (tek üyeli bloklar)")
+        self.rerender_btn.setEnabled(False)
+        self.rerender_btn.clicked.connect(self.rerender_clicked.emit)
+
         self.run_btn = QPushButton("Run Pipeline")
         self.run_btn.setObjectName("primaryButton")
         self.run_btn.setCursor(Qt.PointingHandCursor)
@@ -298,6 +314,8 @@ class TopBar(QFrame):
 
         right_box.addWidget(self.memory_label)
         right_box.addWidget(self.cancel_btn)
+        right_box.addWidget(self.save_btn)
+        right_box.addWidget(self.rerender_btn)
         right_box.addWidget(self.run_btn)
         content_row.addLayout(right_box)
 
@@ -372,6 +390,14 @@ class TopBar(QFrame):
         self.run_btn.setEnabled(not running)
         self.cancel_btn.setEnabled(running)
         self.open_btn.setEnabled(not running)
+        if running:
+            self.save_btn.setEnabled(False)
+            self.rerender_btn.setEnabled(False)
+
+    def set_review_actions_enabled(self, save: bool, rerender: bool) -> None:
+        """Kaydet / Sayfaları Güncelle düğmelerinin durumu."""
+        self.save_btn.setEnabled(save)
+        self.rerender_btn.setEnabled(rerender)
 
     def _init_memory_timer(self) -> None:
         self._mem_timer = QTimer(self)

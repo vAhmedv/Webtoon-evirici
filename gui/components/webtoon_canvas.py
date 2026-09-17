@@ -103,10 +103,12 @@ class RegionBoxGraphicsItem(QGraphicsRectItem):
                 brush = QBrush(QColor(0, 0, 0, 0))
                 self.label_item.setBrush(QBrush(QColor(255, 255, 255, alpha)))
             else:
+                # AUTO: sakin yeşil ton (Linear success) — REVIEW kehribarından
+                # bir bakışta ayrılır; seçili durum beyaz kalır (marka).
                 alpha = 180 if is_hover else 100
                 pen = QPen(QColor(255, 255, 255, alpha), 1.2, Qt.DashLine)
-                brush = QBrush(QColor(255, 255, 255, 8 if not is_hover else 20))
-                self.label_item.setBrush(QBrush(QColor(255, 255, 255, alpha)))
+                brush = QBrush(QColor(39, 166, 68, 14 if not is_hover else 28))
+                self.label_item.setBrush(QBrush(QColor(134, 239, 172)))
 
         self.setPen(pen)
         self.setBrush(brush)
