@@ -170,19 +170,9 @@ class MainWindow(QMainWindow):
         self._page_loader_worker.page_loaded.connect(self._on_page_loaded_async)
         self._page_loader_worker.start()
 
-        # Check for cached or existing audit analysis and rendered pages
+        # Check for cached analysis next to the chapter (analysis/regions.json).
         analysis_json = path / "analysis" / "regions.json"
         rendered_dir: Optional[Path] = None
-
-        if not analysis_json.exists():
-            cand1 = Path("audit_output/real_chapter1_e2e/analysis/regions.json")
-            cand2 = Path("audit_output/generalization_test/analysis/regions.json")
-            if "Chapter 1" in str(path) and cand1.exists():
-                analysis_json = cand1
-                rendered_dir = Path("audit_output/real_chapter1_e2e/pages")
-            elif "Chapter 2" in str(path) and cand2.exists():
-                analysis_json = cand2
-                rendered_dir = Path("audit_output/generalization_test/pages")
 
         if analysis_json.exists():
             self._load_regions_from_json(analysis_json, rendered_dir=rendered_dir)

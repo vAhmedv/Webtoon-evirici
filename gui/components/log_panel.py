@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import threading
+import warnings
 from typing import Optional
 
 from PySide6.QtCore import QObject, Qt, Signal
@@ -51,12 +52,18 @@ class LogPanel(QWidget):
             self._emitting = False
 
     def _append_log(self, message: str) -> None:
-        """Appends log text in GUI thread."""
+        """Appends log text in GUI thread (bounded: max ~800 blocks)."""
         if getattr(self, "_appending", False):
             return
         self._appending = True
         try:
             self._text_edit.append(message)
+            doc = self._text_edit.document()
+            if doc.blockCount() > 800:
+                cursor = self._text_edit.textCursor()
+                cursor.movePosition(QTextCursor.Start)
+                cursor.movePosition(QTextCursor.Down, QTextCursor.KeepAnchor, 300)
+                cursor.removeSelectedText()
             cursor = self._text_edit.textCursor()
             cursor.movePosition(QTextCursor.End)
             self._text_edit.setTextCursor(cursor)
@@ -65,10 +72,12 @@ class LogPanel(QWidget):
 
     def cleanup(self) -> None:
         """Disconnects signals and removes loguru handler."""
-        try:
-            self._emitter.message.disconnect(self._append_log)
-        except (RuntimeError, TypeError):
-            pass
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            try:
+                self._emitter.message.disconnect(self._append_log)
+            except (RuntimeError, TypeError):
+                pass
         try:
             logger.remove(self._handler_id)
         except ValueError:

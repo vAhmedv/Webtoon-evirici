@@ -275,6 +275,10 @@ class WebtoonCanvas(QWidget):
         self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.view.setStyleSheet("background-color: #09090B; border: none;")
+        # Kasma frenleri: sayfa öğeleri önbelleklidir (aşağıda), görünüm
+        # yalnız kirlenen bölgeyi boyar, antialias kenar-düzeltmesi kapalı.
+        self.view.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
+        self.view.setOptimizationFlag(QGraphicsView.DontAdjustForAntialiasing, True)
 
         # Enable mouse tracking for interactive split handle hovering
         self.view.setMouseTracking(True)
@@ -411,6 +415,9 @@ class WebtoonCanvas(QWidget):
             page_item.setPos(0, current_y)
             page_item.set_split_x(self._split_x)
             page_item.set_view_mode(self._view_mode)
+            # Kaydırmada yeniden-boyama yerine önbellek (büyük pixmap'lerde
+            # en pahalı işlem budur).
+            page_item.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
             self.scene.addItem(page_item)
             self._page_items.append(page_item)
 

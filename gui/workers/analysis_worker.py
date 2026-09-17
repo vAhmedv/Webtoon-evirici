@@ -20,7 +20,6 @@ from providers.ocr.paddleocr import PaddleOCRProvider
 from providers.ocr.paddleocr_vl import PaddleOCRVLOcrProvider
 from providers.ocr.registry import get_ocr_registry, resolve_ocr_provider_name
 from providers.translation.base import TranslationProvider
-from providers.translation.gemini_translation import GeminiTranslationProvider
 from providers.translation.hy_mt2_gguf_translation import HyMT2GGUFTranslationProvider
 from providers.translation.hy_mt2_gguf_translation import (
     DEFAULT_HY_MT2_MODEL_PATH,
@@ -153,15 +152,12 @@ class AnalysisWorker(QThread):
                 or os.environ.get("GOOGLE_API_KEY")
             )
             translator: TranslationProvider
+            # GUI yedeği kapatıldı (kör-oy hükmü: Gemini birincilik ve
+            # hakemlikten çıktı) — anahtar olsa bile yerel Hy-MT2 koşar.
             if gemini_key:
-                logger.info("Using Google Gemini API Translation Provider (%s)", self.config.translator.gemini_model)
-                translator = GeminiTranslationProvider(
-                    api_key=gemini_key,
-                    model_name=self.config.translator.gemini_model,
-                )
-            else:
-                logger.info("Using Local Hy-MT2 GGUF Translation Provider")
-                translator = HyMT2GGUFTranslationProvider(
+                logger.warning("GUI Gemini yedeği kapalı; yerel Hy-MT2 kullanılıyor.")
+            logger.info("Using Local Hy-MT2 GGUF Translation Provider")
+            translator = HyMT2GGUFTranslationProvider(
                     model_path=self.config.translator.model_path
                     or DEFAULT_HY_MT2_MODEL_PATH,
                     executable_path=self.config.translator.llama_executable
